@@ -1283,6 +1283,7 @@ class ZeroGameScene extends Phaser.Scene {
     this.clearMenu();
     this.gameOver = false; this.stageCleared = false; this.campaignActive = false; this.heroSelectionLocked = false;
     this.chanceLossInProgress = false;
+    this.specialReadyAt = [0, 0, 0];
     this.stageNumber = 1; this.score = 0; this.extraLivesAwarded = 0; this.defeated = 0;
     this.chances = 3; this.health = 3; this.snowballTutorialShown = false;
     this.showHeroSelect();
