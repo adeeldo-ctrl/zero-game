@@ -8,6 +8,7 @@ import { createCampaignLives, loseCampaignHeart, getStageTransitionDirection } f
 import { shouldHeroCollideWithPlatform, shouldDropThroughPlatform } from "./platformRules";
 import { getBossPhase, getSpecialCooldownStatus, SPECIAL_MOVE_COOLDOWN_MS } from "./combatRules";
 import { canKickElementBall, canRollingBallHitTarget, isRollingBallOutOfBounds } from "./snowballRules";
+import { getEnemyMovementSpeed } from "./enemyRules";
 import "./App.css";
 
 class ZeroGameScene extends Phaser.Scene {
@@ -1384,7 +1385,8 @@ class ZeroGameScene extends Phaser.Scene {
 
         enemy.setDepth(9);
         enemy.setBounce(0);
-        enemy.setCollideWorldBounds(false);
+        enemy.setCollideWorldBounds(true);
+        enemy.body.setAllowGravity(true);
         enemy.setData("frozen", false);
         enemy.setData("baseTexture", `enemy${i % 3}`);
         enemy.setData("enemyName", this.stageConfig.enemyTypes[i % this.stageConfig.enemyTypes.length]);
@@ -1396,12 +1398,6 @@ class ZeroGameScene extends Phaser.Scene {
         enemy.setData("nextHop", this.time.now + 650 + (i % 3) * 280);
         enemy.setData("patrolDirection", i % 2 ? -1 : 1);
         enemy.setData("aiAnim", 0);
-        if (aiType === "flyer") {
-          enemy.body.setAllowGravity(false);
-          enemy.setY(180 + (i % 3) * 45);
-          enemy.setData("flyBaseY", enemy.y);
-        }
-
         enemy.setVisible(false);
 
         const scale = i % 2 === 0 ? 1.12 : 1;
@@ -2714,20 +2710,8 @@ class ZeroGameScene extends Phaser.Scene {
           enemy.setVelocityX(direction * 95);
         }
         visualBob = Math.sin(elapsed * 0.012) * 3;
-      } else if (aiType === "flyer") {
-        speed = 112;
-        const baseY = enemy.getData("flyBaseY") || 190;
-        const wave = Math.sin(elapsed * 0.0028 + enemy.x * 0.01);
-        enemy.setVelocityY(Math.cos(elapsed * 0.0028 + enemy.x * 0.01) * 72);
-        if (elapsed >= (enemy.getData("nextSwoop") || elapsed + 1800)) {
-          enemy.setData("nextSwoop", elapsed + 2300);
-          enemy.setVelocityY(230);
-          enemy.setData("flyBaseY", Phaser.Math.Clamp(baseY + (this.hero.y < 330 ? -45 : 25), 115, 260));
-        }
-        if (enemy.y > 365) enemy.setVelocityY(-150);
-        visualBob = wave * 5;
       }
-      if (aiType !== "flyer" && aiType !== "jumper" && aiType !== "runner" && aiType !== "chaser") speed = 55;
+      speed = getEnemyMovementSpeed(aiType, speed);
       enemy.setVelocityX(facing * speed);
       if (enemy.x < 28) { enemy.setX(28); if (aiType === "chaser") enemy.setData("patrolDirection", 1); }
       if (enemy.x > 932) { enemy.setX(932); if (aiType === "chaser") enemy.setData("patrolDirection", -1); }
@@ -2742,8 +2726,7 @@ class ZeroGameScene extends Phaser.Scene {
         parts.armL.rotation = -swing * 0.5;
         parts.armR.rotation = swing * 0.5;
         enemyVisual.y = enemy.y + Math.abs(swing) * -2 + visualBob;
-        if (aiType === "flyer") enemyVisual.angle = Math.sin(et * 0.009) * 9;
-        else enemyVisual.angle = 0;
+        enemyVisual.angle = 0;
       }
     });
     
