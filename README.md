@@ -35,7 +35,13 @@ Choose one of four original heroes with different fighting-style inspirations:
 - Mei — agile lightning-kick fighter.
 - Volt — electric wild fighter.
 
-Three additional special buttons are available on the left side of the mobile controls. Each press randomly selects one of the selected hero's special moves. Special moves have unlimited use: no cooldown, countdown, power meter or limited-use counter.
+Three additional special buttons are available on the left side of the mobile controls. S1, S2 and S3 each trigger the matching signature move for the selected hero (not a random move):
+- Ryo: Sky Throw, Rising Wave, Spinning Burst.
+- Kairo: Flame Dash, Flare Launch, Fire Spin.
+- Mei: Rapid Kick, Sky Wheel, Lightning Ring.
+- Volt: Electric Grab, Rolling Rush, Thunder Shockwave.
+
+The moves reflect the heroes' fighting-style inspirations: Ryo's classic wave/rising/spinning martial arts, Kairo's aggressive flame rush, Mei's rapid acrobatic kicks, and Volt's electric wild fighting style. Special moves have unlimited use: no cooldown, countdown, power meter or limited-use counter.
 
 Special move impacts can launch, throw or push nearby enemies with visible knockback and falling reactions. Bosses resist being thrown and instead receive balanced special-hit damage.
 
