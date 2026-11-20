@@ -97,14 +97,30 @@ try {
   await page.evaluate(() => {
     const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
     const targets = window.__ZERO_GAME_SPECIAL_TARGETS__;
+    // Keep the test target stationary and deliberately nearest to the hero so
+    // Phaser AI/physics timing cannot move it outside the uppercut's target set.
+    scene.hero.setPosition(300, 450);
+    scene.hero.body.reset(300, 450);
     scene.facing = 1;
+    targets[1].setPosition(330, 450);
+    targets[1].body.reset(330, 450);
+    targets[1].setVelocity(0, 0);
+    targets[1].body.setAllowGravity(false);
+    targets[1].setData("frozen", false);
     scene.specialMove(1);
     const secondDamage = targets[1].getData("visual")?.getData("damageParts");
     if (targets[1].getData("hitCount") < 2 || !secondDamage ||
         secondDamage.hornR?.active || secondDamage.armR?.active) {
       throw new Error("EXTRA 2 damage check failed: hitCount=" + targets[1].getData("hitCount") + ", frozen=" + targets[1].getData("frozen") + ", moveType=" + scene.selectedHero?.specialMoves?.[1]?.type + ", visualActive=" + targets[1].getData("visual")?.active);
     }
+    scene.hero.setPosition(300, 450);
+    scene.hero.body.reset(300, 450);
     scene.facing = 1;
+    targets[2].setPosition(340, 450);
+    targets[2].body.reset(340, 450);
+    targets[2].setVelocity(0, 0);
+    targets[2].body.setAllowGravity(false);
+    targets[2].setData("frozen", false);
     scene.specialMove(2);
     const thirdDamage = targets[2].getData("visual")?.getData("damageParts");
     if (targets[2].getData("hitCount") < 2 || !thirdDamage ||
