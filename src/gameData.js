@@ -17,43 +17,43 @@ export const ELEMENTS = [
 
 export const HEROES = [
   {
-    id: "ryo", name: "RYO", title: "Ryu-Inspired Balanced Fighter", style: "Classic martial arts and energy waves",
+    id: "ryo", name: "RYO", title: "Balanced Ember Warrior", style: "Focused martial arts and elemental energy",
     element: "fire", superPower: "Dragon Burst", color: 0xe8e8e8, accent: 0xd94a42,
-    description: "A balanced martial artist with a focused energy wave and rising attacks.",
+    description: "A disciplined Pakistani guardian who balances close combat with focused fire energy.",
     specialMoves: [
-      { id: "hadouken", name: "Hadouken Wave", type: "wave" },
-      { id: "shoryuken", name: "Rising Dragon Uppercut", type: "uppercut" },
-      { id: "tatsumaki", name: "Spinning Hurricane Kick", type: "spin" }
+      { id: "ember-wave", name: "Ember Wave", type: "wave" },
+      { id: "guardian-rise", name: "Guardian Rise", type: "uppercut" },
+      { id: "ember-cyclone", name: "Ember Cyclone Kick", type: "spin" }
     ]
   },
   {
-    id: "kairo", name: "KEN", title: "Ken-Inspired Flame Fighter", style: "Fast, aggressive martial arts",
+    id: "kairo", name: "KAIRO", title: "Blazing Rush Warrior", style: "Fast flame-powered martial arts",
     element: "fire", superPower: "Blazing Cyclone", color: 0xc83c34, accent: 0xffd16b,
-    description: "A fiery rush fighter with explosive close-range techniques.",
+    description: "A fast-moving fighter who channels fire into powerful rushing techniques.",
     specialMoves: [
-      { id: "flame-hadouken", name: "Flame Energy Wave", type: "wave" },
-      { id: "flame-shoryuken", name: "Flame Dragon Uppercut", type: "uppercut" },
-      { id: "flame-tatsumaki", name: "Blazing Spin Kick", type: "spin" }
+      { id: "flare-wave", name: "Flare Wave", type: "wave" },
+      { id: "flare-uppercut", name: "Flare Uppercut", type: "uppercut" },
+      { id: "inferno-spin", name: "Inferno Spin Kick", type: "spin" }
     ]
   },
   {
-    id: "mei", name: "CHUN-LI", title: "Chun-Li-Inspired Lightning Kicker", style: "Agile acrobatic kicking",
+    id: "mei", name: "MEI", title: "Lightning Sky Dancer", style: "Agile acrobatic lightning techniques",
     element: "lightning", superPower: "Thunder Fan", color: 0x2879c3, accent: 0x9cecff,
-    description: "An agile martial artist with rapid kicks, aerial spins and energy bursts.",
+    description: "An agile fighter who combines rapid kicks, aerial movement and lightning energy.",
     specialMoves: [
-      { id: "lightning-legs", name: "Lightning Legs", type: "rapid" },
-      { id: "spinning-bird", name: "Spinning Bird Kick", type: "spin" },
-      { id: "kikoken", name: "Kikoken Energy Wave", type: "wave" }
+      { id: "flash-barrage", name: "Flash Kick Barrage", type: "rapid" },
+      { id: "skywheel", name: "Skywheel Kick", type: "spin" },
+      { id: "thunder-orb", name: "Thunder Orb", type: "wave" }
     ]
   },
   {
-    id: "volt", name: "BLANKA", title: "Blanka-Inspired Electric Beast", style: "Wild, powerful and unpredictable",
+    id: "volt", name: "VOLT", title: "Wildstorm Electric Guardian", style: "Powerful electric bursts and rolling charges",
     element: "lightning", superPower: "Electric Storm", color: 0x399b56, accent: 0xffe16a,
-    description: "A powerful wild fighter with electric bursts, rolling charges and grapples.",
+    description: "A powerful guardian with electric bursts, rolling charges and close-range throws.",
     specialMoves: [
-      { id: "electric-thunder", name: "Electric Thunder", type: "electric" },
-      { id: "rolling-attack", name: "Rolling Attack", type: "roll" },
-      { id: "wild-fang", name: "Wild Fang Throw", type: "throw" }
+      { id: "storm-burst", name: "Storm Burst", type: "electric" },
+      { id: "thunder-roll", name: "Thunder Roll", type: "roll" },
+      { id: "wild-fang", name: "Wild Fang Toss", type: "throw" }
     ]
   }
 ];
