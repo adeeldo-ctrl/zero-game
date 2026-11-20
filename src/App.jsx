@@ -694,7 +694,7 @@ class ZeroGameScene extends Phaser.Scene {
     old.forEach(item => { if (item?.active) item.destroy(); });
     const items = [];
     if (hero.id === "ryo") {
-      // White martial-arts gi with a red headband: Ryu-inspired original hero.
+      // White martial-arts gi with a red headband: original hero design.
       const band = this.add.rectangle(0, -44, 44, 7, 0xd94a42).setStrokeStyle(2, 0x792d2d);
       const tail = this.add.triangle(-25, -39, 0, 0, 18, 5, 0, 22, 0xd94a42);
       const belt = this.add.rectangle(0, 15, 34, 6, 0xd94a42);
@@ -702,7 +702,7 @@ class ZeroGameScene extends Phaser.Scene {
       const gloveR = this.add.ellipse(25, 18, 16, 13, 0xf2f2ed).setStrokeStyle(2, 0x9da7b4);
       items.push(band, tail, belt, gloveL, gloveR);
     } else if (hero.id === "kairo") {
-      // Blond hair, red gi and gold trim: Ken-inspired original hero.
+      // Blond hair, red gi and gold trim: original hero design.
       const spike1 = this.add.triangle(-13, -57, -12, 15, 0, -17, 12, 12, 0xf2c34e).setStrokeStyle(1, 0x9b6b22);
       const spike2 = this.add.triangle(2, -60, -11, 14, 0, -19, 12, 14, 0xf2c34e).setStrokeStyle(1, 0x9b6b22);
       const spike3 = this.add.triangle(17, -54, -12, 12, 0, -16, 13, 14, 0xf2c34e).setStrokeStyle(1, 0x9b6b22);
@@ -711,7 +711,7 @@ class ZeroGameScene extends Phaser.Scene {
       const flame = this.add.triangle(0, -66, -8, 12, 0, -14, 10, 12, 0xff783b);
       items.push(spike1, spike2, spike3, headband, belt, flame);
     } else if (hero.id === "mei") {
-      // Twin hair buns, blue outfit ribbons and gold wrist guards: Chun-Li-inspired.
+      // Twin hair buns, blue outfit ribbons and gold wrist guards: original hero design.
       const bunL = this.add.circle(-17, -53, 9, 0x30251f).setStrokeStyle(3, 0xffd36b);
       const bunR = this.add.circle(17, -53, 9, 0x30251f).setStrokeStyle(3, 0xffd36b);
       const ribbonL = this.add.triangle(-24, -47, -8, -8, -2, 9, -18, 14, 0x9cecff);
@@ -722,7 +722,7 @@ class ZeroGameScene extends Phaser.Scene {
       const cuffR = this.add.rectangle(28, 15, 10, 15, 0xffd36b).setStrokeStyle(2, 0x9b6c2c);
       items.push(bunL, bunR, ribbonL, ribbonR, sashL, sashR, cuffL, cuffR);
     } else {
-      // Green skin, orange crest and electric markings: Blanka-inspired wild fighter.
+      // Green skin, orange crest and electric markings: original wild fighter design.
       const spike1 = this.add.triangle(-17, -54, -11, 15, 0, -19, 12, 14, 0xf28a32).setStrokeStyle(2, 0x8b4b24);
       const spike2 = this.add.triangle(0, -60, -12, 16, 0, -22, 12, 16, 0xf28a32).setStrokeStyle(2, 0x8b4b24);
       const spike3 = this.add.triangle(17, -54, -12, 14, 0, -18, 12, 15, 0xf28a32).setStrokeStyle(2, 0x8b4b24);
