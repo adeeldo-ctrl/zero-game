@@ -2026,26 +2026,31 @@ class ZeroGameScene extends Phaser.Scene {
     if (!this.gameStarted || this.gameOver || this.stageCleared) return;
     const moves = this.selectedHero?.specialMoves || [];
     if (!moves.length) return;
-    // S1, S2 and S3 each trigger the matching move defined for the selected hero.
-    // All three are reusable without a cooldown, meter or usage limit.
-    const move = moves[((moveIndex % moves.length) + moves.length) % moves.length];
+    // EXTRA 1, EXTRA 2 and EXTRA 3 map one-to-one to this hero's three signature moves.
+    // These moves are unlimited: no cooldown, meter, countdown or usage counter.
+    const move = moves[Math.max(0, Math.min(2, moveIndex))];
     this.specialPoseType = move.type;
-    this.specialPoseUntil = this.time.now + 420;
+    this.specialPoseUntil = this.time.now + 520;
     const accent = this.selectedHero.accent || 0x7deaff;
     const title = move.name.toUpperCase();
-    this.statusLabel.setText(`${title}!`).setColor("#ffe17a");
+    this.statusLabel.setText(title + "!").setColor("#ffe17a");
     const ring = this.add.circle(this.hero.x, this.hero.y - 12, 34, accent, 0.16)
       .setStrokeStyle(7, accent, 0.95).setDepth(19);
-    this.tweens.add({ targets: ring, scale: move.type === "shockwave" ? 5.5 : 3.6, alpha: 0, duration: 420, onComplete: () => ring.destroy() });
+    this.tweens.add({ targets: ring, scale: move.type === "spin" || move.type === "electric" ? 5.5 : 3.6, alpha: 0, duration: 420, onComplete: () => ring.destroy() });
     this.cameras.main.shake(110, 0.0035);
+
     const candidates = this.enemies.getChildren().filter(enemy =>
       enemy.active && !enemy.getData("frozen") && !enemy.getData("isTimeHunter") &&
-      Math.abs(enemy.x - this.hero.x) < 300 && Math.abs(enemy.y - this.hero.y) < 150
+      Math.abs(enemy.x - this.hero.x) < 320 && Math.abs(enemy.y - this.hero.y) < 175
     );
     const inFront = candidates.filter(enemy => (enemy.x - this.hero.x) * this.facing > -28);
-    const nearest = inFront.sort((a, b) => Math.abs(a.x - this.hero.x) - Math.abs(b.x - this.hero.x))[0] || null;
+    const nearest = inFront.sort((a, b) =>
+      Phaser.Math.Distance.Between(this.hero.x, this.hero.y, a.x, a.y) -
+      Phaser.Math.Distance.Between(this.hero.x, this.hero.y, b.x, b.y)
+    )[0] || null;
     const boss = candidates.find(enemy => enemy.getData("isBoss")) || null;
     const normalTargets = candidates.filter(enemy => !enemy.getData("isBoss"));
+
     const impact = (enemy, vx, vy) => {
       if (!enemy?.active || enemy.getData("isBoss")) return;
       enemy.setData("wasFlyingBeforeSpecial", enemy.body.allowGravity === false);
@@ -2053,37 +2058,93 @@ class ZeroGameScene extends Phaser.Scene {
       enemy.setCollideWorldBounds(true);
       enemy.setBounce(0);
       enemy.setData("specialKnockback", true);
-      enemy.setData("specialKnockbackUntil", this.time.now + 520);
+      enemy.setData("specialKnockbackUntil", this.time.now + 620);
       enemy.setVelocity(vx, vy);
       const visual = enemy.getData("visual");
-      if (visual?.active) this.tweens.add({ targets: visual, angle: this.facing * 18, scaleX: 1.18, duration: 90, yoyo: true, repeat: 1 });
-      const spark = this.add.star(enemy.x, enemy.y - 10, 7, 5, 12, accent, 0.95).setStrokeStyle(2, 0xffffff).setDepth(24);
-      this.tweens.add({ targets: spark, angle: 180, scale: 2.1, alpha: 0, duration: 300, onComplete: () => spark.destroy() });
+      if (visual?.active) {
+        this.tweens.add({ targets: visual, angle: this.facing * 22, scaleX: 1.2, duration: 95, yoyo: true, repeat: 1 });
+      }
+      const spark = this.add.star(enemy.x, enemy.y - 10, 7, 5, 12, accent, 0.95)
+        .setStrokeStyle(2, 0xffffff).setDepth(24);
+      this.tweens.add({ targets: spark, angle: 180, scale: 2.2, alpha: 0, duration: 320, onComplete: () => spark.destroy() });
       this.addScore(75);
     };
-    if (move.type === "dash") {
-      this.specialDashUntil = this.time.now + 260;
-      this.tweens.add({ targets: this.heroVisual, scaleX: this.facing * 1.28, scaleY: 0.82, duration: 120, yoyo: true });
-      if (nearest?.getData("isBoss")) this.hitBoss(nearest, 2);
-      else if (nearest) impact(nearest, this.facing * 390, -250);
-    } else if (move.type === "throw") {
-      if (boss) { this.hitBoss(boss, 3); this.statusLabel.setText("BOSS RESISTS THE THROW!").setColor("#ffcf75"); }
-      else if (nearest) { impact(nearest, this.facing * 470, -500); this.statusLabel.setText("ENEMY THROWN BACK!").setColor("#ffe17a"); }
-    } else if (move.type === "launch") {
-      if (boss) this.hitBoss(boss, 3);
-      if (nearest && !nearest.getData("isBoss")) impact(nearest, this.facing * 170, -620);
+
+    const launchWave = () => {
+      const x = this.hero.x + this.facing * 42;
+      const y = this.hero.y - 13;
+      const projectile = this.projectiles.create(x, y, "shot");
+      projectile.setTint(accent).setScale(2.5).setDepth(17);
+      projectile.body.setAllowGravity(false);
+      projectile.body.setSize(30, 24);
+      projectile.setVelocity(this.facing * 760, -18);
+      projectile.setData("powerType", this.powerType);
+      projectile.setData("specialAttack", true);
+      const glow = this.add.circle(x, y, 24, accent, 0.5).setDepth(16);
+      projectile.setData("glow", glow);
+      this.tweens.add({ targets: projectile, angle: 360, duration: 180, repeat: -1 });
+      this.time.delayedCall(1350, () => {
+        if (projectile.active) projectile.destroy();
+        if (glow.active) glow.destroy();
+      });
+      if (boss && Math.abs(boss.x - this.hero.x) < 280) this.hitBoss(boss, 3);
+      this.cameras.main.flash(90, 255, 235, 170, false);
+    };
+
+    if (move.type === "wave") {
+      launchWave();
+    } else if (move.type === "uppercut") {
+      this.hero.setVelocityY(-430);
+      this.tweens.add({ targets: this.heroVisual, angle: -this.facing * 18, y: this.heroVisual.y - 20, duration: 150, yoyo: true });
+      if (nearest && !nearest.getData("isBoss")) impact(nearest, this.facing * 190, -680);
+      if (boss) this.hitBoss(boss, 4);
+    } else if (move.type === "spin") {
+      this.specialPoseType = "spin";
+      this.tweens.add({ targets: this.heroVisual, angle: this.facing * 360, duration: 420, ease: "Cubic.easeOut" });
+      normalTargets.filter(enemy => Math.abs(enemy.x - this.hero.x) < 245 && Math.abs(enemy.y - this.hero.y) < 145)
+        .forEach(enemy => {
+          const direction = enemy.x >= this.hero.x ? 1 : -1;
+          impact(enemy, direction * 470, -390);
+        });
+      if (boss) this.hitBoss(boss, 4);
     } else if (move.type === "rapid") {
-      normalTargets.filter(enemy => Math.abs(enemy.x - this.hero.x) < 190).forEach((enemy, index) =>
-        impact(enemy, (enemy.x >= this.hero.x ? 1 : -1) * (260 + index * 22), -260)
-      );
-      if (boss) this.hitBoss(boss, 2);
-    } else {
-      normalTargets.filter(enemy => Math.abs(enemy.x - this.hero.x) < 250).forEach(enemy =>
-        impact(enemy, (enemy.x >= this.hero.x ? 1 : -1) * 420, -340)
-      );
-      if (boss) this.hitBoss(boss, 3);
+      normalTargets.filter(enemy => Math.abs(enemy.x - this.hero.x) < 210 && Math.abs(enemy.y - this.hero.y) < 145)
+        .forEach((enemy, index) => {
+          const direction = enemy.x >= this.hero.x ? 1 : -1;
+          impact(enemy, direction * (330 + index * 18), -300);
+        });
+      if (boss) this.hitBoss(boss, 4);
+      this.tweens.add({ targets: this.heroVisual, scaleX: 1.2, duration: 75, yoyo: true, repeat: 3 });
+    } else if (move.type === "electric") {
+      const burst = this.add.circle(this.hero.x, this.hero.y - 8, 48, accent, 0.28)
+        .setStrokeStyle(7, accent, 0.95).setDepth(21);
+      this.tweens.add({ targets: burst, scale: 4.4, alpha: 0, duration: 430, onComplete: () => burst.destroy() });
+      normalTargets.filter(enemy => Math.abs(enemy.x - this.hero.x) < 235 && Math.abs(enemy.y - this.hero.y) < 155)
+        .forEach(enemy => {
+          const direction = enemy.x >= this.hero.x ? 1 : -1;
+          impact(enemy, direction * 360, -460);
+        });
+      if (boss) this.hitBoss(boss, 5);
+    } else if (move.type === "roll") {
+      this.hero.setVelocityX(this.facing * 520);
+      this.specialDashUntil = this.time.now + 420;
+      this.tweens.add({ targets: this.heroVisual, angle: this.facing * 540, scaleX: 1.35, scaleY: 0.82, duration: 420 });
+      normalTargets.filter(enemy => (enemy.x - this.hero.x) * this.facing > -20 && Math.abs(enemy.x - this.hero.x) < 270 && Math.abs(enemy.y - this.hero.y) < 130)
+        .forEach(enemy => impact(enemy, this.facing * 560, -360));
+      if (boss) this.hitBoss(boss, 4);
+    } else if (move.type === "throw") {
+      if (boss) {
+        this.hitBoss(boss, 3);
+        this.statusLabel.setText("BOSS RESISTS THE THROW!").setColor("#ffcf75");
+      } else if (nearest) {
+        impact(nearest, this.facing * 650, -590);
+        this.statusLabel.setText("WILD FANG THROW!").setColor("#ffe17a");
+      }
     }
-    if (!nearest && !boss && !normalTargets.length && move.type !== "dash") this.statusLabel.setText(`${title} - NO ENEMY IN RANGE`).setColor("#9feaff");
+
+    if (!nearest && !boss && !normalTargets.length && move.type !== "wave") {
+      this.statusLabel.setText(title + " - NO ENEMY IN RANGE").setColor("#9feaff");
+    }
   }
 
   superAttack() {
