@@ -3050,8 +3050,12 @@ export default function App() {
     });
 
     gameRef.current = game;
+    if (import.meta.env.DEV) window.__ZERO_GAME_TEST__ = game;
 
     return () => {
+      if (import.meta.env.DEV && window.__ZERO_GAME_TEST__ === game) {
+        delete window.__ZERO_GAME_TEST__;
+      }
       game.destroy(true);
       gameRef.current = null;
     };
