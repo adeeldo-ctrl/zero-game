@@ -5,6 +5,7 @@ import { Capacitor } from "@capacitor/core";
 import { ELEMENTS, HEROES, getElement, getStage, getHero } from "./gameData";
 import { createGameAudio } from "./gameAudio";
 import { createCampaignLives, loseCampaignHeart, getStageTransitionDirection } from "./campaignRules";
+import { shouldHeroCollideWithPlatform, shouldDropThroughPlatform } from "./platformRules";
 import "./App.css";
 
 class ZeroGameScene extends Phaser.Scene {
@@ -114,11 +115,13 @@ class ZeroGameScene extends Phaser.Scene {
     this.heroVisual = this.createHeroVisual(480, 450);
 
     this.heroPlatformCollider = this.physics.add.collider(this.hero, this.platforms, null,
-      (hero, platform) => {
-        if (platform === this.groundPlatform) return true;
-        if (this.time.now < (this.dropThroughUntil || 0)) return false;
-        return hero.body.velocity.y >= 0 && hero.body.bottom <= platform.body.top + 16;
-      }, this);
+      (hero, platform) => shouldHeroCollideWithPlatform({
+        isGround: platform === this.groundPlatform,
+        dropThroughActive: this.time.now < (this.dropThroughUntil || 0),
+        velocityY: hero.body.velocity.y,
+        heroBottom: hero.body.bottom,
+        platformTop: platform.body.top,
+      }), this);
 
     this.enemies = this.physics.add.group();
     this.projectiles = this.physics.add.group();
@@ -2363,8 +2366,12 @@ class ZeroGameScene extends Phaser.Scene {
       this.touch.jump || this.mobileActionQueue.delete("jump") ||
       (this.mobileJumpHeld && this.jumpCount === 1 && !this.hero.body.blocked.down &&
         time - this.mobileJumpPressedAt >= 180);
-    const wantsDropThrough = jump && (this.keys.down.isDown || this.touch.down) &&
-      this.hero.body.blocked.down && this.hero.y < 455;
+    const wantsDropThrough = shouldDropThroughPlatform({
+      jumpPressed: jump,
+      downHeld: this.keys.down.isDown || this.touch.down,
+      grounded: this.hero.body.blocked.down,
+      isGround: this.hero.y >= 455,
+    });
 
     if (time < (this.specialDashUntil || 0)) {
       this.hero.setVelocityX(this.facing * 500);
