@@ -62,6 +62,7 @@ class ZeroGameScene extends Phaser.Scene {
     this.jumpWasMoving = false;
     this.jumpCount = 0;
     this.touch.axis = 0;
+    this.mobileActionQueue = new Set();
     this.netSocket = null;
     this.netConnected = false;
     this.netRole = null;
@@ -905,6 +906,13 @@ class ZeroGameScene extends Phaser.Scene {
       .setStrokeStyle(2, 0xffd36b).setDepth(23).setVisible(false);
     this.bossBar = this.add.rectangle(331, 96, 296, 7, 0xff594f)
       .setOrigin(0, 0.5).setDepth(24).setVisible(false);
+  }
+
+  pressMobileAction(action) {
+    if (["super", "special1", "special2", "special3", "jump"].includes(action)) {
+      this.mobileActionQueue.add(action);
+    }
+    this.touch[action] = true;
   }
 
   setMobileControlsVisible(visible) {
@@ -2246,19 +2254,19 @@ class ZeroGameScene extends Phaser.Scene {
       this.openTreasureChest();
     }
     if (Phaser.Input.Keyboard.JustDown(this.keys.cyclePower)) this.cyclePower();
-    if (Phaser.Input.Keyboard.JustDown(this.keys.super) || this.touch.super) {
+    if (Phaser.Input.Keyboard.JustDown(this.keys.super) || this.touch.super || this.mobileActionQueue.delete("super")) {
       this.superAttack();
       this.touch.super = false;
     }
-    if (Phaser.Input.Keyboard.JustDown(this.keys.special1) || this.touch.special1) {
+    if (Phaser.Input.Keyboard.JustDown(this.keys.special1) || this.touch.special1 || this.mobileActionQueue.delete("special1")) {
       this.specialMove(0);
       this.touch.special1 = false;
     }
-    if (Phaser.Input.Keyboard.JustDown(this.keys.special2) || this.touch.special2) {
+    if (Phaser.Input.Keyboard.JustDown(this.keys.special2) || this.touch.special2 || this.mobileActionQueue.delete("special2")) {
       this.specialMove(1);
       this.touch.special2 = false;
     }
-    if (Phaser.Input.Keyboard.JustDown(this.keys.special3) || this.touch.special3) {
+    if (Phaser.Input.Keyboard.JustDown(this.keys.special3) || this.touch.special3 || this.mobileActionQueue.delete("special3")) {
       this.specialMove(2);
       this.touch.special3 = false;
     }
@@ -2284,7 +2292,7 @@ class ZeroGameScene extends Phaser.Scene {
     const jump =
       Phaser.Input.Keyboard.JustDown(this.keys.jump) ||
       Phaser.Input.Keyboard.JustDown(this.keys.up) ||
-      this.touch.jump;
+      this.touch.jump || this.mobileActionQueue.delete("jump");
 
     if (time < (this.specialDashUntil || 0)) {
       this.hero.setVelocityX(this.facing * 500);
@@ -2662,7 +2670,7 @@ export default function App() {
     event.preventDefault();
     event.stopPropagation();
     mobilePointers.current.set(event.pointerId, action);
-    scene.touch[action] = true;
+    scene.pressMobileAction(action);
     try { event.currentTarget.setPointerCapture(event.pointerId); } catch {}
   };
 
@@ -2689,7 +2697,7 @@ export default function App() {
       },
       // Allow simultaneous joystick + action-button touches on phones/tablets.
       input: {
-        activePointers: 10,
+        activePointers: 1,
         touch: { capture: true }
       },
       scale: {
