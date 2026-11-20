@@ -897,14 +897,32 @@ class ZeroGameScene extends Phaser.Scene {
       { x: 800, y: 420, width: 200, height: 18 }
     ];
 
-    authored.forEach(({ x, y, width = 200 }) => {
+    authored.forEach(({ x, y, width = 200 }, platformIndex) => {
+      const accent = this.stageConfig.background.accent;
       const platform = this.platforms.create(x, y, "platform");
       platform.setScale(width / 100, 1).setTint(this.stageConfig.background.platform || 0x8a6a50).refreshBody();
-      this.add.ellipse(x, y - 12, width * 0.9, 15,
-        this.stageConfig.background.accent, 0.22).setDepth(1);
-      const trim = this.add.rectangle(x, y - 13, width * 0.94, 4,
-        this.stageConfig.background.accent, 0.95).setDepth(2);
+      this.add.ellipse(x, y - 12, width * 0.9, 15, accent, 0.22).setDepth(1);
+      const trim = this.add.rectangle(x, y - 13, width * 0.94, 4, accent, 0.95).setDepth(2);
+      const bevel = this.add.rectangle(x, y - 8, width * 0.78, 2, 0xffffff, 0.22).setDepth(3);
       this.tweens.add({ targets: trim, alpha: 0.55, duration: 1300 + (this.stageNumber % 5) * 120, yoyo: true, repeat: -1 });
+      this.tweens.add({ targets: bevel, alpha: 0.08, duration: 1500 + platformIndex * 130, yoyo: true, repeat: -1 });
+      // A stage-indexed rune pattern gives every platform a distinct premium finish.
+      const runeCount = 2 + ((this.stageNumber + platformIndex) % 3);
+      for (let runeIndex = 0; runeIndex < runeCount; runeIndex++) {
+        const progress = (runeIndex + 1) / (runeCount + 1);
+        const runeX = x - width * 0.34 + width * 0.68 * progress;
+        const rune = this.add.star(runeX, y - 7, 4, 2.2, 5, accent, 0.68)
+          .setStrokeStyle(1, 0xffffff, 0.42).setDepth(3);
+        this.tweens.add({
+          targets: rune,
+          alpha: 0.22,
+          angle: 90 + ((this.stageNumber + platformIndex + runeIndex) % 4) * 90,
+          duration: 1150 + ((this.stageNumber + runeIndex) % 5) * 170,
+          yoyo: true,
+          repeat: -1,
+          ease: "Sine.easeInOut",
+        });
+      }
     });
   }
 
