@@ -907,88 +907,30 @@ class ZeroGameScene extends Phaser.Scene {
       .setOrigin(0, 0.5).setDepth(24).setVisible(false);
   }
 
+  setMobileControlsVisible(visible) {
+    const overlay = document.getElementById("mobile-controls-overlay");
+    if (overlay) overlay.style.display = visible ? "block" : "none";
+  }
+
   createMobileControls() {
     const cx = 132, cy = 448;
+    // Phaser draws controls; DOM pointer handlers receive touch input. This
+    // bypasses game-object hit testing and is reliable with multiple fingers.
     this.joystickBase = this.add.circle(cx, cy, 72, 0x102d4b, 0.78)
       .setStrokeStyle(5, 0x8ceeff, 0.95).setDepth(29);
-    this.joystickBase.setInteractive(new Phaser.Geom.Circle(0, 0, 72), Phaser.Geom.Circle.Contains);
-    this.add.circle(cx, cy, 53, 0x1b4e70, 0.38).setStrokeStyle(2, 0x70dfff, 0.55).setDepth(29);
+    this.add.circle(cx, cy, 53, 0x1b4e70, 0.38)
+      .setStrokeStyle(2, 0x70dfff, 0.55).setDepth(29);
     this.joystickKnob = this.add.circle(cx, cy, 32, 0x36b9df, 1)
       .setStrokeStyle(4, 0xffffff).setDepth(30);
-    this.joystickKnob.setInteractive(new Phaser.Geom.Circle(0, 0, 32), Phaser.Geom.Circle.Contains);
-    this.joystickActive = false;
-    this.joystickPointerId = null;
-    this.tweens.add({ targets: this.joystickBase, alpha: 0.88, duration: 750, yoyo: true, repeat: -1 });
-    const startStick = pointer => {
-      if (this.joystickActive) return;
-      this.joystickActive = true;
-      this.joystickPointerId = pointer.id;
-      this.moveJoystick(pointer);
-      this.tweens.add({ targets: this.joystickKnob, scale: 1.12, duration: 90 });
-    };
-    const moveStick = pointer => {
-      if (this.joystickActive && pointer.id === this.joystickPointerId && pointer.isDown) this.moveJoystick(pointer);
-    };
-    const stopStick = pointer => {
-      if (!this.joystickActive || (pointer && pointer.id !== this.joystickPointerId)) return;
-      this.joystickActive = false;
-      this.joystickPointerId = null;
-      this.touch.axis = 0;
-      this.touch.left = false;
-      this.touch.right = false;
-      this.tweens.add({ targets: this.joystickKnob, x: cx, y: cy, scale: 1, duration: 130, ease: "Back.easeOut" });
-    };
-    // Track every finger independently. Phaser's global pointer-up events are
-    // more reliable on Android WebView than relying on release over a GameObject.
-    this.mobileActionPointers = new Map();
-    this.joystickBase.on("pointerdown", startStick);
-    this.joystickKnob.on("pointerdown", startStick);
-    this.input.on("pointermove", moveStick);
-    this.input.on("pointerup", pointer => {
-      stopStick(pointer);
-      this.releaseMobileActionPointer(pointer);
-    });
-    this.input.on("pointerupoutside", pointer => {
-      stopStick(pointer);
-      this.releaseMobileActionPointer(pointer);
-    });
-    this.input.on("gameout", () => {
-      stopStick();
-      this.releaseAllMobileActionPointers();
-    });
-    // Three independent signature-move buttons sit in one row above the right-side action buttons.
+    this.mobileControlVisuals = new Map();
     this.createControl(665, 340, "EXTRA 1", "special1");
     this.createControl(775, 340, "EXTRA 2", "special2");
     this.createControl(885, 340, "EXTRA 3", "special3");
     this.createControl(650, 448, "SUPER", "super");
     this.createControl(765, 448, "FIRE", "attack");
     this.createControl(885, 448, "JUMP", "jump");
-  }
-
-  releaseMobileActionPointer(pointer) {
-    if (!pointer || !this.mobileActionPointers) return;
-    const actions = this.mobileActionPointers.get(pointer.id);
-    if (!actions) return;
-    actions.forEach(action => {
-      const stillPressed = [...this.mobileActionPointers.entries()].some(
-        ([id, set]) => id !== pointer.id && set.has(action)
-      );
-      this.touch[action] = stillPressed;
-      const control = this.mobileControlVisuals?.get(action);
-      if (control && !stillPressed) {
-        control.bg.setFillStyle(control.baseFill);
-        this.tweens.add({ targets: [control.bg, control.text], scale: 1, duration: 100, ease: "Back.easeOut" });
-        this.tweens.add({ targets: control.ring, scale: 1, alpha: 0.72, duration: 160 });
-      }
-    });
-    this.mobileActionPointers.delete(pointer.id);
-  }
-
-  releaseAllMobileActionPointers() {
-    if (!this.mobileActionPointers) return;
-    for (const pointerId of [...this.mobileActionPointers.keys()]) {
-      this.releaseMobileActionPointer({ id: pointerId });
-    }
+    this.mobileActionPointers = new Map();
+    this.setMobileControlsVisible(false);
   }
 
   moveJoystick(pointer) {
@@ -1009,36 +951,17 @@ class ZeroGameScene extends Phaser.Scene {
     const accents = { attack: 0xffa33c, super: 0xffd36b, jump: 0x75eaff, special1: 0xff8b5e, special2: 0x72e0ff, special3: 0xb69cff };
     const accent = accents[action] || 0x75eaff;
     const baseFill = action === "attack" ? 0x9b451f : action.startsWith("special") ? 0x263c72 : 0x176184;
-    const pressedFill = action === "attack" ? 0xf07828 : action.startsWith("special") ? 0x485fc1 : 0x249ac7;
     const glow = this.add.circle(x, y, action.startsWith("special") ? 45 : 54, accent, 0.12).setDepth(28);
     const ring = this.add.circle(x, y, 49, 0x000000, 0)
       .setStrokeStyle(4, accent, 0.72).setDepth(29);
     const bg = this.add.circle(x, y, action.startsWith("special") ? 35 : 43, baseFill, 0.98)
-      .setStrokeStyle(5, accent).setDepth(30)
-      .setInteractive(new Phaser.Geom.Circle(0, 0, 43), Phaser.Geom.Circle.Contains);
+      .setStrokeStyle(5, accent).setDepth(30);
     const text = this.add.text(x, y, label, {
       fontSize: "17px", color: "#ffffff", fontStyle: "bold",
       stroke: "#10243a", strokeThickness: 4
     }).setOrigin(0.5).setDepth(31);
-    if (!this.mobileControlVisuals) this.mobileControlVisuals = new Map();
-    this.mobileControlVisuals.set(action, { bg, ring, text, baseFill });
+    this.mobileControlVisuals.set(action, { bg, ring, text, baseFill, glow });
     if (action === "attack") this.attackRing = ring;
-    this.tweens.add({ targets: glow, scale: 1.12, alpha: 0.04, duration: 900, yoyo: true, repeat: -1 });
-    bg.on("pointerdown", pointer => {
-      if (!this.mobileActionPointers) this.mobileActionPointers = new Map();
-      let pointerActions = this.mobileActionPointers.get(pointer.id);
-      if (!pointerActions) {
-        pointerActions = new Set();
-        this.mobileActionPointers.set(pointer.id, pointerActions);
-      }
-      if (pointerActions.has(action)) return;
-      pointerActions.add(action);
-      this.touch[action] = true;
-      bg.setFillStyle(pressedFill);
-      this.tweens.add({ targets: [bg, text], scale: 0.88, duration: 85, yoyo: true, ease: "Back.easeOut" });
-      this.tweens.add({ targets: ring, scale: 1.3, alpha: 1, duration: 110 });
-      this.cameras.main.shake(45, 0.0015);
-    });
   }
 
   clearMenu() {
@@ -1162,7 +1085,8 @@ class ZeroGameScene extends Phaser.Scene {
     };
   }
 
-  showStoryScreen() {
+  showStoryScreen() {    this.setMobileControlsVisible(false);
+
     this.gameStarted = false;
     this.clearMenu();
     const shade = this.add.rectangle(480, 270, 960, 540, 0x050b19, 0.94).setDepth(60);
@@ -1240,7 +1164,8 @@ class ZeroGameScene extends Phaser.Scene {
     });
   }
 
-  showHeroSelect() {
+  showHeroSelect() {    this.setMobileControlsVisible(false);
+
     this.clearMenu();
     const shade = this.add.rectangle(480, 270, 960, 540, 0x050b19, 0.96).setDepth(60);
     const heading = this.add.text(480, 48, "SELECT YOUR HERO", {
@@ -1294,7 +1219,8 @@ class ZeroGameScene extends Phaser.Scene {
     back.on("pointerdown", () => this.showStoryScreen());
   }
 
-  beginCampaign() {
+  beginCampaign() {    this.setMobileControlsVisible(true);
+
     this.clearMenu();
     this.gameStarted = true;
     this.stageStartedAt = this.time.now;
@@ -1948,7 +1874,8 @@ class ZeroGameScene extends Phaser.Scene {
     }
   }
 
-  resumeFromFailure() {
+  resumeFromFailure() {    this.setMobileControlsVisible(true);
+
     this.tokenCount--;
     localStorage.setItem("dastaan_tokens", String(this.tokenCount));
     this.clearMenu();
@@ -1967,7 +1894,8 @@ class ZeroGameScene extends Phaser.Scene {
     this.statusLabel.setText("BACK IN THE BATTLE!").setColor("#62ffb4");
   }
 
-  showContinueScreen() {
+  showContinueScreen() {    this.setMobileControlsVisible(false);
+
     const shade = this.add.rectangle(480, 270, 960, 540, 0x071426, 0.82).setDepth(50);
     const title = this.add.text(480, 190, "TRY AGAIN!", {
       fontSize: "48px", color: "#ff8b9c", fontStyle: "bold", stroke: "#351b35", strokeThickness: 7
@@ -2298,6 +2226,7 @@ class ZeroGameScene extends Phaser.Scene {
     }
 
     if (this.defeated >= this.stageEnemyCount && !this.stageConfig.boss && !this.stageCleared) this.completeStage();
+    if (this.stageCleared || this.gameOver) this.setMobileControlsVisible(false);
     if (!this.hero || !this.gameStarted || this.gameOver || this.stageCleared) return;
     const elapsedSeconds = Math.floor((time - this.stageStartedAt - (this.bonusMode ? time - this.bonusStartedAt : 0)) / 1000);
     this.stageTimeLeft = Math.max(0, (this.stageConfig.timeLimit || 120) - elapsedSeconds);
