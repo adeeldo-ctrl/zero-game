@@ -20,6 +20,6 @@ export function loseCampaignHeart(state) {
 
 export function getStageTransitionDirection(stageNumber) {
   const directions = ["down", "right", "left"];
-  const index = Math.max(1, Math.floor(Number(stageNumber) || 1) - 1);
+  const index = Math.max(0, Math.floor(Number(stageNumber) || 1) - 1);
   return directions[index % directions.length];
 }
