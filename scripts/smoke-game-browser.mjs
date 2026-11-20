@@ -53,6 +53,58 @@ try {
   await page.keyboard.press("x");
   await delay(700);
 
+  // Exercise the integrated three-heart / three-chance damage and respawn flow.
+  await page.evaluate(() => {
+    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+    if (!scene?.sys.isActive()) throw new Error("Game scene unavailable for campaign lives test");
+    scene.stageCleared = true;
+    scene.enemies.getChildren().forEach((enemy) => enemy.getData("visual")?.destroy());
+    scene.enemies.clear(true, true);
+  });
+  await delay(4200);
+  await page.evaluate(() => {
+    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+    scene.stageCleared = false;
+    scene.health = 3;
+    scene.chances = 3;
+    scene.chanceLossInProgress = false;
+    scene.gameOver = false;
+    const harmlessEnemy = { active: true, x: 500, getData: () => false };
+    scene.lastDamage = -10000;
+    scene.damageHero(scene.hero, harmlessEnemy);
+    if (scene.health !== 2 || scene.chances !== 3) throw new Error("First hit did not remove exactly one heart");
+    window.__ZERO_GAME_LIVES_TEST_ENEMY__ = harmlessEnemy;
+  });
+  await delay(700);
+  await page.evaluate(() => {
+    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+    scene.lastDamage = -10000;
+    scene.damageHero(scene.hero, window.__ZERO_GAME_LIVES_TEST_ENEMY__);
+    if (scene.health !== 1 || scene.chances !== 3) throw new Error("Second hit did not remove exactly one heart");
+  });
+  await delay(700);
+  await page.evaluate(() => {
+    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+    scene.lastDamage = -10000;
+    scene.damageHero(scene.hero, window.__ZERO_GAME_LIVES_TEST_ENEMY__);
+    if (scene.chances !== 2 || scene.health !== 3 || !scene.chanceLossInProgress) {
+      throw new Error("Three lost hearts did not consume one chance and restore three hearts");
+    }
+    scene.lastDamage = -10000;
+    scene.damageHero(scene.hero, window.__ZERO_GAME_LIVES_TEST_ENEMY__);
+    if (scene.chances !== 2 || scene.health !== 3) {
+      throw new Error("Repeated damage during chance-loss lock consumed another chance");
+    }
+  });
+  await delay(1050);
+  await page.evaluate(() => {
+    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+    if (scene.chances !== 2 || scene.health !== 3 || scene.chanceLossInProgress ||
+        !scene.hero.body.enable || scene.stageNumber !== 1 || scene.gameOver) {
+      throw new Error("Campaign did not resume on the same stage with restored hearts");
+    }
+  });
+
   // Exercise real Arcade Physics for pass-through, landing, drop-through and permanent floor.
   await page.evaluate(() => {
     const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
@@ -269,6 +321,11 @@ try {
           gravity: enemy.body.allowGravity,
           y: enemy.y,
         })),
+        heroId: scene.selectedHero?.id,
+        chances: scene.chances,
+        hearts: scene.health,
+        heroSelectionLocked: scene.heroSelectionLocked,
+        campaignActive: scene.campaignActive,
       };
     });
     if (stageState.number !== nextStage || stageState.platforms !== 5) {
@@ -281,6 +338,11 @@ try {
     if (stageState.boss !== (nextStage % 10 === 0)) {
       throw new Error(`Stage ${nextStage} boss milestone is incorrect`);
     }
+    if (stageState.heroId !== window.__ZERO_GAME_PERSISTENCE__.heroId ||
+        stageState.chances !== 2 || stageState.hearts !== 3 ||
+        !stageState.heroSelectionLocked || !stageState.campaignActive) {
+      throw new Error(`Stage ${nextStage} lost campaign identity or remaining lives`);
+    }
     if (stageState.enemies.some((enemy) => !enemy.gravity || enemy.type === "flyer")) {
       throw new Error(`Stage ${nextStage} spawned a non-grounded regular enemy`);
     }
@@ -291,7 +353,7 @@ try {
   if (runtimeErrors.length) {
     throw new Error(`Browser runtime errors:\n${runtimeErrors.join("\n")}`);
   }
-  console.log("Browser smoke test passed: campaign, hero persistence, gameplay inputs, four boss visuals and attacks, all three transition directions, all 50 real stage restarts, grounded enemy checks, and no uncaught runtime errors.");
+  console.log("Browser smoke test passed: campaign, hero persistence, gameplay inputs, four boss visuals and attacks, three-heart/chance recovery, real platform physics, all four boss attacks, all three transition directions, all 50 real stage restarts, persistent campaign identity, grounded enemy checks, and no uncaught runtime errors.");
 } finally {
   if (browser) await browser.close();
   if (server.exitCode === null) {
