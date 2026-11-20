@@ -18,7 +18,7 @@ export const ELEMENTS = [
 export const HEROES = [
   {
     id: "ryo", name: "RYO", title: "Ryu-Inspired Balanced Fighter", style: "Classic martial arts and energy waves",
-    element: "fire", superPower: "Dragon Burst", color: 0x2b8f83, accent: 0xffc15a,
+    element: "fire", superPower: "Dragon Burst", color: 0xe8e8e8, accent: 0xd94a42,
     description: "A balanced martial artist with a focused energy wave and rising attacks.",
     specialMoves: [
       { id: "hadouken", name: "Hadouken Wave", type: "wave" },
@@ -28,7 +28,7 @@ export const HEROES = [
   },
   {
     id: "kairo", name: "KEN", title: "Ken-Inspired Flame Fighter", style: "Fast, aggressive martial arts",
-    element: "fire", superPower: "Blazing Cyclone", color: 0xb74435, accent: 0xffd16b,
+    element: "fire", superPower: "Blazing Cyclone", color: 0xc83c34, accent: 0xffd16b,
     description: "A fiery rush fighter with explosive close-range techniques.",
     specialMoves: [
       { id: "flame-hadouken", name: "Flame Energy Wave", type: "wave" },
