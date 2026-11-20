@@ -2667,6 +2667,13 @@ class ZeroGameScene extends Phaser.Scene {
     const t = this.heroAnimTime * 0.012;
     const moving = Math.abs(h.body.velocity.x) > 10;
     const airborne = !h.body.blocked.down;
+    const heroId = this.selectedHero?.id || "ryo";
+    const gait = {
+      ryo:   { stride: 0.44, guard: 0.76, bounce: 2.0, cadence: 2.25 },
+      kairo: { stride: 0.58, guard: 0.68, bounce: 2.8, cadence: 2.65 },
+      mei:   { stride: 0.38, guard: 0.92, bounce: 1.7, cadence: 2.05 },
+      volt:  { stride: 0.68, guard: 0.62, bounce: 3.2, cadence: 2.9 }
+    }[heroId] || { stride: 0.44, guard: 0.76, bounce: 2.0, cadence: 2.25 };
 
     const attacking =
       this.touch.attack ||
@@ -2675,38 +2682,57 @@ class ZeroGameScene extends Phaser.Scene {
     if (time >= (this.heroEntryUntil || 0)) visual.setPosition(h.x, h.y);
     visual.setScale(this.facing, 1);
 
+    // Restore every articulated part to its authored anchor before posing.
+    // This prevents hand/foot offsets from one special move leaking into later
+    // movement, previews, facing changes, or another character selection.
+    p.handL.setPosition(-24, 27);
+    p.handR.setPosition(24, 27);
+    p.shoeL.setPosition(-12, 39);
+    p.shoeR.setPosition(12, 39);
+    p.legL.setPosition(-11, 24);
+    p.legR.setPosition(11, 24);
+    p.armL.setPosition(-23, 1);
+    p.armR.setPosition(23, 1);
+
     if (airborne) {
       const jumpProgress = Phaser.Math.Clamp((time - this.jumpStartedAt) / 620, 0, 1);
       const flipAngle = Math.sin(jumpProgress * Math.PI) * 360 * this.jumpFlipDirection;
+      const tuck = Math.sin(jumpProgress * Math.PI);
       visual.setAngle(this.jumpWasMoving ? flipAngle : Math.sin(jumpProgress * Math.PI) * 18);
-      p.legL.rotation = -0.78 + Math.sin(t * 2) * 0.12; p.legR.rotation = 0.78 - Math.sin(t * 2) * 0.12;
-      p.armL.rotation = -1.05; p.armR.rotation = 1.05; p.handL.y = 15; p.handR.y = 15;
-      p.shoeL.y = 38; p.shoeR.y = 38; visual.y = h.y; visual.setScale(this.facing, 1.04);
+      p.legL.rotation = -0.78 + Math.sin(t * 2) * 0.12 - tuck * 0.12;
+      p.legR.rotation = 0.78 - Math.sin(t * 2) * 0.12 + tuck * 0.12;
+      p.armL.rotation = -1.05 - gait.guard * 0.12;
+      p.armR.rotation = 1.05 + gait.guard * 0.12;
+      p.handL.y = 15; p.handR.y = 15;
+      p.shoeL.y = 38; p.shoeR.y = 38;
+      visual.y = h.y - tuck * 2;
+      visual.setScale(this.facing, 1.04 + tuck * 0.025);
     } else if (moving) {
       visual.setAngle(0);
-      const swing = Math.sin(t * 2.2);
-      // Martial-arts footwork: short steps while the guard stays raised.
-      p.legL.rotation = -0.12 + swing * 0.48;
-      p.legR.rotation = 0.12 - swing * 0.48;
-      p.armL.rotation = -0.72 - swing * 0.16;
-      p.armR.rotation = 0.92 + swing * 0.16;
+      const swing = Math.sin(t * gait.cadence);
+      // Distinct footwork rhythm for each fighter while keeping the guard up.
+      p.legL.rotation = -0.12 + swing * gait.stride;
+      p.legR.rotation = 0.12 - swing * gait.stride;
+      p.armL.rotation = -gait.guard + swing * 0.13;
+      p.armR.rotation = gait.guard + swing * 0.13;
       p.handL.y = 13 + Math.max(0, swing) * 3;
       p.handR.y = 12 + Math.max(0, -swing) * 3;
       p.shoeL.y = 39 + Math.max(0, swing) * -5;
       p.shoeR.y = 39 + Math.max(0, -swing) * -5;
-      visual.y = h.y + Math.abs(swing) * -2;
+      visual.y = h.y - Math.abs(swing) * gait.bounce;
     } else {
-      // Readable fighting idle: bent knees, elbows tucked and fists guarding the face.
+      // Individual fighting idle rhythms; no detached or duplicated direction marks.
+      const breath = Math.sin(t * (heroId === "mei" ? 0.72 : 0.9));
       visual.setAngle(0);
-      p.handL.y = 13 + Math.sin(t) * 1.5;
-      p.handR.y = 12 - Math.sin(t) * 1.5;
-      p.legL.rotation = -0.1 + Math.sin(t * 0.7) * 0.025;
-      p.legR.rotation = 0.1 - Math.sin(t * 0.7) * 0.025;
-      p.armL.rotation = -0.72 + Math.sin(t) * 0.045;
-      p.armR.rotation = 0.92 - Math.sin(t) * 0.045;
+      p.handL.y = 13 + breath * 1.35;
+      p.handR.y = 12 - breath * 1.35;
+      p.legL.rotation = -0.1 + breath * 0.025;
+      p.legR.rotation = 0.1 - breath * 0.025;
+      p.armL.rotation = -gait.guard + breath * 0.045;
+      p.armR.rotation = gait.guard - breath * 0.045;
       p.shoeL.y = 39;
       p.shoeR.y = 39;
-      visual.y = h.y + Math.sin(t * 0.5) * 1.5;
+      visual.y = h.y + breath * 1.5;
     }
 
     if (attacking) {
@@ -2889,8 +2915,14 @@ class ZeroGameScene extends Phaser.Scene {
       visual.setPosition(h.x, h.y);
       visual.setAngle(0);
       visual.setScale(this.facing, 1);
-      [p.handL, p.handR].forEach(hand => { if (hand?.active) hand.setPosition(hand === p.handL ? -24 : 24, 12); });
-      [p.shoeL, p.shoeR].forEach((shoe, index) => { if (shoe?.active) shoe.setPosition(index ? 12 : -12, 39); });
+      if (p.handL?.active) p.handL.setPosition(-24, 27);
+      if (p.handR?.active) p.handR.setPosition(24, 27);
+      if (p.shoeL?.active) p.shoeL.setPosition(-12, 39);
+      if (p.shoeR?.active) p.shoeR.setPosition(12, 39);
+      if (p.armL?.active) p.armL.setPosition(-23, 1);
+      if (p.armR?.active) p.armR.setPosition(23, 1);
+      if (p.legL?.active) p.legL.setPosition(-11, 24);
+      if (p.legR?.active) p.legR.setPosition(11, 24);
       if (p.kurta?.active) p.kurta.setScale(1, 1);
       if (p.waistcoat?.active) p.waistcoat.setScale(1, 1);
     }
