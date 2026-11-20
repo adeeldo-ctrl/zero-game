@@ -282,3 +282,14 @@ Committed source implementation:
 - Added the static Android validation to the push/PR CI workflow. It does not create an Android project, invoke Gradle, assemble an APK, or upload an APK.
 - CI run [44756164437](https://github.com/adeeldo-ctrl/zero-game/actions/runs/44756164437) passed on commit `da0aaaed028db5db1ce3290ce50e0241a4de5cdd`: automated tests, lint, Android configuration validation, and web build all succeeded.
 - Confirmed both APK workflows remain manual-only. No APK workflow has been dispatched.
+
+
+## Combat, snowball and audio regression coverage — 2026-11-20
+
+- Extracted boss phase thresholds and per-special cooldown timing into `src/combatRules.js`; tests cover ready/recharging countdowns and phase changes at 60% / 25% boss health.
+- Extracted snowball kick eligibility, rolling-ball hit proximity, and arena cleanup bounds into `src/snowballRules.js`; tests cover frozen/nearby/in-front eligibility, target collision envelope, and out-of-bounds cleanup.
+- Extracted audio volume clamping and added tests for mute, normal levels, numeric strings, invalid values, and over-range values.
+- Removed direct named references to existing fighting-game characters from the normal enemy roster; all enemy names are now original.
+- Added music/SFX volume hit targets to the Android touch overlay, since the full-screen overlay intercepts touches before Phaser HUD labels receive them. This preserves the existing joystick and action-button hit areas.
+- The snowball rule tests and the preceding combat/audio unit tests passed in CI run [44756530964](https://github.com/adeeldo-ctrl/zero-game/actions/runs/44756530964), alongside lint, Android static validation, and web build.
+- Latest mobile HUD touch-zone adjustments are committed and awaiting their CI run. No Android APK has been built.
