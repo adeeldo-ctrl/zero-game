@@ -202,17 +202,19 @@ try {
       throw new Error("The third lost chance did not end the campaign");
     }
     scene.startNewCampaign();
-    if (scene.chances !== 3 || scene.health !== 3 || scene.stageNumber !== 1 ||
-        scene.gameOver || scene.campaignActive || scene.heroSelectionLocked) {
-      throw new Error("Starting a new campaign did not reset all campaign state");
-    }
   });
+  await page.waitForFunction(() => {
+    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+    return scene?.sys.isActive() && scene.stageNumber === 1 && scene.stageConfig?.number === 1 &&
+      !scene.gameStarted && !scene.gameOver && !scene.campaignActive && !scene.heroSelectionLocked &&
+      scene.chances === 3 && scene.health === 3 && scene.hero?.body?.enable === true;
+  }, { timeout: 10000 });
   await page.mouse.click(120, 486);
   await delay(1200);
   await page.evaluate(() => {
     const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
     if (!scene.campaignActive || !scene.heroSelectionLocked || scene.chances !== 3 ||
-        scene.health !== 3 || scene.stageNumber !== 1) {
+        scene.health !== 3 || scene.stageNumber !== 1 || !scene.hero.body.enable) {
       throw new Error("New campaign did not lock one hero selection and restore the full lives pool");
     }
   });
