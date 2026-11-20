@@ -64,7 +64,7 @@ The APK is a debug build for testing, not a Play Store-signed release. For Wi-Fi
 ## Build locally
 
 ```powershell
-npm.cmd ci
+npm.cmd install
 npm.cmd run lint
 npm.cmd run build
 npx cap add android
