@@ -28,22 +28,21 @@ The host PC and both players must be on the same trusted Wi-Fi network. Allow No
 
 ## Heroes and special moves
 
-Choose one of four original heroes with different fighting-style inspirations:
+The four original hero designs now follow distinct Street Fighter-inspired archetypes:
 
-- Ryo — balanced wave fighter.
-- Kairo — aggressive flame-rush fighter.
-- Mei — agile lightning-kick fighter.
-- Volt — electric wild fighter.
+- Ryo — Ryu-inspired balanced martial artist.
+- Ken — Ken-inspired flame martial artist.
+- Chun-Li — agile lightning kicker with rapid kicks and aerial techniques.
+- Blanka — wild electric fighter with rolling attacks and grapples.
 
-Three additional special buttons are available on the left side of the mobile controls. S1, S2 and S3 each trigger the matching signature move for the selected hero (not a random move):
-- Ryo: Sky Throw, Rising Wave, Spinning Burst.
-- Kairo: Flame Dash, Flare Launch, Fire Spin.
-- Mei: Rapid Kick, Sky Wheel, Lightning Ring.
-- Volt: Electric Grab, Rolling Rush, Thunder Shockwave.
+The three on-screen EXTRA buttons are independent:
+- EXTRA 1: Ryo Hadouken-style energy wave; Ken flame energy wave; Chun-Li Lightning Legs; Blanka Electric Thunder.
+- EXTRA 2: Ryo rising dragon uppercut; Ken flame uppercut; Chun-Li Spinning Bird Kick; Blanka Rolling Attack.
+- EXTRA 3: Ryo spinning hurricane kick; Ken blazing spin kick; Chun-Li Kikoken energy wave; Blanka Wild Fang throw.
 
-The moves reflect the heroes' fighting-style inspirations: Ryo's classic wave/rising/spinning martial arts, Kairo's aggressive flame rush, Mei's rapid acrobatic kicks, and Volt's electric wild fighting style. Special moves have unlimited use: no cooldown, countdown, power meter or limited-use counter.
+All three special buttons have unlimited use: no cooldown, countdown, power meter or limited-use counter. Their effects physically knock enemies back, launch them, or throw them according to the move. Bosses take balanced damage and resist normal throws.
 
-Special move impacts can launch, throw or push nearby enemies with visible knockback and falling reactions. Bosses resist being thrown and instead receive balanced special-hit damage.
+Enemies use original archetypes inspired by other Street Fighter-style fighters, including masked claw acrobats, boxing bruisers, military chargers, heavy grapplers and electric wild fighters. Their AI includes chaser, runner, jumper, flyer, guard and charger behaviors. Boss encounters are themed around the Tiger Emperor, Crimson Claw, Iron Champion and Psycho Warlord archetypes.
 
 ## Controls
 
@@ -53,8 +52,7 @@ Special move impacts can launch, throw or push nearby enemies with visible knock
 - Fire: hold X / mobile FIRE to charge, then release
 - Existing Super: Z / mobile SUPER
 - Change elemental power: C
-- Dedicated unlimited Street Throw: T / mobile THROW (works when a normal enemy is close and in front).
-- Special move buttons: 1, 2, 3 / mobile S1, S2, S3 (unlimited use; no cooldown or usage countdown).
+- EXTRA 1 / EXTRA 2 / EXTRA 3: keys 1 / 2 / 3 or the three mobile buttons above the right-side action row
 
 ## Android debug APK
 
