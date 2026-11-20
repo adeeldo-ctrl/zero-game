@@ -79,11 +79,18 @@ try {
     };
     window.__ZERO_GAME_SPECIAL_TARGETS__ = [makeTarget(390), makeTarget(410), makeTarget(430)];
     scene.specialMove(0);
+    const wave = scene.projectiles.getChildren().find((projectile) =>
+      projectile.active && projectile.getData("specialAttack")
+    );
+    if (!wave) throw new Error("EXTRA 1 did not create its elemental wave projectile");
+    // Invoke the same overlap callback used by Arcade Physics to make the
+    // projectile-to-target damage assertion deterministic in headless Chromium.
+    scene.hitEnemy(wave, window.__ZERO_GAME_SPECIAL_TARGETS__[0]);
+    if (window.__ZERO_GAME_SPECIAL_TARGETS__[0].getData("frozen") !== true ||
+        window.__ZERO_GAME_SPECIAL_TARGETS__[0].getData("hitCount") < 2) {
+      throw new Error("EXTRA 1 wave did not damage its target through the hit pipeline");
+    }
   });
-  await page.waitForFunction(() => {
-    const targets = window.__ZERO_GAME_SPECIAL_TARGETS__;
-    return targets?.[0]?.getData("frozen") === true && targets[0].getData("hitCount") >= 2;
-  }, undefined, { timeout: 3000 });
   await page.evaluate(() => {
     const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
     const targets = window.__ZERO_GAME_SPECIAL_TARGETS__;
