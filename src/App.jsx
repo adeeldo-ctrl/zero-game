@@ -743,6 +743,24 @@ class ZeroGameScene extends Phaser.Scene {
       pupilL, pupilR
     ]);
 
+    const inspiration = enemy.getData("enemyName") || "";
+    if (/claw/i.test(inspiration)) {
+      const clawL = this.add.triangle(-30, 13, -2, -8, 8, 0, -3, 14, 0xe8e7ef).setStrokeStyle(2, 0x6c477b);
+      const clawR = this.add.triangle(30, 13, 2, -8, -8, 0, 3, 14, 0xe8e7ef).setStrokeStyle(2, 0x6c477b);
+      c.add([clawL, clawR]);
+    } else if (/boxing|champion|bruiser/i.test(inspiration)) {
+      const gloveL = this.add.circle(-27, 13, 11, 0xc94c43).setStrokeStyle(3, 0xffd36b);
+      const gloveR = this.add.circle(27, 13, 11, 0xc94c43).setStrokeStyle(3, 0xffd36b);
+      c.add([gloveL, gloveR]);
+    } else if (/grappler|wrestler|heavyweight/i.test(inspiration)) {
+      const padL = this.add.ellipse(-25, -8, 20, 17, 0x8b633f).setStrokeStyle(3, 0xffd36b);
+      const padR = this.add.ellipse(25, -8, 20, 17, 0x8b633f).setStrokeStyle(3, 0xffd36b);
+      c.add([padL, padR]);
+    } else if (/electric|psycho|wild/i.test(inspiration)) {
+      const mark = this.add.text(0, 3, "ϟ", { fontSize: "25px", color: "#fff2a6", fontStyle: "bold", stroke: "#493b76", strokeThickness: 3 }).setOrigin(0.5);
+      c.add(mark);
+    }
+
     c.setData("parts", {
       shadow,
       legL,
@@ -1296,10 +1314,10 @@ class ZeroGameScene extends Phaser.Scene {
         enemy.setData("frozen", false);
         enemy.setData("baseTexture", `enemy${i % 3}`);
         enemy.setData("enemyName", this.stageConfig.enemyTypes[i % this.stageConfig.enemyTypes.length]);
-        const aiTypes = ["chaser", "runner", "jumper", "flyer"];
+        const aiTypes = ["chaser", "runner", "jumper", "flyer", "guard", "charger"];
         const aiType = aiTypes[i % aiTypes.length];
         enemy.setData("aiType", aiType);
-        enemy.setData("aiState", aiType === "runner" ? "tell" : "patrol");
+        enemy.setData("aiState", aiType === "runner" || aiType === "charger" ? "tell" : aiType === "guard" ? "guard" : "patrol");
         enemy.setData("aiStateUntil", this.time.now + 900 + (i % 3) * 350);
         enemy.setData("nextHop", this.time.now + 650 + (i % 3) * 280);
         enemy.setData("patrolDirection", i % 2 ? -1 : 1);
@@ -2526,6 +2544,37 @@ class ZeroGameScene extends Phaser.Scene {
         speed = state === "dash" ? 245 : state === "recover" ? 0 : 42;
         facing = state === "dash" ? enemy.getData("dashDirection") : direction;
         if (state === "tell" && enemyVisual) enemyVisual.setAlpha(0.65 + Math.sin(elapsed * 0.025) * 0.3);
+        else if (enemyVisual) enemyVisual.setAlpha(1);
+      } else if (aiType === "guard") {
+        const distance = Math.abs(targetX - enemy.x);
+        const guarding = distance > 175;
+        speed = guarding ? 0 : 138;
+        facing = direction;
+        if (enemyVisual) enemyVisual.setScale(guarding ? 1.12 : 1, 1);
+        if (!guarding && enemy.body.blocked.down && elapsed >= (enemy.getData("nextHop") || elapsed + 900)) {
+          enemy.setVelocityY(-190);
+          enemy.setData("nextHop", elapsed + 1250);
+        }
+      } else if (aiType === "charger") {
+        let state = enemy.getData("aiState") || "tell";
+        if (state === "tell" && elapsed >= enemy.getData("aiStateUntil")) {
+          state = "charge";
+          enemy.setData("aiState", state);
+          enemy.setData("aiStateUntil", elapsed + 520);
+          enemy.setData("dashDirection", direction);
+          this.tweens.add({ targets: enemyVisual, scaleX: 1.42, scaleY: 0.72, duration: 120, yoyo: true });
+        } else if (state === "charge" && elapsed >= enemy.getData("aiStateUntil")) {
+          state = "recover";
+          enemy.setData("aiState", state);
+          enemy.setData("aiStateUntil", elapsed + 780);
+        } else if (state === "recover" && elapsed >= enemy.getData("aiStateUntil")) {
+          state = "tell";
+          enemy.setData("aiState", state);
+          enemy.setData("aiStateUntil", elapsed + 1000);
+        }
+        speed = state === "charge" ? 285 : state === "recover" ? 0 : 35;
+        facing = state === "charge" ? enemy.getData("dashDirection") : direction;
+        if (state === "tell" && enemyVisual) enemyVisual.setAlpha(0.55 + Math.sin(elapsed * 0.03) * 0.35);
         else if (enemyVisual) enemyVisual.setAlpha(1);
       } else if (aiType === "jumper") {
         speed = 42;
