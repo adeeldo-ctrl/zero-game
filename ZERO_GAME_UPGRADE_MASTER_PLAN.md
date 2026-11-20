@@ -132,3 +132,23 @@ The following source changes have been committed to `main`:
 - Physically test the resulting APK on the target Android device before claiming device verification.
 
 **Status:** Implementation is in progress. No upgraded APK is declared ready until the CI checks and Android APK artifact have completed successfully.
+
+## User clarification — movement and premium stage redesign (2026-11-20)
+
+The user clarified the exact required platform behavior and rejected the current stage presentation as not yet premium:
+
+### Platform traversal and ground boundary
+- The hero must be able to jump upward through every elevated platform/line from below, rather than colliding with the underside.
+- The hero must be able to intentionally drop down through an elevated platform by pressing DOWN on the joystick together with JUMP.
+- The DOWN + JUMP drop-through action must work from any elevated platform and land on the next lower platform when present.
+- The permanent bottom ground/floor must remain solid: the hero must never drop below or fall through the ground.
+- Preserve the currently approved horizontal joystick movement and all action-button touch hit areas.
+
+### Premium redesign of all 50 stages
+- Redesign the presentation of all 50 stages; the current repeated castle/building background with only palette changes is not acceptable as the final premium design.
+- Every stage must have its own recognizable, polished composition while belonging to a coherent world theme. Use the existing ten world themes as a foundation, with five increasingly polished stage variations per world.
+- Give each world/stage a distinct visual identity through scenery landmarks, layered background/foreground, lighting/atmosphere, premium platform materials and trims, stage number/title treatment, and coordinated colors.
+- Keep the fixed 960×540 single-screen arena and ensure all platforms remain reachable with safe landing routes.
+- Do not change the approved joystick feel or break the existing gameplay baseline.
+
+**Acceptance checks added:** upward pass-through from below on every elevated platform; DOWN + JUMP drop-through from elevated platforms; solid bottom floor; no out-of-bounds fall; all 50 stages visibly differentiated beyond color-only changes; stage layout and collision tests pass.
