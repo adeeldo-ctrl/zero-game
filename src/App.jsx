@@ -2058,14 +2058,13 @@ class ZeroGameScene extends Phaser.Scene {
     this.statusLabel.setText("STREET THROW!").setColor("#ffe17a");
   }
 
-  specialMove() {
+  specialMove(moveIndex = 0) {
     if (!this.gameStarted || this.gameOver || this.stageCleared) return;
     const moves = this.selectedHero?.specialMoves || [];
     if (!moves.length) return;
-    let choices = moves.filter(move => move.id !== this.lastSpecialMoveId);
-    if (!choices.length) choices = moves;
-    const move = choices[Phaser.Math.Between(0, choices.length - 1)];
-    this.lastSpecialMoveId = move.id;
+    // S1, S2 and S3 each trigger the matching move defined for the selected hero.
+    // All three are reusable without a cooldown, meter or usage limit.
+    const move = moves[((moveIndex % moves.length) + moves.length) % moves.length];
     this.specialPoseType = move.type;
     this.specialPoseUntil = this.time.now + 420;
     const accent = this.selectedHero.accent || 0x7deaff;
@@ -2226,12 +2225,16 @@ class ZeroGameScene extends Phaser.Scene {
       this.throwMove();
       this.touch.throw = false;
     }
-    if (Phaser.Input.Keyboard.JustDown(this.keys.special1) || this.touch.special1 ||
-        Phaser.Input.Keyboard.JustDown(this.keys.special2) || this.touch.special2 ||
-        Phaser.Input.Keyboard.JustDown(this.keys.special3) || this.touch.special3) {
-      this.specialMove();
+    if (Phaser.Input.Keyboard.JustDown(this.keys.special1) || this.touch.special1) {
+      this.specialMove(0);
       this.touch.special1 = false;
+    }
+    if (Phaser.Input.Keyboard.JustDown(this.keys.special2) || this.touch.special2) {
+      this.specialMove(1);
       this.touch.special2 = false;
+    }
+    if (Phaser.Input.Keyboard.JustDown(this.keys.special3) || this.touch.special3) {
+      this.specialMove(2);
       this.touch.special3 = false;
     }
 
