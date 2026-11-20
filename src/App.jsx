@@ -7,7 +7,7 @@ import { createGameAudio } from "./gameAudio";
 import { createCampaignLives, loseCampaignHeart, getStageTransitionDirection } from "./campaignRules";
 import { shouldHeroCollideWithPlatform, shouldDropThroughPlatform } from "./platformRules";
 import { getBossPhase, getSpecialCooldownStatus, SPECIAL_MOVE_COOLDOWN_MS } from "./combatRules";
-import { canKickElementBall, canRollingBallHitTarget, isRollingBallOutOfBounds } from "./snowballRules";
+import { canKickElementBall, canRollingBallHitTarget, isRollingBallOutOfBounds, calculateRollingBallMotion } from "./snowballRules";
 import { getEnemyMovementSpeed } from "./enemyRules";
 import "./App.css";
 
@@ -2194,14 +2194,18 @@ class ZeroGameScene extends Phaser.Scene {
     enemy.setData("rolling", true);
     enemy.setData("rollDirection", direction);
     enemy.setData("rollHits", []);
-    enemy.body.setAllowGravity(false);
+    enemy.setData("rollDirection", direction);
+    enemy.body.setAllowGravity(true);
+    enemy.setCollideWorldBounds(false);
+    enemy.setBounce(0.08, 0.04);
+    enemy.setDragX(0, false);
+    enemy.setMaxVelocity(700, 950);
     enemy.setVelocity(0, 0);
-    enemy.body.setSize(58, 58);
-    enemy.body.setOffset(-3, -3);
-    enemy.setVelocityX(direction * 760);
+    enemy.body.setSize(54, 54);
+    enemy.body.setOffset(-1, -1);
+    enemy.setVelocityX(direction * 390);
     ball.setScale(1.45);
     this.tweens.add({ targets: ball, scale: 1.7, duration: 130, yoyo: true });
-    this.tweens.add({ targets: ball, angle: direction * 720, duration: 420, repeat: -1 });
     const palette = enemy.getData("ballPalette") || this.getPowerPalette();
     const flash = this.add.circle(enemy.x, enemy.y, 36, palette.glow, 0.8).setStrokeStyle(5, palette.edge).setDepth(20);
     this.tweens.add({ targets: flash, scale: 2.3, alpha: 0, duration: 220, onComplete: () => flash.destroy() });
@@ -2212,10 +2216,19 @@ class ZeroGameScene extends Phaser.Scene {
   updateRollingBall(enemy, delta) {
     const ball = enemy.getData("elementBall");
     if (!ball?.active) { enemy.destroy(); return; }
-    const direction = enemy.getData("rollDirection") || 1;
-    enemy.setVelocityX(direction * 760);
+    const motion = calculateRollingBallMotion({
+      velocityX: enemy.body.velocity.x,
+      direction: enemy.getData("rollDirection") || 1,
+      deltaMs: delta,
+      grounded: enemy.body.blocked.down,
+      blockedLeft: enemy.body.blocked.left,
+      blockedRight: enemy.body.blocked.right,
+    });
+    enemy.setData("rollDirection", motion.direction);
+    enemy.setVelocityX(motion.velocityX);
     ball.setPosition(enemy.x, enemy.y);
-    ball.angle += delta * 0.8;
+    // Spin is tied to actual travel distance, so falling and slowing look natural.
+    ball.angle += motion.rotationDelta;
     const hits = enemy.getData("rollHits") || [];
     for (const target of this.enemies.getChildren()) {
       if (!target.active || target === enemy || hits.includes(target)) continue;
