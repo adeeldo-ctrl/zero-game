@@ -244,6 +244,6 @@ Committed source implementation:
 - Stage transition direction is calculated from the incoming stage number and remains deterministic.
 - Added a first-time-per-campaign tutorial cue when an enemy freezes: move close and tap Fire to kick the elemental ball. The cue resets for a fresh campaign.
 - Removed the obsolete demo-token continue state; the campaign's three-chance rule is now the only retry system.
-- CI run [44751460273](https://github.com/adeeldo-ctrl/zero-game/actions/runs/44751460273) passed `npm test`, `npm run lint`, and `npm run build` on commit `f6f7b023eff1b3e1d99715b187427a060fc51127`.
+- CI run [44751502299](https://github.com/adeeldo-ctrl/zero-game/actions/runs/44751502299) passed `npm test`, `npm run lint`, and `npm run build` on commit `f6f7b023eff1b3e1d99715b187427a060fc51127`. The later documentation-only commit also passed CI in [run 44751573442](https://github.com/adeeldo-ctrl/zero-game/actions/runs/44751573442).
 
 **Still not claimed as physically verified:** the transition animation and physics-body alignment require in-game runtime inspection. No Android APK has been built for this work.
