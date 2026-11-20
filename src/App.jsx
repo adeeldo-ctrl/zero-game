@@ -16,7 +16,8 @@ class ZeroGameScene extends Phaser.Scene {
       super: false,
       special1: false,
       special2: false,
-      special3: false
+      special3: false,
+      throw: false
     };
 
     this.stageNumber = 1;
@@ -146,6 +147,7 @@ class ZeroGameScene extends Phaser.Scene {
       special1: Phaser.Input.Keyboard.KeyCodes.ONE,
       special2: Phaser.Input.Keyboard.KeyCodes.TWO,
       special3: Phaser.Input.Keyboard.KeyCodes.THREE,
+      throw: Phaser.Input.Keyboard.KeyCodes.T,
       restart: Phaser.Input.Keyboard.KeyCodes.R
     });
 
@@ -906,6 +908,7 @@ class ZeroGameScene extends Phaser.Scene {
     this.createControl(292, 326, "S1", "special1");
     this.createControl(292, 418, "S2", "special2");
     this.createControl(292, 490, "S3", "special3");
+    this.createControl(430, 448, "THROW", "throw");
     this.createControl(650, 448, "SUPER", "super");
     this.createControl(765, 448, "FIRE", "attack");
     this.createControl(885, 448, "JUMP", "jump");
@@ -926,10 +929,10 @@ class ZeroGameScene extends Phaser.Scene {
   }
 
   createControl(x, y, label, action) {
-    const accents = { attack: 0xffa33c, super: 0xffd36b, jump: 0x75eaff, special1: 0xff8b5e, special2: 0x72e0ff, special3: 0xb69cff };
+    const accents = { attack: 0xffa33c, super: 0xffd36b, jump: 0x75eaff, throw: 0xff6b4a, special1: 0xff8b5e, special2: 0x72e0ff, special3: 0xb69cff };
     const accent = accents[action] || 0x75eaff;
-    const baseFill = action === "attack" ? 0x9b451f : action.startsWith("special") ? 0x263c72 : 0x176184;
-    const pressedFill = action === "attack" ? 0xf07828 : action.startsWith("special") ? 0x485fc1 : 0x249ac7;
+    const baseFill = action === "attack" ? 0x9b451f : action === "throw" ? 0x713b32 : action.startsWith("special") ? 0x263c72 : 0x176184;
+    const pressedFill = action === "attack" ? 0xf07828 : action === "throw" ? 0xd95d43 : action.startsWith("special") ? 0x485fc1 : 0x249ac7;
     const glow = this.add.circle(x, y, action.startsWith("special") ? 45 : 54, accent, 0.12).setDepth(28);
     const ring = this.add.circle(x, y, 49, 0x000000, 0)
       .setStrokeStyle(4, accent, 0.72).setDepth(29);
@@ -2021,6 +2024,40 @@ class ZeroGameScene extends Phaser.Scene {
     }
   }
 
+  throwMove() {
+    if (!this.gameStarted || this.gameOver || this.stageCleared) return;
+    const target = this.enemies.getChildren()
+      .filter(enemy => enemy.active && !enemy.getData("frozen") && !enemy.getData("isTimeHunter") &&
+        !enemy.getData("isBoss") && Math.abs(enemy.x - this.hero.x) <= 118 &&
+        Math.abs(enemy.y - this.hero.y) <= 88 && (enemy.x - this.hero.x) * this.facing >= -24)
+      .sort((a, b) => Phaser.Math.Distance.Between(this.hero.x, this.hero.y, a.x, a.y) -
+        Phaser.Math.Distance.Between(this.hero.x, this.hero.y, b.x, b.y))[0];
+    this.specialPoseType = "throw";
+    this.specialPoseUntil = this.time.now + 520;
+    const accent = this.selectedHero?.accent || 0xff805f;
+    const ring = this.add.circle(this.hero.x + this.facing * 24, this.hero.y - 10, 24, accent, 0.2)
+      .setStrokeStyle(6, accent, 0.95).setDepth(19);
+    this.tweens.add({ targets: ring, scale: 3.2, alpha: 0, duration: 360, onComplete: () => ring.destroy() });
+    this.cameras.main.shake(100, 0.003);
+    if (!target) {
+      this.statusLabel.setText("THROW: MOVE CLOSER TO AN ENEMY").setColor("#9feaff");
+      return;
+    }
+    target.body.setAllowGravity(true);
+    target.setCollideWorldBounds(true);
+    target.setBounce(0);
+    target.setData("specialKnockback", true);
+    target.setData("specialKnockbackUntil", this.time.now + 650);
+    target.setVelocity(this.facing * 520, -540);
+    const visual = target.getData("visual");
+    if (visual?.active) this.tweens.add({ targets: visual, angle: this.facing * 24, scaleX: 1.2, duration: 100, yoyo: true, repeat: 1 });
+    const burst = this.add.star(target.x, target.y - 10, 8, 5, 13, accent, 0.95)
+      .setStrokeStyle(2, 0xffffff).setDepth(24);
+    this.tweens.add({ targets: burst, angle: 180, scale: 2.2, alpha: 0, duration: 320, onComplete: () => burst.destroy() });
+    this.addScore(100);
+    this.statusLabel.setText("STREET THROW!").setColor("#ffe17a");
+  }
+
   specialMove() {
     if (!this.gameStarted || this.gameOver || this.stageCleared) return;
     const moves = this.selectedHero?.specialMoves || [];
@@ -2184,6 +2221,10 @@ class ZeroGameScene extends Phaser.Scene {
     if (Phaser.Input.Keyboard.JustDown(this.keys.super) || this.touch.super) {
       this.superAttack();
       this.touch.super = false;
+    }
+    if (Phaser.Input.Keyboard.JustDown(this.keys.throw) || this.touch.throw) {
+      this.throwMove();
+      this.touch.throw = false;
     }
     if (Phaser.Input.Keyboard.JustDown(this.keys.special1) || this.touch.special1 ||
         Phaser.Input.Keyboard.JustDown(this.keys.special2) || this.touch.special2 ||
