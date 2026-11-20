@@ -1,8 +1,9 @@
 import { spawn } from "node:child_process";
+import { once } from "node:events";
 import { setTimeout as delay } from "node:timers/promises";
 import { chromium } from "playwright";
 
-const server = spawn("npm", ["run", "dev", "--", "--host", "127.0.0.1", "--port", "4173", "--strictPort"], {
+const server = spawn(process.execPath, ["node_modules/vite/bin/vite.js", "--host", "127.0.0.1", "--port", "4173", "--strictPort"], {
   cwd: process.cwd(),
   stdio: ["ignore", "pipe", "pipe"],
 });
@@ -25,8 +26,13 @@ try {
 
   browser = await chromium.launch({ headless: true, args: ["--no-sandbox", "--disable-dev-shm-usage"] });
   const page = await browser.newPage({ viewport: { width: 960, height: 540 } });
+  page.setDefaultTimeout(15000);
+  page.setDefaultNavigationTimeout(15000);
   const runtimeErrors = [];
   page.on("pageerror", (error) => runtimeErrors.push(error.message));
+  page.on("console", (message) => {
+    if (message.type() === "error") runtimeErrors.push(message.text());
+  });
   await page.goto("http://127.0.0.1:4173", { waitUntil: "domcontentloaded" });
   const canvas = page.locator("#game-container canvas");
   await canvas.waitFor({ state: "visible", timeout: 15000 });
@@ -53,7 +59,11 @@ try {
   console.log("Browser smoke test passed: canvas, campaign entry, hero selection, gameplay inputs, and no uncaught runtime errors.");
 } finally {
   if (browser) await browser.close();
-  server.kill("SIGTERM");
-  await delay(250);
+  if (server.exitCode === null) {
+    server.kill("SIGTERM");
+    await Promise.race([once(server, "exit").catch(() => {}), delay(1000)]);
+  }
   if (server.exitCode === null) server.kill("SIGKILL");
+  server.stdout.destroy();
+  server.stderr.destroy();
 }
