@@ -302,3 +302,12 @@ Committed source implementation:
 - Corrected smoke-test server startup/cleanup to launch Vite directly and terminate the exact child process. The first smoke-test attempt exposed a lingering npm-child process; the corrected run completes cleanly.
 - Headless Chromium campaign smoke test passed on commit `16c73ca96c3f1e4745ec7c48afab10983bc930e4`: [CI run 44757318455](https://github.com/adeeldo-ctrl/zero-game/actions/runs/44757318455).
 - This is automated browser testing, not physical Android device testing. Boss-stage progression through all 50 stages and touch interaction on the Redmi Note 8 still require dedicated verification.
+
+
+## Final integrated hardening — 2026-11-20
+
+- Latest 50-stage Chromium run [44772529464](https://github.com/adeeldo-ctrl/zero-game/actions/runs/44772529464) passed: all 50 stage restarts, 50 unique landmark signatures, hero/lives persistence, all three stage-entry directions, grounded regular enemies, real platform physics, boss archetype attack patterns, and no uncaught browser runtime errors.
+- Extended the headless runtime suite to exercise all three RYO special moves against live Phaser enemies, verify independent cooldown activation, and kick an elemental ball into a second enemy. The updated test is running in CI after this commit.
+- Removed the redundant legacy Android APK workflow. There is now one manual-only APK workflow, which applies landscape orientation, immersive full-screen navigation/status-bar hiding, launcher resources, and only then assembles/uploads the debug APK.
+- Strengthened Android static validation so CI checks the single workflow's manual-only trigger, landscape setting, immersive flags, APK artifact step, and absence of APK building in continuous checks.
+- APK workflows have not been dispatched. No APK has been built. Physical Redmi Note 8 touch/display/audio testing remains a user-device verification step; Chromium automation is not represented as physical-device testing.
