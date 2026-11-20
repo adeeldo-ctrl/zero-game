@@ -208,3 +208,30 @@ Source changes committed to main after the user's clarification:
 - Pushes and pull requests may run tests, lint and web build, but must never run Gradle APK assembly or upload APK artifacts.
 - Do not dispatch any APK workflow, run `assembleDebug`, or create a release APK until every requested feature, regression test, lint check and web build is complete and accepted.
 - The Android APK is the final delivery step only.
+
+
+## Campaign systems implementation progress — 2026-11-20
+
+Committed source implementation:
+
+- Added `src/campaignRules.js` with a campaign life-state model: three chances, three hearts per chance, chance decrement after the third heart is lost, and Game Over after the third chance.
+- Added regression tests for fresh campaign state, all three chance-loss boundaries, Game Over, and deterministic transition directions for all 50 stage numbers.
+- Hero selection is now guarded by a campaign lock. Selecting a hero starts a new campaign; stage restarts keep the same selected hero and do not return to hero selection.
+- Replaced the old token-based continue screen with a Game Over screen and an explicit new-campaign action. Losing a chance restores three hearts and respawns the same selected hero in the current stage.
+- HUD now separates hearts from remaining chances. The existing 10,000-score bonus is retained as a heart/chance recovery reward, capped at three hearts and three chances.
+- Stage advance (both the Next Stage control and keyboard advance) uses a fixed repeating direction map across the 50 stages: downward entry, left-to-right entry, right-to-left entry. The stage scene's background, scenery, platforms and hero are animated into the fixed 960×540 arena before enemies and controls resume.
+- The transition pauses the physics world while stage objects move and synchronizes Arcade bodies with their display objects; gameplay resumes after the transition callback.
+
+### Automated verification
+
+- CI run [44751094986](https://github.com/adeeldo-ctrl/zero-game/actions/runs/44751094986) completed successfully after the transition-index correction.
+- `npm test`, `npm run lint`, and `npm run build` all passed on commit `f80b5127a0b4b1cefb52d156a24e304b50e55946`.
+- The earlier failing test run was caused by an off-by-one in the stage-direction helper; it was corrected and the subsequent full CI run passed.
+
+### Remaining integration verification
+
+- Inspect the transition animation in a running Phaser game for all three entry directions, including static-platform collision-body alignment throughout movement.
+- Verify hero selection appears exactly once in a complete campaign and persists through all stage advances and chance losses.
+- Verify the chance/heart HUD, damage invulnerability, respawn timing, Game Over and new-campaign reset in gameplay.
+- Continue the remaining animation, enemy/snowball, specials, bosses, audio and Android compatibility work.
+- Do not create an Android APK until every requested feature and all regression checks are complete.
