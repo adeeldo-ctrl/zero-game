@@ -920,6 +920,7 @@ class ZeroGameScene extends Phaser.Scene {
     this.joystickPointerId = null;
     this.tweens.add({ targets: this.joystickBase, alpha: 0.88, duration: 750, yoyo: true, repeat: -1 });
     const startStick = pointer => {
+      if (this.joystickActive) return;
       this.joystickActive = true;
       this.joystickPointerId = pointer.id;
       this.moveJoystick(pointer);
@@ -982,26 +983,26 @@ class ZeroGameScene extends Phaser.Scene {
     }).setOrigin(0.5).setDepth(31);
     if (action === "attack") this.attackRing = ring;
     this.tweens.add({ targets: glow, scale: 1.12, alpha: 0.04, duration: 900, yoyo: true, repeat: -1 });
-    let pressed = false;
-    bg.on("pointerdown", () => {
-      if (pressed) return;
-      pressed = true;
+    let pressedPointerId = null;
+    bg.on("pointerdown", pointer => {
+      if (pressedPointerId !== null) return;
+      pressedPointerId = pointer.id;
       this.touch[action] = true;
       bg.setFillStyle(pressedFill);
       this.tweens.add({ targets: [bg, text], scale: 0.88, duration: 85, yoyo: true, ease: "Back.easeOut" });
       this.tweens.add({ targets: ring, scale: 1.3, alpha: 1, duration: 110 });
       this.cameras.main.shake(45, 0.0015);
     });
-    const release = () => {
-      if (!pressed) return;
-      pressed = false;
+    const release = pointer => {
+      if (pressedPointerId === null) return;
+      if (pointer && pointer.id !== pressedPointerId) return;
+      pressedPointerId = null;
       this.touch[action] = false;
       bg.setFillStyle(baseFill);
       this.tweens.add({ targets: [bg, text], scale: 1, duration: 100, ease: "Back.easeOut" });
       this.tweens.add({ targets: ring, scale: 1, alpha: 0.72, duration: 160 });
     };
     bg.on("pointerup", release);
-    bg.on("pointerout", release);
     bg.on("pointerupoutside", release);
   }
 
@@ -2662,6 +2663,11 @@ export default function App() {
           gravity: { y: 1000 },
           debug: false
         }
+      },
+      // Allow simultaneous joystick + action-button touches on phones/tablets.
+      input: {
+        activePointers: 4,
+        touch: { capture: true }
       },
       scale: {
         mode: Phaser.Scale.FIT,
