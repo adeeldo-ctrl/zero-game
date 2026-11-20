@@ -2654,10 +2654,23 @@ class ZeroGameScene extends Phaser.Scene {
     }
 
     if (attacking) {
-      p.armR.rotation = this.facing * -1.2;
-      p.handR.y = 18;
+      p.armL.rotation = -0.78;
+      p.armR.rotation = this.facing * -1.25;
+      p.handL.y = 13;
+      p.handR.y = 10;
+    } else if (time < (this.normalAttackUntil || 0)) {
+      // Quick straight punch with a planted rear foot and torso lean.
+      const punchProgress = Phaser.Math.Clamp((this.normalAttackUntil - time) / 190, 0, 1);
+      const punch = Math.sin((1 - punchProgress) * Math.PI);
+      p.armL.rotation = -0.78;
+      p.armR.rotation = this.facing * (-1.35 - punch * 1.05);
+      p.handL.y = 13;
+      p.handR.y = 8 - punch * 3;
+      p.legL.rotation = -0.2;
+      p.legR.rotation = 0.3;
+      visual.setAngle(this.facing * -punch * 0.055);
     } else {
-      p.handR.y = 27;
+      p.handR.y = 12;
     }
 
     const specialActive = time < (this.specialPoseUntil || 0);
