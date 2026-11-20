@@ -37,3 +37,68 @@ test("music and SFX volume settings persist between audio instances", async () =
     else globalThis.localStorage = previousStorage;
   }
 });
+
+
+test("stopping audio clears queued notes and suspends active audio", async () => {
+  const { createGameAudio } = await import("../src/gameAudio.js");
+  const previous = {
+    window: globalThis.window,
+    localStorage: globalThis.localStorage,
+    setTimeout: globalThis.setTimeout,
+    clearTimeout: globalThis.clearTimeout,
+  };
+  const timers = new Map();
+  const oscillators = [];
+  let nextTimer = 1;
+  let suspended = false;
+  class FakeAudioContext {
+    constructor() { this.state = "running"; this.currentTime = 0; this.destination = {}; }
+    resume() { this.state = "running"; return Promise.resolve(); }
+    suspend() { this.state = "suspended"; suspended = true; return Promise.resolve(); }
+    createOscillator() {
+      const oscillator = {
+        frequency: { setValueAtTime() {} },
+        connect() {}, disconnect() {},
+        start() {},
+        stop() { this.stopCalls = (this.stopCalls || 0) + 1; },
+        type: "triangle",
+      };
+      oscillators.push(oscillator);
+      return oscillator;
+    }
+    createGain() {
+      return {
+        gain: { setValueAtTime() {}, exponentialRampToValueAtTime() {} },
+        connect() {}, disconnect() {},
+      };
+    }
+  }
+  globalThis.window = { AudioContext: FakeAudioContext };
+  const values = new Map();
+  globalThis.localStorage = {
+    getItem: (key) => values.get(key) ?? null,
+    setItem: (key, value) => values.set(key, String(value)),
+  };
+  globalThis.setTimeout = (callback) => {
+    const id = nextTimer++;
+    timers.set(id, callback);
+    return id;
+  };
+  globalThis.clearTimeout = (id) => timers.delete(id);
+  try {
+    const audio = createGameAudio();
+    audio.unlock();
+    audio.play("fire");
+    assert.ok(timers.size > 0, "music and effects should queue follow-up notes");
+    audio.stop();
+    assert.equal(timers.size, 0, "stop should clear all queued notes");
+    assert.ok(oscillators.some((oscillator) => oscillator.stopCalls > 0),
+      "stop should terminate currently playing oscillators");
+    assert.equal(suspended, true, "stop should suspend the audio context");
+  } finally {
+    globalThis.window = previous.window;
+    globalThis.localStorage = previous.localStorage;
+    globalThis.setTimeout = previous.setTimeout;
+    globalThis.clearTimeout = previous.clearTimeout;
+  }
+});
