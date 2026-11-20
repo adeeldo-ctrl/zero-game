@@ -211,7 +211,7 @@ try {
     return scene?.sys.isActive() && scene.stageNumber === 1 && scene.stageConfig?.number === 1 &&
       !scene.gameStarted && !scene.gameOver && !scene.campaignActive && !scene.heroSelectionLocked &&
       scene.chances === 3 && scene.health === 3 && scene.hero?.body?.enable === true;
-  }, { timeout: 10000 });
+  }, undefined, { timeout: 10000 });
   await page.mouse.click(120, 486);
   await delay(1200);
   await page.evaluate(() => {
@@ -252,7 +252,7 @@ try {
   await page.waitForFunction(() => {
     const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
     return scene?.hero?.body?.blocked?.down === true;
-  }, { timeout: 5000 });
+  }, undefined, { timeout: 5000 });
   await page.evaluate(() => {
     const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
     if (Math.abs(scene.hero.body.bottom - window.__ZERO_GAME_PLATFORM_TOP__) > 8) {
@@ -270,7 +270,7 @@ try {
   await page.waitForFunction(() => {
     const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
     return scene?.hero?.body?.blocked?.down === true && scene.hero.y >= 455;
-  }, { timeout: 5000 });
+  }, undefined, { timeout: 5000 });
   await page.evaluate(() => {
     const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
     if (scene.hero.y < 455) throw new Error("DOWN + JUMP did not land on the permanent floor");
@@ -281,7 +281,7 @@ try {
   await page.waitForFunction(() => {
     const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
     return scene?.hero?.body?.blocked?.down === true;
-  }, { timeout: 3000 });
+  }, undefined, { timeout: 3000 });
   await page.evaluate(() => {
     const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
     if (Math.abs(scene.hero.y - 462) > 8) throw new Error("Hero did not settle on the permanent floor");
@@ -388,7 +388,7 @@ try {
     const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
     return scene?.stageNumber === 2 && scene.stageConfig?.number === 2 &&
       scene.gameStarted && !scene.stageTransitionActive;
-  }, { timeout: 10000 });
+  }, undefined, { timeout: 10000 });
   await page.evaluate(() => {
     const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
     const before = window.__ZERO_GAME_PERSISTENCE__;
@@ -443,7 +443,7 @@ try {
       return scene?.enemies?.getChildren().some((enemy) =>
         enemy.active && !enemy.getData("isBoss") && !enemy.getData("isTimeHunter")
       );
-    }, { timeout: 3000 });
+    }, undefined, { timeout: 3000 });
     const stageState = await page.evaluate(() => {
       const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
       return {
