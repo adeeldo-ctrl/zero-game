@@ -30,15 +30,20 @@ for source in ("zero_game_foreground.xml", "mipmap-anydpi-v26", "mipmap-anydpi")
     assert source in icon_installer, f"Icon installer does not install {source}"
 
 workflow_dir = root / ".github/workflows"
-for workflow in (workflow_dir / "zero-game-android.yml", workflow_dir / "android-apk.yml"):
-    content = workflow.read_text(encoding="utf-8")
-    trigger_block = re.search(r"(?ms)^on:\s*\n((?:[ \t]+.*\n)*)", content)
-    assert trigger_block and re.search(r"(?m)^  workflow_dispatch:\s*$", trigger_block.group(1)), (
-        f"{workflow.name} must be manually dispatched"
-    )
-    assert not re.search(r"(?m)^  (?:push|pull_request):", trigger_block.group(1)), (
-        f"{workflow.name} must not build APKs on pushes or pull requests"
-    )
+apk_workflow = workflow_dir / "zero-game-android.yml"
+content = apk_workflow.read_text(encoding="utf-8")
+trigger_block = re.search(r"(?ms)^on:\s*\n((?:[ \t]+.*\n)*)", content)
+assert trigger_block and re.search(r"(?m)^  workflow_dispatch:\s*$", trigger_block.group(1)), (
+    "The single Android APK workflow must be manually dispatched"
+)
+assert not re.search(r"(?m)^  (?:push|pull_request):", trigger_block.group(1)), (
+    "The Android APK workflow must not build APKs on pushes or pull requests"
+)
+assert "assembleDebug" in content and "upload-artifact@v4" in content
+assert "screenOrientation" in content, "Android launcher must be locked to landscape"
+for flag in ("SYSTEM_UI_FLAG_IMMERSIVE_STICKY", "SYSTEM_UI_FLAG_HIDE_NAVIGATION", "SYSTEM_UI_FLAG_FULLSCREEN"):
+    assert flag in content, f"Android immersive full-screen mode is missing {flag}"
+assert not (workflow_dir / "android-apk.yml").exists(), "Remove the redundant legacy APK workflow"
 
 ci = (workflow_dir / "zero-game-ci.yml").read_text(encoding="utf-8")
 assert "npm test" in ci and "npm run lint" in ci and "npm run build" in ci
