@@ -19,6 +19,17 @@ export function createGameAudio() {
   let context = null;
   let musicTimer = null;
   let musicIndex = 0;
+  const pendingTimers = new Set();
+  const activeOscillators = new Set();
+
+  const schedule = (callback, delay) => {
+    const timer = setTimeout(() => {
+      pendingTimers.delete(timer);
+      callback();
+    }, delay);
+    pendingTimers.add(timer);
+    return timer;
+  };
   let musicEnabled = localStorage.getItem("zero_game_music") !== "off";
   let sfxEnabled = localStorage.getItem("zero_game_sfx") !== "off";
   const storedMusicVolume = Number(localStorage.getItem("zero_game_music_volume"));
@@ -51,6 +62,12 @@ export function createGameAudio() {
     gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
     oscillator.connect(gain);
     gain.connect(destination || context.destination);
+    activeOscillators.add(oscillator);
+    oscillator.onended = () => {
+      activeOscillators.delete(oscillator);
+      oscillator.disconnect();
+      gain.disconnect();
+    };
     oscillator.start(now);
     oscillator.stop(now + duration + 0.025);
   };
@@ -60,7 +77,7 @@ export function createGameAudio() {
     ensureContext();
     const notes = SOUND_NOTES[name] || SOUND_NOTES.ui;
     notes.forEach((frequency, index) => {
-      if (context) setTimeout(() => tone(frequency, 0.09, "square", 0.055 * sfxVolume), index * 48);
+      if (context) schedule(() => tone(frequency, 0.09, "square", 0.055 * sfxVolume), index * 48);
     });
   };
 
@@ -74,7 +91,7 @@ export function createGameAudio() {
       tone(frequency, 0.22, "triangle", 0.025 * musicVolume);
       if (musicIndex % 4 === 0) tone(NOTE_FREQUENCIES.C3, 0.28, "sine", 0.018 * musicVolume);
       musicIndex++;
-      musicTimer = setTimeout(step, 260);
+      musicTimer = schedule(step, 260);
     };
     step();
   };
@@ -115,8 +132,14 @@ export function createGameAudio() {
   };
 
   const stop = () => {
-    if (musicTimer) clearTimeout(musicTimer);
+    for (const timer of pendingTimers) clearTimeout(timer);
+    pendingTimers.clear();
     musicTimer = null;
+    for (const oscillator of activeOscillators) {
+      try { oscillator.stop(); } catch { /* It may already have ended. */ }
+    }
+    activeOscillators.clear();
+    if (context?.state === "running") context.suspend().catch(() => {});
   };
 
   return {
