@@ -173,6 +173,50 @@ try {
     }
   });
 
+  // Use the remaining two chances in the live scene and verify the true Game Over boundary.
+  for (const expectedChances of [1, 0]) {
+    await page.evaluate((expected) => {
+      const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+      const harmlessEnemy = window.__ZERO_GAME_LIVES_TEST_ENEMY__;
+      for (let hit = 0; hit < 3; hit++) {
+        scene.lastDamage = -10000;
+        scene.damageHero(scene.hero, harmlessEnemy);
+      }
+      if (scene.chances !== expected) {
+        throw new Error("Expected " + expected + " remaining chance(s), received " + scene.chances);
+      }
+    }, expectedChances);
+    if (expectedChances > 0) {
+      await delay(1050);
+      await page.evaluate(() => {
+        const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+        if (scene.health !== 3 || scene.chanceLossInProgress || scene.gameOver) {
+          throw new Error("A remaining chance did not restore three hearts and resume gameplay");
+        }
+      });
+    }
+  }
+  await page.evaluate(() => {
+    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+    if (!scene.gameOver || scene.chances !== 0 || scene.health !== 0) {
+      throw new Error("The third lost chance did not end the campaign");
+    }
+    scene.startNewCampaign();
+    if (scene.chances !== 3 || scene.health !== 3 || scene.stageNumber !== 1 ||
+        scene.gameOver || scene.campaignActive || scene.heroSelectionLocked) {
+      throw new Error("Starting a new campaign did not reset all campaign state");
+    }
+  });
+  await page.mouse.click(120, 486);
+  await delay(1200);
+  await page.evaluate(() => {
+    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+    if (!scene.campaignActive || !scene.heroSelectionLocked || scene.chances !== 3 ||
+        scene.health !== 3 || scene.stageNumber !== 1) {
+      throw new Error("New campaign did not lock one hero selection and restore the full lives pool");
+    }
+  });
+
   // Exercise real Arcade Physics for pass-through, landing, drop-through and permanent floor.
   await page.evaluate(() => {
     const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
