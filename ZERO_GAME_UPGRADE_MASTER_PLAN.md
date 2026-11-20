@@ -293,3 +293,12 @@ Committed source implementation:
 - Added music/SFX volume hit targets to the Android touch overlay, since the full-screen overlay intercepts touches before Phaser HUD labels receive them. This preserves the existing joystick and action-button hit areas.
 - The snowball rule tests and the preceding combat/audio unit tests passed in CI run [44756530964](https://github.com/adeeldo-ctrl/zero-game/actions/runs/44756530964), alongside lint, Android static validation, and web build.
 - Latest mobile HUD touch-zone adjustments are committed and awaiting their CI run. No Android APK has been built.
+
+
+## Headless gameplay runtime smoke test — 2026-11-20
+
+- Added `scripts/smoke-game-browser.mjs` and a Chromium smoke-test step to CI. It opens the actual Vite game, verifies the fixed 960×540 canvas, enters the campaign, selects a hero, waits for gameplay/enemy spawning, exercises jump, all three special keys and fire, and fails on uncaught browser/runtime console errors.
+- Pinned the CI runner to Ubuntu 24.04 because the prior `ubuntu-latest` image had moved to Ubuntu 26.04, which Playwright 1.56.1 did not yet support.
+- Corrected smoke-test server startup/cleanup to launch Vite directly and terminate the exact child process. The first smoke-test attempt exposed a lingering npm-child process; the corrected run completes cleanly.
+- Headless Chromium campaign smoke test passed on commit `16c73ca96c3f1e4745ec7c48afab10983bc930e4`: [CI run 44757318455](https://github.com/adeeldo-ctrl/zero-game/actions/runs/44757318455).
+- This is automated browser testing, not physical Android device testing. Boss-stage progression through all 50 stages and touch interaction on the Redmi Note 8 still require dedicated verification.
