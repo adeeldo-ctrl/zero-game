@@ -1,5 +1,9 @@
 import json
 import re
+import shutil
+import subprocess
+import sys
+import tempfile
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
@@ -42,4 +46,34 @@ assert "assembleDebug" not in ci and "upload-artifact" not in ci, (
     "Continuous checks must never build or upload an APK"
 )
 
-print("Android package, launcher icon resources, and manual-only APK workflow policy validated.")
+# Run the real icon installer against an isolated mock Capacitor manifest.
+with tempfile.TemporaryDirectory(prefix="zero-game-android-check-") as temporary:
+    temp_root = Path(temporary)
+    shutil.copytree(root / "android-res", temp_root / "android-res")
+    mock_manifest = temp_root / "android/app/src/main/AndroidManifest.xml"
+    mock_manifest.parent.mkdir(parents=True, exist_ok=True)
+    mock_manifest.write_text(
+        '<manifest xmlns:android="http://schemas.android.com/apk/res/android">'
+        '<application /></manifest>',
+        encoding="utf-8",
+    )
+    subprocess.run(
+        [sys.executable, str(root / "scripts/install-android-icon.py")],
+        cwd=temp_root,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    installed_tree = ET.parse(mock_manifest)
+    installed_app = installed_tree.getroot().find("application")
+    android = "{http://schemas.android.com/apk/res/android}"
+    assert installed_app.get(android + "icon") == "@mipmap/ic_launcher"
+    assert installed_app.get(android + "roundIcon") == "@mipmap/ic_launcher"
+    for relative in (
+        "android/app/src/main/res/drawable/zero_game_foreground.xml",
+        "android/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml",
+        "android/app/src/main/res/mipmap-anydpi/ic_launcher.xml",
+    ):
+        assert (temp_root / relative).is_file(), f"Icon installer missed {relative}"
+
+print("Android package, launcher icon installation, and manual-only APK workflow policy validated.")
