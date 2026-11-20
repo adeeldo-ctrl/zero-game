@@ -67,6 +67,9 @@ jobs:
       - name: Sync Capacitor Android project
         run: npx cap sync android
 
+      - name: Install ZERO GAME launcher icon
+        run: python3 scripts/install-android-icon.py
+
       - name: Force Android game into landscape orientation
         run: |
           python - <<'PY'
