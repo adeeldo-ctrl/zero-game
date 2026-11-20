@@ -172,3 +172,39 @@ Source changes committed to main after the user's clarification:
 - Verify all 50 stages visually in-game, especially that their five variations are genuinely distinct and platforms remain reachable.
 - Build a fresh Android APK and physically test on the user's Redmi Note 8.
 - Do not mark the movement or premium stage redesign complete until those checks pass.
+
+
+## User clarification — campaign selection, chances, hearts and stage transitions (2026-11-20)
+
+### One-time hero selection
+- Show the hero-selection screen once when a new campaign begins.
+- Lock the selected hero for the entire 50-stage campaign; do not show hero selection again on every stage or after a stage transition.
+- Preserve the chosen hero and campaign progress through stage changes and continue/retry flows.
+
+### Three chances, three hearts each
+- The player has exactly **3 chances** for the campaign.
+- Each chance contains **3 hearts** (health points).
+- Losing all 3 hearts consumes one chance. If another chance remains, restore the player to 3 hearts and resume the current stage without asking for hero selection again.
+- When all 3 chances are consumed, show Game Over. Do not silently grant unlimited retries or make the old demo-token system bypass the three-chance campaign rule.
+- Display chances and hearts clearly in the HUD and failure screen. Keep score/extra-life rules separate unless explicitly integrated and tested.
+
+### Snow Bros.-inspired stage transitions
+- On stage clear, use a polished transition that brings the *next stage itself* into view, not only a text overlay or instant scene restart.
+- Author a deterministic entry direction per stage: some stages enter from above moving downward, others from left moving right, and others from right moving left.
+- Use a fixed stage-number-to-direction mapping (never random) and animate the incoming stage's scenery, platforms and stage identity together.
+- Spawn/activate enemies and resume player control only after the transition completes.
+- Keep the 960×540 fixed arena, preserve the selected hero and campaign state, and prevent transition animation from moving or resizing the gameplay camera.
+
+### Acceptance checks
+- Hero selection appears once per new campaign and remains locked for all 50 stages.
+- The selected hero persists across stage changes, retries and chance loss.
+- HUD shows 3 chances and 3 hearts per chance; losing all hearts consumes exactly one chance.
+- The next chance restores 3 hearts; after the third chance is lost, Game Over is shown.
+- All 50 stage transitions use the authored direction mapping and correctly load the matching next-stage scenery/platform layout.
+- Transition completion starts gameplay exactly once and does not duplicate enemies, timers, music loops or physics objects.
+
+## APK build policy — strict
+- Every workflow capable of producing an Android APK must use manual `workflow_dispatch` only.
+- Pushes and pull requests may run tests, lint and web build, but must never run Gradle APK assembly or upload APK artifacts.
+- Do not dispatch any APK workflow, run `assembleDebug`, or create a release APK until every requested feature, regression test, lint check and web build is complete and accepted.
+- The Android APK is the final delivery step only.
