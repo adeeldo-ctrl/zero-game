@@ -2732,81 +2732,114 @@ class ZeroGameScene extends Phaser.Scene {
       ? Phaser.Math.Clamp((time - (this.specialPoseStartedAt || time)) / Math.max(1, (this.specialPoseUntil || time) - (this.specialPoseStartedAt || time)), 0, 1)
       : 0;
     if (specialActive) {
-      const pulse = Math.sin(specialProgress * Math.PI * 2);
       const sign = this.facing;
-      const tuck = Math.sin(Math.min(1, specialProgress * 2) * Math.PI / 2);
+      const progress = specialProgress;
+      const smooth = (a, b, value) => {
+        const v = Phaser.Math.Clamp((value - a) / (b - a), 0, 1);
+        return v * v * (3 - 2 * v);
+      };
+      // Every move has readable anticipation, strike, impact hold and recovery.
+      // The pose is driven by the animation clock, not by attack cooldowns.
+      const windUp = 1 - smooth(0.04, 0.25, progress);
+      const strike = smooth(0.20, 0.36, progress) * (1 - smooth(0.56, 0.73, progress));
+      const recoil = smooth(0.68, 0.98, progress);
+      const impactPulse = Math.sin(smooth(0.34, 0.43, progress) * Math.PI);
       visual.setAngle(0);
       p.handL.y = 14;
       p.handR.y = 14;
+
       if (this.specialPoseType === "wave") {
-        // Charge, step in, thrust the palm, then recoil.
-        const thrust = Math.sin(Math.min(1, specialProgress / 0.72) * Math.PI);
-        p.armL.rotation = -0.92;
-        p.armR.rotation = sign * (-1.85 + thrust * 1.08);
-        p.handL.y = 11;
-        p.handR.y = 8 - thrust * 5;
-        p.legL.rotation = -0.24 - thrust * 0.12;
-        p.legR.rotation = 0.28 + thrust * 0.1;
-        visual.y = h.y + Math.sin(specialProgress * Math.PI) * 3;
-        visual.setScale(sign * (1 + thrust * 0.08), 1 - thrust * 0.035);
+        // Classic projectile stance: pull both fists in, step forward, then drive
+        // the lead palm through the target before settling back into guard.
+        p.armL.rotation = sign * (-1.15 + windUp * 0.28);
+        p.armR.rotation = sign * (-1.95 + strike * 1.38 - recoil * 0.18);
+        p.handL.y = 10 + windUp * 5;
+        p.handR.y = 8 - strike * 8;
+        p.legL.rotation = -0.34 - strike * 0.12 + recoil * 0.12;
+        p.legR.rotation = 0.48 + strike * 0.10;
+        visual.x = h.x + sign * (windUp * -5 + strike * 8 - recoil * 3);
+        visual.y = h.y + windUp * 2 - strike * 3 + recoil * 2;
+        visual.setScale(sign * (1 + strike * 0.10), 1 - strike * 0.045);
       } else if (this.specialPoseType === "uppercut") {
-        const rise = Math.sin(specialProgress * Math.PI);
-        p.armL.rotation = -0.82;
-        p.armR.rotation = sign * (-2.45 - rise * 0.28);
-        p.handR.y = 1 - rise * 9;
-        p.legL.rotation = -0.58 - rise * 0.16;
-        p.legR.rotation = 0.72 + rise * 0.18;
-        visual.setAngle(sign * (-0.08 - rise * 0.12));
-        visual.setScale(sign * (1 - rise * 0.05), 1 + rise * 0.12);
+        // Deep knee dip, explosive rising fist, airborne follow-through and landing.
+        const launch = smooth(0.12, 0.40, progress);
+        const follow = 1 - smooth(0.64, 0.98, progress);
+        p.armL.rotation = sign * (-1.18 + windUp * 0.22);
+        p.armR.rotation = sign * (-2.55 - launch * 0.48 + recoil * 1.35);
+        p.handR.y = 7 - launch * 12 + recoil * 5;
+        p.legL.rotation = -0.18 - windUp * 0.62 - launch * 0.36 + recoil * 0.2;
+        p.legR.rotation = 0.18 + windUp * 0.72 + launch * 0.42 - recoil * 0.2;
+        visual.x = h.x + sign * (launch * 5);
+        visual.y = h.y + windUp * 5 - launch * 5 + recoil * 3;
+        visual.setAngle(sign * (-launch * 0.18 + follow * 0.04));
+        visual.setScale(sign * (1 - launch * 0.055), 1 + launch * 0.14);
       } else if (this.specialPoseType === "spin") {
-        const spinEase = 1 - Math.pow(1 - specialProgress, 2);
-        p.armL.rotation = -1.75 + pulse * 0.12;
-        p.armR.rotation = 1.75 - pulse * 0.12;
-        p.legL.rotation = -0.72 + pulse * 0.18;
-        p.legR.rotation = 0.72 - pulse * 0.18;
-        visual.setAngle(sign * spinEase * 360);
-        visual.setScale(sign * (1 + Math.sin(specialProgress * Math.PI) * 0.22), 0.92);
+        // A readable multi-kick silhouette: tucked prep, rotating side kick,
+        // then a planted recovery instead of a flat full-body spin.
+        const turn = smooth(0.18, 0.72, progress);
+        const kick = Math.sin(turn * Math.PI);
+        p.armL.rotation = sign * (-1.5 - kick * 0.28);
+        p.armR.rotation = sign * (1.5 + kick * 0.28);
+        p.legL.rotation = -0.42 - kick * 0.25;
+        p.legR.rotation = 0.42 + kick * 1.22;
+        p.shoeR.y = 34 - kick * 9;
+        visual.setAngle(sign * turn * 250);
+        visual.setScale(sign * (1 + kick * 0.16), 1 - kick * 0.06);
       } else if (this.specialPoseType === "rapid") {
-        const combo = Math.sin(specialProgress * Math.PI * 10);
-        p.armL.rotation = sign * (-1.45 + Math.max(0, combo) * 1.25);
-        p.armR.rotation = sign * (-1.45 - Math.max(0, -combo) * 1.25);
-        p.handL.y = 11 + Math.max(0, combo) * 9;
-        p.handR.y = 11 + Math.max(0, -combo) * 9;
-        p.legL.rotation = -0.2 + combo * 0.2;
-        p.legR.rotation = 0.2 - combo * 0.2;
-        visual.setAngle(sign * pulse * 0.035);
+        // Alternating left-right punches with a visible shoulder/body snap.
+        const combo = Math.sin(progress * Math.PI * 12);
+        const leftHit = Math.max(0, combo);
+        const rightHit = Math.max(0, -combo);
+        p.armL.rotation = sign * (-1.55 - leftHit * 1.38 + rightHit * 0.18);
+        p.armR.rotation = sign * (-1.55 - rightHit * 1.38 + leftHit * 0.18);
+        p.handL.y = 12 - leftHit * 8;
+        p.handR.y = 12 - rightHit * 8;
+        p.legL.rotation = -0.22 - leftHit * 0.12 + rightHit * 0.12;
+        p.legR.rotation = 0.22 + rightHit * 0.12 - leftHit * 0.12;
+        visual.x = h.x + sign * combo * 2.5;
+        visual.setAngle(sign * combo * 0.065);
+        visual.setScale(sign * (1 + Math.max(leftHit, rightHit) * 0.055), 1);
       } else if (this.specialPoseType === "electric") {
-        p.armL.rotation = -1.95 - tuck * 0.22;
-        p.armR.rotation = 1.95 + tuck * 0.22;
-        p.handL.y = 7 + Math.abs(pulse) * 4;
-        p.handR.y = 7 + Math.abs(pulse) * 4;
-        p.legL.rotation = -0.42;
-        p.legR.rotation = 0.42;
-        visual.setScale(sign * (1 + Math.sin(specialProgress * Math.PI) * 0.16), 1);
+        // Low charge crouch, grounded double-fist release and electrical recoil.
+        p.armL.rotation = sign * (-1.55 - windUp * 0.62 + strike * 0.58);
+        p.armR.rotation = sign * (1.55 + windUp * 0.62 - strike * 0.58);
+        p.handL.y = 12 - strike * 9;
+        p.handR.y = 12 - strike * 9;
+        p.legL.rotation = -0.18 - windUp * 0.55 + recoil * 0.18;
+        p.legR.rotation = 0.18 + windUp * 0.55 - recoil * 0.18;
+        visual.y = h.y + windUp * 5 - strike * 3 + recoil * 2;
+        visual.setScale(sign * (1 + strike * 0.18 + impactPulse * 0.035), 1 - windUp * 0.08);
       } else if (this.specialPoseType === "roll") {
-        p.armL.rotation = -0.35;
-        p.armR.rotation = 0.35;
-        p.legL.rotation = -1.05;
-        p.legR.rotation = 1.05;
-        visual.setAngle(sign * specialProgress * 540);
-        visual.setScale(sign * 1.15, 0.72);
+        // Low shoulder-first rush with a forward lean; avoid spinning the whole
+        // character like a wheel so the charge reads as a fighting move.
+        const dash = smooth(0.12, 0.42, progress) * (1 - smooth(0.72, 0.98, progress));
+        p.armL.rotation = sign * (-0.45 - dash * 0.35);
+        p.armR.rotation = sign * (0.45 + dash * 0.35);
+        p.legL.rotation = -0.65 - dash * 0.35;
+        p.legR.rotation = 0.65 + dash * 0.35;
+        visual.setAngle(sign * (-0.12 - dash * 0.12));
+        visual.setScale(sign * (1.12 + dash * 0.08), 0.82);
       } else if (this.specialPoseType === "throw") {
-        const release = Math.sin(Math.min(1, specialProgress / 0.62) * Math.PI);
-        p.armL.rotation = -0.95;
-        p.armR.rotation = sign * (-1.1 - release * 1.35);
-        p.handL.y = 12;
-        p.handR.y = 8 - release * 8;
-        p.legL.rotation = -0.34;
-        p.legR.rotation = 0.4;
-        visual.setAngle(sign * release * 0.08);
+        // Grapple: secure the opponent, pivot hips, then heave with both arms.
+        const grab = smooth(0.10, 0.34, progress);
+        const heave = smooth(0.34, 0.56, progress);
+        p.armL.rotation = sign * (-1.0 - grab * 0.85 + heave * 0.25);
+        p.armR.rotation = sign * (-1.0 - grab * 0.85 - heave * 1.0);
+        p.handL.y = 12 - grab * 7;
+        p.handR.y = 12 - heave * 10;
+        p.legL.rotation = -0.25 - grab * 0.42;
+        p.legR.rotation = 0.32 + grab * 0.5;
+        visual.x = h.x + sign * (grab * -3 + heave * 7);
+        visual.setAngle(sign * (grab * -0.10 + heave * 0.18));
+        visual.setScale(sign * (1 + heave * 0.07), 1 - heave * 0.04);
       } else {
-        p.armL.rotation = -1.5;
-        p.armR.rotation = 1.5;
+        p.armL.rotation = sign * -1.5;
+        p.armR.rotation = sign * 1.5;
         p.legL.rotation = -0.3;
         p.legR.rotation = 0.3;
       }
-      if (p.kurta?.active) p.kurta.setScale(1, 1 + Math.sin(specialProgress * Math.PI) * 0.06);
-      if (p.waistcoat?.active) p.waistcoat.setScale(1, 1 + Math.sin(specialProgress * Math.PI) * 0.06);
+      if (p.kurta?.active) p.kurta.setScale(1, 1 + Math.sin(progress * Math.PI) * 0.06);
+      if (p.waistcoat?.active) p.waistcoat.setScale(1, 1 + Math.sin(progress * Math.PI) * 0.06);
     } else if (this.specialPoseType) {
       this.specialPoseType = null;
       visual.setAngle(0);
