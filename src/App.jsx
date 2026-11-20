@@ -2196,8 +2196,8 @@ class ZeroGameScene extends Phaser.Scene {
     enemy.setData("rollHits", []);
     enemy.setData("rollDirection", direction);
     enemy.body.setAllowGravity(true);
-    enemy.setCollideWorldBounds(false);
-    enemy.setBounce(0.08, 0.04);
+    enemy.setCollideWorldBounds(true);
+    enemy.setBounce(0.78, 0.035);
     enemy.setDragX(0, false);
     enemy.setMaxVelocity(700, 950);
     enemy.setVelocity(0, 0);
