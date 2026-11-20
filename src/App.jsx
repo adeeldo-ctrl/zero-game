@@ -1329,6 +1329,7 @@ class ZeroGameScene extends Phaser.Scene {
   hitEnemy(projectile, enemy) {
     if (!projectile.active || !enemy.active || enemy.getData("isTimeHunter")) return;
     const superHit = !!projectile.getData("superAttack");
+    const specialHit = !!projectile.getData("specialAttack");
     const glow = projectile.getData("glow");
     const trail = projectile.getData("trail");
     if (glow && glow.active) glow.destroy();
@@ -1336,10 +1337,10 @@ class ZeroGameScene extends Phaser.Scene {
     projectile.destroy();
 
     if (enemy.getData("isBoss")) {
-      this.hitBoss(enemy, superHit ? 4 : 1);
+      this.hitBoss(enemy, superHit ? 4 : specialHit ? 3 : 1);
       return;
     }
-    const hits = (enemy.getData("hitCount") || 0) + (superHit ? 2 : 1);
+    const hits = (enemy.getData("hitCount") || 0) + (superHit || specialHit ? 2 : 1);
     enemy.setData("hitCount", hits);
     this.addScore(100);
     const visual = enemy.getData("visual");
@@ -2108,7 +2109,6 @@ class ZeroGameScene extends Phaser.Scene {
         if (projectile.active) projectile.destroy();
         if (glow.active) glow.destroy();
       });
-      if (boss && Math.abs(boss.x - this.hero.x) < 280) this.hitBoss(boss, 3);
       this.cameras.main.flash(90, 255, 235, 170, false);
     };
 
