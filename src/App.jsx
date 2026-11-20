@@ -34,9 +34,6 @@ class ZeroGameScene extends Phaser.Scene {
     this.bonusMode = false;
     this.score = 0;
     this.extraLivesAwarded = 0;
-    this.continueCountdown = 10;
-    this.continueTimer = null;
-    this.tokenCount = Number(localStorage.getItem("dastaan_tokens") || 3);
     this.gameStarted = true;
     this.campaignActive = false;
     this.heroSelectionLocked = false;
@@ -46,7 +43,6 @@ class ZeroGameScene extends Phaser.Scene {
     this.snowballTutorialShown = false;
     this.stageEnemyCount = this.stageConfig.enemyCount;
     this.score = 0;
-    this.lives = 3;
     this.facing = 1;
     this.defeated = 0;
     this.health = 3;
@@ -1966,10 +1962,6 @@ class ZeroGameScene extends Phaser.Scene {
         }
       });
     }
-  }
-
-  resumeFromFailure() {
-    this.startNewCampaign();
   }
 
   showContinueScreen() {
