@@ -58,7 +58,6 @@ try {
     const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
     scene.audio.setMusicVolume(0.5);
     scene.audio.setSfxVolume(0.5);
-    scene.specialReadyAt = [0, 0, 0];
   });
   await page.mouse.click(610, 43);
   await page.mouse.click(690, 43);
@@ -86,15 +85,19 @@ try {
     if (scene.touch.axis !== 0 || scene.touch.down) throw new Error("Touch joystick did not reset on release");
   });
   for (const [index, x] of [[0, 665], [1, 775], [2, 885]]) {
-    await page.mouse.click(x, 340);
-    await page.waitForFunction((moveIndex) => {
+    const expectedName = await page.evaluate((moveIndex) => {
       const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
-      return scene?.specialReadyAt?.[moveIndex] > scene.time.now;
-    }, index, { timeout: 1500 });
-    await page.evaluate((moveIndex) => {
-      const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
-      scene.specialReadyAt[moveIndex] = 0;
+      return scene.selectedHero.specialMoves[moveIndex].name.toUpperCase() + "!";
     }, index);
+    // Press each mobile EXTRA button twice immediately. The second press
+    // must work without a recharge message or animation lock.
+    for (let repeat = 0; repeat < 2; repeat++) {
+      await page.mouse.click(x, 340);
+      await page.waitForFunction((name) => {
+        const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+        return scene?.statusLabel?.text === name && scene.specialPoseUntil > scene.time.now;
+      }, expectedName, { timeout: 1500 });
+    }
   }
 
   // Verify every equipped special move damages a live enemy through the real Phaser scene.
@@ -109,9 +112,6 @@ try {
     scene.projectiles.clear(true, true);
     scene.hero.setPosition(300, 450).setVelocity(0, 0);
     scene.facing = 1;
-    // The initial keyboard smoke inputs may have started cooldowns; reset them
-    // so this focused runtime assertion tests each move's actual hit behavior.
-    scene.specialReadyAt = [0, 0, 0];
     const makeTarget = (x) => {
       const enemy = scene.enemies.create(x, 450, "enemy0");
       enemy.setCollideWorldBounds(true).setBounce(0);
@@ -180,8 +180,16 @@ try {
         thirdDamage.hornR?.active || thirdDamage.armR?.active) {
       throw new Error("EXTRA 3 damage check failed: hitCount=" + targets[2].getData("hitCount") + ", frozen=" + targets[2].getData("frozen") + ", moveType=" + scene.selectedHero?.specialMoves?.[2]?.type + ", visualActive=" + targets[2].getData("visual")?.active);
     }
-    if (scene.specialReadyAt.some((readyAt) => readyAt <= scene.time.now)) {
-      throw new Error("Each of the three special moves must start its own cooldown");
+    // Reuse EXTRA 1 twice before its first animation ends. Both presses
+    // must create a special projectile immediately.
+    scene.projectiles.clear(true, true);
+    scene.specialMove(0);
+    scene.specialMove(0);
+    const repeatedSpecials = scene.projectiles.getChildren().filter((projectile) =>
+      projectile.active && projectile.getData("specialAttack")
+    );
+    if (repeatedSpecials.length < 2 || scene.statusLabel.text.includes("RECHARGING")) {
+      throw new Error("EXTRA buttons must be immediately reusable without cooldown");
     }
     targets.forEach((enemy) => {
       enemy.getData("visual")?.destroy();
