@@ -21,7 +21,7 @@ class ZeroGameScene extends Phaser.Scene {
 
     this.stageNumber = 1;
     this.stageConfig = getStage(1);
-    this.selectedHero = getHero("ryo");
+    this.selectedHero = getHero(localStorage.getItem("zero_game_hero") || "ryo");
     this.stageStartedAt = 0;
     this.stageTimeLeft = 120;
     this.timeHunterSpawned = false;
@@ -691,17 +691,10 @@ class ZeroGameScene extends Phaser.Scene {
       0, 7, 25, 20, 0xffffff, 0.25
     );
 
-    const hornL = this.add.triangle(
-      -16, -24,
-      0, 17, 12, 0, 24, 17,
-      hornColor
-    );
-
-    const hornR = this.add.triangle(
-      16, -24,
-      0, 17, 12, 0, 24, 17,
-      hornColor
-    );
+    const headband = this.add.rectangle(0, -23, 43, 7, hornColor).setStrokeStyle(1, 0xffffff, 0.75);
+    const hornL = this.add.triangle(-23, -19, -5, -5, 12, 0, -8, 13, hornColor);
+    const hornR = this.add.triangle(23, -19, -12, 0, 5, -5, 8, 13, hornColor);
+    const belt = this.add.rectangle(0, 14, 31, 5, 0x282d46).setStrokeStyle(1, 0xffffff, 0.35);
 
     const eyeL = this.add.ellipse(
       -9, -5, 12, 14, 0xffffff
@@ -724,7 +717,7 @@ class ZeroGameScene extends Phaser.Scene {
       legL, legR,
       armL, armR,
       body, belly,
-      hornL, hornR,
+      headband, hornL, hornR, belt,
       eyeL, eyeR,
       pupilL, pupilR
     ]);
@@ -912,7 +905,7 @@ class ZeroGameScene extends Phaser.Scene {
     this.input.on("pointerupoutside", stopStick);
     this.createControl(292, 326, "S1", "special1");
     this.createControl(292, 418, "S2", "special2");
-    this.createControl(292, 510, "S3", "special3");
+    this.createControl(292, 490, "S3", "special3");
     this.createControl(650, 448, "SUPER", "super");
     this.createControl(765, 448, "FIRE", "attack");
     this.createControl(885, 448, "JUMP", "jump");
@@ -1213,7 +1206,7 @@ class ZeroGameScene extends Phaser.Scene {
       this.menuObjects.push(card, glow, visual, name, title, power, moves, choose);
       this.tweens.add({ targets: visual, y: 222, angle: index % 2 ? 3 : -3, duration: 760 + index * 120, yoyo: true, repeat: -1, ease: "Sine.easeInOut" });
       this.tweens.add({ targets: glow, scale: 1.16, alpha: 0.2, duration: 900 + index * 100, yoyo: true, repeat: -1 });
-      const select = () => { this.selectedHero = hero; this.powerType = hero.element; this.beginCampaign(); };
+      const select = () => { this.selectedHero = hero; localStorage.setItem("zero_game_hero", hero.id); this.powerType = hero.element; this.beginCampaign(); };
       card.on("pointerdown", select);
       choose.on("pointerdown", select);
     });
@@ -1420,10 +1413,9 @@ class ZeroGameScene extends Phaser.Scene {
     const body = this.add.ellipse(0, -8, 124, 112, bossColor).setStrokeStyle(5, 0x30243f);
     const belly = this.add.ellipse(0, 12, 72, 58, 0xf2b77e);
     const bellyMark = this.add.ellipse(0, 15, 39, 31, 0xffd69b, 0.75);
-    const hornL = this.add.triangle(-42, -61, -15, 35, 0, 0, 28, 30, 0xffd36b)
-      .setStrokeStyle(3, 0x8c4a3c);
-    const hornR = this.add.triangle(42, -61, -15, 30, 0, 0, 28, 35, 0xffd36b)
-      .setStrokeStyle(3, 0x8c4a3c);
+    const headband = this.add.rectangle(0, -62, 94, 9, 0xffd36b).setStrokeStyle(2, 0x8c4a3c);
+    const hornL = this.add.triangle(-51, -56, -4, -8, 12, 0, -18, 23, 0xffd36b).setStrokeStyle(2, 0x8c4a3c);
+    const hornR = this.add.triangle(51, -56, -12, 0, 4, -8, 18, 23, 0xffd36b).setStrokeStyle(2, 0x8c4a3c);
     const browL = this.add.rectangle(-23, -28, 28, 8, 0x49243d).setAngle(-12);
     const browR = this.add.rectangle(23, -28, 28, 8, 0x49243d).setAngle(12);
     const eyeL = this.add.ellipse(-23, -12, 25, 29, 0xffffff);
@@ -1435,7 +1427,7 @@ class ZeroGameScene extends Phaser.Scene {
     const orbitA = this.add.circle(-72, -18, 9, bossColor, 0.95).setStrokeStyle(2, 0xffffff);
     const orbitB = this.add.circle(72, -18, 9, bossColor, 0.95).setStrokeStyle(2, 0xffffff);
     c.add([aura, shadow, orbitA, orbitB, legL, legR, footL, footR, armL, armR, fistL, fistR,
-      body, belly, bellyMark, hornL, hornR, browL, browR, eyeL, eyeR,
+      body, belly, bellyMark, headband, hornL, hornR, browL, browR, eyeL, eyeR,
       pupilL, pupilR, nose, mouth]);
     this.tweens.add({ targets: aura, scale: 1.16, alpha: 0.28, duration: bossElement === "lightning" ? 260 : 700, yoyo: true, repeat: -1 });
     this.tweens.add({ targets: orbitA, x: -86, y: -48, duration: bossElement === "ice" ? 620 : 900, yoyo: true, repeat: -1, ease: "Sine.easeInOut" });
