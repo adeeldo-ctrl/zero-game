@@ -1,6 +1,7 @@
 
 import { useEffect, useRef } from "react";
 import Phaser from "phaser";
+import { Capacitor } from "@capacitor/core";
 import { ELEMENTS, HEROES, getElement, getStage, getHero } from "./gameData";
 import "./App.css";
 
@@ -2630,6 +2631,7 @@ class ZeroGameScene extends Phaser.Scene {
 export default function App() {
   const gameRef = useRef(null);
   const mobilePointers = useRef(new Map());
+  const isNativeAndroid = Capacitor.getPlatform() === "android";
 
   const getPlayableScene = () => {
     const game = gameRef.current;
@@ -2722,6 +2724,105 @@ export default function App() {
     event.stopPropagation();
   };
 
+  // Android WebView receives native TouchEvents with stable identifiers for
+  // every finger. Use these directly in the APK instead of relying on the
+  // WebView's PointerEvent/pointer-capture implementation.
+  useEffect(() => {
+    if (!isNativeAndroid) return undefined;
+    const overlay = document.getElementById("mobile-controls-overlay");
+    if (!overlay) return undefined;
+
+    const pointFromTouch = (touch) => {
+      const rect = overlay.getBoundingClientRect();
+      if (!rect.width || !rect.height) return null;
+      return {
+        x: ((touch.clientX - rect.left) / rect.width) * 960,
+        y: ((touch.clientY - rect.top) / rect.height) * 540
+      };
+    };
+
+    const onTouchStart = (event) => {
+      const scene = getPlayableScene();
+      if (!scene) return;
+      for (const touch of event.changedTouches) {
+        const target = getTouchTarget({
+          currentTarget: overlay,
+          clientX: touch.clientX,
+          clientY: touch.clientY
+        });
+        if (!target) continue;
+        mobilePointers.current.set(touch.identifier, target);
+        if (target === "stick") {
+          const point = pointFromTouch(touch);
+          if (point) scene.moveJoystick(point);
+        } else {
+          scene.pressMobileAction(target);
+        }
+      }
+      event.preventDefault();
+      event.stopPropagation();
+    };
+
+    const onTouchMove = (event) => {
+      const scene = getPlayableScene();
+      if (!scene) return;
+      for (const touch of event.changedTouches) {
+        if (mobilePointers.current.get(touch.identifier) !== "stick") continue;
+        const point = pointFromTouch(touch);
+        if (point) scene.moveJoystick(point);
+      }
+      event.preventDefault();
+      event.stopPropagation();
+    };
+
+    const releaseTouch = (touch) => {
+      const action = mobilePointers.current.get(touch.identifier);
+      if (!action) return;
+      mobilePointers.current.delete(touch.identifier);
+      const scene = gameRef.current?.scene.getScene("ZeroGameScene");
+      if (!scene) return;
+      if (action === "stick") {
+        const anotherStickHeld = [...mobilePointers.current.values()].includes("stick");
+        if (!anotherStickHeld) {
+          scene.touch.axis = 0;
+          scene.touch.left = false;
+          scene.touch.right = false;
+          scene.joystickKnob?.setPosition(132, 448).setScale(1);
+        }
+      } else {
+        const stillPressed = [...mobilePointers.current.values()].includes(action);
+        scene.touch[action] = stillPressed;
+        if (action === "attack" && !stillPressed && !scene.attackHeld) {
+          scene.fireAttack(0);
+        }
+      }
+    };
+
+    const onTouchEnd = (event) => {
+      for (const touch of event.changedTouches) releaseTouch(touch);
+      event.preventDefault();
+      event.stopPropagation();
+    };
+
+    const onTouchCancel = (event) => {
+      for (const touch of event.changedTouches) releaseTouch(touch);
+      event.preventDefault();
+      event.stopPropagation();
+    };
+
+    overlay.addEventListener("touchstart", onTouchStart, { passive: false });
+    overlay.addEventListener("touchmove", onTouchMove, { passive: false });
+    overlay.addEventListener("touchend", onTouchEnd, { passive: false });
+    overlay.addEventListener("touchcancel", onTouchCancel, { passive: false });
+    return () => {
+      overlay.removeEventListener("touchstart", onTouchStart);
+      overlay.removeEventListener("touchmove", onTouchMove);
+      overlay.removeEventListener("touchend", onTouchEnd);
+      overlay.removeEventListener("touchcancel", onTouchCancel);
+      mobilePointers.current.clear();
+    };
+  }, [isNativeAndroid]);
+
   useEffect(() => {
     if (gameRef.current) return;
 
@@ -2745,7 +2846,7 @@ export default function App() {
       },
       // Allow simultaneous joystick + action-button touches on phones/tablets.
       input: {
-        activePointers: 1,
+        activePointers: 10,
         touch: { capture: true }
       },
       scale: {
@@ -2772,11 +2873,11 @@ export default function App() {
         <div
           id="mobile-controls-overlay"
           className="mobile-controls-overlay"
-          onPointerDown={startDomPointer}
-          onPointerMove={updateDomJoystick}
-          onPointerUp={endDomPointer}
-          onPointerCancel={endDomPointer}
-          onLostPointerCapture={endDomPointer}
+          onPointerDown={isNativeAndroid ? undefined : startDomPointer}
+          onPointerMove={isNativeAndroid ? undefined : updateDomJoystick}
+          onPointerUp={isNativeAndroid ? undefined : endDomPointer}
+          onPointerCancel={isNativeAndroid ? undefined : endDomPointer}
+          onLostPointerCapture={isNativeAndroid ? undefined : endDomPointer}
         />
       </section>
     </main>
