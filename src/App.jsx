@@ -90,7 +90,7 @@ class ZeroGameScene extends Phaser.Scene {
     this.createPlatforms();
 
     // Invisible physics body for Ibrahim
-    this.hero = this.physics.add.sprite(480, 450, "ibrahim");
+    this.hero = this.physics.add.sprite(480, 450, "ryo");
     this.hero.setCollideWorldBounds(true);
     this.hero.setDepth(10);
     this.hero.setSize(34, 64);
@@ -448,7 +448,7 @@ class ZeroGameScene extends Phaser.Scene {
     hero.fillCircle(25, 20, 3);
     hero.fillCircle(41, 20, 3);
 
-    hero.generateTexture("ibrahim", 68, 90);
+    hero.generateTexture("ryo", 68, 90);
     hero.destroy();
 
     this.createEnemyTexture("enemy0", 0x8b42c8, 0xc77bf1, 0xffd45e);
@@ -984,7 +984,7 @@ class ZeroGameScene extends Phaser.Scene {
       .setStrokeStyle(2, 0x62eaff, 0.9);
     this.remoteVisual.add(ring);
     this.remoteVisual.setData("remoteRing", ring);
-    this.remoteVisual.setData("remoteHeroId", "ibrahim");
+    this.remoteVisual.setData("remoteHeroId", "ryo");
     this.tweens.add({ targets: ring, scale: 1.35, alpha: 0.35,
       duration: 650, yoyo: true, repeat: -1 });
   }
@@ -1006,7 +1006,7 @@ class ZeroGameScene extends Phaser.Scene {
     const element = getElement(data.powerType || "fire");
     const palette = { ball: element.ball, edge: element.edge, glow: element.glow, trail: element.trail };
     const directions = superShot
-      ? (data.heroId === "zoya" ? [-0.65, -0.32, 0, 0.32, 0.65] : data.heroId === "volt" ? [-0.12, 0, 0.12] : [-0.45, 0, 0.45])
+      ? (data.heroId === "mei" ? [-0.65, -0.32, 0, 0.32, 0.65] : data.heroId === "volt" ? [-0.12, 0, 0.12] : [-0.45, 0, 0.45])
       : [0];
     directions.forEach(offset => {
       const projectile = this.projectiles.create(data.x, data.y, "shot");
@@ -1124,7 +1124,7 @@ class ZeroGameScene extends Phaser.Scene {
       this.menuObjects.push(label, style);
     });
     this.tweens.add({ targets: title, scale: 1, y: 88, duration: 850, ease: "Back.easeOut" });
-    const start = this.add.text(480, 468, this.gameOver ? "CONTINUE" : "START GAME", {
+    const start = this.add.text(480, 474, this.gameOver ? "CONTINUE" : "START GAME", {
       fontSize: "22px", color: "#ffffff", backgroundColor: "#087e83",
       padding: { x: 38, y: 13 }, fontStyle: "bold", stroke: "#062b3a", strokeThickness: 2
     }).setOrigin(0.5).setDepth(70).setInteractive({ useHandCursor: true });
@@ -1132,15 +1132,15 @@ class ZeroGameScene extends Phaser.Scene {
       fontSize: "12px", color: "#ffe17a", backgroundColor: "#57452e",
       padding: { x: 17, y: 6 }, fontStyle: "bold"
     }).setOrigin(0.5).setDepth(70).setInteractive({ useHandCursor: true });
-    const host = this.add.text(365, 438, "HOST WI-FI", {
+    const host = this.add.text(365, 430, "HOST WI-FI", {
       fontSize: "12px", color: "#ffffff", backgroundColor: "#235a80",
       padding: { x: 13, y: 7 }, fontStyle: "bold"
     }).setOrigin(0.5).setDepth(70).setInteractive({ useHandCursor: true });
-    const join = this.add.text(595, 438, "JOIN WI-FI", {
+    const join = this.add.text(595, 430, "JOIN WI-FI", {
       fontSize: "12px", color: "#ffffff", backgroundColor: "#235a80",
       padding: { x: 13, y: 7 }, fontStyle: "bold"
     }).setOrigin(0.5).setDepth(70).setInteractive({ useHandCursor: true });
-    this.netStatusText = this.add.text(480, 415, "2-PLAYER WI-FI CO-OP", {
+    this.netStatusText = this.add.text(480, 405, "2-PLAYER WI-FI CO-OP", {
       fontSize: "10px", color: "#9feaff", fontStyle: "bold"
     }).setOrigin(0.5).setDepth(70);
     this.menuObjects.push(start, token, host, join, this.netStatusText);
