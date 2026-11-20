@@ -65,6 +65,7 @@ class ZeroGameScene extends Phaser.Scene {
     this.attackChargeStart = 0;
     this.attackCharge = 0;
     this.superReadyAt = 0;
+    this.specialReadyAt = [0, 0, 0];
     this.jumpFlipDirection = 1;
     this.jumpStartedAt = 0;
     this.jumpWasMoving = false;
@@ -2099,9 +2100,16 @@ class ZeroGameScene extends Phaser.Scene {
     if (!this.gameStarted || this.gameOver || this.stageCleared) return;
     const moves = this.selectedHero?.specialMoves || [];
     if (!moves.length) return;
-    // EXTRA 1, EXTRA 2 and EXTRA 3 map one-to-one to this hero's three signature moves.
-    // These moves are unlimited: no cooldown, meter, countdown or usage counter.
-    const move = moves[Math.max(0, Math.min(2, moveIndex))];
+    // Each extra button maps to its own signature move and independent cooldown.
+    const selectedIndex = Math.max(0, Math.min(2, moveIndex));
+    const move = moves[selectedIndex];
+    const readyAt = this.specialReadyAt[selectedIndex] || 0;
+    if (this.time.now < readyAt) {
+      const seconds = Math.max(1, Math.ceil((readyAt - this.time.now) / 1000));
+      this.statusLabel.setText(`EXTRA ${selectedIndex + 1} RECHARGING: ${seconds}s`).setColor("#9feaff");
+      return;
+    }
+    this.specialReadyAt[selectedIndex] = this.time.now + 1450;
     this.audio.unlock();
     this.audio.play("special");
     this.specialPoseType = move.type;
