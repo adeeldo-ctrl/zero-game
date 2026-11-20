@@ -48,12 +48,12 @@ test("every stage has a themed palette and a unique stage identity", () => {
   }
 });
 
-test("the final four milestone bosses cover the four requested original archetypes", () => {
-  const styles = STAGES.filter((stage) => stage.boss).map((stage) => stage.boss.style);
-  assert.ok(styles.some((style) => style.includes("boxing")));
-  assert.ok(styles.some((style) => style.includes("agile")));
-  assert.ok(styles.some((style) => style.includes("master")));
-  assert.ok(styles.some((style) => style.includes("final")));
+test("the final four milestone bosses appear in the requested order", () => {
+  const styles = [20, 30, 40, 50].map((number) => getStage(number).boss.style);
+  assert.match(styles[0], /boxing/);
+  assert.match(styles[1], /agile/);
+  assert.match(styles[2], /master/);
+  assert.match(styles[3], /final/);
 });
 
 
