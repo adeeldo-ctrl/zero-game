@@ -27,3 +27,11 @@ test("stage definitions do not change when read repeatedly", () => {
   const first = JSON.stringify(getStage(17));
   for (let i = 0; i < 20; i++) assert.equal(JSON.stringify(getStage(17)), first);
 });
+
+test("the final four milestone bosses cover the four requested original archetypes", () => {
+  const styles = STAGES.filter((stage) => stage.boss).map((stage) => stage.boss.style);
+  assert.ok(styles.some((style) => style.includes("boxing")));
+  assert.ok(styles.some((style) => style.includes("agile")));
+  assert.ok(styles.some((style) => style.includes("master")));
+  assert.ok(styles.some((style) => style.includes("final")));
+});
