@@ -2810,16 +2810,42 @@ export default function App() {
       event.stopPropagation();
     };
 
+    // Start touches on the control layer, then track every finger globally.
+    // This prevents a joystick finger from being lost when it drifts outside
+    // the visible control circle while another finger presses an action.
+    const onWindowTouchMove = (event) => onTouchMove(event);
+    const onWindowTouchEnd = (event) => onTouchEnd(event);
+    const onWindowTouchCancel = (event) => onTouchCancel(event);
+
     overlay.addEventListener("touchstart", onTouchStart, { passive: false });
-    overlay.addEventListener("touchmove", onTouchMove, { passive: false });
-    overlay.addEventListener("touchend", onTouchEnd, { passive: false });
-    overlay.addEventListener("touchcancel", onTouchCancel, { passive: false });
+    window.addEventListener("touchmove", onWindowTouchMove, { passive: false });
+    window.addEventListener("touchend", onWindowTouchEnd, { passive: false });
+    window.addEventListener("touchcancel", onWindowTouchCancel, { passive: false });
+    const resetTouches = () => {
+      mobilePointers.current.clear();
+      const scene = gameRef.current?.scene.getScene("ZeroGameScene");
+      if (scene?.touch) {
+        scene.touch.axis = 0;
+        scene.touch.left = false;
+        scene.touch.right = false;
+        scene.touch.jump = false;
+        scene.touch.attack = false;
+        scene.touch.super = false;
+        scene.touch.special1 = false;
+        scene.touch.special2 = false;
+        scene.touch.special3 = false;
+        scene.mobileActionQueue?.clear();
+        scene.attackHeld = false;
+      }
+    };
+    window.addEventListener("blur", resetTouches);
     return () => {
       overlay.removeEventListener("touchstart", onTouchStart);
-      overlay.removeEventListener("touchmove", onTouchMove);
-      overlay.removeEventListener("touchend", onTouchEnd);
-      overlay.removeEventListener("touchcancel", onTouchCancel);
-      mobilePointers.current.clear();
+      window.removeEventListener("touchmove", onWindowTouchMove);
+      window.removeEventListener("touchend", onWindowTouchEnd);
+      window.removeEventListener("touchcancel", onWindowTouchCancel);
+      window.removeEventListener("blur", resetTouches);
+      resetTouches();
     };
   }, [isNativeAndroid]);
 
