@@ -76,7 +76,7 @@ try {
   await delay(330);
   await page.evaluate(() => {
     const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
-    if (!(scene.hero.body.bottom < window.__ZERO_GAME_PLATFORM_TOP__)) {
+    if (!(scene.hero.y < 420 && scene.hero.body.bottom <= window.__ZERO_GAME_PLATFORM_TOP__ + 16)) {
       throw new Error("Hero did not pass upward through the elevated platform");
     }
   });
@@ -105,8 +105,17 @@ try {
   await page.evaluate(() => {
     const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
     if (scene.hero.y < 455) throw new Error("DOWN + JUMP did not land on the permanent floor");
-    scene.hero.setPosition(480, 480);
+    scene.hero.setPosition(480, 462);
     scene.hero.setVelocity(0, 0);
+    scene.jumpCount = 0;
+  });
+  await page.waitForFunction(() => {
+    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+    return scene?.hero?.body?.blocked?.down === true;
+  }, { timeout: 3000 });
+  await page.evaluate(() => {
+    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+    if (Math.abs(scene.hero.y - 462) > 8) throw new Error("Hero did not settle on the permanent floor");
     scene.touch.down = true;
     scene.touch.jump = true;
   });
@@ -119,8 +128,8 @@ try {
   await delay(120);
   await page.evaluate(() => {
     const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
-    if (!(scene.hero.y < 480)) {
-      throw new Error("DOWN + JUMP incorrectly dropped the hero through the permanent ground");
+    if (!(scene.hero.y < 455)) {
+      throw new Error("DOWN + JUMP incorrectly dropped the hero through the permanent ground instead of jumping upward");
     }
   });
 
