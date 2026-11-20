@@ -1233,6 +1233,7 @@ class ZeroGameScene extends Phaser.Scene {
     heroPalette.kurta.setFillStyle(this.selectedHero.color);
     heroPalette.waistcoat.setFillStyle(this.selectedHero.accent);
     heroPalette.capLine.setFillStyle(this.selectedHero.accent);
+    this.applyHeroLook(this.heroVisual, this.selectedHero);
     this.powerType = this.selectedHero.element;
     const element = getElement(this.powerType);
     this.powerLabel.setText(`POWER: ${element.name.toUpperCase()} [C]`).setColor("#" + element.color.toString(16).padStart(6, "0"));
@@ -2019,6 +2020,8 @@ class ZeroGameScene extends Phaser.Scene {
     if (!choices.length) choices = moves;
     const move = choices[Phaser.Math.Between(0, choices.length - 1)];
     this.lastSpecialMoveId = move.id;
+    this.specialPoseType = move.type;
+    this.specialPoseUntil = this.time.now + 420;
     const accent = this.selectedHero.accent || 0x7deaff;
     const title = move.name.toUpperCase();
     this.statusLabel.setText(`${title}!`).setColor("#ffe17a");
@@ -2296,6 +2299,27 @@ class ZeroGameScene extends Phaser.Scene {
       p.handR.y = 18;
     } else {
       p.handR.y = 27;
+    }
+
+    if (time < (this.specialPoseUntil || 0)) {
+      if (this.specialPoseType === "throw") {
+        p.armL.rotation = -1.15;
+        p.armR.rotation = this.facing * -1.55;
+        p.handL.y = 17;
+        p.handR.y = 16;
+      } else if (this.specialPoseType === "launch" || this.specialPoseType === "rapid") {
+        p.armL.rotation = -0.95;
+        p.armR.rotation = this.facing * -1.7;
+        p.legR.rotation = -0.65;
+      } else {
+        p.armL.rotation = -1.35;
+        p.armR.rotation = 1.35;
+        p.legL.rotation = -0.25;
+        p.legR.rotation = 0.25;
+      }
+    } else if (this.specialPoseType) {
+      this.specialPoseType = null;
+      visual.setAngle(0);
     }
 
     // Landing animation
