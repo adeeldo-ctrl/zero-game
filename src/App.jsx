@@ -1438,15 +1438,20 @@ class ZeroGameScene extends Phaser.Scene {
     const footR = this.add.ellipse(31, 44, 38, 17, 0x34263c);
     const armL = this.add.ellipse(-57, -1, 25, 55, 0x9b3e65);
     const armR = this.add.ellipse(57, -1, 25, 55, 0x9b3e65);
-    const fistL = this.add.circle(-62, 24, 17, 0xffb45e);
-    const fistR = this.add.circle(62, 24, 17, 0xffb45e);
+    const fistL = this.add.circle(-62, 24, isBoxer ? 23 : 17, isBoxer ? 0x5a2638 : 0xffb45e).setStrokeStyle(isBoxer ? 5 : 2, 0xffd36b);
+    const fistR = this.add.circle(62, 24, isBoxer ? 23 : 17, isBoxer ? 0x5a2638 : 0xffb45e).setStrokeStyle(isBoxer ? 5 : 2, 0xffd36b);
     const bossColor = this.stageConfig.boss?.color || 0xb94770;
     const bossElement = this.stageConfig.boss?.element || "fire";
+    const bossStyle = this.stageConfig.boss?.style || "";
+    const isBoxer = bossStyle.includes("boxing");
+    const isAgile = bossStyle.includes("agile");
+    const isMaster = bossStyle.includes("master");
+    const isFinal = bossStyle.includes("final");
     const aura = this.add.circle(0, -8, 83, bossColor, 0.13).setStrokeStyle(5, bossColor, 0.8);
-    const body = this.add.ellipse(0, -8, 124, 112, bossColor).setStrokeStyle(5, 0x30243f);
+    const body = this.add.ellipse(0, -8, isAgile ? 106 : 124, isAgile ? 118 : 112, bossColor).setStrokeStyle(5, 0x30243f);
     const belly = this.add.ellipse(0, 12, 72, 58, 0xf2b77e);
     const bellyMark = this.add.ellipse(0, 15, 39, 31, 0xffd69b, 0.75);
-    const headband = this.add.rectangle(0, -62, 94, 9, 0xffd36b).setStrokeStyle(2, 0x8c4a3c);
+    const headband = this.add.rectangle(0, -62, isMaster ? 108 : 94, isFinal ? 15 : 9, isFinal ? 0x9d83ff : 0xffd36b).setStrokeStyle(2, 0x8c4a3c);
     const hornL = this.add.triangle(-51, -56, -4, -8, 12, 0, -18, 23, 0xffd36b).setStrokeStyle(2, 0x8c4a3c);
     const hornR = this.add.triangle(51, -56, -12, 0, 4, -8, 18, 23, 0xffd36b).setStrokeStyle(2, 0x8c4a3c);
     const browL = this.add.rectangle(-23, -28, 28, 8, 0x49243d).setAngle(-12);
@@ -1457,11 +1462,35 @@ class ZeroGameScene extends Phaser.Scene {
     const pupilR = this.add.circle(28, -10, 7, 0x251b31);
     const nose = this.add.ellipse(0, 5, 20, 15, 0x8b3458);
     const mouth = this.add.arc(0, 17, 17, 15, 165, false, 0x54243d).setStrokeStyle(4, 0x54243d);
-    const orbitA = this.add.circle(-72, -18, 9, bossColor, 0.95).setStrokeStyle(2, 0xffffff);
-    const orbitB = this.add.circle(72, -18, 9, bossColor, 0.95).setStrokeStyle(2, 0xffffff);
+    const orbitA = this.add.circle(-72, -18, isFinal ? 13 : 9, bossColor, 0.95).setStrokeStyle(2, 0xffffff);
+    const orbitB = this.add.circle(72, -18, isFinal ? 13 : 9, bossColor, 0.95).setStrokeStyle(2, 0xffffff);
+    const styleDetails = [];
+    if (isBoxer) {
+      styleDetails.push(
+        this.add.rectangle(-62, 4, 31, 8, 0xffd36b),
+        this.add.rectangle(62, 4, 31, 8, 0xffd36b)
+      );
+    } else if (isAgile) {
+      [-1, 0, 1].forEach((n) => {
+        styleDetails.push(
+          this.add.triangle(-79 - n * 3, 23 + n * 7, 0, -5, 24, 0, 0, 5, 0xe8f7ff).setAngle(-18),
+          this.add.triangle(79 + n * 3, 23 + n * 7, 0, -5, 24, 0, 0, 5, 0xe8f7ff).setAngle(198)
+        );
+      });
+    } else if (isMaster) {
+      styleDetails.push(
+        this.add.rectangle(0, 36, 112, 9, 0xffd36b).setAngle(-7),
+        this.add.triangle(40, 43, -5, -2, 23, 4, -8, 30, 0xf4e6c8)
+      );
+    } else if (isFinal) {
+      [-1, 0, 1].forEach((n) => styleDetails.push(
+        this.add.triangle(n * 25, -86, -12, 12, 0, -22, 12, 12, 0x9d83ff).setStrokeStyle(2, 0xe7dcff)
+      ));
+      styleDetails.push(this.add.circle(0, -8, 94, 0x7555d8, 0.08).setStrokeStyle(3, 0xc7aaff));
+    }
     c.add([aura, shadow, orbitA, orbitB, legL, legR, footL, footR, armL, armR, fistL, fistR,
       body, belly, bellyMark, headband, hornL, hornR, browL, browR, eyeL, eyeR,
-      pupilL, pupilR, nose, mouth]);
+      pupilL, pupilR, nose, mouth, ...styleDetails]);
     this.tweens.add({ targets: aura, scale: 1.16, alpha: 0.28, duration: bossElement === "lightning" ? 260 : 700, yoyo: true, repeat: -1 });
     this.tweens.add({ targets: orbitA, x: -86, y: -48, duration: bossElement === "ice" ? 620 : 900, yoyo: true, repeat: -1, ease: "Sine.easeInOut" });
     this.tweens.add({ targets: orbitB, x: 86, y: -48, duration: bossElement === "shadow" ? 620 : 900, yoyo: true, repeat: -1, ease: "Sine.easeInOut" });
