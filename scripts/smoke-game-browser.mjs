@@ -87,21 +87,27 @@ try {
     // Invoke the same overlap callback used by Arcade Physics to make the
     // projectile-to-target damage assertion deterministic in headless Chromium.
     scene.hitEnemy(wave, window.__ZERO_GAME_SPECIAL_TARGETS__[0]);
-    if (window.__ZERO_GAME_SPECIAL_TARGETS__[0].getData("frozen") !== true ||
-        window.__ZERO_GAME_SPECIAL_TARGETS__[0].getData("hitCount") < 2) {
-      throw new Error("EXTRA 1 wave did not damage its target through the hit pipeline");
+    const waveTarget = window.__ZERO_GAME_SPECIAL_TARGETS__[0];
+    const waveDamage = waveTarget.getData("visual")?.getData("damageParts");
+    if (waveTarget.getData("hitCount") < 2 || !waveDamage ||
+        waveDamage.hornR?.active || waveDamage.armR?.active) {
+      throw new Error("EXTRA 1 wave did not apply the expected multi-hit damage through the hit pipeline");
     }
   });
   await page.evaluate(() => {
     const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
     const targets = window.__ZERO_GAME_SPECIAL_TARGETS__;
     scene.specialMove(1);
-    if (targets[1].getData("frozen") !== true || targets[1].getData("hitCount") < 2) {
-      throw new Error("EXTRA 2 did not damage and freeze its target");
+    const secondDamage = targets[1].getData("visual")?.getData("damageParts");
+    if (targets[1].getData("hitCount") < 2 || !secondDamage ||
+        secondDamage.hornR?.active || secondDamage.armR?.active) {
+      throw new Error("EXTRA 2 did not apply its expected multi-hit damage");
     }
     scene.specialMove(2);
-    if (targets[2].getData("frozen") !== true || targets[2].getData("hitCount") < 2) {
-      throw new Error("EXTRA 3 did not damage and freeze its target");
+    const thirdDamage = targets[2].getData("visual")?.getData("damageParts");
+    if (targets[2].getData("hitCount") < 2 || !thirdDamage ||
+        thirdDamage.hornR?.active || thirdDamage.armR?.active) {
+      throw new Error("EXTRA 3 did not apply its expected multi-hit damage");
     }
     if (scene.specialReadyAt.some((readyAt) => readyAt <= scene.time.now)) {
       throw new Error("Each of the three special moves must start its own cooldown");
