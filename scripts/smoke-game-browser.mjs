@@ -64,6 +64,9 @@ try {
     });
     scene.hero.setPosition(300, 450).setVelocity(0, 0);
     scene.facing = 1;
+    // The initial keyboard smoke inputs may have started cooldowns; reset them
+    // so this focused runtime assertion tests each move's actual hit behavior.
+    scene.specialReadyAt = [0, 0, 0];
     const makeTarget = (x) => {
       const enemy = scene.enemies.create(x, 450, "enemy0");
       enemy.setCollideWorldBounds(true).setBounce(0);
@@ -80,7 +83,7 @@ try {
   await page.waitForFunction(() => {
     const targets = window.__ZERO_GAME_SPECIAL_TARGETS__;
     return targets?.[0]?.getData("frozen") === true && targets[0].getData("hitCount") >= 2;
-  }, { timeout: 3000 });
+  }, undefined, { timeout: 3000 });
   await page.evaluate(() => {
     const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
     const targets = window.__ZERO_GAME_SPECIAL_TARGETS__;
