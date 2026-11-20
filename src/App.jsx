@@ -13,6 +13,7 @@ class ZeroGameScene extends Phaser.Scene {
     this.touch = {
       left: false,
       right: false,
+      down: false,
       jump: false,
       attack: false,
       super: false,
@@ -63,7 +64,9 @@ class ZeroGameScene extends Phaser.Scene {
     this.jumpStartedAt = 0;
     this.jumpWasMoving = false;
     this.jumpCount = 0;
+    this.dropThroughUntil = 0;
     this.touch.axis = 0;
+    this.touch.down = false;
     this.mobileActionQueue = new Set();
     this.mobileJumpHeld = false;
     this.mobileJumpPressedAt = 0;
@@ -106,7 +109,12 @@ class ZeroGameScene extends Phaser.Scene {
     // Animated visual character
     this.heroVisual = this.createHeroVisual(480, 450);
 
-    this.physics.add.collider(this.hero, this.platforms);
+    this.heroPlatformCollider = this.physics.add.collider(this.hero, this.platforms, null,
+      (hero, platform) => {
+        if (platform === this.groundPlatform) return true;
+        if (this.time.now < (this.dropThroughUntil || 0)) return false;
+        return hero.body.velocity.y >= 0 && hero.body.bottom <= platform.body.top + 16;
+      }, this);
 
     this.enemies = this.physics.add.group();
     this.projectiles = this.physics.add.group();
@@ -152,6 +160,7 @@ class ZeroGameScene extends Phaser.Scene {
       special1: Phaser.Input.Keyboard.KeyCodes.ONE,
       special2: Phaser.Input.Keyboard.KeyCodes.TWO,
       special3: Phaser.Input.Keyboard.KeyCodes.THREE,
+      down: Phaser.Input.Keyboard.KeyCodes.DOWN,
       restart: Phaser.Input.Keyboard.KeyCodes.R,
       musicToggle: Phaser.Input.Keyboard.KeyCodes.M,
       sfxToggle: Phaser.Input.Keyboard.KeyCodes.N
@@ -252,6 +261,7 @@ class ZeroGameScene extends Phaser.Scene {
     this.createTree(735, 390);
     this.createTree(925, 390);
     this.createStageAtmosphere();
+    this.createPremiumStageSetpiece();
 
     this.add.rectangle(480, 505, 960, 70, this.stageConfig.background.ground)
       .setDepth(-5);
@@ -301,6 +311,41 @@ class ZeroGameScene extends Phaser.Scene {
         this.tweens.add({ targets: star, alpha: 0.18, scale: 0.5, duration: 800 + i * 25, yoyo: true, repeat: -1 });
       }
     }
+  }
+
+  createPremiumStageSetpiece() {
+    const world = this.stageConfig.worldIndex || 0;
+    const variant = (this.stageNumber - 1) % 5;
+    const accent = this.stageConfig.background.accent;
+    const far = this.stageConfig.background.far;
+    const g = this.add.graphics().setDepth(-16);
+    const glow = this.add.graphics().setDepth(-17);
+    const xs = [90 + variant * 24, 280, 680, 870 - variant * 19];
+    const base = 430;
+    if (world === 0) {
+      xs.forEach((x,i)=>{g.fillStyle(i%2?0x245b43:0x1d493d,0.95);g.fillRoundedRect(x-17,185+(i%2)*35,34,250,12);g.fillStyle(far,0.95);g.fillCircle(x,190+(i%2)*35,52+variant*3);g.fillCircle(x-28,218+(i%2)*35,35);g.fillCircle(x+30,220+(i%2)*35,34);g.lineStyle(5,0x3b8052,0.9);g.lineBetween(x-10,220,x-18,300+i*8);});
+    } else if (world === 1) {
+      xs.forEach((x,i)=>{g.fillStyle(i%2?0xf08ab7:0x9d72c8,0.9);g.fillRoundedRect(x-24,260-(i%2)*35,48,175,15);g.fillStyle(0xffe5f0,0.95);g.fillEllipse(x,260-(i%2)*35,64,30);g.fillStyle(0xffd36b,0.95);g.fillCircle(x,245-(i%2)*35,10+variant);g.lineStyle(7,0xffe5f0,0.85);g.beginPath();g.arc(x,330,40+variant*2,Math.PI,Math.PI*2,false);g.strokePath();});
+    } else if (world === 2) {
+      [xs[0],265,490,705,xs[3]].forEach((x,i)=>{const h=125+((i+variant)%3)*42;g.fillStyle(0x416f98,0.92);g.fillTriangle(x-58,base,x,base-h,x+58,base);g.fillStyle(0xc8f4ff,0.88);g.fillTriangle(x-14,base-h+30,x,base-h,x+24,base-h+62);g.lineStyle(3,0xffffff,0.55);g.lineBetween(x,base-h+15,x-18,base-25);});
+    } else if (world === 3) {
+      xs.forEach((x,i)=>{const h=110+((i+variant)%3)*28;g.fillStyle(0x8e5a39,0.95);g.fillRect(x-20,base-h,40,h);g.fillTriangle(x-28,base-h,x,base-h-34,x+28,base-h);g.lineStyle(5,0xf4c77e,0.9);g.lineBetween(x-12,base-h+18,x-12,base-12);g.lineBetween(x+12,base-h+18,x+12,base-12);});g.lineStyle(12,0xc58b59,0.85);g.beginPath();g.arc(490,390,145+variant*8,Math.PI,Math.PI*2,false);g.strokePath();
+    } else if (world === 4) {
+      xs.forEach((x,i)=>{g.fillStyle(0x172e3b,1);g.fillRoundedRect(x-13,145+(i%2)*30,26,290,10);g.fillStyle(0x315d55,0.95);g.fillEllipse(x,180+(i%2)*30,118,88);g.fillStyle(0x8ee8b1,0.8);g.fillEllipse(x+18,365-i*13,42,13);g.fillRect(x+14,365-i*13,8,32);});
+    } else if (world === 5) {
+      xs.forEach((x,i)=>{const h=100+((i+variant)%3)*45;g.fillStyle(0x4e4a88,0.95);g.fillTriangle(x-48,base,x-8,base-h,x+14,base);g.fillStyle(0xb9a7ff,0.92);g.fillTriangle(x+4,base,x+32,base-h*0.78,x+58,base);glow.fillStyle(0xc6aaff,0.16);glow.fillCircle(x+5,base-h*0.5,55+variant*4);});
+    } else if (world === 6) {
+      xs.forEach((x,i)=>{g.lineStyle(13,i%2?0xf09b85:0x3b9f9b,0.92);g.lineBetween(x,base,x,285+(i%2)*35);g.lineBetween(x,350,x-34,305+(i%2)*35);g.lineBetween(x,335,x+34,285+(i%2)*35);g.fillStyle(0xffc4a4,0.9);g.fillCircle(x-34,305+(i%2)*35,13);g.fillCircle(x+34,285+(i%2)*35,13);g.fillCircle(x,280+(i%2)*35,15);});
+    } else if (world === 7) {
+      xs.forEach((x,i)=>{const y=205+((i+variant)%3)*48;g.fillStyle(0x637fa8,0.9);g.fillEllipse(x,y,150,35);g.fillTriangle(x-48,y+8,x+48,y+8,x,y+85);g.fillStyle(0xf4e4a5,0.95);g.fillRect(x-8,y-42,16,42);g.fillTriangle(x-22,y-42,x,y-65,x+22,y-42);});
+    } else if (world === 8) {
+      xs.forEach((x,i)=>{g.fillStyle(0x382d3b,1);g.fillTriangle(x-95,base,x,175+(i%2)*30,x+95,base);g.fillStyle(0xff854c,0.95);g.fillTriangle(x-18,245+(i%2)*30,x,195+(i%2)*30,x+18,245+(i%2)*30);g.lineStyle(5,0xff9b55,0.8);g.lineBetween(x-10,260,x-35,390);});
+    } else {
+      xs.forEach((x,i)=>{const h=145+((i+variant)%3)*35;g.fillStyle(0x262d61,0.98);g.fillRoundedRect(x-25,base-h,50,h,8);g.fillStyle(0x555a9b,0.95);g.fillTriangle(x-34,base-h,x,base-h-48,x+34,base-h);g.fillStyle(0xffdf88,0.95);g.fillCircle(x,base-h-8,8+(variant%2)*3);glow.fillStyle(0xffdf88,0.13);glow.fillCircle(x,base-h-8,48+variant*3);});
+    }
+    glow.fillStyle(accent,0.07);glow.fillEllipse(480,365,780+variant*22,170);
+    this.tweens.add({targets:glow,alpha:0.72,duration:1800+variant*120,yoyo:true,repeat:-1});
+    this.add.rectangle(480,455,960,2,accent,0.18).setDepth(-1);
   }
 
   createCastle(x, y) {
@@ -835,9 +880,11 @@ class ZeroGameScene extends Phaser.Scene {
     this.platforms = this.physics.add.staticGroup();
 
     // Keep the original continuous floor so no stage can strand the player.
-    this.platforms.create(480, 528, "platform")
+    this.groundPlatform = this.platforms.create(480, 528, "platform")
       .setScale(5.4, 1)
+      .setTint(this.stageConfig.background.ground || 0x397c4c)
       .refreshBody();
+    this.groundPlatform.setData("isGround", true);
 
     const authored = this.stageConfig.platforms || [
       { x: 160, y: 420, width: 200, height: 18 },
@@ -847,9 +894,12 @@ class ZeroGameScene extends Phaser.Scene {
 
     authored.forEach(({ x, y, width = 200 }) => {
       const platform = this.platforms.create(x, y, "platform");
-      platform.setScale(width / 100, 1).refreshBody();
-      this.add.ellipse(x, y - 12, width * 0.82, 12,
-        this.stageConfig.background.accent, 0.14).setDepth(1);
+      platform.setScale(width / 100, 1).setTint(this.stageConfig.background.platform || 0x8a6a50).refreshBody();
+      this.add.ellipse(x, y - 12, width * 0.9, 15,
+        this.stageConfig.background.accent, 0.22).setDepth(1);
+      const trim = this.add.rectangle(x, y - 13, width * 0.94, 4,
+        this.stageConfig.background.accent, 0.95).setDepth(2);
+      this.tweens.add({ targets: trim, alpha: 0.55, duration: 1300 + (this.stageNumber % 5) * 120, yoyo: true, repeat: -1 });
     });
   }
 
@@ -1002,6 +1052,7 @@ class ZeroGameScene extends Phaser.Scene {
     this.touch.axis = Math.abs(rawAxis) < 0.16 ? 0 : rawAxis;
     this.touch.left = this.touch.axis < -0.16;
     this.touch.right = this.touch.axis > 0.16;
+    this.touch.down = dy > 24;
     this.joystickKnob.setScale(1.08);
   }
 
@@ -2402,6 +2453,7 @@ class ZeroGameScene extends Phaser.Scene {
       this.touch.jump || this.mobileActionQueue.delete("jump") ||
       (this.mobileJumpHeld && this.jumpCount === 1 && !this.hero.body.blocked.down &&
         time - this.mobileJumpPressedAt >= 180);
+    const wantsDropThrough = jump && (this.keys.down.isDown || this.touch.down) && this.hero.y < 490;
 
     if (time < (this.specialDashUntil || 0)) {
       this.hero.setVelocityX(this.facing * 500);
@@ -2413,7 +2465,14 @@ class ZeroGameScene extends Phaser.Scene {
     }
 
     if (this.hero.body.blocked.down) this.jumpCount = 0;
-    if (jump && this.jumpCount < 2) {
+    if (wantsDropThrough) {
+      this.dropThroughUntil = time + 190;
+      this.jumpCount = 0;
+      this.hero.setVelocityY(190);
+      this.audio.unlock();
+      this.audio.play("jump");
+      this.statusLabel.setText("DROP THROUGH!").setColor("#8feaff");
+    } else if (jump && this.jumpCount < 2) {
       this.audio.unlock();
       this.audio.play(this.jumpCount === 0 ? "jump" : "doubleJump");
       this.jumpCount++;
@@ -2844,6 +2903,7 @@ export default function App() {
         scene.touch.axis = 0;
         scene.touch.left = false;
         scene.touch.right = false;
+        scene.touch.down = false;
         scene.joystickKnob?.setPosition(132, 448).setScale(1);
       }
     } else if (scene) {
@@ -2926,6 +2986,7 @@ export default function App() {
           scene.touch.axis = 0;
           scene.touch.left = false;
           scene.touch.right = false;
+          scene.touch.down = false;
           scene.joystickKnob?.setPosition(132, 448).setScale(1);
         }
       } else if (action === "jump") {
