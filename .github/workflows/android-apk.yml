@@ -2,15 +2,6 @@ name: Build ZERO GAME Android APK
 
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - "src/**"
-      - "public/**"
-      - "package.json"
-      - "package-lock.json"
-      - "capacitor.config.json"
-      - ".github/workflows/android-apk.yml"
 
 permissions:
   contents: read
