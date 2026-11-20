@@ -2444,7 +2444,7 @@ class ZeroGameScene extends Phaser.Scene {
       (this.mobileJumpHeld && this.jumpCount === 1 && !this.hero.body.blocked.down &&
         time - this.mobileJumpPressedAt >= 180);
     const wantsDropThrough = jump && (this.keys.down.isDown || this.touch.down) &&
-      this.hero.body.blocked.down && this.hero.y < 490;
+      this.hero.body.blocked.down && this.hero.y < 455;
 
     if (time < (this.specialDashUntil || 0)) {
       this.hero.setVelocityX(this.facing * 500);
