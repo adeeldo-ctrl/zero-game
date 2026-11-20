@@ -378,6 +378,20 @@ try {
       if (expectedFirstAttack === 2 && state !== "dash") {
         throw new Error(`Dash attack failed: ${bossData.style}`);
       }
+      if (bossData.style.includes("final")) {
+        scene.bossHealth = 100;
+        scene.bossMaxHealth = 100;
+        scene.bossPhase = 1;
+        scene.hitBoss(boss, 40);
+        if (scene.bossPhase !== 2) throw new Error("Boss did not enter phase two at 60% health");
+        scene.hitBoss(boss, 35);
+        if (scene.bossPhase !== 3) throw new Error("Boss did not enter final phase at 25% health");
+        scene.bossShots.clear(true, true);
+        scene.fireBossVolley(boss);
+        if (scene.bossShots.countActive() !== 7) {
+          throw new Error("Final boss phase did not launch its seven-projectile volley");
+        }
+      }
       boss.destroy();
       scene.bossVisual?.destroy();
       scene.bossShots.clear(true, true);
