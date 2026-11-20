@@ -2319,7 +2319,9 @@ class ZeroGameScene extends Phaser.Scene {
     this.audio.play("special");
     this.specialPoseType = move.type;
     this.specialPoseStartedAt = this.time.now;
-    this.specialPoseUntil = this.time.now + (move.type === "rapid" ? 760 : 900);
+    this.specialPoseUntil = this.time.now + (move.type === "rapid" ? 900 : move.type === "throw" ? 980 : 1050);
+    this.specialImpactAt = this.time.now + (move.type === "rapid" ? 390 : move.type === "uppercut" ? 420 : 470);
+    this.specialImpactTriggered = false;
     this.normalAttackUntil = 0;
     const accent = this.selectedHero.accent || 0x7deaff;
     const title = move.name.toUpperCase();
@@ -2731,6 +2733,40 @@ class ZeroGameScene extends Phaser.Scene {
     const specialProgress = specialActive
       ? Phaser.Math.Clamp((time - (this.specialPoseStartedAt || time)) / Math.max(1, (this.specialPoseUntil || time) - (this.specialPoseStartedAt || time)), 0, 1)
       : 0;
+
+    // One decisive impact beat makes every special read like a fighting-game move:
+    // the strike lands after its wind-up, then a sharp hit-stop and directional burst sell contact.
+    if (this.specialPoseType && !this.specialImpactTriggered && time >= (this.specialImpactAt || Infinity)) {
+      this.specialImpactTriggered = true;
+      const accent = this.selectedHero?.accent || 0x7deaff;
+      const impactX = h.x + this.facing * (this.specialPoseType === "uppercut" ? 18 : 58);
+      const impactY = h.y - (this.specialPoseType === "uppercut" ? 42 : 14);
+      const burst = this.add.circle(impactX, impactY, 12, 0xffffff, 0.9)
+        .setStrokeStyle(5, accent, 1).setDepth(28);
+      const slash = this.add.graphics().setDepth(27);
+      slash.lineStyle(this.specialPoseType === "electric" ? 8 : 6, accent, 0.95);
+      const rays = this.specialPoseType === "uppercut" ? 7 : this.specialPoseType === "rapid" ? 10 : 8;
+      for (let i = 0; i < rays; i++) {
+        const angle = this.specialPoseType === "uppercut"
+          ? -Math.PI / 2 + (i - (rays - 1) / 2) * 0.19
+          : (Math.PI * 2 * i) / rays;
+        const inner = this.specialPoseType === "throw" ? 10 : 18;
+        const outer = this.specialPoseType === "wave" || this.specialPoseType === "roll" ? 72 : 48;
+        slash.lineBetween(
+          impactX + Math.cos(angle) * inner,
+          impactY + Math.sin(angle) * inner,
+          impactX + Math.cos(angle) * outer,
+          impactY + Math.sin(angle) * outer
+        );
+      }
+      this.tweens.add({ targets: burst, scale: 3.8, alpha: 0, duration: 210, ease: "Cubic.easeOut", onComplete: () => burst.destroy() });
+      this.tweens.add({ targets: slash, alpha: 0, duration: 190, onComplete: () => slash.destroy() });
+      this.cameras.main.shake(95, this.specialPoseType === "electric" || this.specialPoseType === "throw" ? 0.007 : 0.0045);
+      this.cameras.main.flash(65, 255, 245, 220, false);
+      // A brief visual hit-stop (not a move lock or cooldown); inputs remain usable.
+      this.specialHitStopUntil = time + 48;
+    }
+
     if (specialActive) {
       const sign = this.facing;
       const progress = specialProgress;
@@ -2749,42 +2785,49 @@ class ZeroGameScene extends Phaser.Scene {
       p.handR.y = 14;
 
       if (this.specialPoseType === "wave") {
-        // Classic projectile stance: pull both fists in, step forward, then drive
-        // the lead palm through the target before settling back into guard.
-        p.armL.rotation = sign * (-1.15 + windUp * 0.28);
-        p.armR.rotation = sign * (-1.95 + strike * 1.38 - recoil * 0.18);
-        p.handL.y = 10 + windUp * 5;
-        p.handR.y = 8 - strike * 8;
-        p.legL.rotation = -0.34 - strike * 0.12 + recoil * 0.12;
-        p.legR.rotation = 0.48 + strike * 0.10;
-        visual.x = h.x + sign * (windUp * -5 + strike * 8 - recoil * 3);
-        visual.y = h.y + windUp * 2 - strike * 3 + recoil * 2;
-        visual.setScale(sign * (1 + strike * 0.10), 1 - strike * 0.045);
+        // Two-hand energy strike: compact chamber, hip turn, extended lead palm and recoil.
+        const chamber = windUp;
+        const extension = strike * (1 - recoil * 0.25);
+        p.armL.rotation = sign * (-1.35 + chamber * 0.48 - extension * 0.18);
+        p.armR.rotation = sign * (-2.15 + extension * 1.72 - recoil * 0.24);
+        p.handL.x = -24 - extension * 5;
+        p.handR.x = 24 + extension * 24;
+        p.handL.y = 11 + chamber * 5;
+        p.handR.y = 7 - extension * 12;
+        p.legL.rotation = -0.42 - extension * 0.18 + recoil * 0.18;
+        p.legR.rotation = 0.58 + extension * 0.16;
+        visual.x = h.x + sign * (chamber * -7 + extension * 12 - recoil * 4);
+        visual.y = h.y + chamber * 3 - extension * 4 + recoil * 3;
+        visual.setAngle(sign * (-0.035 - extension * 0.055));
+        visual.setScale(sign * (1 + extension * 0.13), 1 - extension * 0.06);
       } else if (this.specialPoseType === "uppercut") {
-        // Deep knee dip, explosive rising fist, airborne follow-through and landing.
-        const launch = smooth(0.12, 0.40, progress);
-        const follow = 1 - smooth(0.64, 0.98, progress);
-        p.armL.rotation = sign * (-1.18 + windUp * 0.22);
-        p.armR.rotation = sign * (-2.55 - launch * 0.48 + recoil * 1.35);
-        p.handR.y = 7 - launch * 12 + recoil * 5;
-        p.legL.rotation = -0.18 - windUp * 0.62 - launch * 0.36 + recoil * 0.2;
-        p.legR.rotation = 0.18 + windUp * 0.72 + launch * 0.42 - recoil * 0.2;
-        visual.x = h.x + sign * (launch * 5);
-        visual.y = h.y + windUp * 5 - launch * 5 + recoil * 3;
-        visual.setAngle(sign * (-launch * 0.18 + follow * 0.04));
-        visual.setScale(sign * (1 - launch * 0.055), 1 + launch * 0.14);
+        // Street-fighter uppercut silhouette: deep squat, loaded rear shoulder, rising fist.
+        const launch = smooth(0.14, 0.43, progress);
+        const follow = 1 - smooth(0.66, 0.99, progress);
+        p.armL.rotation = sign * (-1.42 + windUp * 0.38);
+        p.armR.rotation = sign * (-2.72 - launch * 0.62 + recoil * 1.55);
+        p.handR.x = 24 + launch * 12;
+        p.handR.y = 8 - launch * 20 + recoil * 7;
+        p.legL.rotation = -0.2 - windUp * 0.78 - launch * 0.42 + recoil * 0.25;
+        p.legR.rotation = 0.2 + windUp * 0.88 + launch * 0.5 - recoil * 0.22;
+        visual.x = h.x + sign * (launch * 8);
+        visual.y = h.y + windUp * 8 - launch * 8 + recoil * 4;
+        visual.setAngle(sign * (-launch * 0.22 + follow * 0.05));
+        visual.setScale(sign * (1 - launch * 0.07), 1 + launch * 0.18);
       } else if (this.specialPoseType === "spin") {
-        // A readable multi-kick silhouette: tucked prep, rotating side kick,
-        // then a planted recovery instead of a flat full-body spin.
-        const turn = smooth(0.18, 0.72, progress);
+        // Pivoting hurricane kick: counter-lean, chambered knee, fully extended kicking leg.
+        const turn = smooth(0.16, 0.78, progress);
         const kick = Math.sin(turn * Math.PI);
-        p.armL.rotation = sign * (-1.5 - kick * 0.28);
-        p.armR.rotation = sign * (1.5 + kick * 0.28);
-        p.legL.rotation = -0.42 - kick * 0.25;
-        p.legR.rotation = 0.42 + kick * 1.22;
-        p.shoeR.y = 34 - kick * 9;
-        visual.setAngle(sign * turn * 250);
-        visual.setScale(sign * (1 + kick * 0.16), 1 - kick * 0.06);
+        const chamber = 1 - smooth(0.12, 0.34, progress);
+        p.armL.rotation = sign * (-1.62 - kick * 0.42);
+        p.armR.rotation = sign * (1.62 + kick * 0.42);
+        p.legL.rotation = -0.55 - chamber * 0.38 + kick * 0.22;
+        p.legR.rotation = 0.52 + chamber * 0.35 + kick * 1.52;
+        p.shoeR.x = 12 + kick * 24;
+        p.shoeR.y = 35 - kick * 13;
+        visual.x = h.x + sign * kick * 5;
+        visual.setAngle(sign * (turn * 115 - kick * 12));
+        visual.setScale(sign * (1 + kick * 0.18), 1 - kick * 0.08);
       } else if (this.specialPoseType === "rapid") {
         // Alternating left-right punches with a visible shoulder/body snap.
         const combo = Math.sin(progress * Math.PI * 12);
@@ -2842,8 +2885,12 @@ class ZeroGameScene extends Phaser.Scene {
       if (p.waistcoat?.active) p.waistcoat.setScale(1, 1 + Math.sin(progress * Math.PI) * 0.06);
     } else if (this.specialPoseType) {
       this.specialPoseType = null;
+      this.specialImpactTriggered = false;
+      visual.setPosition(h.x, h.y);
       visual.setAngle(0);
       visual.setScale(this.facing, 1);
+      [p.handL, p.handR].forEach(hand => { if (hand?.active) hand.setPosition(hand === p.handL ? -24 : 24, 12); });
+      [p.shoeL, p.shoeR].forEach((shoe, index) => { if (shoe?.active) shoe.setPosition(index ? 12 : -12, 39); });
       if (p.kurta?.active) p.kurta.setScale(1, 1);
       if (p.waistcoat?.active) p.waistcoat.setScale(1, 1);
     }
