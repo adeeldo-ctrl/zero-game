@@ -34,7 +34,7 @@ try {
     if (message.type() === "error") runtimeErrors.push(message.text());
   });
   await page.goto("http://127.0.0.1:4173", { waitUntil: "domcontentloaded" });
-  const canvas = page.locator("#game-container canvas").first();
+  const canvas = page.locator("#game-container canvas").last();
   await canvas.waitFor({ state: "visible", timeout: 15000 });
   const dimensions = await canvas.evaluate((node) => ({ width: node.width, height: node.height }));
   if (dimensions.width !== 960 || dimensions.height !== 540) {
