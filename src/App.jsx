@@ -64,6 +64,8 @@ class ZeroGameScene extends Phaser.Scene {
     this.jumpCount = 0;
     this.touch.axis = 0;
     this.mobileActionQueue = new Set();
+    this.mobileJumpHeld = false;
+    this.mobileJumpPressedAt = 0;
     this.netSocket = null;
     this.netConnected = false;
     this.netRole = null;
@@ -910,7 +912,13 @@ class ZeroGameScene extends Phaser.Scene {
   }
 
   pressMobileAction(action) {
-    if (["super", "special1", "special2", "special3", "jump"].includes(action)) {
+    if (action === "jump") {
+      this.mobileJumpHeld = true;
+      this.mobileJumpPressedAt = this.time?.now || 0;
+      this.mobileActionQueue.add("jump");
+      return;
+    }
+    if (["super", "special1", "special2", "special3"].includes(action)) {
       this.mobileActionQueue.add(action);
       return;
     }
@@ -2308,7 +2316,9 @@ class ZeroGameScene extends Phaser.Scene {
     const jump =
       Phaser.Input.Keyboard.JustDown(this.keys.jump) ||
       Phaser.Input.Keyboard.JustDown(this.keys.up) ||
-      this.touch.jump || this.mobileActionQueue.delete("jump");
+      this.touch.jump || this.mobileActionQueue.delete("jump") ||
+      (this.mobileJumpHeld && this.jumpCount === 1 && !this.hero.body.blocked.down &&
+        time - this.mobileJumpPressedAt >= 180);
 
     if (time < (this.specialDashUntil || 0)) {
       this.hero.setVelocityX(this.facing * 500);
@@ -2729,7 +2739,12 @@ export default function App() {
       }
     } else if (scene) {
       const stillPressed = [...mobilePointers.current.values()].includes(action);
-      scene.touch[action] = stillPressed;
+      if (action === "jump") {
+        scene.mobileJumpHeld = stillPressed;
+        if (!stillPressed) scene.mobileJumpPressedAt = 0;
+      } else {
+        scene.touch[action] = stillPressed;
+      }
       if (action === "attack" && !stillPressed && !scene.attackHeld) {
         scene.fireAttack(0);
       }
@@ -2804,6 +2819,10 @@ export default function App() {
           scene.touch.right = false;
           scene.joystickKnob?.setPosition(132, 448).setScale(1);
         }
+      } else if (action === "jump") {
+        const stillPressed = [...mobilePointers.current.values()].includes("jump");
+        scene.mobileJumpHeld = stillPressed;
+        if (!stillPressed) scene.mobileJumpPressedAt = 0;
       } else if (action === "attack") {
         const stillPressed = [...mobilePointers.current.values()].includes("attack");
         scene.touch.attack = stillPressed;
@@ -2853,6 +2872,8 @@ export default function App() {
         scene.touch.special2 = false;
         scene.touch.special3 = false;
         scene.mobileActionQueue?.clear();
+        scene.mobileJumpHeld = false;
+        scene.mobileJumpPressedAt = 0;
         scene.attackHeld = false;
       }
     };
