@@ -1289,6 +1289,8 @@ class ZeroGameScene extends Phaser.Scene {
 
   beginCampaign({ transitionDirection = null } = {}) {
     this.setMobileControlsVisible(true); this.clearMenu();
+    this.audio.unlock();
+    this.audio.play("stage");
     this.campaignActive = true; this.gameStarted = true; this.gameOver = false; this.stageCleared = false;
     this.stageAdvancePending = false;
     this.stageStartedAt = this.time.now; this.stageTimeLeft = this.stageConfig.timeLimit || 120;
