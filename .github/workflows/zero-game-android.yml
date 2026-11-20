@@ -64,6 +64,34 @@ jobs:
       - name: Sync Capacitor Android project
         run: npx cap sync android
 
+      - name: Force Android game into landscape orientation
+        run: |
+          python - <<'PY'
+          import xml.etree.ElementTree as ET
+          from pathlib import Path
+
+          manifest = Path("android/app/src/main/AndroidManifest.xml")
+          tree = ET.parse(manifest)
+          root = tree.getroot()
+          android = "{http://schemas.android.com/apk/res/android}"
+          launcher = None
+          for activity in root.findall("application/activity"):
+              for intent_filter in activity.findall("intent-filter"):
+                  actions = [node.get(android + "name") for node in intent_filter.findall("action")]
+                  categories = [node.get(android + "name") for node in intent_filter.findall("category")]
+                  if "android.intent.action.MAIN" in actions and "android.intent.category.LAUNCHER" in categories:
+                      launcher = activity
+                      break
+              if launcher is not None:
+                  break
+          if launcher is None:
+              raise SystemExit("Could not find the Android launcher activity")
+          launcher.set(android + "screenOrientation", "landscape")
+          ET.register_namespace("android", "http://schemas.android.com/apk/res/android")
+          tree.write(manifest, encoding="utf-8", xml_declaration=True)
+          print("Launcher activity is locked to landscape orientation.")
+          PY
+
       - name: Build debug APK
         working-directory: android
         run: |
