@@ -152,3 +152,23 @@ The user clarified the exact required platform behavior and rejected the current
 - Do not change the approved joystick feel or break the existing gameplay baseline.
 
 **Acceptance checks added:** upward pass-through from below on every elevated platform; DOWN + JUMP drop-through from elevated platforms; solid bottom floor; no out-of-bounds fall; all 50 stages visibly differentiated beyond color-only changes; stage layout and collision tests pass.
+
+## Clarification implementation log — 2026-11-20
+
+Source changes committed to main after the user's clarification:
+
+- Added a hero-only one-way platform collision filter: upward movement passes through elevated platforms; descending from above can land on them.
+- Added joystick vertical-down detection while preserving the existing horizontal axis mapping.
+- Added DOWN + JUMP drop-through handling only while grounded on an elevated platform. The permanent floor is explicitly exempt from drop-through and remains solid.
+- Removed the repeated castle/building/tree backdrop from every stage.
+- Added ten world-specific landmark/scenery compositions (Emerald, Candy, Frozen, Desert, Moonlit Forest, Crystal, Coral, Sky Islands, Volcano, Starfall Citadel), with five deterministic visual variations per world.
+- Added themed platform tint, illuminated trim and a subtle pulsing accent.
+- Added automated data checks for ten worlds, five stages per world, unique stage names and themed palette data.
+
+### Verification still required
+
+- Run npm test, npm run lint, and npm run build.
+- Inspect/fix any Phaser runtime issues in the one-way collision/drop-through behavior.
+- Verify all 50 stages visually in-game, especially that their five variations are genuinely distinct and platforms remain reachable.
+- Build a fresh Android APK and physically test on the user's Redmi Note 8.
+- Do not mark the movement or premium stage redesign complete until those checks pass.
