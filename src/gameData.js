@@ -91,9 +91,9 @@ const WORLDS = [
 
 const BOSS_DATA = [
   { name: "Arena Gatekeeper", family: "power", element: "earth", hp: 34, attack: "Ground Pulse", color: 0x8a5943, style: "intro grappler" },
-  { name: "Suncrest Master", family: "striker", element: "fire", hp: 46, attack: "Sunline Strike", color: 0xa64b3d, style: "disciplined martial arts master" },
+  { name: "Iron Comet", family: "striker", element: "earth", hp: 46, attack: "Iron Comet Combo", color: 0x6259a7, style: "boxing champion" },
   { name: "Gale Talon", family: "agile", element: "wind", hp: 54, attack: "Gale Talon Rush", color: 0x8d405e, style: "agile claw acrobat" },
-  { name: "Iron Comet", family: "striker", element: "earth", hp: 64, attack: "Iron Comet Combo", color: 0x6259a7, style: "boxing champion" },
+  { name: "Suncrest Master", family: "striker", element: "fire", hp: 64, attack: "Sunline Strike", color: 0xa64b3d, style: "disciplined martial arts master" },
   { name: "Void Sovereign", family: "power", element: "shadow", hp: 82, attack: "Void Crown Assault", color: 0x493b76, style: "final warlord" }
 ];
 
