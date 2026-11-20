@@ -6,6 +6,7 @@ import { ELEMENTS, HEROES, getElement, getStage, getHero } from "./gameData";
 import { createGameAudio } from "./gameAudio";
 import { createCampaignLives, loseCampaignHeart, getStageTransitionDirection } from "./campaignRules";
 import { shouldHeroCollideWithPlatform, shouldDropThroughPlatform } from "./platformRules";
+import { getBossPhase, getSpecialCooldownStatus, SPECIAL_MOVE_COOLDOWN_MS } from "./combatRules";
 import "./App.css";
 
 class ZeroGameScene extends Phaser.Scene {
@@ -1629,7 +1630,7 @@ class ZeroGameScene extends Phaser.Scene {
       .setStrokeStyle(4, 0xffffff).setDepth(25);
     this.tweens.add({ targets: burst, scale: 2.7, alpha: 0, duration: 260,
       onComplete: () => burst.destroy() });
-    this.bossPhase = this.bossHealth <= this.bossMaxHealth * 0.25 ? 3 : this.bossHealth <= this.bossMaxHealth * 0.6 ? 2 : 1;
+    this.bossPhase = getBossPhase(this.bossHealth, this.bossMaxHealth);
     this.statusLabel.setText(this.bossPhase === 3 ? "FINAL PHASE! BOSS UNLEASHED!" : this.bossPhase === 2 ? "BOSS IS ENRAGED!" : "KEEP FIRING!");
     this.statusLabel.setColor(this.bossPhase === 3 ? "#ff6b8a" : "#ffe17a");
 
@@ -2104,13 +2105,12 @@ class ZeroGameScene extends Phaser.Scene {
     // Each extra button maps to its own signature move and independent cooldown.
     const selectedIndex = Math.max(0, Math.min(2, moveIndex));
     const move = moves[selectedIndex];
-    const readyAt = this.specialReadyAt[selectedIndex] || 0;
-    if (this.time.now < readyAt) {
-      const seconds = Math.max(1, Math.ceil((readyAt - this.time.now) / 1000));
-      this.statusLabel.setText(`EXTRA ${selectedIndex + 1} RECHARGING: ${seconds}s`).setColor("#9feaff");
+    const cooldown = getSpecialCooldownStatus(this.specialReadyAt[selectedIndex] || 0, this.time.now);
+    if (!cooldown.ready) {
+      this.statusLabel.setText(`EXTRA ${selectedIndex + 1} RECHARGING: ${cooldown.remainingSeconds}s`).setColor("#9feaff");
       return;
     }
-    this.specialReadyAt[selectedIndex] = this.time.now + 1450;
+    this.specialReadyAt[selectedIndex] = this.time.now + SPECIAL_MOVE_COOLDOWN_MS;
     this.audio.unlock();
     this.audio.play("special");
     this.specialPoseType = move.type;
