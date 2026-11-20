@@ -2701,7 +2701,7 @@ export default function App() {
       },
       // Allow simultaneous joystick + action-button touches on phones/tablets.
       input: {
-        activePointers: 4,
+        activePointers: 10,
         touch: { capture: true }
       },
       scale: {
