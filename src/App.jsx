@@ -41,6 +41,7 @@ class ZeroGameScene extends Phaser.Scene {
     this.gameStarted = true;
     this.campaignActive = false;
     this.heroSelectionLocked = false;
+    this.openHeroSelectAfterRestart = false;
     this.chances = 3;
     this.chanceLossInProgress = false;
     this.stageTransitionActive = false;
@@ -184,7 +185,10 @@ class ZeroGameScene extends Phaser.Scene {
     this.defeated = 0;
     this.stageCleared = false;
     this.gameOver = false;
-    if (this.campaignActive && this.selectedHero) {
+    if (this.openHeroSelectAfterRestart) {
+      this.openHeroSelectAfterRestart = false;
+      this.showHeroSelect();
+    } else if (this.campaignActive && this.selectedHero) {
       const direction = this.pendingStageTransitionDirection;
       this.pendingStageTransitionDirection = null;
       this.beginCampaign({ transitionDirection: direction });
@@ -1405,10 +1409,16 @@ class ZeroGameScene extends Phaser.Scene {
     this.clearMenu();
     this.gameOver = false; this.stageCleared = false; this.campaignActive = false; this.heroSelectionLocked = false;
     this.chanceLossInProgress = false;
+    this.stageTransitionActive = false;
+    this.pendingStageTransitionDirection = null;
+    this.stageAdvancePending = false;
     this.specialReadyAt = [0, 0, 0];
     this.stageNumber = 1; this.score = 0; this.extraLivesAwarded = 0; this.defeated = 0;
     this.chances = 3; this.health = 3; this.snowballTutorialShown = false;
-    this.showHeroSelect();
+    this.openHeroSelectAfterRestart = true;
+    // Rebuild stage-one physics, enemies, HUD and scene objects. This also
+    // restores a disabled hero body after a previous Game Over.
+    this.scene.restart();
   }
 
   beginCampaign({ transitionDirection = null } = {}) {
