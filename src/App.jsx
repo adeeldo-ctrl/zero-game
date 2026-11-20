@@ -616,7 +616,7 @@ class ZeroGameScene extends Phaser.Scene {
       handL,
       handR
     });
-    c.setData("heroPalette", { kurta, waistcoat, capLine });
+    c.setData("heroPalette", { kurta, waistcoat, capLine, face, neck, handL, handR, hair, armL, armR });
     
 
     return c;
@@ -624,33 +624,54 @@ class ZeroGameScene extends Phaser.Scene {
 
   applyHeroLook(visual, hero) {
     if (!visual?.active || !hero) return;
+    const palette = visual.getData("heroPalette");
+    if (palette) {
+      const skin = hero.id === "volt" ? 0x62b84f : 0xe9b38b;
+      [palette.face, palette.neck, palette.handL, palette.handR].forEach(part => part?.setFillStyle(skin));
+      palette.hair?.setFillStyle(hero.id === "kairo" ? 0xf2c34e : hero.id === "volt" ? 0xf28a32 : 0x30251f);
+      palette.armL?.setFillStyle(hero.color);
+      palette.armR?.setFillStyle(hero.color);
+    }
     const old = visual.getData("heroLookItems") || [];
     old.forEach(item => { if (item?.active) item.destroy(); });
     const items = [];
     if (hero.id === "ryo") {
-      const headband = this.add.rectangle(0, -44, 43, 7, 0xffdf78).setStrokeStyle(2, 0x8c3d28);
-      const tail = this.add.triangle(-24, -39, 0, 0, 18, 5, 0, 22, 0xffdf78);
-      const chestMark = this.add.star(0, 2, 5, 3, 7, 0xffdf78);
-      items.push(headband, tail, chestMark);
+      // White martial-arts gi with a red headband: Ryu-inspired original hero.
+      const band = this.add.rectangle(0, -44, 44, 7, 0xd94a42).setStrokeStyle(2, 0x792d2d);
+      const tail = this.add.triangle(-25, -39, 0, 0, 18, 5, 0, 22, 0xd94a42);
+      const belt = this.add.rectangle(0, 15, 34, 6, 0xd94a42);
+      const gloveL = this.add.ellipse(-25, 18, 16, 13, 0xf2f2ed).setStrokeStyle(2, 0x9da7b4);
+      const gloveR = this.add.ellipse(25, 18, 16, 13, 0xf2f2ed).setStrokeStyle(2, 0x9da7b4);
+      items.push(band, tail, belt, gloveL, gloveR);
     } else if (hero.id === "kairo") {
-      const headband = this.add.rectangle(0, -44, 43, 8, 0x29243a).setStrokeStyle(2, 0xff9a52);
-      const flame = this.add.triangle(0, -62, -13, 17, 0, -13, 14, 17, 0xff783b).setStrokeStyle(2, 0xffd16b);
-      const shoulderL = this.add.ellipse(-23, -4, 19, 14, 0x29243a).setStrokeStyle(2, 0xff9a52);
-      const shoulderR = this.add.ellipse(23, -4, 19, 14, 0x29243a).setStrokeStyle(2, 0xff9a52);
-      items.push(headband, flame, shoulderL, shoulderR);
+      // Blond hair, red gi and gold trim: Ken-inspired original hero.
+      const spike1 = this.add.triangle(-13, -57, -12, 15, 0, -17, 12, 12, 0xf2c34e).setStrokeStyle(1, 0x9b6b22);
+      const spike2 = this.add.triangle(2, -60, -11, 14, 0, -19, 12, 14, 0xf2c34e).setStrokeStyle(1, 0x9b6b22);
+      const spike3 = this.add.triangle(17, -54, -12, 12, 0, -16, 13, 14, 0xf2c34e).setStrokeStyle(1, 0x9b6b22);
+      const headband = this.add.rectangle(0, -43, 44, 6, 0xd83b32).setStrokeStyle(2, 0xffd16b);
+      const belt = this.add.rectangle(0, 15, 34, 6, 0xffd16b);
+      const flame = this.add.triangle(0, -66, -8, 12, 0, -14, 10, 12, 0xff783b);
+      items.push(spike1, spike2, spike3, headband, belt, flame);
     } else if (hero.id === "mei") {
-      const hairRibbon = this.add.triangle(0, -53, -20, 12, 0, -8, 20, 12, 0x9cecff).setStrokeStyle(2, 0xffffff);
-      const sashL = this.add.triangle(-22, 6, -8, -9, 10, 7, -5, 27, 0x9cecff);
-      const sashR = this.add.triangle(22, 6, -8, -9, 10, 7, -5, 27, 0x9cecff);
-      const bolt = this.add.text(0, -9, "ϟ", { fontSize: "23px", color: "#ffffff", fontStyle: "bold", stroke: "#2879c3", strokeThickness: 3 }).setOrigin(0.5);
-      items.push(hairRibbon, sashL, sashR, bolt);
+      // Twin hair buns, blue outfit ribbons and gold wrist guards: Chun-Li-inspired.
+      const bunL = this.add.circle(-17, -53, 9, 0x30251f).setStrokeStyle(3, 0xffd36b);
+      const bunR = this.add.circle(17, -53, 9, 0x30251f).setStrokeStyle(3, 0xffd36b);
+      const ribbonL = this.add.triangle(-24, -47, -8, -8, -2, 9, -18, 14, 0x9cecff);
+      const ribbonR = this.add.triangle(24, -47, 8, -8, 2, 9, 18, 14, 0x9cecff);
+      const sashL = this.add.triangle(-22, 7, -8, -9, 10, 7, -5, 27, 0x9cecff);
+      const sashR = this.add.triangle(22, 7, -8, -9, 10, 7, -5, 27, 0x9cecff);
+      const cuffL = this.add.rectangle(-28, 15, 10, 15, 0xffd36b).setStrokeStyle(2, 0x9b6c2c);
+      const cuffR = this.add.rectangle(28, 15, 10, 15, 0xffd36b).setStrokeStyle(2, 0x9b6c2c);
+      items.push(bunL, bunR, ribbonL, ribbonR, sashL, sashR, cuffL, cuffR);
     } else {
-      const crest = this.add.triangle(0, -58, -18, 18, 0, -18, 18, 18, 0xffe16a).setStrokeStyle(3, 0x276d43);
-      const stripe = this.add.rectangle(0, -43, 42, 7, 0x286b45).setStrokeStyle(2, 0xffe16a);
-      const shoulderL = this.add.ellipse(-24, -4, 21, 17, 0x286b45).setStrokeStyle(3, 0xffe16a);
-      const shoulderR = this.add.ellipse(24, -4, 21, 17, 0x286b45).setStrokeStyle(3, 0xffe16a);
-      const bolt = this.add.text(0, -10, "ϟ", { fontSize: "25px", color: "#fff2a6", fontStyle: "bold", stroke: "#276d43", strokeThickness: 3 }).setOrigin(0.5);
-      items.push(crest, stripe, shoulderL, shoulderR, bolt);
+      // Green skin, orange crest and electric markings: Blanka-inspired wild fighter.
+      const spike1 = this.add.triangle(-17, -54, -11, 15, 0, -19, 12, 14, 0xf28a32).setStrokeStyle(2, 0x8b4b24);
+      const spike2 = this.add.triangle(0, -60, -12, 16, 0, -22, 12, 16, 0xf28a32).setStrokeStyle(2, 0x8b4b24);
+      const spike3 = this.add.triangle(17, -54, -12, 14, 0, -18, 12, 15, 0xf28a32).setStrokeStyle(2, 0x8b4b24);
+      const stripeL = this.add.rectangle(-18, 4, 7, 27, 0xffe16a).setAngle(-18);
+      const stripeR = this.add.rectangle(18, 4, 7, 27, 0xffe16a).setAngle(18);
+      const bolt = this.add.text(0, -9, "ϟ", { fontSize: "27px", color: "#fff2a6", fontStyle: "bold", stroke: "#276d43", strokeThickness: 3 }).setOrigin(0.5);
+      items.push(spike1, spike2, spike3, stripeL, stripeR, bolt);
     }
     visual.add(items);
     visual.setData("heroLookItems", items);
