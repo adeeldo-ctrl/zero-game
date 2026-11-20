@@ -908,7 +908,7 @@ class ZeroGameScene extends Phaser.Scene {
     this.createControl(292, 326, "S1", "special1");
     this.createControl(292, 418, "S2", "special2");
     this.createControl(292, 490, "S3", "special3");
-    this.createControl(430, 448, "THROW", "throw");
+    this.createControl(885, 352, "THROW", "throw");
     this.createControl(650, 448, "SUPER", "super");
     this.createControl(765, 448, "FIRE", "attack");
     this.createControl(885, 448, "JUMP", "jump");
