@@ -47,7 +47,8 @@ Special move impacts can launch, throw or push nearby enemies with visible knock
 - Fire: hold X / mobile FIRE to charge, then release
 - Existing Super: Z / mobile SUPER
 - Change elemental power: C
-- Special move buttons: 1, 2, 3 / mobile S1, S2, S3
+- Dedicated unlimited Street Throw: T / mobile THROW (works when a normal enemy is close and in front).
+- Special move buttons: 1, 2, 3 / mobile S1, S2, S3 (unlimited use; no cooldown or usage countdown).
 
 ## Android debug APK
 
