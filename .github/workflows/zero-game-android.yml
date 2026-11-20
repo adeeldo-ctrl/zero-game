@@ -1,9 +1,6 @@
 name: ZERO GAME Android APK
 
 on:
-  push:
-    branches:
-      - "**"
   workflow_dispatch:
 
 permissions:
