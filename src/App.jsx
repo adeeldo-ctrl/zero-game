@@ -4,21 +4,24 @@ import Phaser from "phaser";
 import { ELEMENTS, HEROES, getElement, getStage, getHero } from "./gameData";
 import "./App.css";
 
-class DastaanScene extends Phaser.Scene {
+class ZeroGameScene extends Phaser.Scene {
   constructor() {
-    super("DastaanScene");
+    super("ZeroGameScene");
 
     this.touch = {
       left: false,
       right: false,
       jump: false,
       attack: false,
-      super: false
+      super: false,
+      special1: false,
+      special2: false,
+      special3: false
     };
 
     this.stageNumber = 1;
     this.stageConfig = getStage(1);
-    this.selectedHero = getHero("ibrahim");
+    this.selectedHero = getHero("ryo");
     this.stageStartedAt = 0;
     this.stageTimeLeft = 120;
     this.timeHunterSpawned = false;
@@ -140,6 +143,9 @@ class DastaanScene extends Phaser.Scene {
       attack: Phaser.Input.Keyboard.KeyCodes.X,
       super: Phaser.Input.Keyboard.KeyCodes.Z,
       cyclePower: Phaser.Input.Keyboard.KeyCodes.C,
+      special1: Phaser.Input.Keyboard.KeyCodes.ONE,
+      special2: Phaser.Input.Keyboard.KeyCodes.TWO,
+      special3: Phaser.Input.Keyboard.KeyCodes.THREE,
       restart: Phaser.Input.Keyboard.KeyCodes.R
     });
 
@@ -621,32 +627,30 @@ class DastaanScene extends Phaser.Scene {
     const old = visual.getData("heroLookItems") || [];
     old.forEach(item => { if (item?.active) item.destroy(); });
     const items = [];
-    if (hero.id === "ibrahim") {
-      const scarf = this.add.triangle(-18, -7, -20, 0, 22, 4, 8, 19, 0xff9b35)
-        .setStrokeStyle(2, 0xffe17a);
-      const flame = this.add.triangle(0, -61, -12, 18, 0, -12, 13, 18, 0xff6b32)
-        .setStrokeStyle(2, 0xffe17a);
-      const badge = this.add.star(0, -2, 6, 3, 7, 0xffd36b).setStrokeStyle(1, 0xffffff);
-      items.push(scarf, flame, badge);
-    } else if (hero.id === "zoya") {
-      const cape = this.add.triangle(0, 5, -24, -12, 0, 52, 24, -12, 0x63c9ef, 0.9)
-        .setStrokeStyle(3, 0xdffaff);
-      const crown = this.add.triangle(0, -58, -24, 17, -10, -5, 0, 12, 0x9df1ff)
-        .setStrokeStyle(3, 0xffffff);
-      const crownSide = this.add.triangle(18, -52, -12, 13, 0, -11, 12, 13, 0xc9f5ff)
-        .setStrokeStyle(2, 0xffffff);
-      const gem = this.add.triangle(0, -13, -10, 7, 0, -9, 10, 7, 0x74e7ff).setStrokeStyle(2, 0xffffff);
-      items.push(cape, crown, crownSide, gem);
+    if (hero.id === "ryo") {
+      const headband = this.add.rectangle(0, -44, 43, 7, 0xffdf78).setStrokeStyle(2, 0x8c3d28);
+      const tail = this.add.triangle(-24, -39, 0, 0, 18, 5, 0, 22, 0xffdf78);
+      const chestMark = this.add.star(0, 2, 5, 3, 7, 0xffdf78);
+      items.push(headband, tail, chestMark);
+    } else if (hero.id === "kairo") {
+      const headband = this.add.rectangle(0, -44, 43, 8, 0x29243a).setStrokeStyle(2, 0xff9a52);
+      const flame = this.add.triangle(0, -62, -13, 17, 0, -13, 14, 17, 0xff783b).setStrokeStyle(2, 0xffd16b);
+      const shoulderL = this.add.ellipse(-23, -4, 19, 14, 0x29243a).setStrokeStyle(2, 0xff9a52);
+      const shoulderR = this.add.ellipse(23, -4, 19, 14, 0x29243a).setStrokeStyle(2, 0xff9a52);
+      items.push(headband, flame, shoulderL, shoulderR);
+    } else if (hero.id === "mei") {
+      const hairRibbon = this.add.triangle(0, -53, -20, 12, 0, -8, 20, 12, 0x9cecff).setStrokeStyle(2, 0xffffff);
+      const sashL = this.add.triangle(-22, 6, -8, -9, 10, 7, -5, 27, 0x9cecff);
+      const sashR = this.add.triangle(22, 6, -8, -9, 10, 7, -5, 27, 0x9cecff);
+      const bolt = this.add.text(0, -9, "ϟ", { fontSize: "23px", color: "#ffffff", fontStyle: "bold", stroke: "#2879c3", strokeThickness: 3 }).setOrigin(0.5);
+      items.push(hairRibbon, sashL, sashR, bolt);
     } else {
-      const shoulderL = this.add.ellipse(-24, -4, 20, 16, 0x4a3c9b).setStrokeStyle(3, 0xffdf70);
-      const shoulderR = this.add.ellipse(24, -4, 20, 16, 0x4a3c9b).setStrokeStyle(3, 0xffdf70);
-      const crest = this.add.triangle(0, -59, -18, 20, 0, -18, 18, 20, 0xffdf70)
-        .setStrokeStyle(3, 0xffffff);
-      const bolt = this.add.text(0, -10, "ϟ", {
-        fontSize: "25px", color: "#fff2a6", fontStyle: "bold",
-        stroke: "#5144a0", strokeThickness: 3
-      }).setOrigin(0.5);
-      items.push(shoulderL, shoulderR, crest, bolt);
+      const crest = this.add.triangle(0, -58, -18, 18, 0, -18, 18, 18, 0xffe16a).setStrokeStyle(3, 0x276d43);
+      const stripe = this.add.rectangle(0, -43, 42, 7, 0x286b45).setStrokeStyle(2, 0xffe16a);
+      const shoulderL = this.add.ellipse(-24, -4, 21, 17, 0x286b45).setStrokeStyle(3, 0xffe16a);
+      const shoulderR = this.add.ellipse(24, -4, 21, 17, 0x286b45).setStrokeStyle(3, 0xffe16a);
+      const bolt = this.add.text(0, -10, "ϟ", { fontSize: "25px", color: "#fff2a6", fontStyle: "bold", stroke: "#276d43", strokeThickness: 3 }).setOrigin(0.5);
+      items.push(crest, stripe, shoulderL, shoulderR, bolt);
     }
     visual.add(items);
     visual.setData("heroLookItems", items);
@@ -820,7 +824,7 @@ class DastaanScene extends Phaser.Scene {
       480, 60, 960, 2, 0x43d9e8, 0.8
     ).setDepth(20);
 
-    this.add.text(20, 7, "DASTAAN HEROES", {
+    this.add.text(20, 7, "ZERO GAME", {
       fontSize: "22px",
       color: "#ffe17a",
       fontStyle: "bold",
@@ -906,6 +910,9 @@ class DastaanScene extends Phaser.Scene {
     this.input.on("pointermove", moveStick);
     this.input.on("pointerup", stopStick);
     this.input.on("pointerupoutside", stopStick);
+    this.createControl(292, 326, "S1", "special1");
+    this.createControl(292, 418, "S2", "special2");
+    this.createControl(292, 510, "S3", "special3");
     this.createControl(650, 448, "SUPER", "super");
     this.createControl(765, 448, "FIRE", "attack");
     this.createControl(885, 448, "JUMP", "jump");
@@ -926,11 +933,14 @@ class DastaanScene extends Phaser.Scene {
   }
 
   createControl(x, y, label, action) {
-    const accent = action === "attack" ? 0xffa33c : 0x75eaff;
-    const glow = this.add.circle(x, y, 54, accent, 0.12).setDepth(28);
+    const accents = { attack: 0xffa33c, super: 0xffd36b, jump: 0x75eaff, special1: 0xff8b5e, special2: 0x72e0ff, special3: 0xb69cff };
+    const accent = accents[action] || 0x75eaff;
+    const baseFill = action === "attack" ? 0x9b451f : action.startsWith("special") ? 0x263c72 : 0x176184;
+    const pressedFill = action === "attack" ? 0xf07828 : action.startsWith("special") ? 0x485fc1 : 0x249ac7;
+    const glow = this.add.circle(x, y, action.startsWith("special") ? 45 : 54, accent, 0.12).setDepth(28);
     const ring = this.add.circle(x, y, 49, 0x000000, 0)
       .setStrokeStyle(4, accent, 0.72).setDepth(29);
-    const bg = this.add.circle(x, y, 43, action === "attack" ? 0x9b451f : 0x176184, 0.98)
+    const bg = this.add.circle(x, y, action.startsWith("special") ? 35 : 43, baseFill, 0.98)
       .setStrokeStyle(5, accent).setDepth(30)
       .setInteractive(new Phaser.Geom.Circle(0, 0, 43), Phaser.Geom.Circle.Contains);
     const text = this.add.text(x, y, label, {
@@ -944,7 +954,7 @@ class DastaanScene extends Phaser.Scene {
       if (pressed) return;
       pressed = true;
       this.touch[action] = true;
-      bg.setFillStyle(action === "attack" ? 0xf07828 : 0x249ac7);
+      bg.setFillStyle(pressedFill);
       this.tweens.add({ targets: [bg, text], scale: 0.88, duration: 85, yoyo: true, ease: "Back.easeOut" });
       this.tweens.add({ targets: ring, scale: 1.3, alpha: 1, duration: 110 });
       this.cameras.main.shake(45, 0.0015);
@@ -953,7 +963,7 @@ class DastaanScene extends Phaser.Scene {
       if (!pressed) return;
       pressed = false;
       this.touch[action] = false;
-      bg.setFillStyle(action === "attack" ? 0x9b451f : 0x176184);
+      bg.setFillStyle(baseFill);
       this.tweens.add({ targets: [bg, text], scale: 1, duration: 100, ease: "Back.easeOut" });
       this.tweens.add({ targets: ring, scale: 1, alpha: 0.72, duration: 160 });
     };
@@ -1003,7 +1013,7 @@ class DastaanScene extends Phaser.Scene {
     const element = getElement(data.powerType || "fire");
     const palette = { ball: element.ball, edge: element.edge, glow: element.glow, trail: element.trail };
     const directions = superShot
-      ? (data.heroId === "zoya" ? [-0.65, -0.32, 0, 0.32, 0.65] : data.heroId === "rayyan" ? [-0.12, 0, 0.12] : [-0.45, 0, 0.45])
+      ? (data.heroId === "zoya" ? [-0.65, -0.32, 0, 0.32, 0.65] : data.heroId === "volt" ? [-0.12, 0, 0.12] : [-0.45, 0, 0.45])
       : [0];
     directions.forEach(offset => {
       const projectile = this.projectiles.create(data.x, data.y, "shot");
@@ -1011,7 +1021,7 @@ class DastaanScene extends Phaser.Scene {
       projectile.body.setAllowGravity(false);
       projectile.body.setSize(26, 26);
       const angle = offset * (data.direction || 1);
-      const speed = superShot ? (data.heroId === "rayyan" ? 900 : 650) : 720 + Math.min(1, (data.charge || 0) / 1500) * 330;
+      const speed = superShot ? (data.heroId === "volt" ? 900 : 650) : 720 + Math.min(1, (data.charge || 0) / 1500) * 330;
       projectile.body.setVelocity(Math.cos(angle) * (data.direction || 1) * speed, Math.sin(angle) * speed);
       projectile.setData("powerType", data.powerType || "fire");
       projectile.setData("superAttack", superShot);
@@ -1086,76 +1096,59 @@ class DastaanScene extends Phaser.Scene {
   showStoryScreen() {
     this.gameStarted = false;
     this.clearMenu();
-    const shade = this.add.rectangle(480, 270, 960, 540, 0x061326, 0.88).setDepth(60);
-    const panel = this.add.rectangle(480, 270, 820, 510, 0x102b46, 0.78)
-      .setStrokeStyle(3, 0x55dff0, 0.9).setDepth(61);
-    const portal = this.add.circle(480, 310, 150, 0x2b8bc7, 0.10)
-      .setStrokeStyle(7, 0x62eaff, 0.45).setDepth(61);
-    const portalInner = this.add.circle(480, 310, 112, 0x9b7cff, 0.08)
-      .setStrokeStyle(3, 0xffd36b, 0.7).setDepth(61);
-    const title = this.add.text(480, 82, "DASTAAN HEROES", {
-      fontSize: "46px", color: "#ffe17a", fontStyle: "bold",
-      stroke: "#513b43", strokeThickness: 7
-    }).setOrigin(0.5).setDepth(63).setScale(0.72);
-    const subtitle = this.add.text(480, 132, "THE FIVE REALMS NEED THEIR GUARDIANS", {
-      fontSize: "15px", color: "#8feaff", fontStyle: "bold", letterSpacing: 3
+    const shade = this.add.rectangle(480, 270, 960, 540, 0x050b19, 0.94).setDepth(60);
+    const panel = this.add.rectangle(480, 270, 850, 510, 0x101d38, 0.9).setStrokeStyle(3, 0x53dfff, 0.9).setDepth(61);
+    const topLine = this.add.rectangle(480, 154, 760, 3, 0xffc85b, 0.9).setDepth(62);
+    const title = this.add.text(480, 82, "ZERO GAME", {
+      fontSize: "62px", color: "#ffe17a", fontStyle: "bold",
+      stroke: "#522b34", strokeThickness: 9, letterSpacing: 5
+    }).setOrigin(0.5).setDepth(63).setScale(0.7);
+    const subtitle = this.add.text(480, 137, "50 STAGES  •  FOUR HEROES  •  FIVE BOSS BATTLES", {
+      fontSize: "14px", color: "#8feaff", fontStyle: "bold", letterSpacing: 2
     }).setOrigin(0.5).setDepth(63);
-    const story = this.add.text(480, 190,
-      this.gameOver
-        ? "The guardians have fallen, but their story is not over.\nUse a token to return with three lives."
-        : "A shadow has fallen across the five realms.\nThree young guardians must awaken their powers,\ndefeat the five realm bosses and restore the lost light.",
-      { fontSize: "18px", color: "#e6f7ff", align: "center", lineSpacing: 9, fontStyle: "bold" }
-    ).setOrigin(0.5).setDepth(63).setAlpha(0);
-    this.menuObjects.push(shade, panel, portal, portalInner, title, subtitle, story);
-    const previewXs = [335, 480, 625];
+    const tagline = this.add.text(480, 184, "CHOOSE YOUR HERO. MASTER YOUR POWERS. CLEAR EVERY STAGE.", {
+      fontSize: "14px", color: "#e8f6ff", fontStyle: "bold", letterSpacing: 1
+    }).setOrigin(0.5).setDepth(63);
+    this.menuObjects.push(shade, panel, topLine, title, subtitle, tagline);
+    const previewXs = [315, 425, 535, 645];
     HEROES.forEach((hero, i) => {
-      const visual = this.createHeroVisual(previewXs[i], 350);
-      visual.setPosition(previewXs[i] + (i === 0 ? -250 : i === 2 ? 250 : 0), 365).setAlpha(0);
+      const visual = this.createHeroVisual(previewXs[i], 328);
       const palette = visual.getData("heroPalette");
       palette.kurta.setFillStyle(hero.color);
       palette.waistcoat.setFillStyle(hero.accent);
       palette.capLine.setFillStyle(hero.accent);
       this.applyHeroLook(visual, hero);
-      visual.setDepth(64).setScale(0.92);
+      visual.setDepth(64).setScale(0.82).setAlpha(0);
       this.menuObjects.push(visual);
-      this.tweens.add({ targets: visual, x: previewXs[i], y: 340 - (i % 2) * 5,
-        alpha: 1, angle: i === 1 ? 0 : (i === 0 ? -4 : 4),
-        duration: 1050, delay: 350 + i * 220, ease: "Back.easeOut" });
-      this.tweens.add({ targets: visual, y: 333 - (i % 2) * 5,
-        duration: 760 + i * 130, delay: 1500 + i * 180,
-        yoyo: true, repeat: -1, ease: "Sine.easeInOut" });
-      const label = this.add.text(previewXs[i], 405, hero.name.toUpperCase(), {
-        fontSize: "16px", color: "#ffffff", fontStyle: "bold",
-        stroke: "#10243a", strokeThickness: 3
+      this.tweens.add({ targets: visual, y: 321 - (i % 2) * 5, alpha: 1, duration: 850, delay: 180 + i * 130, ease: "Back.easeOut" });
+      this.tweens.add({ targets: visual, y: 315 - (i % 2) * 5, duration: 800 + i * 100, delay: 1100 + i * 100, yoyo: true, repeat: -1, ease: "Sine.easeInOut" });
+      const label = this.add.text(previewXs[i], 382, hero.name.toUpperCase(), {
+        fontSize: "16px", color: "#ffffff", fontStyle: "bold", stroke: "#10243a", strokeThickness: 3
       }).setOrigin(0.5).setDepth(65);
-      this.menuObjects.push(label);
+      const style = this.add.text(previewXs[i], 402, hero.style.toUpperCase(), {
+        fontSize: "9px", color: "#9feaff", fontStyle: "bold", align: "center"
+      }).setOrigin(0.5).setDepth(65);
+      this.menuObjects.push(label, style);
     });
-    this.tweens.add({ targets: [portal, portalInner], scale: 1.2, alpha: 0.5,
-      duration: 1400, yoyo: true, repeat: -1, ease: "Sine.easeInOut" });
     this.tweens.add({ targets: title, scale: 1, y: 88, duration: 850, ease: "Back.easeOut" });
-    this.tweens.add({ targets: story, alpha: 1, y: 198, duration: 950, delay: 300 });
-
-    // Arcade-style controls stay together at the bottom centre.
-    const start = this.add.text(480, 482, this.gameOver ? "START / CONTINUE" : "START GAME", {
-      fontSize: "21px", color: "#ffffff", backgroundColor: "#087e83",
-      padding: { x: 34, y: 12 }, fontStyle: "bold",
-      stroke: "#062b3a", strokeThickness: 2
+    const start = this.add.text(480, 468, this.gameOver ? "CONTINUE" : "START GAME", {
+      fontSize: "22px", color: "#ffffff", backgroundColor: "#087e83",
+      padding: { x: 38, y: 13 }, fontStyle: "bold", stroke: "#062b3a", strokeThickness: 2
     }).setOrigin(0.5).setDepth(70).setInteractive({ useHandCursor: true });
-    const token = this.add.text(480, 525,
-      `TOKEN / COIN  •  ${this.tokenCount} AVAILABLE${this.gameOver ? "" : "  (+1 DEMO)"}`, {
-      fontSize: "14px", color: "#ffe17a", backgroundColor: "#57452e",
-      padding: { x: 22, y: 8 }, fontStyle: "bold"
+    const token = this.add.text(480, 518, `CREDITS  •  ${this.tokenCount}`, {
+      fontSize: "12px", color: "#ffe17a", backgroundColor: "#57452e",
+      padding: { x: 17, y: 6 }, fontStyle: "bold"
     }).setOrigin(0.5).setDepth(70).setInteractive({ useHandCursor: true });
-    const host = this.add.text(375, 442, "HOST WI-FI", {
-      fontSize: "13px", color: "#ffffff", backgroundColor: "#235a80",
-      padding: { x: 15, y: 7 }, fontStyle: "bold"
+    const host = this.add.text(365, 438, "HOST WI-FI", {
+      fontSize: "12px", color: "#ffffff", backgroundColor: "#235a80",
+      padding: { x: 13, y: 7 }, fontStyle: "bold"
     }).setOrigin(0.5).setDepth(70).setInteractive({ useHandCursor: true });
-    const join = this.add.text(585, 442, "JOIN WI-FI", {
-      fontSize: "13px", color: "#ffffff", backgroundColor: "#235a80",
-      padding: { x: 15, y: 7 }, fontStyle: "bold"
+    const join = this.add.text(595, 438, "JOIN WI-FI", {
+      fontSize: "12px", color: "#ffffff", backgroundColor: "#235a80",
+      padding: { x: 13, y: 7 }, fontStyle: "bold"
     }).setOrigin(0.5).setDepth(70).setInteractive({ useHandCursor: true });
-    this.netStatusText = this.add.text(480, 418, "2-PLAYER WI-FI CO-OP", {
-      fontSize: "11px", color: "#9feaff", fontStyle: "bold"
+    this.netStatusText = this.add.text(480, 415, "2-PLAYER WI-FI CO-OP", {
+      fontSize: "10px", color: "#9feaff", fontStyle: "bold"
     }).setOrigin(0.5).setDepth(70);
     this.menuObjects.push(start, token, host, join, this.netStatusText);
     host.on("pointerdown", () => this.connectMultiplayer("HOST"));
@@ -1164,7 +1157,7 @@ class DastaanScene extends Phaser.Scene {
     start.on("pointerdown", () => {
       if (this.gameOver) {
         if (this.tokenCount <= 0) {
-          story.setText("A TOKEN IS REQUIRED TO CONTINUE.\nTap TOKEN / COIN below to add a demo token.");
+          this.netStatusText.setText("NO CREDITS AVAILABLE").setColor("#ff8b8b");
           return;
         }
         this.resumeFromFailure();
@@ -1173,70 +1166,60 @@ class DastaanScene extends Phaser.Scene {
     token.on("pointerdown", () => {
       this.tokenCount++;
       localStorage.setItem("dastaan_tokens", String(this.tokenCount));
-      token.setText(`TOKEN / COIN  •  ${this.tokenCount} AVAILABLE${this.gameOver ? "" : "  (+1 DEMO)"}`);
+      token.setText(`CREDITS  •  ${this.tokenCount}`);
       this.tweens.add({ targets: token, scale: 1.08, duration: 100, yoyo: true });
     });
   }
 
   showHeroSelect() {
     this.clearMenu();
-    const shade = this.add.rectangle(480, 270, 960, 540, 0x061326, 0.94).setDepth(60);
-    const heading = this.add.text(480, 55, "CHOOSE YOUR GUARDIAN", {
-      fontSize: "32px", color: "#ffe17a", fontStyle: "bold",
-      stroke: "#513b43", strokeThickness: 5
+    const shade = this.add.rectangle(480, 270, 960, 540, 0x050b19, 0.96).setDepth(60);
+    const heading = this.add.text(480, 48, "SELECT YOUR HERO", {
+      fontSize: "34px", color: "#ffe17a", fontStyle: "bold",
+      stroke: "#513b43", strokeThickness: 5, letterSpacing: 2
     }).setOrigin(0.5).setDepth(61);
-    const sub = this.add.text(480, 91, "Each guardian has a unique elemental super power", {
-      fontSize: "14px", color: "#9feaff"
+    const sub = this.add.text(480, 83, "FOUR FIGHTING STYLES  •  THREE RANDOM SPECIAL MOVES EACH", {
+      fontSize: "12px", color: "#9feaff", fontStyle: "bold", letterSpacing: 1
     }).setOrigin(0.5).setDepth(61);
     this.menuObjects.push(shade, heading, sub);
     HEROES.forEach((hero, index) => {
-      const x = 205 + index * 275;
-      const card = this.add.rectangle(x, 290, 236, 360, 0x183a58, 0.98)
+      const x = 120 + index * 240;
+      const card = this.add.rectangle(x, 292, 214, 365, 0x142b49, 0.98)
         .setStrokeStyle(3, hero.accent).setDepth(61).setInteractive({ useHandCursor: true });
-      const glow = this.add.circle(x, 218, 82, hero.accent, 0.12)
-        .setStrokeStyle(3, hero.accent, 0.75).setDepth(62);
-      const visual = this.createHeroVisual(x, 245);
+      const glow = this.add.circle(x, 205, 77, hero.accent, 0.12).setStrokeStyle(3, hero.accent, 0.75).setDepth(62);
+      const visual = this.createHeroVisual(x, 230);
       const palette = visual.getData("heroPalette");
       palette.kurta.setFillStyle(hero.color);
       palette.waistcoat.setFillStyle(hero.accent);
       palette.capLine.setFillStyle(hero.accent);
       this.applyHeroLook(visual, hero);
-      visual.setDepth(63).setScale(1.12);
-      const name = this.add.text(x, 337, hero.name.toUpperCase(), {
-        fontSize: "23px", color: "#ffffff", fontStyle: "bold"
+      visual.setDepth(63).setScale(1.03);
+      const name = this.add.text(x, 319, hero.name.toUpperCase(), {
+        fontSize: "22px", color: "#ffffff", fontStyle: "bold"
       }).setOrigin(0.5).setDepth(64);
-      const title = this.add.text(x, 365, hero.title, {
-        fontSize: "13px", color: "#9feaff", fontStyle: "bold"
+      const title = this.add.text(x, 348, hero.title, {
+        fontSize: "12px", color: "#9feaff", fontStyle: "bold", align: "center"
       }).setOrigin(0.5).setDepth(64);
-      const power = this.add.text(x, 399, hero.superPower, {
-        fontSize: "17px", color: "#ffe17a", fontStyle: "bold"
+      const power = this.add.text(x, 382, hero.superPower.toUpperCase(), {
+        fontSize: "14px", color: "#ffe17a", fontStyle: "bold"
       }).setOrigin(0.5).setDepth(64);
-      const description = this.add.text(x, 435, hero.description, {
-        fontSize: "12px", color: "#d7eaff", align: "center", wordWrap: { width: 200 }
+      const moves = this.add.text(x, 421, hero.specialMoves.map(move => move.name).join("\n"), {
+        fontSize: "11px", color: "#d7eaff", align: "center", lineSpacing: 5
       }).setOrigin(0.5).setDepth(64);
-      const choose = this.add.text(x, 488, "SELECT HERO", {
-        fontSize: "14px", color: "#ffffff", backgroundColor: "#126d7b",
-        padding: { x: 18, y: 8 }, fontStyle: "bold"
-      }).setOrigin(0.5).setDepth(64);
-      this.menuObjects.push(card, glow, visual, name, title, power, description, choose);
-      this.tweens.add({ targets: visual, y: 237, angle: index === 1 ? 0 : (index === 0 ? -5 : 5),
-        duration: 720 + index * 160, yoyo: true, repeat: -1, ease: "Sine.easeInOut" });
-      this.tweens.add({ targets: glow, scale: 1.18, alpha: 0.22,
-        duration: 850 + index * 130, yoyo: true, repeat: -1 });
-      card.on("pointerdown", () => {
-        this.selectedHero = hero;
-        this.powerType = hero.element;
-        this.beginCampaign();
-      });
-      choose.setInteractive({ useHandCursor: true }).on("pointerdown", () => {
-        this.selectedHero = hero;
-        this.powerType = hero.element;
-        this.beginCampaign();
-      });
+      const choose = this.add.text(x, 486, "SELECT HERO", {
+        fontSize: "13px", color: "#ffffff", backgroundColor: "#126d7b",
+        padding: { x: 16, y: 8 }, fontStyle: "bold"
+      }).setOrigin(0.5).setDepth(64).setInteractive({ useHandCursor: true });
+      this.menuObjects.push(card, glow, visual, name, title, power, moves, choose);
+      this.tweens.add({ targets: visual, y: 222, angle: index % 2 ? 3 : -3, duration: 760 + index * 120, yoyo: true, repeat: -1, ease: "Sine.easeInOut" });
+      this.tweens.add({ targets: glow, scale: 1.16, alpha: 0.2, duration: 900 + index * 100, yoyo: true, repeat: -1 });
+      const select = () => { this.selectedHero = hero; this.powerType = hero.element; this.beginCampaign(); };
+      card.on("pointerdown", select);
+      choose.on("pointerdown", select);
     });
-    const back = this.add.text(480, 525, "BACK", {
-      fontSize: "13px", color: "#9feaff", backgroundColor: "#173d59",
-      padding: { x: 18, y: 6 }
+    const back = this.add.text(480, 529, "BACK", {
+      fontSize: "12px", color: "#9feaff", backgroundColor: "#173d59",
+      padding: { x: 17, y: 5 }
     }).setOrigin(0.5).setDepth(65).setInteractive({ useHandCursor: true });
     this.menuObjects.push(back);
     back.on("pointerdown", () => this.showStoryScreen());
@@ -1264,17 +1247,22 @@ class DastaanScene extends Phaser.Scene {
     this.spawnTreasureChest();
     this.sendNet({ type: "hero", heroId: this.selectedHero.id });
     this.statusLabel.setText(`${this.stageConfig.world.toUpperCase()} - STAGE ${this.stageNumber}`).setColor("#ffffff");
+    const intro = this.add.text(480, 205, `STAGE ${String(this.stageNumber).padStart(2, "0")}  •  ${this.stageConfig.world.toUpperCase()}\nGET READY!`, {
+      fontSize: "27px", color: "#ffe17a", fontStyle: "bold", align: "center",
+      stroke: "#1a2948", strokeThickness: 6, lineSpacing: 8
+    }).setOrigin(0.5).setDepth(36).setScale(0.7).setAlpha(0);
+    this.tweens.add({ targets: intro, alpha: 1, scale: 1, y: 180, duration: 380, yoyo: true, hold: 450, onComplete: () => intro.destroy() });
   }
 
   spawnEnemies() {
     const positions = Array.from({ length: this.stageEnemyCount }, (_, i) => 70 + i * (820 / Math.max(1, this.stageEnemyCount - 1)));
 
     const familyPalettes = {
-      animal: { colors: [0x8052b9, 0x9a6544, 0x397cbb], horns: [0xffd45e, 0xe9c18b, 0x9ceeff] },
-      fruit: { colors: [0xe65b68, 0xe58a38, 0x9c4c9d], horns: [0xffe08a, 0xffc4d2, 0xffed9c] },
-      vegetable: { colors: [0x4d9b58, 0x7c9e3c, 0x369a8c], horns: [0xc9f28a, 0xffd36b, 0x9af1d8] }
+      striker: { colors: [0x8b4a3e, 0x355b8a, 0x6d4b83], horns: [0xffd36b, 0x8feaff, 0xffa3a3] },
+      agile: { colors: [0x356f83, 0x8a4f77, 0x4f7b55], horns: [0x9cecff, 0xffc4d2, 0xc9f28a] },
+      power: { colors: [0x76513c, 0x4d536d, 0x8b633f], horns: [0xffd36b, 0xb7c7ff, 0xffb56e] }
     };
-    const palette = familyPalettes[this.stageConfig.enemyFamily] || familyPalettes.animal;
+    const palette = familyPalettes[this.stageConfig.enemyFamily] || familyPalettes.striker;
     const colors = palette.colors;
     const horns = palette.horns;
 
@@ -2031,13 +2019,76 @@ class DastaanScene extends Phaser.Scene {
     }
   }
 
+  specialMove() {
+    if (!this.gameStarted || this.gameOver || this.stageCleared) return;
+    const moves = this.selectedHero?.specialMoves || [];
+    if (!moves.length) return;
+    let choices = moves.filter(move => move.id !== this.lastSpecialMoveId);
+    if (!choices.length) choices = moves;
+    const move = choices[Phaser.Math.Between(0, choices.length - 1)];
+    this.lastSpecialMoveId = move.id;
+    const accent = this.selectedHero.accent || 0x7deaff;
+    const title = move.name.toUpperCase();
+    this.statusLabel.setText(`${title}!`).setColor("#ffe17a");
+    const ring = this.add.circle(this.hero.x, this.hero.y - 12, 34, accent, 0.16)
+      .setStrokeStyle(7, accent, 0.95).setDepth(19);
+    this.tweens.add({ targets: ring, scale: move.type === "shockwave" ? 5.5 : 3.6, alpha: 0, duration: 420, onComplete: () => ring.destroy() });
+    this.cameras.main.shake(110, 0.0035);
+    const candidates = this.enemies.getChildren().filter(enemy =>
+      enemy.active && !enemy.getData("frozen") && !enemy.getData("isTimeHunter") &&
+      Math.abs(enemy.x - this.hero.x) < 300 && Math.abs(enemy.y - this.hero.y) < 150
+    );
+    const inFront = candidates.filter(enemy => (enemy.x - this.hero.x) * this.facing > -28);
+    const nearest = inFront.sort((a, b) => Math.abs(a.x - this.hero.x) - Math.abs(b.x - this.hero.x))[0] || null;
+    const boss = candidates.find(enemy => enemy.getData("isBoss")) || null;
+    const normalTargets = candidates.filter(enemy => !enemy.getData("isBoss"));
+    const impact = (enemy, vx, vy) => {
+      if (!enemy?.active || enemy.getData("isBoss")) return;
+      enemy.setData("wasFlyingBeforeSpecial", enemy.body.allowGravity === false);
+      enemy.body.setAllowGravity(true);
+      enemy.setCollideWorldBounds(true);
+      enemy.setBounce(0);
+      enemy.setData("specialKnockback", true);
+      enemy.setData("specialKnockbackUntil", this.time.now + 520);
+      enemy.setVelocity(vx, vy);
+      const visual = enemy.getData("visual");
+      if (visual?.active) this.tweens.add({ targets: visual, angle: this.facing * 18, scaleX: 1.18, duration: 90, yoyo: true, repeat: 1 });
+      const spark = this.add.star(enemy.x, enemy.y - 10, 7, 5, 12, accent, 0.95).setStrokeStyle(2, 0xffffff).setDepth(24);
+      this.tweens.add({ targets: spark, angle: 180, scale: 2.1, alpha: 0, duration: 300, onComplete: () => spark.destroy() });
+      this.addScore(75);
+    };
+    if (move.type === "dash") {
+      this.hero.setVelocityX(this.facing * 500);
+      this.tweens.add({ targets: this.heroVisual, scaleX: this.facing * 1.28, scaleY: 0.82, duration: 120, yoyo: true });
+      this.time.delayedCall(260, () => { if (this.hero?.active && Math.abs(this.hero.body.velocity.x) > 400) this.hero.setVelocityX(0); });
+      if (nearest && !nearest.getData("isBoss")) impact(nearest, this.facing * 390, -250);
+    } else if (move.type === "throw") {
+      if (boss) { this.hitBoss(boss, 3); this.statusLabel.setText("BOSS RESISTS THE THROW!").setColor("#ffcf75"); }
+      else if (nearest) { impact(nearest, this.facing * 470, -500); this.statusLabel.setText("ENEMY THROWN BACK!").setColor("#ffe17a"); }
+    } else if (move.type === "launch") {
+      if (boss) this.hitBoss(boss, 3);
+      if (nearest && !nearest.getData("isBoss")) impact(nearest, this.facing * 170, -620);
+    } else if (move.type === "rapid") {
+      normalTargets.filter(enemy => Math.abs(enemy.x - this.hero.x) < 190).forEach((enemy, index) =>
+        impact(enemy, (enemy.x >= this.hero.x ? 1 : -1) * (260 + index * 22), -260)
+      );
+      if (boss) this.hitBoss(boss, 2);
+    } else {
+      normalTargets.filter(enemy => Math.abs(enemy.x - this.hero.x) < 250).forEach(enemy =>
+        impact(enemy, (enemy.x >= this.hero.x ? 1 : -1) * 420, -340)
+      );
+      if (boss) this.hitBoss(boss, 3);
+    }
+    if (!nearest && !boss && !normalTargets.length && move.type !== "dash") this.statusLabel.setText(`${title} - NO ENEMY IN RANGE`).setColor("#9feaff");
+  }
+
   superAttack() {
     if (this.time.now < this.superReadyAt) {
       this.statusLabel.setText("SUPER POWER IS RECHARGING!").setColor("#d9f6ff");
       return;
     }
     this.superReadyAt = this.time.now + 12000;
-    this.sendNet({ type: "super", x: this.hero.x, y: this.hero.y - 8, direction: this.facing, powerType: this.powerType, heroId: this.selectedHero?.id || "ibrahim" });
+    this.sendNet({ type: "super", x: this.hero.x, y: this.hero.y - 8, direction: this.facing, powerType: this.powerType, heroId: this.selectedHero?.id || "ryo" });
     const palette = this.getPowerPalette();
     const label = this.selectedHero?.superPower || "Guardian Burst";
     const ring = this.add.circle(this.hero.x, this.hero.y - 12, 35, palette.glow, 0.18)
@@ -2046,14 +2097,14 @@ class DastaanScene extends Phaser.Scene {
     this.cameras.main.flash(180, 210, 235, 255, false);
     this.cameras.main.shake(180, 0.006);
     this.statusLabel.setText(`${label.toUpperCase()}!`).setColor("#ffe17a");
-    const heroId = this.selectedHero?.id || "ibrahim";
-    const spread = heroId === "zoya"
+    const heroId = this.selectedHero?.id || "ryo";
+    const spread = heroId === "mei"
       ? [-0.9, -0.6, -0.3, 0, 0.3, 0.6, 0.9]
-      : heroId === "rayyan" ? [-0.12, 0, 0.12] : [-0.62, -0.31, 0, 0.31, 0.62];
-    const speed = heroId === "rayyan" ? 920 : heroId === "zoya" ? 560 : 680;
+      : heroId === "volt" ? [-0.12, 0, 0.12] : [-0.62, -0.31, 0, 0.31, 0.62];
+    const speed = heroId === "volt" ? 920 : heroId === "mei" ? 560 : 680;
     spread.forEach((offset, index) => {
       const projectile = this.projectiles.create(this.hero.x + this.facing * 40, this.hero.y - 8, "shot");
-      projectile.setTint(palette.ball).setScale(heroId === "rayyan" ? 3.4 : 2.8).setDepth(16);
+      projectile.setTint(palette.ball).setScale(heroId === "volt" ? 3.4 : 2.8).setDepth(16);
       projectile.body.setAllowGravity(false);
       projectile.body.setSize(28, 28);
       const angle = offset * this.facing;
@@ -2130,6 +2181,14 @@ class DastaanScene extends Phaser.Scene {
       this.superAttack();
       this.touch.super = false;
     }
+    if (Phaser.Input.Keyboard.JustDown(this.keys.special1) || this.touch.special1 ||
+        Phaser.Input.Keyboard.JustDown(this.keys.special2) || this.touch.special2 ||
+        Phaser.Input.Keyboard.JustDown(this.keys.special3) || this.touch.special3) {
+      this.specialMove();
+      this.touch.special1 = false;
+      this.touch.special2 = false;
+      this.touch.special3 = false;
+    }
 
     const keyAxis = (this.keys.left.isDown || this.keys.a.isDown ? -1 : 0) +
       (this.keys.right.isDown || this.keys.d.isDown ? 1 : 0);
@@ -2187,7 +2246,7 @@ class DastaanScene extends Phaser.Scene {
 
     this.touch.jump = false;
 
-    // Ibrahim animation
+    // Hero animation
     const h = this.hero;
     const visual = this.heroVisual;
     const p = visual.getData("parts");
@@ -2264,7 +2323,7 @@ class DastaanScene extends Phaser.Scene {
     if (this.netConnected && time - this.netSendAt > 45) {
       this.netSendAt = time;
       this.sendNet({ type: "state", x: Math.round(h.x), y: Math.round(h.y),
-        facing: this.facing, airborne, heroId: this.selectedHero?.id || "ibrahim" });
+        facing: this.facing, airborne, heroId: this.selectedHero?.id || "ryo" });
     }
 
     // Enemy AI and animation
@@ -2280,6 +2339,18 @@ class DastaanScene extends Phaser.Scene {
 
       if (enemy.getData("isBoss")) {
         this.updateBoss(enemy, delta);
+        return;
+      }
+
+      if (enemy.getData("specialKnockback")) {
+        if (enemyVisual?.active) enemyVisual.setPosition(enemy.x, enemy.y);
+        if (enemy.body.blocked.down && this.time.now >= (enemy.getData("specialKnockbackUntil") || 0)) {
+          enemy.setData("specialKnockback", false);
+          enemy.setVelocityX(0);
+          if (enemy.getData("wasFlyingBeforeSpecial")) enemy.body.setAllowGravity(false);
+          enemy.setData("wasFlyingBeforeSpecial", false);
+          if (enemyVisual?.active) enemyVisual.setAngle(0);
+        }
         return;
       }
 
@@ -2404,7 +2475,7 @@ class DastaanScene extends Phaser.Scene {
 
   } // update() CLOSE
 
-} // DastaanScene class CLOSE
+} // ZeroGameScene class CLOSE
 
 export default function App() {
   const gameRef = useRef(null);
@@ -2440,7 +2511,7 @@ export default function App() {
         height: 540
       },
 
-      scene: [DastaanScene]
+      scene: [ZeroGameScene]
     });
 
     gameRef.current = game;
@@ -2454,8 +2525,8 @@ export default function App() {
   return (
     <main className="game-page">
       <header className="game-header">
-        <h1>DASTAAN HEROES</h1>
-        <p>50 STAGES | 3 GUARDIANS | 5 BOSS BATTLES</p>
+        <h1>ZERO GAME</h1>
+        <p>50 STAGES | 4 HEROES | 5 BOSS BATTLES</p>
       </header>
 
       <section className="game-frame">
@@ -2463,7 +2534,7 @@ export default function App() {
       </section>
 
       <footer className="game-footer">
-        50-STAGE ARCADE ADVENTURE
+        ZERO GAME • 50-STAGE ACTION ADVENTURE
       </footer>
     </main>
   );
