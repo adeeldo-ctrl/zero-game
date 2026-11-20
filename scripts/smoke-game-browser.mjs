@@ -53,10 +53,51 @@ try {
   await page.keyboard.press("x");
   await delay(700);
 
+  // Exercise the four requested boss visual archetypes without changing production game flow.
+  await page.evaluate(() => {
+    const game = window.__ZERO_GAME_TEST__;
+    const scene = game?.scene.getScene("ZeroGameScene");
+    if (!scene?.sys.isActive()) throw new Error("Development game test hook is unavailable");
+    const originalStage = scene.stageConfig;
+    const bosses = [
+      { name: "Boxing Test", style: "boxing champion", color: 0x6259a7, element: "earth" },
+      { name: "Agile Test", style: "agile claw acrobat", color: 0x8d405e, element: "wind" },
+      { name: "Master Test", style: "disciplined martial arts master", color: 0xa64b3d, element: "fire" },
+      { name: "Warlord Test", style: "final warlord", color: 0x493b76, element: "shadow" },
+    ];
+    for (const bossData of bosses) {
+      scene.stageConfig = { ...originalStage, boss: { ...bossData, hp: 30, attack: "Test attack" } };
+      scene.bossHealth = 30;
+      scene.bossMaxHealth = 30;
+      scene.spawnBoss();
+      if (!scene.bossVisual?.active) throw new Error(`Boss visual failed: ${bossData.style}`);
+      scene.boss?.destroy();
+      scene.bossVisual?.destroy();
+      scene.boss = null;
+      scene.bossVisual = null;
+    }
+    scene.stageConfig = originalStage;
+  });
+
+  // Verify all three Snow Bros.-style stage entry directions complete and resume gameplay.
+  for (const direction of ["down", "right", "left"]) {
+    await page.evaluate((entryDirection) => {
+      const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+      if (!scene?.sys.isActive()) throw new Error("Game scene unavailable during stage transition test");
+      window.__ZERO_GAME_TRANSITION_DONE__ = false;
+      scene.playStageEntryTransition(entryDirection, () => {
+        scene.stageTransitionActive = false;
+        scene.setMobileControlsVisible(true);
+        window.__ZERO_GAME_TRANSITION_DONE__ = true;
+      });
+    }, direction);
+    await page.waitForFunction(() => window.__ZERO_GAME_TRANSITION_DONE__ === true, { timeout: 7000 });
+  }
+
   if (runtimeErrors.length) {
     throw new Error(`Browser runtime errors:\n${runtimeErrors.join("\n")}`);
   }
-  console.log("Browser smoke test passed: canvas, campaign entry, hero selection, gameplay inputs, and no uncaught runtime errors.");
+  console.log("Browser smoke test passed: campaign, hero selection, gameplay inputs, four boss visuals, all three stage transitions, and no uncaught runtime errors.");
 } finally {
   if (browser) await browser.close();
   if (server.exitCode === null) {
