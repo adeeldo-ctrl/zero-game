@@ -3,6 +3,7 @@ import { useEffect, useRef } from "react";
 import Phaser from "phaser";
 import { Capacitor } from "@capacitor/core";
 import { ELEMENTS, HEROES, getElement, getStage, getHero } from "./gameData";
+import { createGameAudio } from "./gameAudio";
 import "./App.css";
 
 class ZeroGameScene extends Phaser.Scene {
@@ -66,6 +67,7 @@ class ZeroGameScene extends Phaser.Scene {
     this.mobileActionQueue = new Set();
     this.mobileJumpHeld = false;
     this.mobileJumpPressedAt = 0;
+    this.audio = createGameAudio();
     this.netSocket = null;
     this.netConnected = false;
     this.netRole = null;
@@ -150,12 +152,15 @@ class ZeroGameScene extends Phaser.Scene {
       special1: Phaser.Input.Keyboard.KeyCodes.ONE,
       special2: Phaser.Input.Keyboard.KeyCodes.TWO,
       special3: Phaser.Input.Keyboard.KeyCodes.THREE,
-      restart: Phaser.Input.Keyboard.KeyCodes.R
+      restart: Phaser.Input.Keyboard.KeyCodes.R,
+      musicToggle: Phaser.Input.Keyboard.KeyCodes.M,
+      sfxToggle: Phaser.Input.Keyboard.KeyCodes.N
     });
 
     this.createHUD();
     this.createMobileControls();
-    this.events.once("shutdown", () => { if (this.netSocket) this.netSocket.close(); });
+    this.input.keyboard.once("keydown", () => { this.audio.unlock(); this.audio.play("stage"); });
+    this.events.once("shutdown", () => { this.audio.stop(); if (this.netSocket) this.netSocket.close(); });
     this.showStoryScreen();
 
     this.defeated = 0;
@@ -892,6 +897,29 @@ class ZeroGameScene extends Phaser.Scene {
       fontSize: "13px", color: "#ffffff", fontStyle: "bold"
     }).setOrigin(1, 0).setDepth(21);
 
+    this.musicToggleLabel = this.add.text(650, 43, "", {
+      fontSize: "10px", color: "#9cecff", fontStyle: "bold"
+    }).setDepth(22).setInteractive({ useHandCursor: true });
+    this.sfxToggleLabel = this.add.text(770, 43, "", {
+      fontSize: "10px", color: "#9cecff", fontStyle: "bold"
+    }).setDepth(22).setInteractive({ useHandCursor: true });
+    const refreshAudioLabels = () => {
+      this.musicToggleLabel.setText(`MUSIC ${this.audio.isMusicEnabled() ? "ON" : "OFF"}`);
+      this.sfxToggleLabel.setText(`SFX ${this.audio.isSfxEnabled() ? "ON" : "OFF"}`);
+    };
+    this.musicToggleLabel.on("pointerdown", () => {
+      this.audio.unlock();
+      this.audio.setMusicEnabled(!this.audio.isMusicEnabled());
+      this.audio.play("ui");
+      refreshAudioLabels();
+    });
+    this.sfxToggleLabel.on("pointerdown", () => {
+      this.audio.unlock();
+      this.audio.setSfxEnabled(!this.audio.isSfxEnabled());
+      refreshAudioLabels();
+    });
+    refreshAudioLabels();
+
     this.statusLabel = this.add.text(
       480, 112, "STAGE 01 - ENEMIES INCOMING!", {
         fontSize: "23px", color: "#ffffff", fontStyle: "bold",
@@ -909,6 +937,7 @@ class ZeroGameScene extends Phaser.Scene {
   }
 
   pressMobileAction(action) {
+    this.audio.unlock();
     if (action === "jump") {
       this.mobileJumpHeld = true;
       this.mobileJumpPressedAt = this.time?.now || 0;
@@ -1337,6 +1366,7 @@ class ZeroGameScene extends Phaser.Scene {
 
   hitEnemy(projectile, enemy) {
     if (!projectile.active || !enemy.active || enemy.getData("isTimeHunter")) return;
+    this.audio.play("hit");
     const superHit = !!projectile.getData("superAttack");
     const specialHit = !!projectile.getData("specialAttack");
     const glow = projectile.getData("glow");
@@ -1381,6 +1411,7 @@ class ZeroGameScene extends Phaser.Scene {
         if (ball?.active) this.tweens.add({ targets: ball, scale: 1.9, alpha: 0, duration: 220, onComplete: () => ball.destroy() });
         const pop = this.add.circle(enemy.x, enemy.y, 28, this.getPowerPalette().edge, 0.9).setStrokeStyle(4, 0xffffff).setDepth(20);
         this.tweens.add({ targets: pop, scale: 3.2, alpha: 0, duration: 260, onComplete: () => pop.destroy() });
+        this.audio.play("defeat");
         enemy.destroy(); this.defeated++; this.addScore(500); this.enemyLabel.setText(`ENEMIES: ${this.defeated}/${this.stageEnemyCount}`);
         this.statusLabel.setText("ELEMENTAL ORB POPPED!"); this.statusLabel.setColor("#62ffb4");
         if (this.defeated >= this.stageEnemyCount && !this.boss && this.stageConfig.boss) {
@@ -1414,6 +1445,7 @@ class ZeroGameScene extends Phaser.Scene {
     this.tweens.add({ targets: finalBurst, scale: 3.8, alpha: 0,
       duration: 320, onComplete: () => finalBurst.destroy() });
     if (visual.active) visual.destroy();
+    this.audio.play("defeat");
     enemy.destroy();
     this.defeated++;
     this.addScore(500);
@@ -1501,6 +1533,7 @@ class ZeroGameScene extends Phaser.Scene {
 
   spawnBoss() {
     if (this.gameOver || this.boss) return;
+    this.audio.play("boss");
     this.bossTitle.setText(this.stageConfig.boss?.name?.toUpperCase() || "BOSS");
     this.statusLabel.setText(`${this.stageConfig.boss?.name || "BOSS"} BATTLE!`);
     this.statusLabel.setColor("#ff6d69");
@@ -1537,6 +1570,7 @@ class ZeroGameScene extends Phaser.Scene {
 
   hitBoss(boss, damage = 1) {
     if (this.bossDefeated) return;
+    this.audio.play("bossHit");
     this.bossHealth = Math.max(0, this.bossHealth - damage);
     this.bossBar.scaleX = this.bossHealth / this.bossMaxHealth;
     const v = this.bossVisual;
@@ -2091,6 +2125,8 @@ class ZeroGameScene extends Phaser.Scene {
     // EXTRA 1, EXTRA 2 and EXTRA 3 map one-to-one to this hero's three signature moves.
     // These moves are unlimited: no cooldown, meter, countdown or usage counter.
     const move = moves[Math.max(0, Math.min(2, moveIndex))];
+    this.audio.unlock();
+    this.audio.play("special");
     this.specialPoseType = move.type;
     this.specialPoseUntil = this.time.now + 520;
     const accent = this.selectedHero.accent || 0x7deaff;
@@ -2256,6 +2292,8 @@ class ZeroGameScene extends Phaser.Scene {
   }
 
   fireAttack(charge = 0) {
+    this.audio.unlock();
+    this.audio.play("fire");
     const now = this.time.now;
     if (now - this.lastAttack < 170) return;
     this.lastAttack = now;
@@ -2365,6 +2403,8 @@ class ZeroGameScene extends Phaser.Scene {
 
     if (this.hero.body.blocked.down) this.jumpCount = 0;
     if (jump && this.jumpCount < 2) {
+      this.audio.unlock();
+      this.audio.play(this.jumpCount === 0 ? "jump" : "doubleJump");
       this.jumpCount++;
       const movingLeft = left && !right, movingRight = right && !left;
       this.jumpFlipDirection = movingLeft ? -1 : 1;
