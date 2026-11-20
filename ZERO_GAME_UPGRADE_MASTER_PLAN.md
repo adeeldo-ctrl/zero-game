@@ -247,3 +247,17 @@ Committed source implementation:
 - CI run [44751502299](https://github.com/adeeldo-ctrl/zero-game/actions/runs/44751502299) passed `npm test`, `npm run lint`, and `npm run build` on commit `f6f7b023eff1b3e1d99715b187427a060fc51127`. The later documentation-only commit also passed CI in [run 44751573442](https://github.com/adeeldo-ctrl/zero-game/actions/runs/44751573442).
 
 **Still not claimed as physically verified:** the transition animation and physics-body alignment require in-game runtime inspection. No Android APK has been built for this work.
+
+
+## Integrated hardening follow-up — 2026-11-20
+
+- Refactored heart loss so each hit is processed through the three-hearts/three-chances state helper; added a chance-loss lock to prevent repeated collision callbacks from consuming more than one chance during the respawn interval.
+- Capped treasure-heart rewards at three hearts and capped score-bonus recovery at the campaign maximum of three hearts / three chances.
+- Fixed boss visual initialization ordering: boss archetype flags are now initialized before the boxer-specific fist artwork uses them. This was a runtime issue that lint/build alone would not detect.
+- Extracted one-way platform collision and DOWN+JUMP drop-through decisions into `src/platformRules.js`; wired the Phaser collision callback and input path to those rules.
+- Added `tests/platformRules.test.js` covering upward pass-through, descending landing, intentional drop-through, and the permanent ground exception.
+- Confirmed all three repository workflows are present; both APK workflows remain manual `workflow_dispatch` only, while CI push/PR workflow performs tests, lint and web build only.
+- CI passed for the boss initialization fix on commit `13d6e33fa9a512bc547ad1caa1da7dd76da29615` (run [44755215793](https://github.com/adeeldo-ctrl/zero-game/actions/runs/44755215793)). The campaign hardening commit `94155b89d1713c61901422cab5fbcab20cad6e5c` also passed (run [44755180266](https://github.com/adeeldo-ctrl/zero-game/actions/runs/44755180266)).
+- Platform-rule integration and its new regression tests are committed; their CI runs are pending verification at the time of this update.
+
+**Still outstanding:** visual/runtime inspection of all stages and transitions; verify the complete campaign on the actual game runtime; further animation polish, enemy grounding and AI checks, snowball collision edge cases, special-move/boss balance, audio lifecycle, Android icon resources and Android compatibility. No APK has been built.
