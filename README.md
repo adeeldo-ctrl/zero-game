@@ -1,50 +1,74 @@
-# Dastaan Heroes
+# ZERO GAME
 
-## Run the game on Windows
+A 50-stage fixed-arena action platformer with four original playable heroes, special moves and five boss encounters.
 
-Open PowerShell in `dastaan-heroes`:
+## Run on Windows
+
+Open PowerShell in the project folder:
 
 ```powershell
 npm.cmd install
 npm.cmd run dev -- --host 0.0.0.0
 ```
 
-For Wi-Fi co-op, open a second PowerShell window in the same folder:
+For existing two-player Wi-Fi co-op, open a second PowerShell window:
 
 ```powershell
 npm.cmd run multiplayer
 ```
 
-Allow Node.js through Windows Firewall on **Private networks** when prompted. The host PC and both players must be on the same Wi-Fi network.
+The host PC and both players must be on the same trusted Wi-Fi network. Allow Node.js through Windows Firewall on Private networks if prompted.
 
-## Join a two-player Wi-Fi game
+## Gameplay preserved
 
-1. On the host PC, start the multiplayer server with `npm run multiplayer`.
-2. Start the Vite game using the command above.
-3. On the host PC, open the game and press **HOST WI-FI**.
-4. On the second device, open the game using the host PC's LAN address (or install the APK), then press **JOIN WI-FI**.
-5. If asked, enter the host PC's IPv4 address. Find it with `ipconfig` in PowerShell.
-6. Both players select a guardian and press Start. Both devices connect to room `DASTAAN`.
+- 50-stage action-platformer campaign and fixed single-screen arenas.
+- Existing left/right movement, jump, double-jump and charged Fire/Energy projectile.
+- Existing Super attack and elemental power selection.
+- Existing Wi-Fi co-op relay (still requires real two-device playtesting).
 
-The WebSocket relay uses TCP port **3001**. Vite uses port **5173** during browser testing. The co-op relay synchronizes player movement, guardian choice and elemental/super shots. It is an initial LAN co-op build and still needs a real two-device playtest before the shared campaign can be considered fully verified.
+## Heroes and special moves
 
-## Android APK
+Choose one of four original heroes with different fighting-style inspirations:
 
-The repository has a GitHub Actions workflow at `.github/workflows/dastaan-heroes-android.yml`.
+- Ryo — balanced wave fighter.
+- Kairo — aggressive flame-rush fighter.
+- Mei — agile lightning-kick fighter.
+- Volt — electric wild fighter.
 
-1. Push the latest `main` branch to GitHub.
-2. Open the repository's **Actions** tab.
-3. Select **Dastaan Heroes Android APK** and open the latest run.
-4. When the build completes successfully, download the `dastaan-heroes-debug-apk` artifact.
-5. Extract the ZIP and install `app-debug.apk` on Android.
+Three additional special buttons are available on the left side of the mobile controls. Each press randomly selects one of the selected hero's special moves. Special moves have unlimited use: no cooldown, countdown, power meter or limited-use counter.
 
-The APK contains the game client. For Wi-Fi co-op, the host PC must still run `npm run multiplayer`; the Android player enters the host PC's LAN IPv4 address when joining. A signed Play Store release build is a separate step and is not included in this debug APK workflow.
+Special move impacts can launch, throw or push nearby enemies with visible knockback and falling reactions. Bosses resist being thrown and instead receive balanced special-hit damage.
 
 ## Controls
 
 - Move: A/D or arrow keys; mobile joystick
-- Jump: Space / Up / mobile JUMP button
-- Double jump: press jump a second time while airborne
+- Jump: Space / Up / mobile JUMP
+- Double jump: press jump again while airborne
 - Fire: hold X / mobile FIRE to charge, then release
-- Super: Z / mobile SUPER
+- Existing Super: Z / mobile SUPER
 - Change elemental power: C
+- Special move buttons: 1, 2, 3 / mobile S1, S2, S3
+
+## Android debug APK
+
+The GitHub Actions workflow `.github/workflows/zero-game-android.yml` builds a debug APK on pushes and can also be started manually from the Actions tab.
+
+1. Open the repository's Actions tab.
+2. Select **ZERO GAME Android APK**.
+3. Open a successful workflow run.
+4. Download the `zero-game-debug-apk` artifact ZIP.
+5. Extract it and install `app-debug.apk` on an Android device.
+
+The APK is a debug build for testing, not a Play Store-signed release. For Wi-Fi co-op, the host PC still runs `npm run multiplayer`; the Android player joins using the host PC's LAN IPv4 address. The relay uses TCP port 3001.
+
+## Build locally
+
+```powershell
+npm.cmd ci
+npm.cmd run lint
+npm.cmd run build
+npx cap add android
+npx cap sync android
+```
+
+Then open the Android project in Android Studio or build the debug APK using the Gradle wrapper.
