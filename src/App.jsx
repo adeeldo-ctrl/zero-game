@@ -2064,7 +2064,8 @@ class ZeroGameScene extends Phaser.Scene {
     if (move.type === "dash") {
       this.specialDashUntil = this.time.now + 260;
       this.tweens.add({ targets: this.heroVisual, scaleX: this.facing * 1.28, scaleY: 0.82, duration: 120, yoyo: true });
-      if (nearest && !nearest.getData("isBoss")) impact(nearest, this.facing * 390, -250);
+      if (nearest?.getData("isBoss")) this.hitBoss(nearest, 2);
+      else if (nearest) impact(nearest, this.facing * 390, -250);
     } else if (move.type === "throw") {
       if (boss) { this.hitBoss(boss, 3); this.statusLabel.setText("BOSS RESISTS THE THROW!").setColor("#ffcf75"); }
       else if (nearest) { impact(nearest, this.facing * 470, -500); this.statusLabel.setText("ENEMY THROWN BACK!").setColor("#ffe17a"); }
