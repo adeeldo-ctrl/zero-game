@@ -66,7 +66,7 @@ try {
   await page.evaluate(() => {
     const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
     scene.stageCleared = false;
-    scene.hero.setPosition(170, 470);
+    scene.hero.setPosition(170, 462);
     scene.hero.setVelocity(0, -470);
     scene.jumpCount = 1;
     const platform = scene.platforms.getChildren().find((item) => item !== scene.groundPlatform && Math.abs(item.x - 170) < 2);
