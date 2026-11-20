@@ -2643,17 +2643,24 @@ export default function App() {
 
   const getTouchTarget = (event) => {
     const overlay = event.currentTarget;
-    const rect = overlay.getBoundingClientRect();
+    const scene = getPlayableScene();
+    // Hit-test against the actual Phaser canvas, not the transparent touch
+    // overlay. This keeps action buttons aligned with their rendered positions
+    // on Android WebView when the canvas is letterboxed/scaled.
+    const canvas = gameRef.current?.canvas;
+    const rect = (canvas || overlay).getBoundingClientRect();
     if (!rect.width || !rect.height) return null;
     const x = ((event.clientX - rect.left) / rect.width) * 960;
     const y = ((event.clientY - rect.top) / rect.height) * 540;
 
-    // The game is a fixed 16:9 canvas. Hit testing uses its logical
-    // coordinates, not device pixels, so it remains aligned on all screens.
     const distance = (cx, cy) => Math.hypot(x - cx, y - cy);
+    // Keep the existing joystick hit area and behavior unchanged.
     if (distance(132, 448) <= 94) return "stick";
 
-    const buttons = [
+    // Read button centers from the same Phaser objects that draw the labels.
+    // This prevents the visible SUPER/FIRE/JUMP buttons and their touch
+    // actions from drifting out of sync.
+    const fallbackButtons = [
       ["special1", 665, 340, 52],
       ["special2", 775, 340, 52],
       ["special3", 885, 340, 52],
@@ -2661,6 +2668,10 @@ export default function App() {
       ["attack", 765, 448, 60],
       ["jump", 885, 448, 60]
     ];
+    const buttons = fallbackButtons.map(([action, fallbackX, fallbackY, radius]) => {
+      const visual = scene?.mobileControlVisuals?.get(action);
+      return [action, visual?.bg?.x ?? fallbackX, visual?.bg?.y ?? fallbackY, radius];
+    });
     let nearest = null;
     let nearestDistance = Infinity;
     for (const [action, cx, cy, radius] of buttons) {
@@ -2789,13 +2800,16 @@ export default function App() {
           scene.touch.right = false;
           scene.joystickKnob?.setPosition(132, 448).setScale(1);
         }
-      } else {
-        const stillPressed = [...mobilePointers.current.values()].includes(action);
-        scene.touch[action] = stillPressed;
-        if (action === "attack" && !stillPressed && !scene.attackHeld) {
+      } else if (action === "attack") {
+        const stillPressed = [...mobilePointers.current.values()].includes("attack");
+        scene.touch.attack = stillPressed;
+        if (!stillPressed && !scene.attackHeld) {
           scene.fireAttack(0);
         }
       }
+      // SUPER and JUMP are queued once on press; do not mirror them into
+      // held-touch flags on release. Their dedicated update handlers consume
+      // only the matching action queue entries.
     };
 
     const onTouchEnd = (event) => {
