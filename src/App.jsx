@@ -1353,13 +1353,28 @@ class ZeroGameScene extends Phaser.Scene {
       if (object.body?.updateFromGameObject) object.body.updateFromGameObject();
     });
     if (!origins.length) { this.physics.world.resume(); onComplete(); return; }
-    let remaining = origins.length;
-    origins.forEach(({ object, x, y }) => {
-      this.tweens.add({
-        targets: object, x, y, duration: 820, ease: "Cubic.easeOut",
-        onUpdate: () => origins.forEach(({ object: item }) => { if (item.body?.updateFromGameObject) item.body.updateFromGameObject(); }),
-        onComplete: () => { remaining--; if (remaining === 0) { this.physics.world.resume(); onComplete(); } },
-      });
+    // One shared progress tween keeps transition work linear in object count.
+    const progress = { value: 0 };
+    this.tweens.add({
+      targets: progress,
+      value: 1,
+      duration: 820,
+      ease: "Cubic.easeOut",
+      onUpdate: () => {
+        const remaining = 1 - progress.value;
+        origins.forEach(({ object, x, y }) => {
+          object.setPosition(x + offset.x * remaining, y + offset.y * remaining);
+          if (object.body?.updateFromGameObject) object.body.updateFromGameObject();
+        });
+      },
+      onComplete: () => {
+        origins.forEach(({ object, x, y }) => {
+          object.setPosition(x, y);
+          if (object.body?.updateFromGameObject) object.body.updateFromGameObject();
+        });
+        this.physics.world.resume();
+        onComplete();
+      },
     });
   }
 
