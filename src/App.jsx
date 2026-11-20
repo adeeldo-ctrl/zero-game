@@ -3012,7 +3012,7 @@ export default function App() {
       window.removeEventListener("blur", resetTouches);
       resetTouches();
     };
-  }, [isNativeAndroid]);
+  }, [isNativeAndroid, getTouchTarget]);
 
   useEffect(() => {
     if (gameRef.current) return;
