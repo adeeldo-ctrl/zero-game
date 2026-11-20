@@ -16,15 +16,52 @@ export const ELEMENTS = [
 ];
 
 export const HEROES = [
-  { id: "ibrahim", name: "Ibrahim", title: "The Flame Guardian", element: "fire", superPower: "Solar Dragon", color: 0x168e85, accent: 0xffb347, description: "A balanced hero with a powerful flame burst." },
-  { id: "zoya", name: "Zoya", title: "The Frost Dancer", element: "ice", superPower: "Glacier Nova", color: 0x438fc9, accent: 0x9df1ff, description: "A swift hero whose frost power spreads wide." },
-  { id: "rayyan", name: "Rayyan", title: "The Storm Rider", element: "lightning", superPower: "Thunder Spear", color: 0x7656bb, accent: 0xffdf70, description: "A fast hero with a focused electric strike." }
+  {
+    id: "ryo", name: "Ryo", title: "Balanced Wave Fighter", style: "Balanced martial arts",
+    element: "fire", superPower: "Dragon Burst", color: 0x2b8f83, accent: 0xffc15a,
+    description: "A balanced fighter with powerful energy waves.",
+    specialMoves: [
+      { id: "sky-throw", name: "Sky Throw", type: "throw" },
+      { id: "rising-wave", name: "Rising Wave", type: "launch" },
+      { id: "spinning-burst", name: "Spinning Burst", type: "shockwave" }
+    ]
+  },
+  {
+    id: "kairo", name: "Kairo", title: "Flame Rush Fighter", style: "Fast and aggressive",
+    element: "fire", superPower: "Blazing Cyclone", color: 0xb74435, accent: 0xffd16b,
+    description: "A fast fighter whose special moves create fiery impact bursts.",
+    specialMoves: [
+      { id: "flame-dash", name: "Flame Dash", type: "dash" },
+      { id: "flare-launch", name: "Flare Launch", type: "launch" },
+      { id: "fire-spin", name: "Fire Spin", type: "shockwave" }
+    ]
+  },
+  {
+    id: "mei", name: "Mei", title: "Lightning Kick Fighter", style: "Agile and acrobatic",
+    element: "lightning", superPower: "Thunder Fan", color: 0x2879c3, accent: 0x9cecff,
+    description: "An agile fighter with rapid kicks and wide-area energy effects.",
+    specialMoves: [
+      { id: "rapid-kick", name: "Rapid Kick", type: "rapid" },
+      { id: "sky-wheel", name: "Sky Wheel", type: "launch" },
+      { id: "lightning-ring", name: "Lightning Ring", type: "shockwave" }
+    ]
+  },
+  {
+    id: "volt", name: "Volt", title: "Electric Wild Fighter", style: "Powerful and unpredictable",
+    element: "lightning", superPower: "Electric Storm", color: 0x399b56, accent: 0xffe16a,
+    description: "A powerful fighter whose electric attacks push back groups of enemies.",
+    specialMoves: [
+      { id: "electric-grab", name: "Electric Grab", type: "throw" },
+      { id: "rolling-rush", name: "Rolling Rush", type: "dash" },
+      { id: "thunder-shockwave", name: "Thunder Shockwave", type: "shockwave" }
+    ]
+  }
 ];
 
 export const ENEMY_FAMILIES = [
-  { id: "animal", names: ["Desert Fox", "Jungle Monkey", "Snow Hare", "Cave Bat", "Tiny Turtle", "Mischief Panda", "Wild Boar", "Forest Frog"] },
-  { id: "fruit", names: ["Apple Hopper", "Mango Blob", "Berry Jumper", "Pineapple Guard", "Watermelon Roller", "Banana Bouncer", "Grape Cluster", "Orange Spinner"] },
-  { id: "vegetable", names: ["Carrot Runner", "Pumpkin Pouncer", "Pea Pod Squad", "Cabbage Crawler", "Chilli Dasher", "Radish Roller", "Corn Hopper", "Turnip Tumbler"] }
+  { id: "striker", names: ["Street Striker", "Arena Boxer", "Red Sash Fighter", "Rising Kick Adept", "Guard Captain", "Training Champion", "Power Puncher", "Iron Step Fighter"] },
+  { id: "agile", names: ["Swift Claw Runner", "Sky Kicker", "Shadow Acrobat", "Quickstep Fighter", "Whirlwind Adept", "Flash Jumper", "Twin Kick Scout", "Darting Champion"] },
+  { id: "power", names: ["Heavyweight Guard", "Iron Fist Brawler", "Stone Step Fighter", "Thunder Guard", "Arena Bruiser", "Mighty Grappler", "Heavy Kick Expert", "Steel Wall Fighter"] }
 ];
 
 const WORLDS = [
@@ -41,11 +78,11 @@ const WORLDS = [
 ];
 
 const BOSS_DATA = [
-  { name: "King Thorn", family: "animal", element: "nature", hp: 36, attack: "Vinequake", color: 0x398a57 },
-  { name: "Ember Mammoth", family: "animal", element: "fire", hp: 44, attack: "Meteor Stomp", color: 0xb94e3e },
-  { name: "Frost Queen", family: "fruit", element: "ice", hp: 52, attack: "Blizzard Ring", color: 0x5c9fca },
-  { name: "Storm Colossus", family: "vegetable", element: "lightning", hp: 60, attack: "Thunder Wheel", color: 0x8063bd },
-  { name: "Shadow Dragon", family: "animal", element: "shadow", hp: 75, attack: "Nightfall Burst", color: 0x493b76 }
+  { name: "Ironback Brawler", family: "power", element: "earth", hp: 34, attack: "Ground Pulse", color: 0x8a5943, style: "intro bruiser" },
+  { name: "The Pit Champion", family: "striker", element: "fire", hp: 46, attack: "Heavy Impact", color: 0xa64b3d, style: "boxing champion" },
+  { name: "Crimson Talon", family: "agile", element: "wind", hp: 54, attack: "Aerial Rush", color: 0x8d405e, style: "agile aerial fighter" },
+  { name: "Summit Master", family: "striker", element: "lightning", hp: 64, attack: "Thunder Form", color: 0x6259a7, style: "martial arts master" },
+  { name: "Obsidian Warlord", family: "power", element: "shadow", hp: 82, attack: "Warlord Storm", color: 0x493b76, style: "final warlord" }
 ];
 
 const stageColor = (color, step, channelShift = 1) => {
