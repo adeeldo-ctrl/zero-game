@@ -17,6 +17,12 @@ export function createGameAudio() {
   let musicIndex = 0;
   let musicEnabled = localStorage.getItem("zero_game_music") !== "off";
   let sfxEnabled = localStorage.getItem("zero_game_sfx") !== "off";
+  const storedMusicVolume = Number(localStorage.getItem("zero_game_music_volume"));
+  const storedSfxVolume = Number(localStorage.getItem("zero_game_sfx_volume"));
+  let musicVolume = Number.isFinite(storedMusicVolume) && localStorage.getItem("zero_game_music_volume") !== null
+    ? Math.max(0, Math.min(1, storedMusicVolume)) : 0.7;
+  let sfxVolume = Number.isFinite(storedSfxVolume) && localStorage.getItem("zero_game_sfx_volume") !== null
+    ? Math.max(0, Math.min(1, storedSfxVolume)) : 0.75;
   const melody = ["C4", "E4", "G4", "E4", "D4", "G4", "A4", "G4", "C4", "E4", "G4", "C5", "A4", "G4", "E4", "D4"];
 
   const ensureContext = () => {
@@ -50,7 +56,7 @@ export function createGameAudio() {
     ensureContext();
     const notes = SOUND_NOTES[name] || SOUND_NOTES.ui;
     notes.forEach((frequency, index) => {
-      if (context) setTimeout(() => tone(frequency, 0.09, "square", 0.055), index * 48);
+      if (context) setTimeout(() => tone(frequency, 0.09, "square", 0.055 * sfxVolume), index * 48);
     });
   };
 
@@ -61,8 +67,8 @@ export function createGameAudio() {
       if (!musicEnabled || !context) return;
       const name = melody[musicIndex % melody.length];
       const frequency = NOTE_FREQUENCIES[name];
-      tone(frequency, 0.22, "triangle", 0.025);
-      if (musicIndex % 4 === 0) tone(NOTE_FREQUENCIES.C3, 0.28, "sine", 0.018);
+      tone(frequency, 0.22, "triangle", 0.025 * musicVolume);
+      if (musicIndex % 4 === 0) tone(NOTE_FREQUENCIES.C3, 0.28, "sine", 0.018 * musicVolume);
       musicIndex++;
       musicTimer = setTimeout(step, 260);
     };
@@ -92,14 +98,28 @@ export function createGameAudio() {
     return sfxEnabled;
   };
 
+  const setMusicVolume = (value) => {
+    musicVolume = Math.max(0, Math.min(1, Number(value) || 0));
+    localStorage.setItem("zero_game_music_volume", String(musicVolume));
+    return musicVolume;
+  };
+
+  const setSfxVolume = (value) => {
+    sfxVolume = Math.max(0, Math.min(1, Number(value) || 0));
+    localStorage.setItem("zero_game_sfx_volume", String(sfxVolume));
+    return sfxVolume;
+  };
+
   const stop = () => {
     if (musicTimer) clearTimeout(musicTimer);
     musicTimer = null;
   };
 
   return {
-    unlock, play, stop, setMusicEnabled, setSfxEnabled,
+    unlock, play, stop, setMusicEnabled, setSfxEnabled, setMusicVolume, setSfxVolume,
     isMusicEnabled: () => musicEnabled,
-    isSfxEnabled: () => sfxEnabled
+    isSfxEnabled: () => sfxEnabled,
+    getMusicVolume: () => musicVolume,
+    getSfxVolume: () => sfxVolume
   };
 }
