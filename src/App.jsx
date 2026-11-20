@@ -2501,15 +2501,48 @@ class ZeroGameScene extends Phaser.Scene {
     }
 
     if (time < (this.specialPoseUntil || 0)) {
+      const poseWave = Math.sin(time * 0.035);
       if (this.specialPoseType === "throw") {
         p.armL.rotation = -1.15;
         p.armR.rotation = this.facing * -1.55;
         p.handL.y = 17;
         p.handR.y = 16;
-      } else if (this.specialPoseType === "launch" || this.specialPoseType === "rapid") {
-        p.armL.rotation = -0.95;
-        p.armR.rotation = this.facing * -1.7;
-        p.legR.rotation = -0.65;
+      } else if (this.specialPoseType === "wave") {
+        p.armL.rotation = -0.72;
+        p.armR.rotation = this.facing * -1.72;
+        p.handL.y = 18;
+        p.handR.y = 13 + Math.abs(poseWave) * 4;
+        p.legL.rotation = -0.16;
+        p.legR.rotation = 0.2;
+      } else if (this.specialPoseType === "uppercut") {
+        p.armL.rotation = -0.85;
+        p.armR.rotation = this.facing * -2.45;
+        p.handR.y = 4;
+        p.legL.rotation = -0.42;
+        p.legR.rotation = 0.62;
+      } else if (this.specialPoseType === "spin") {
+        p.armL.rotation = -1.72;
+        p.armR.rotation = 1.72;
+        p.legL.rotation = -0.58;
+        p.legR.rotation = 0.58;
+      } else if (this.specialPoseType === "rapid") {
+        p.armL.rotation = -1.0 + poseWave * 0.42;
+        p.armR.rotation = this.facing * (-1.65 - poseWave * 0.42);
+        p.legL.rotation = poseWave * 0.35;
+        p.legR.rotation = -poseWave * 0.35;
+      } else if (this.specialPoseType === "electric") {
+        p.armL.rotation = -1.9;
+        p.armR.rotation = 1.9;
+        p.handL.y = 12 + Math.abs(poseWave) * 5;
+        p.handR.y = 12 + Math.abs(poseWave) * 5;
+        p.legL.rotation = -0.32;
+        p.legR.rotation = 0.32;
+      } else if (this.specialPoseType === "roll") {
+        p.armL.rotation = -0.35;
+        p.armR.rotation = 0.35;
+        p.legL.rotation = -0.9;
+        p.legR.rotation = 0.9;
+        visual.setScale(this.facing, 0.78);
       } else {
         p.armL.rotation = -1.35;
         p.armR.rotation = 1.35;
