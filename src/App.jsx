@@ -185,11 +185,10 @@ class ZeroGameScene extends Phaser.Scene {
     this.add.rectangle(480, 270, W, H, this.stageConfig.background.sky)
       .setDepth(-30);
 
-    this.add.circle(790, 135, 75, 0xffe7a1, 0.13)
-      .setDepth(-29);
-
-    this.add.circle(790, 135, 43, 0xffe69b, 0.9)
-      .setDepth(-28);
+    const isNightWorld = [4, 5, 9].includes(this.stageConfig.worldIndex);
+    const skyLight = isNightWorld ? 0xc8d9ff : 0xffe7a1;
+    this.add.circle(790, 135, 75, skyLight, 0.13).setDepth(-29);
+    this.add.circle(790, 135, 43, isNightWorld ? 0xd8e4ff : 0xffe69b, 0.9).setDepth(-28);
 
     for (let i = 0; i < 6; i++) {
       const x = 60 + i * 175;
@@ -249,17 +248,8 @@ class ZeroGameScene extends Phaser.Scene {
     hills.fillEllipse(500, 390, 430, 190);
     hills.fillEllipse(860, 390, 380, 170);
 
-    this.createCastle(470, 290);
-
-    this.createBuilding(80, 320, 115, 125, 0xe9b76d);
-    this.createBuilding(780, 315, 120, 130, 0xd99b69);
-    this.createBuilding(245, 350, 85, 90, 0xf2cf87);
-    this.createBuilding(650, 350, 90, 90, 0xe8b878);
-
-    this.createTree(25, 390);
-    this.createTree(205, 395);
-    this.createTree(735, 390);
-    this.createTree(925, 390);
+    // The old repeated castle/building backdrop is intentionally removed.
+    // Each world now receives its own landmark composition below.
     this.createStageAtmosphere();
     this.createPremiumStageSetpiece();
 
