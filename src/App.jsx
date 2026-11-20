@@ -768,7 +768,10 @@ class ZeroGameScene extends Phaser.Scene {
       armL,
       armR,
       handL,
-      handR
+      handR,
+      kurta,
+      waistcoat,
+      face
     });
     c.setData("heroPalette", { kurta, waistcoat, capLine, face, neck, handL, handR, hair, armL, armR });
     
@@ -2261,7 +2264,9 @@ class ZeroGameScene extends Phaser.Scene {
     this.audio.unlock();
     this.audio.play("special");
     this.specialPoseType = move.type;
-    this.specialPoseUntil = this.time.now + 520;
+    this.specialPoseStartedAt = this.time.now;
+    this.specialPoseUntil = this.time.now + (move.type === "rapid" ? 760 : 900);
+    this.normalAttackUntil = 0;
     const accent = this.selectedHero.accent || 0x7deaff;
     const title = move.name.toUpperCase();
     this.statusLabel.setText(title + "!").setColor("#ffe17a");
@@ -2332,13 +2337,24 @@ class ZeroGameScene extends Phaser.Scene {
     if (move.type === "wave") {
       launchWave();
     } else if (move.type === "uppercut") {
-      this.hero.setVelocityY(-430);
-      this.tweens.add({ targets: this.heroVisual, angle: -this.facing * 18, y: this.heroVisual.y - 20, duration: 150, yoyo: true });
+      this.hero.setVelocity(this.facing * 115, -560);
+      this.jumpCount = Math.max(this.jumpCount, 1);
+      const risingTrail = this.add.particles(this.hero.x, this.hero.y + 20, "shot", {
+        speed: { min: 35, max: 115 }, angle: { min: 245, max: 295 },
+        scale: { start: 0.75, end: 0 }, alpha: { start: 0.75, end: 0 },
+        lifespan: 380, quantity: 3, frequency: 28, tint: [accent, 0xffffff], emitting: false
+      }).setDepth(18);
+      risingTrail.explode(16, this.hero.x, this.hero.y + 22);
+      this.time.delayedCall(520, () => { if (risingTrail.active) risingTrail.destroy(); });
       if (nearest && !nearest.getData("isBoss")) impact(nearest, this.facing * 190, -680);
       if (boss) this.hitBoss(boss, 4);
     } else if (move.type === "spin") {
       this.specialPoseType = "spin";
-      this.tweens.add({ targets: this.heroVisual, angle: this.facing * 360, duration: 420, ease: "Cubic.easeOut" });
+      this.hero.setVelocityX(this.facing * 310);
+      this.specialDashUntil = this.time.now + 390;
+      const spinArc = this.add.arc(this.hero.x, this.hero.y - 8, 66, 205, 155, false, accent, 0.85)
+        .setStrokeStyle(12, accent, 0.9).setDepth(20);
+      this.tweens.add({ targets: spinArc, angle: 360, alpha: 0, scale: 1.55, duration: 480, onComplete: () => spinArc.destroy() });
       normalTargets.filter(enemy => Math.abs(enemy.x - this.hero.x) < 245 && Math.abs(enemy.y - this.hero.y) < 145)
         .forEach(enemy => {
           const direction = enemy.x >= this.hero.x ? 1 : -1;
@@ -2430,6 +2446,7 @@ class ZeroGameScene extends Phaser.Scene {
     const now = this.time.now;
     if (now - this.lastAttack < 170) return;
     this.lastAttack = now;
+    this.normalAttackUntil = now + 190;
     this.sendNet({ type: "shot", x: this.hero.x, y: this.hero.y - 8, direction: this.facing, powerType: this.powerType, charge });
     if (this.kickNearestElementBall()) return;
     const power = this.getPowerPalette();
@@ -2612,28 +2629,27 @@ class ZeroGameScene extends Phaser.Scene {
     } else if (moving) {
       visual.setAngle(0);
       const swing = Math.sin(t * 2.2);
-
-      p.legL.rotation = swing * 0.65;
-      p.legR.rotation = -swing * 0.65;
-
-      p.armL.rotation = -swing * 0.55;
-      p.armR.rotation = swing * 0.55;
-
+      // Martial-arts footwork: short steps while the guard stays raised.
+      p.legL.rotation = -0.12 + swing * 0.48;
+      p.legR.rotation = 0.12 - swing * 0.48;
+      p.armL.rotation = -0.72 - swing * 0.16;
+      p.armR.rotation = 0.92 + swing * 0.16;
+      p.handL.y = 13 + Math.max(0, swing) * 3;
+      p.handR.y = 12 + Math.max(0, -swing) * 3;
       p.shoeL.y = 39 + Math.max(0, swing) * -5;
       p.shoeR.y = 39 + Math.max(0, -swing) * -5;
-
       visual.y = h.y + Math.abs(swing) * -2;
     } else {
-      visual.setAngle(0); p.handL.y = 27;
-      p.legL.rotation = 0;
-      p.legR.rotation = 0;
-
-      p.armL.rotation = Math.sin(t) * 0.035;
-      p.armR.rotation = -Math.sin(t) * 0.035;
-
+      // Readable fighting idle: bent knees, elbows tucked and fists guarding the face.
+      visual.setAngle(0);
+      p.handL.y = 13 + Math.sin(t) * 1.5;
+      p.handR.y = 12 - Math.sin(t) * 1.5;
+      p.legL.rotation = -0.1 + Math.sin(t * 0.7) * 0.025;
+      p.legR.rotation = 0.1 - Math.sin(t * 0.7) * 0.025;
+      p.armL.rotation = -0.72 + Math.sin(t) * 0.045;
+      p.armR.rotation = 0.92 - Math.sin(t) * 0.045;
       p.shoeL.y = 39;
       p.shoeR.y = 39;
-
       visual.y = h.y + Math.sin(t * 0.5) * 1.5;
     }
 
@@ -2644,58 +2660,92 @@ class ZeroGameScene extends Phaser.Scene {
       p.handR.y = 27;
     }
 
-    if (time < (this.specialPoseUntil || 0)) {
-      const poseWave = Math.sin(time * 0.035);
-      if (this.specialPoseType === "throw") {
-        p.armL.rotation = -1.15;
-        p.armR.rotation = this.facing * -1.55;
-        p.handL.y = 17;
-        p.handR.y = 16;
-      } else if (this.specialPoseType === "wave") {
-        p.armL.rotation = -0.72;
-        p.armR.rotation = this.facing * -1.72;
-        p.handL.y = 18;
-        p.handR.y = 13 + Math.abs(poseWave) * 4;
-        p.legL.rotation = -0.16;
-        p.legR.rotation = 0.2;
+    const specialActive = time < (this.specialPoseUntil || 0);
+    const specialProgress = specialActive
+      ? Phaser.Math.Clamp((time - (this.specialPoseStartedAt || time)) / Math.max(1, (this.specialPoseUntil || time) - (this.specialPoseStartedAt || time)), 0, 1)
+      : 0;
+    if (specialActive) {
+      const pulse = Math.sin(specialProgress * Math.PI * 2);
+      const sign = this.facing;
+      const tuck = Math.sin(Math.min(1, specialProgress * 2) * Math.PI / 2);
+      visual.setAngle(0);
+      p.handL.y = 14;
+      p.handR.y = 14;
+      if (this.specialPoseType === "wave") {
+        // Charge, step in, thrust the palm, then recoil.
+        const thrust = Math.sin(Math.min(1, specialProgress / 0.72) * Math.PI);
+        p.armL.rotation = -0.92;
+        p.armR.rotation = sign * (-1.85 + thrust * 1.08);
+        p.handL.y = 11;
+        p.handR.y = 8 - thrust * 5;
+        p.legL.rotation = -0.24 - thrust * 0.12;
+        p.legR.rotation = 0.28 + thrust * 0.1;
+        visual.y = h.y + Math.sin(specialProgress * Math.PI) * 3;
+        visual.setScale(sign * (1 + thrust * 0.08), 1 - thrust * 0.035);
       } else if (this.specialPoseType === "uppercut") {
-        p.armL.rotation = -0.85;
-        p.armR.rotation = this.facing * -2.45;
-        p.handR.y = 4;
-        p.legL.rotation = -0.42;
-        p.legR.rotation = 0.62;
+        const rise = Math.sin(specialProgress * Math.PI);
+        p.armL.rotation = -0.82;
+        p.armR.rotation = sign * (-2.45 - rise * 0.28);
+        p.handR.y = 1 - rise * 9;
+        p.legL.rotation = -0.58 - rise * 0.16;
+        p.legR.rotation = 0.72 + rise * 0.18;
+        visual.setAngle(sign * (-0.08 - rise * 0.12));
+        visual.setScale(sign * (1 - rise * 0.05), 1 + rise * 0.12);
       } else if (this.specialPoseType === "spin") {
-        p.armL.rotation = -1.72;
-        p.armR.rotation = 1.72;
-        p.legL.rotation = -0.58;
-        p.legR.rotation = 0.58;
+        const spinEase = 1 - Math.pow(1 - specialProgress, 2);
+        p.armL.rotation = -1.75 + pulse * 0.12;
+        p.armR.rotation = 1.75 - pulse * 0.12;
+        p.legL.rotation = -0.72 + pulse * 0.18;
+        p.legR.rotation = 0.72 - pulse * 0.18;
+        visual.setAngle(sign * spinEase * 360);
+        visual.setScale(sign * (1 + Math.sin(specialProgress * Math.PI) * 0.22), 0.92);
       } else if (this.specialPoseType === "rapid") {
-        p.armL.rotation = -1.0 + poseWave * 0.42;
-        p.armR.rotation = this.facing * (-1.65 - poseWave * 0.42);
-        p.legL.rotation = poseWave * 0.35;
-        p.legR.rotation = -poseWave * 0.35;
+        const combo = Math.sin(specialProgress * Math.PI * 10);
+        p.armL.rotation = sign * (-1.45 + Math.max(0, combo) * 1.25);
+        p.armR.rotation = sign * (-1.45 - Math.max(0, -combo) * 1.25);
+        p.handL.y = 11 + Math.max(0, combo) * 9;
+        p.handR.y = 11 + Math.max(0, -combo) * 9;
+        p.legL.rotation = -0.2 + combo * 0.2;
+        p.legR.rotation = 0.2 - combo * 0.2;
+        visual.setAngle(sign * pulse * 0.035);
       } else if (this.specialPoseType === "electric") {
-        p.armL.rotation = -1.9;
-        p.armR.rotation = 1.9;
-        p.handL.y = 12 + Math.abs(poseWave) * 5;
-        p.handR.y = 12 + Math.abs(poseWave) * 5;
-        p.legL.rotation = -0.32;
-        p.legR.rotation = 0.32;
+        p.armL.rotation = -1.95 - tuck * 0.22;
+        p.armR.rotation = 1.95 + tuck * 0.22;
+        p.handL.y = 7 + Math.abs(pulse) * 4;
+        p.handR.y = 7 + Math.abs(pulse) * 4;
+        p.legL.rotation = -0.42;
+        p.legR.rotation = 0.42;
+        visual.setScale(sign * (1 + Math.sin(specialProgress * Math.PI) * 0.16), 1);
       } else if (this.specialPoseType === "roll") {
         p.armL.rotation = -0.35;
         p.armR.rotation = 0.35;
-        p.legL.rotation = -0.9;
-        p.legR.rotation = 0.9;
-        visual.setScale(this.facing, 0.78);
+        p.legL.rotation = -1.05;
+        p.legR.rotation = 1.05;
+        visual.setAngle(sign * specialProgress * 540);
+        visual.setScale(sign * 1.15, 0.72);
+      } else if (this.specialPoseType === "throw") {
+        const release = Math.sin(Math.min(1, specialProgress / 0.62) * Math.PI);
+        p.armL.rotation = -0.95;
+        p.armR.rotation = sign * (-1.1 - release * 1.35);
+        p.handL.y = 12;
+        p.handR.y = 8 - release * 8;
+        p.legL.rotation = -0.34;
+        p.legR.rotation = 0.4;
+        visual.setAngle(sign * release * 0.08);
       } else {
-        p.armL.rotation = -1.35;
-        p.armR.rotation = 1.35;
-        p.legL.rotation = -0.25;
-        p.legR.rotation = 0.25;
+        p.armL.rotation = -1.5;
+        p.armR.rotation = 1.5;
+        p.legL.rotation = -0.3;
+        p.legR.rotation = 0.3;
       }
+      if (p.kurta?.active) p.kurta.setScale(1, 1 + Math.sin(specialProgress * Math.PI) * 0.06);
+      if (p.waistcoat?.active) p.waistcoat.setScale(1, 1 + Math.sin(specialProgress * Math.PI) * 0.06);
     } else if (this.specialPoseType) {
       this.specialPoseType = null;
       visual.setAngle(0);
+      visual.setScale(this.facing, 1);
+      if (p.kurta?.active) p.kurta.setScale(1, 1);
+      if (p.waistcoat?.active) p.waistcoat.setScale(1, 1);
     }
 
     // Landing animation
