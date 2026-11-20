@@ -911,6 +911,7 @@ class ZeroGameScene extends Phaser.Scene {
   pressMobileAction(action) {
     if (["super", "special1", "special2", "special3", "jump"].includes(action)) {
       this.mobileActionQueue.add(action);
+      return;
     }
     this.touch[action] = true;
   }
