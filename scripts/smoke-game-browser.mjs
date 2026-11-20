@@ -283,6 +283,15 @@ try {
     }
   });
 
+  const campaignIdentity = await page.evaluate(() => {
+    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+    return {
+      heroId: scene.selectedHero?.id,
+      chances: scene.chances,
+      hearts: scene.health,
+    };
+  });
+
   // Walk the actual Phaser scene-restart path through every remaining stage.
   const visitedStages = [1, 2];
   for (let nextStage = 3; nextStage <= 50; nextStage++) {
@@ -338,8 +347,9 @@ try {
     if (stageState.boss !== (nextStage % 10 === 0)) {
       throw new Error(`Stage ${nextStage} boss milestone is incorrect`);
     }
-    if (stageState.heroId !== window.__ZERO_GAME_PERSISTENCE__.heroId ||
-        stageState.chances !== 2 || stageState.hearts !== 3 ||
+    if (stageState.heroId !== campaignIdentity.heroId ||
+        stageState.chances !== campaignIdentity.chances ||
+        stageState.hearts !== campaignIdentity.hearts ||
         !stageState.heroSelectionLocked || !stageState.campaignActive) {
       throw new Error(`Stage ${nextStage} lost campaign identity or remaining lives`);
     }
