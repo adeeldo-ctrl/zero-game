@@ -2649,13 +2649,17 @@ export default function App() {
     // on Android WebView when the canvas is letterboxed/scaled.
     const canvas = gameRef.current?.canvas;
     const rect = (canvas || overlay).getBoundingClientRect();
-    if (!rect.width || !rect.height) return null;
+    const overlayRect = overlay.getBoundingClientRect();
+    if (!rect.width || !rect.height || !overlayRect.width || !overlayRect.height) return null;
     const x = ((event.clientX - rect.left) / rect.width) * 960;
     const y = ((event.clientY - rect.top) / rect.height) * 540;
+    // Keep joystick detection on its original overlay coordinate system so
+    // the already-working joystick feel and hit area remain untouched.
+    const stickX = ((event.clientX - overlayRect.left) / overlayRect.width) * 960;
+    const stickY = ((event.clientY - overlayRect.top) / overlayRect.height) * 540;
+    if (Math.hypot(stickX - 132, stickY - 448) <= 94) return "stick";
 
     const distance = (cx, cy) => Math.hypot(x - cx, y - cy);
-    // Keep the existing joystick hit area and behavior unchanged.
-    if (distance(132, 448) <= 94) return "stick";
 
     // Read button centers from the same Phaser objects that draw the labels.
     // This prevents the visible SUPER/FIRE/JUMP buttons and their touch
