@@ -1604,7 +1604,7 @@ class ZeroGameScene extends Phaser.Scene {
         const pop = this.add.circle(enemy.x, enemy.y, 28, this.getPowerPalette().edge, 0.9).setStrokeStyle(4, 0xffffff).setDepth(20);
         this.tweens.add({ targets: pop, scale: 3.2, alpha: 0, duration: 260, onComplete: () => pop.destroy() });
         this.audio.play("defeat");
-        enemy.destroy(); this.defeated++; this.addScore(500); this.enemyLabel.setText(`ENEMIES: ${this.defeated}/${this.stageEnemyCount}`);
+        this.dropReward(enemy.x, enemy.y); enemy.destroy(); this.defeated++; this.addScore(500); this.enemyLabel.setText(`ENEMIES: ${this.defeated}/${this.stageEnemyCount}`);
         this.statusLabel.setText("ELEMENTAL ORB POPPED!"); this.statusLabel.setColor("#62ffb4");
         if (this.defeated >= this.stageEnemyCount && !this.boss && this.stageConfig.boss) {
           this.statusLabel.setText("WARNING! THE BOSS IS COMING!"); this.statusLabel.setColor("#ff795e");
@@ -1638,6 +1638,7 @@ class ZeroGameScene extends Phaser.Scene {
       duration: 320, onComplete: () => finalBurst.destroy() });
     if (visual.active) visual.destroy();
     this.audio.play("defeat");
+    this.dropReward(enemy.x, enemy.y);
     enemy.destroy();
     this.defeated++;
     this.addScore(500);
@@ -1782,6 +1783,7 @@ class ZeroGameScene extends Phaser.Scene {
     this.addScore(250);
     if (this.bossHealth <= 0) {
       this.addScore(5000);
+      this.dropBossRewardShower(boss.x, boss.y);
       this.bossDefeated = true;
       boss.setVelocity(0, 0);
       this.tweens.add({ targets: this.bossVisual, angle: 360, scale: 0.1,
@@ -2015,18 +2017,62 @@ class ZeroGameScene extends Phaser.Scene {
       this.physics.add.existing(orb);
       orb.body.setAllowGravity(false);
       orb.body.setCircle(15);
+      orb.setData("bonusOrb", true);
       this.bonusItems.add(orb);
       this.tweens.add({ targets: orb, scale: 1.35, y: y - 12, duration: 450 + i * 25, yoyo: true, repeat: -1 });
     }
   }
 
+  dropReward(x, y, bossTier = 0) {
+    const rewards = bossTier > 0
+      ? [{ type: "cake", label: "CAKE", value: 500, color: 0xff8eb4 }, { type: "fruit", label: "FRUIT", value: 750, color: 0xff5b58 }, { type: "chicken", label: "CHICKEN", value: 1000, color: 0xffc45e }, { type: "diamond", label: "DIAMOND", value: 1500, color: 0x69eaff }, { type: "gold", label: "GOLD", value: 2500, color: 0xffd447 }]
+      : [{ type: "cake", label: "CAKE", value: 250, color: 0xff8eb4 }, { type: "fruit", label: "FRUIT", value: 400, color: 0xff5b58 }, { type: "chicken", label: "CHICKEN", value: 500, color: 0xffc45e }, { type: "diamond", label: "DIAMOND", value: 1000, color: 0x69eaff }, { type: "gold", label: "GOLD", value: 1500, color: 0xffd447 }];
+    const reward = rewards[Phaser.Math.Between(0, rewards.length - 1)];
+    const item = this.add.container(x, y).setDepth(25);
+    const gem = this.add.circle(0, 0, 15, reward.color, 1).setStrokeStyle(3, 0xffffff);
+    const shine = this.add.circle(-5, -5, 4, 0xffffff, 0.9);
+    const label = this.add.text(0, 23, reward.label, { fontSize: "9px", color: "#ffffff", fontStyle: "bold", stroke: "#18223b", strokeThickness: 3 }).setOrigin(0.5);
+    item.add([gem, shine, label]);
+    item.setData("rewardType", reward.type);
+    item.setData("rewardValue", reward.value);
+    this.physics.add.existing(item);
+    item.body.setCircle(15);
+    item.body.setBounce(0.32, 0.2);
+    item.body.setCollideWorldBounds(true);
+    item.body.setMaxVelocity(260, 700);
+    item.body.setVelocity(Phaser.Math.Between(-180, 180), Phaser.Math.Between(-300, -180));
+    this.bonusItems.add(item);
+    this.physics.add.collider(item, this.platforms);
+    this.tweens.add({ targets: item, angle: Phaser.Math.Between(-18, 18), duration: 420, yoyo: true, repeat: -1 });
+    this.time.delayedCall(12000, () => { if (item.active) item.destroy(); });
+    return item;
+  }
+
+  dropBossRewardShower(x, y) {
+    const tier = this.bossMaxHealth >= 50 ? 2 : this.bossMaxHealth >= 30 ? 1 : 0;
+    const count = 9 + tier * 2;
+    for (let i = 0; i < count; i++) {
+      this.time.delayedCall(i * 65, () => {
+        if (!this.scene.isActive()) return;
+        const spread = (i - (count - 1) / 2) * 15;
+        this.dropReward(x + spread, y - 20, tier);
+      });
+    }
+    const banner = this.add.text(x, y - 88, "BOSS TREASURE!", { fontSize: "22px", color: "#ffe17a", fontStyle: "bold", stroke: "#492c65", strokeThickness: 5 }).setOrigin(0.5).setDepth(28);
+    this.tweens.add({ targets: banner, y: banner.y - 42, alpha: 0, duration: 1500, onComplete: () => banner.destroy() });
+  }
+
   collectBonusItem(hero, orb) {
-    if (!orb?.active || !this.bonusMode) return;
+    if (!orb?.active) return;
+    if (orb.getData("bonusOrb") && !this.bonusMode) return;
+    const isBonusOrb = !!orb.getData("bonusOrb");
+    const value = isBonusOrb ? 750 : (orb.getData("rewardValue") || 250);
+    const rewardType = orb.getData("rewardType") || "bonus";
     const burst = this.add.circle(orb.x, orb.y, 18, 0xffe27a, 0.9).setDepth(26);
     this.tweens.add({ targets: burst, scale: 2.4, alpha: 0, duration: 180, onComplete: () => burst.destroy() });
     orb.destroy();
-    this.addScore(750);
-    this.statusLabel.setText("BONUS ORB! +750").setColor("#ffe17a");
+    this.addScore(value);
+    this.statusLabel.setText(isBonusOrb ? "BONUS ORB! +750" : `${rewardType.toUpperCase()} COLLECTED! +${value}`).setColor("#ffe17a");
   }
 
   finishBonusStage() {
@@ -2246,8 +2292,10 @@ class ZeroGameScene extends Phaser.Scene {
         const ballPalette = enemy.getData("ballPalette") || this.getPowerPalette();
         const burst = this.add.circle(target.x, target.y, 32, ballPalette.edge, 0.95).setStrokeStyle(5, 0xffffff).setDepth(22);
         this.tweens.add({ targets: burst, scale: 2.8, alpha: 0, duration: 260, onComplete: () => burst.destroy() });
+        this.dropReward(target.x, target.y);
         target.destroy();
         this.defeated++;
+        this.addScore(500);
         this.enemyLabel.setText(`ENEMIES: ${Math.min(this.defeated, this.stageEnemyCount)}/${this.stageEnemyCount}`);
         if (this.defeated >= this.stageEnemyCount && !this.boss && this.stageConfig.boss) {
           this.statusLabel.setText("WARNING! THE BOSS IS COMING!").setColor("#ff795e");
