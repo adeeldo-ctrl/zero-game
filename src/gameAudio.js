@@ -1,3 +1,7 @@
+export function clampAudioVolume(value) {
+  return Math.max(0, Math.min(1, Number(value) || 0));
+}
+
 const NOTE_FREQUENCIES = {
   C4: 261.63, D4: 293.66, E4: 329.63, G4: 392.0,
   A4: 440.0, C5: 523.25, D5: 587.33, E5: 659.25,
@@ -20,9 +24,9 @@ export function createGameAudio() {
   const storedMusicVolume = Number(localStorage.getItem("zero_game_music_volume"));
   const storedSfxVolume = Number(localStorage.getItem("zero_game_sfx_volume"));
   let musicVolume = Number.isFinite(storedMusicVolume) && localStorage.getItem("zero_game_music_volume") !== null
-    ? Math.max(0, Math.min(1, storedMusicVolume)) : 0.7;
+    ? clampAudioVolume(storedMusicVolume) : 0.7;
   let sfxVolume = Number.isFinite(storedSfxVolume) && localStorage.getItem("zero_game_sfx_volume") !== null
-    ? Math.max(0, Math.min(1, storedSfxVolume)) : 0.75;
+    ? clampAudioVolume(storedSfxVolume) : 0.75;
   const melody = ["C4", "E4", "G4", "E4", "D4", "G4", "A4", "G4", "C4", "E4", "G4", "C5", "A4", "G4", "E4", "D4"];
 
   const ensureContext = () => {
@@ -99,13 +103,13 @@ export function createGameAudio() {
   };
 
   const setMusicVolume = (value) => {
-    musicVolume = Math.max(0, Math.min(1, Number(value) || 0));
+    musicVolume = clampAudioVolume(value);
     localStorage.setItem("zero_game_music_volume", String(musicVolume));
     return musicVolume;
   };
 
   const setSfxVolume = (value) => {
-    sfxVolume = Math.max(0, Math.min(1, Number(value) || 0));
+    sfxVolume = clampAudioVolume(value);
     localStorage.setItem("zero_game_sfx_volume", String(sfxVolume));
     return sfxVolume;
   };
