@@ -4,6 +4,7 @@ import Phaser from "phaser";
 import { Capacitor } from "@capacitor/core";
 import { ELEMENTS, HEROES, getElement, getStage, getHero } from "./gameData";
 import { createGameAudio } from "./gameAudio";
+import { createCampaignLives, loseCampaignHeart, getStageTransitionDirection } from "./campaignRules";
 import "./App.css";
 
 class ZeroGameScene extends Phaser.Scene {
@@ -37,6 +38,11 @@ class ZeroGameScene extends Phaser.Scene {
     this.continueTimer = null;
     this.tokenCount = Number(localStorage.getItem("dastaan_tokens") || 3);
     this.gameStarted = true;
+    this.campaignActive = false;
+    this.heroSelectionLocked = false;
+    this.chances = 3;
+    this.stageTransitionActive = false;
+    this.pendingStageTransitionDirection = null;
     this.stageEnemyCount = this.stageConfig.enemyCount;
     this.score = 0;
     this.lives = 3;
@@ -170,12 +176,16 @@ class ZeroGameScene extends Phaser.Scene {
     this.createMobileControls();
     this.input.keyboard.once("keydown", () => { this.audio.unlock(); this.audio.play("stage"); });
     this.events.once("shutdown", () => { this.audio.stop(); if (this.netSocket) this.netSocket.close(); });
-    this.showStoryScreen();
-
     this.defeated = 0;
-    this.health = 3;
     this.stageCleared = false;
     this.gameOver = false;
+    if (this.campaignActive && this.selectedHero) {
+      const direction = this.pendingStageTransitionDirection;
+      this.pendingStageTransitionDirection = null;
+      this.beginCampaign({ transitionDirection: direction });
+    } else {
+      this.showStoryScreen();
+    }
   }
 
   createBackground() {
@@ -924,12 +934,13 @@ class ZeroGameScene extends Phaser.Scene {
     ).setDepth(21);
 
     this.healthLabel = this.add.text(
-      780, 19, "LIVES: 3", {
+      790, 19, "HEARTS: 3/3", {
         fontSize: "16px",
         color: "#62ffb4",
         fontStyle: "bold"
       }
     ).setDepth(21);
+    this.chancesLabel = this.add.text(790, 42, "CHANCES: 3", { fontSize: "12px", color: "#9cecff", fontStyle: "bold" }).setDepth(21);
     this.scoreLabel = this.add.text(390, 43, "SCORE: 0", {
       fontSize: "13px", color: "#ffe17a", fontStyle: "bold"
     }).setOrigin(0.5, 0).setDepth(21);
@@ -937,10 +948,10 @@ class ZeroGameScene extends Phaser.Scene {
       fontSize: "13px", color: "#ffffff", fontStyle: "bold"
     }).setOrigin(1, 0).setDepth(21);
 
-    this.musicToggleLabel = this.add.text(650, 43, "", {
+    this.musicToggleLabel = this.add.text(610, 43, "", {
       fontSize: "10px", color: "#9cecff", fontStyle: "bold"
     }).setDepth(22).setInteractive({ useHandCursor: true });
-    this.sfxToggleLabel = this.add.text(770, 43, "", {
+    this.sfxToggleLabel = this.add.text(690, 43, "", {
       fontSize: "10px", color: "#9cecff", fontStyle: "bold"
     }).setDepth(22).setInteractive({ useHandCursor: true });
     const refreshAudioLabels = () => {
@@ -1184,169 +1195,148 @@ class ZeroGameScene extends Phaser.Scene {
     };
   }
 
-  showStoryScreen() {    this.setMobileControlsVisible(false);
-
+  showStoryScreen() {
+    this.setMobileControlsVisible(false);
     this.gameStarted = false;
     this.clearMenu();
     const shade = this.add.rectangle(480, 270, 960, 540, 0x050b19, 0.94).setDepth(60);
     const panel = this.add.rectangle(480, 270, 850, 510, 0x101d38, 0.9).setStrokeStyle(3, 0x53dfff, 0.9).setDepth(61);
     const topLine = this.add.rectangle(480, 154, 760, 3, 0xffc85b, 0.9).setDepth(62);
-    const title = this.add.text(480, 82, "ZERO GAME", {
-      fontSize: "62px", color: "#ffe17a", fontStyle: "bold",
-      stroke: "#522b34", strokeThickness: 9, letterSpacing: 5
-    }).setOrigin(0.5).setDepth(63).setScale(0.7);
-    const subtitle = this.add.text(480, 137, "50 STAGES  •  FOUR HEROES  •  FIVE BOSS BATTLES", {
-      fontSize: "14px", color: "#8feaff", fontStyle: "bold", letterSpacing: 2
-    }).setOrigin(0.5).setDepth(63);
-    const tagline = this.add.text(480, 184, "CHOOSE YOUR HERO. MASTER YOUR POWERS. CLEAR EVERY STAGE.", {
-      fontSize: "14px", color: "#e8f6ff", fontStyle: "bold", letterSpacing: 1
-    }).setOrigin(0.5).setDepth(63);
+    const title = this.add.text(480, 82, "ZERO GAME", { fontSize: "62px", color: "#ffe17a", fontStyle: "bold", stroke: "#522b34", strokeThickness: 9, letterSpacing: 5 }).setOrigin(0.5).setDepth(63).setScale(0.7);
+    const subtitle = this.add.text(480, 137, "50 STAGES  •  FOUR HEROES  •  FIVE BOSS BATTLES", { fontSize: "14px", color: "#8feaff", fontStyle: "bold", letterSpacing: 2 }).setOrigin(0.5).setDepth(63);
+    const tagline = this.add.text(480, 184, "ONE HERO. THREE CHANCES. NINE HEARTS. FIFTY STAGES.", { fontSize: "14px", color: "#e8f6ff", fontStyle: "bold", letterSpacing: 1 }).setOrigin(0.5).setDepth(63);
     this.menuObjects.push(shade, panel, topLine, title, subtitle, tagline);
     const previewXs = [315, 425, 535, 645];
     HEROES.forEach((hero, i) => {
       const visual = this.createHeroVisual(previewXs[i], 328);
       const palette = visual.getData("heroPalette");
-      palette.kurta.setFillStyle(hero.color);
-      palette.waistcoat.setFillStyle(hero.accent);
-      palette.capLine.setFillStyle(hero.accent);
+      palette.kurta.setFillStyle(hero.color); palette.waistcoat.setFillStyle(hero.accent); palette.capLine.setFillStyle(hero.accent);
       this.applyHeroLook(visual, hero);
       visual.setDepth(64).setScale(0.82).setAlpha(0);
       this.menuObjects.push(visual);
       this.tweens.add({ targets: visual, y: 321 - (i % 2) * 5, alpha: 1, duration: 850, delay: 180 + i * 130, ease: "Back.easeOut" });
       this.tweens.add({ targets: visual, y: 315 - (i % 2) * 5, duration: 800 + i * 100, delay: 1100 + i * 100, yoyo: true, repeat: -1, ease: "Sine.easeInOut" });
-      const label = this.add.text(previewXs[i], 382, hero.name.toUpperCase(), {
-        fontSize: "16px", color: "#ffffff", fontStyle: "bold", stroke: "#10243a", strokeThickness: 3
-      }).setOrigin(0.5).setDepth(65);
-      const style = this.add.text(previewXs[i], 402, hero.style.toUpperCase(), {
-        fontSize: "9px", color: "#9feaff", fontStyle: "bold", align: "center"
-      }).setOrigin(0.5).setDepth(65);
+      const label = this.add.text(previewXs[i], 382, hero.name.toUpperCase(), { fontSize: "16px", color: "#ffffff", fontStyle: "bold", stroke: "#10243a", strokeThickness: 3 }).setOrigin(0.5).setDepth(65);
+      const style = this.add.text(previewXs[i], 402, hero.style.toUpperCase(), { fontSize: "9px", color: "#9feaff", fontStyle: "bold", align: "center" }).setOrigin(0.5).setDepth(65);
       this.menuObjects.push(label, style);
     });
     this.tweens.add({ targets: title, scale: 1, y: 88, duration: 850, ease: "Back.easeOut" });
-    const start = this.add.text(480, 474, this.gameOver ? "CONTINUE" : "START GAME", {
-      fontSize: "22px", color: "#ffffff", backgroundColor: "#087e83",
-      padding: { x: 38, y: 13 }, fontStyle: "bold", stroke: "#062b3a", strokeThickness: 2
-    }).setOrigin(0.5).setDepth(70).setInteractive({ useHandCursor: true });
-    const token = this.add.text(480, 518, `CREDITS  •  ${this.tokenCount}`, {
-      fontSize: "12px", color: "#ffe17a", backgroundColor: "#57452e",
-      padding: { x: 17, y: 6 }, fontStyle: "bold"
-    }).setOrigin(0.5).setDepth(70).setInteractive({ useHandCursor: true });
-    const host = this.add.text(365, 430, "HOST WI-FI", {
-      fontSize: "12px", color: "#ffffff", backgroundColor: "#235a80",
-      padding: { x: 13, y: 7 }, fontStyle: "bold"
-    }).setOrigin(0.5).setDepth(70).setInteractive({ useHandCursor: true });
-    const join = this.add.text(595, 430, "JOIN WI-FI", {
-      fontSize: "12px", color: "#ffffff", backgroundColor: "#235a80",
-      padding: { x: 13, y: 7 }, fontStyle: "bold"
-    }).setOrigin(0.5).setDepth(70).setInteractive({ useHandCursor: true });
-    this.netStatusText = this.add.text(480, 405, "2-PLAYER WI-FI CO-OP", {
-      fontSize: "10px", color: "#9feaff", fontStyle: "bold"
-    }).setOrigin(0.5).setDepth(70);
-    this.menuObjects.push(start, token, host, join, this.netStatusText);
+    const start = this.add.text(480, 474, "START CAMPAIGN", { fontSize: "22px", color: "#ffffff", backgroundColor: "#087e83", padding: { x: 38, y: 13 }, fontStyle: "bold", stroke: "#062b3a", strokeThickness: 2 }).setOrigin(0.5).setDepth(70).setInteractive({ useHandCursor: true });
+    const host = this.add.text(365, 430, "HOST WI-FI", { fontSize: "12px", color: "#ffffff", backgroundColor: "#235a80", padding: { x: 13, y: 7 }, fontStyle: "bold" }).setOrigin(0.5).setDepth(70).setInteractive({ useHandCursor: true });
+    const join = this.add.text(595, 430, "JOIN WI-FI", { fontSize: "12px", color: "#ffffff", backgroundColor: "#235a80", padding: { x: 13, y: 7 }, fontStyle: "bold" }).setOrigin(0.5).setDepth(70).setInteractive({ useHandCursor: true });
+    this.netStatusText = this.add.text(480, 405, "2-PLAYER WI-FI CO-OP", { fontSize: "10px", color: "#9feaff", fontStyle: "bold" }).setOrigin(0.5).setDepth(70);
+    this.menuObjects.push(start, host, join, this.netStatusText);
     host.on("pointerdown", () => this.connectMultiplayer("HOST"));
     join.on("pointerdown", () => this.connectMultiplayer("JOIN"));
     this.tweens.add({ targets: start, scale: 1.055, duration: 620, yoyo: true, repeat: -1 });
-    start.on("pointerdown", () => {
-      if (this.gameOver) {
-        if (this.tokenCount <= 0) {
-          this.netStatusText.setText("NO CREDITS AVAILABLE").setColor("#ff8b8b");
-          return;
-        }
-        this.resumeFromFailure();
-      } else this.showHeroSelect();
-    });
-    token.on("pointerdown", () => {
-      this.tokenCount++;
-      localStorage.setItem("dastaan_tokens", String(this.tokenCount));
-      token.setText(`CREDITS  •  ${this.tokenCount}`);
-      this.tweens.add({ targets: token, scale: 1.08, duration: 100, yoyo: true });
-    });
+    start.on("pointerdown", () => this.startNewCampaign());
   }
 
-  showHeroSelect() {    this.setMobileControlsVisible(false);
-
+  showHeroSelect() {
+    this.setMobileControlsVisible(false);
     this.clearMenu();
+    this.heroSelectionLocked = false;
     const shade = this.add.rectangle(480, 270, 960, 540, 0x050b19, 0.96).setDepth(60);
-    const heading = this.add.text(480, 48, "SELECT YOUR HERO", {
-      fontSize: "34px", color: "#ffe17a", fontStyle: "bold",
-      stroke: "#513b43", strokeThickness: 5, letterSpacing: 2
-    }).setOrigin(0.5).setDepth(61);
-    const sub = this.add.text(480, 83, "FOUR HERO STYLES  •  THREE SIGNATURE MOVES EACH", {
-      fontSize: "12px", color: "#9feaff", fontStyle: "bold", letterSpacing: 1
-    }).setOrigin(0.5).setDepth(61);
+    const heading = this.add.text(480, 48, "SELECT YOUR HERO", { fontSize: "34px", color: "#ffe17a", fontStyle: "bold", stroke: "#513b43", strokeThickness: 5, letterSpacing: 2 }).setOrigin(0.5).setDepth(61);
+    const sub = this.add.text(480, 83, "YOUR HERO WILL STAY WITH YOU THROUGH ALL 50 STAGES", { fontSize: "12px", color: "#9feaff", fontStyle: "bold", letterSpacing: 1 }).setOrigin(0.5).setDepth(61);
     this.menuObjects.push(shade, heading, sub);
     HEROES.forEach((hero, index) => {
       const x = 120 + index * 240;
-      const card = this.add.rectangle(x, 292, 214, 365, 0x142b49, 0.98)
-        .setStrokeStyle(3, hero.accent).setDepth(61).setInteractive({ useHandCursor: true });
+      const card = this.add.rectangle(x, 292, 214, 365, 0x142b49, 0.98).setStrokeStyle(3, hero.accent).setDepth(61).setInteractive({ useHandCursor: true });
       const glow = this.add.circle(x, 205, 77, hero.accent, 0.12).setStrokeStyle(3, hero.accent, 0.75).setDepth(62);
       const visual = this.createHeroVisual(x, 230);
       const palette = visual.getData("heroPalette");
-      palette.kurta.setFillStyle(hero.color);
-      palette.waistcoat.setFillStyle(hero.accent);
-      palette.capLine.setFillStyle(hero.accent);
-      this.applyHeroLook(visual, hero);
-      visual.setDepth(63).setScale(1.03);
-      const name = this.add.text(x, 319, hero.name.toUpperCase(), {
-        fontSize: "22px", color: "#ffffff", fontStyle: "bold"
-      }).setOrigin(0.5).setDepth(64);
-      const title = this.add.text(x, 348, hero.title, {
-        fontSize: "12px", color: "#9feaff", fontStyle: "bold", align: "center"
-      }).setOrigin(0.5).setDepth(64);
-      const power = this.add.text(x, 382, hero.superPower.toUpperCase(), {
-        fontSize: "14px", color: "#ffe17a", fontStyle: "bold"
-      }).setOrigin(0.5).setDepth(64);
-      const moves = this.add.text(x, 421, hero.specialMoves.map(move => move.name).join("\n"), {
-        fontSize: "11px", color: "#d7eaff", align: "center", lineSpacing: 5
-      }).setOrigin(0.5).setDepth(64);
-      const choose = this.add.text(x, 486, "SELECT HERO", {
-        fontSize: "13px", color: "#ffffff", backgroundColor: "#126d7b",
-        padding: { x: 16, y: 8 }, fontStyle: "bold"
-      }).setOrigin(0.5).setDepth(64).setInteractive({ useHandCursor: true });
+      palette.kurta.setFillStyle(hero.color); palette.waistcoat.setFillStyle(hero.accent); palette.capLine.setFillStyle(hero.accent);
+      this.applyHeroLook(visual, hero); visual.setDepth(63).setScale(1.03);
+      const name = this.add.text(x, 319, hero.name.toUpperCase(), { fontSize: "22px", color: "#ffffff", fontStyle: "bold" }).setOrigin(0.5).setDepth(64);
+      const title = this.add.text(x, 348, hero.title, { fontSize: "12px", color: "#9feaff", fontStyle: "bold", align: "center" }).setOrigin(0.5).setDepth(64);
+      const power = this.add.text(x, 382, hero.superPower.toUpperCase(), { fontSize: "14px", color: "#ffe17a", fontStyle: "bold" }).setOrigin(0.5).setDepth(64);
+      const moves = this.add.text(x, 421, hero.specialMoves.map(move => move.name).join("\n"), { fontSize: "11px", color: "#d7eaff", align: "center", lineSpacing: 5 }).setOrigin(0.5).setDepth(64);
+      const choose = this.add.text(x, 486, "SELECT HERO", { fontSize: "13px", color: "#ffffff", backgroundColor: "#126d7b", padding: { x: 16, y: 8 }, fontStyle: "bold" }).setOrigin(0.5).setDepth(64).setInteractive({ useHandCursor: true });
       this.menuObjects.push(card, glow, visual, name, title, power, moves, choose);
       this.tweens.add({ targets: visual, y: 222, angle: index % 2 ? 3 : -3, duration: 760 + index * 120, yoyo: true, repeat: -1, ease: "Sine.easeInOut" });
       this.tweens.add({ targets: glow, scale: 1.16, alpha: 0.2, duration: 900 + index * 100, yoyo: true, repeat: -1 });
-      const select = () => { this.selectedHero = hero; localStorage.setItem("zero_game_hero", hero.id); this.powerType = hero.element; this.beginCampaign(); };
-      card.on("pointerdown", select);
-      choose.on("pointerdown", select);
+      const select = () => {
+        if (this.heroSelectionLocked) return;
+        this.heroSelectionLocked = true; this.selectedHero = hero;
+        localStorage.setItem("zero_game_hero", hero.id);
+        this.powerType = hero.element; this.campaignActive = true;
+        const lives = createCampaignLives();
+        this.chances = lives.chances; this.health = lives.hearts;
+        this.stageNumber = 1; this.score = 0; this.extraLivesAwarded = 0;
+        this.beginCampaign();
+      };
+      card.on("pointerdown", select); choose.on("pointerdown", select);
     });
-    const back = this.add.text(480, 529, "BACK", {
-      fontSize: "12px", color: "#9feaff", backgroundColor: "#173d59",
-      padding: { x: 17, y: 5 }
-    }).setOrigin(0.5).setDepth(65).setInteractive({ useHandCursor: true });
+    const back = this.add.text(480, 529, "BACK", { fontSize: "12px", color: "#9feaff", backgroundColor: "#173d59", padding: { x: 17, y: 5 } }).setOrigin(0.5).setDepth(65).setInteractive({ useHandCursor: true });
     this.menuObjects.push(back);
     back.on("pointerdown", () => this.showStoryScreen());
   }
 
-  beginCampaign() {    this.setMobileControlsVisible(true);
-
+  startNewCampaign() {
     this.clearMenu();
-    this.gameStarted = true;
-    this.stageStartedAt = this.time.now;
-    this.stageTimeLeft = this.stageConfig.timeLimit || 120;
-    this.jumpCount = 0;
+    this.gameOver = false; this.stageCleared = false; this.campaignActive = false; this.heroSelectionLocked = false;
+    this.stageNumber = 1; this.score = 0; this.extraLivesAwarded = 0; this.defeated = 0;
+    this.chances = 3; this.health = 3;
+    this.showHeroSelect();
+  }
+
+  beginCampaign({ transitionDirection = null } = {}) {
+    this.setMobileControlsVisible(true); this.clearMenu();
+    this.campaignActive = true; this.gameStarted = true; this.gameOver = false; this.stageCleared = false;
+    this.stageStartedAt = this.time.now; this.stageTimeLeft = this.stageConfig.timeLimit || 120;
+    this.jumpCount = 0; this.lastDamage = this.time.now;
     this.hero.setPosition(480, 450).setVelocity(0, 0).setVisible(false);
-    this.heroVisual.setPosition(1040, 450).setVisible(true).setAlpha(1);
-    this.heroEntryUntil = this.time.now + 900;
-    this.tweens.add({ targets: this.heroVisual, x: 480, duration: 900, ease: "Cubic.easeOut" });
+    this.heroVisual.setPosition(480, 450).setVisible(true).setAlpha(1).setScale(1);
     this.heroTitleLabel.setText(`${this.selectedHero.name.toUpperCase()}  |  STAGE ${String(this.stageNumber).padStart(2,"0")}`);
     const heroPalette = this.heroVisual.getData("heroPalette");
-    heroPalette.kurta.setFillStyle(this.selectedHero.color);
-    heroPalette.waistcoat.setFillStyle(this.selectedHero.accent);
-    heroPalette.capLine.setFillStyle(this.selectedHero.accent);
+    heroPalette.kurta.setFillStyle(this.selectedHero.color); heroPalette.waistcoat.setFillStyle(this.selectedHero.accent); heroPalette.capLine.setFillStyle(this.selectedHero.accent);
     this.applyHeroLook(this.heroVisual, this.selectedHero);
     this.powerType = this.selectedHero.element;
     const element = getElement(this.powerType);
     this.powerLabel.setText(`POWER: ${element.name.toUpperCase()} [C]`).setColor("#" + element.color.toString(16).padStart(6, "0"));
-    this.spawnEnemies();
-    this.spawnTreasureChest();
-    this.sendNet({ type: "hero", heroId: this.selectedHero.id });
-    this.statusLabel.setText(`${this.stageConfig.world.toUpperCase()} - STAGE ${this.stageNumber}`).setColor("#ffffff");
-    const intro = this.add.text(480, 205, `STAGE ${String(this.stageNumber).padStart(2, "0")}  •  ${this.stageConfig.world.toUpperCase()}\nGET READY!`, {
-      fontSize: "27px", color: "#ffe17a", fontStyle: "bold", align: "center",
-      stroke: "#1a2948", strokeThickness: 6, lineSpacing: 8
-    }).setOrigin(0.5).setDepth(36).setScale(0.7).setAlpha(0);
-    this.tweens.add({ targets: intro, alpha: 1, scale: 1, y: 180, duration: 380, yoyo: true, hold: 450, onComplete: () => intro.destroy() });
+    this.updateLivesLabel();
+    const enterGameplay = () => {
+      this.stageTransitionActive = false;
+      this.hero.setPosition(480, 450).setVelocity(0, 0);
+      this.heroVisual.setPosition(480, 450).setVisible(true).setAlpha(1);
+      this.spawnEnemies(); this.spawnTreasureChest();
+      this.sendNet({ type: "hero", heroId: this.selectedHero.id });
+      this.statusLabel.setText(`${this.stageConfig.world.toUpperCase()} - STAGE ${this.stageNumber}`).setColor("#ffffff");
+      const intro = this.add.text(480, 205, `STAGE ${String(this.stageNumber).padStart(2,"0")}  •  ${this.stageConfig.world.toUpperCase()}\nGET READY!`, {
+        fontSize: "27px", color: "#ffe17a", fontStyle: "bold", align: "center", stroke: "#1a2948", strokeThickness: 6, lineSpacing: 8
+      }).setOrigin(0.5).setDepth(36).setScale(0.7).setAlpha(0);
+      this.tweens.add({ targets: intro, alpha: 1, scale: 1, y: 180, duration: 380, yoyo: true, hold: 450, onComplete: () => intro.destroy() });
+      this.setMobileControlsVisible(true);
+    };
+    if (transitionDirection) this.playStageEntryTransition(transitionDirection, enterGameplay);
+    else {
+      this.stageTransitionActive = false;
+      this.heroVisual.setPosition(1040, 450);
+      this.tweens.add({ targets: this.heroVisual, x: 480, duration: 900, ease: "Cubic.easeOut" });
+      enterGameplay();
+    }
+  }
+
+  playStageEntryTransition(direction, onComplete) {
+    const offsets = { down: { x: 0, y: -540 }, right: { x: -960, y: 0 }, left: { x: 960, y: 0 } };
+    const offset = offsets[direction] || offsets.down;
+    const moving = this.children.list.filter((object) => object?.active && (object.depth ?? 0) < 20);
+    const origins = moving.map((object) => ({ object, x: object.x, y: object.y }));
+    this.stageTransitionActive = true; this.setMobileControlsVisible(false); this.physics.world.pause();
+    origins.forEach(({ object, x, y }) => {
+      object.setPosition(x + offset.x, y + offset.y);
+      if (object.body?.updateFromGameObject) object.body.updateFromGameObject();
+    });
+    if (!origins.length) { this.physics.world.resume(); onComplete(); return; }
+    let remaining = origins.length;
+    origins.forEach(({ object, x, y }) => {
+      this.tweens.add({
+        targets: object, x, y, duration: 820, ease: "Cubic.easeOut",
+        onUpdate: () => origins.forEach(({ object: item }) => { if (item.body?.updateFromGameObject) item.body.updateFromGameObject(); }),
+        onComplete: () => { remaining--; if (remaining === 0) { this.physics.world.resume(); onComplete(); } },
+      });
+    });
   }
 
   spawnEnemies() {
@@ -1778,16 +1768,18 @@ class ZeroGameScene extends Phaser.Scene {
     this.score += points;
     const extra = Math.floor(this.score / 10000);
     if (extra > this.extraLivesAwarded) {
-      this.health++;
+      if (this.health < 3) this.health++;
+      else this.chances = Math.min(3, this.chances + 1);
       this.extraLivesAwarded = extra;
-      this.statusLabel.setText("10,000 BONUS! +1 LIFE").setColor("#ffe17a");
+      this.statusLabel.setText("10,000 BONUS! +1 HEART / CHANCE").setColor("#ffe17a");
       this.updateLivesLabel();
     }
     if (this.scoreLabel?.active) this.scoreLabel.setText(`SCORE: ${this.score.toLocaleString()}`);
   }
 
   updateLivesLabel() {
-    if (this.healthLabel?.active) this.healthLabel.setText(`LIVES: ${this.health}`);
+    if (this.healthLabel?.active) this.healthLabel.setText(`HEARTS: ${this.health}/3`);
+    if (this.chancesLabel?.active) this.chancesLabel.setText(`CHANCES: ${this.chances}`);
   }
 
   spawnTreasureChest() {
@@ -1909,28 +1901,19 @@ class ZeroGameScene extends Phaser.Scene {
   }
 
   showVictory() {
-    const shade = this.add.rectangle(480, 270, 960, 540, 0x071426, 0.72)
-      .setDepth(40);
-    const title = this.add.text(480, 225, "VICTORY!", {
-      fontSize: "58px", color: "#ffe17a", fontStyle: "bold",
-      stroke: "#6b321f", strokeThickness: 8
-    }).setOrigin(0.5).setDepth(41).setScale(0.2);
-    const subtitle = this.add.text(480, 290, this.stageNumber === 50 ? `${this.selectedHero.name.toUpperCase()} - THE LEGENDARY GUARDIAN!` : `${this.stageConfig.name.toUpperCase()} COMPLETED`, {
-      fontSize: "19px", color: "#ffffff", fontStyle: "bold"
-    }).setOrigin(0.5).setDepth(41).setAlpha(0);
+    const shade = this.add.rectangle(480, 270, 960, 540, 0x071426, 0.72).setDepth(40);
+    const title = this.add.text(480, 225, "VICTORY!", { fontSize: "58px", color: "#ffe17a", fontStyle: "bold", stroke: "#6b321f", strokeThickness: 8 }).setOrigin(0.5).setDepth(41).setScale(0.2);
+    const subtitle = this.add.text(480, 290, this.stageNumber === 50 ? `${this.selectedHero.name.toUpperCase()} - THE LEGENDARY GUARDIAN!` : `${this.stageConfig.name.toUpperCase()} COMPLETED`, { fontSize: "19px", color: "#ffffff", fontStyle: "bold" }).setOrigin(0.5).setDepth(41).setAlpha(0);
     this.tweens.add({ targets: title, scale: 1, duration: 550, ease: "Back.easeOut" });
     this.tweens.add({ targets: subtitle, alpha: 1, y: 305, duration: 500, delay: 300 });
-    const nextLabel = this.add.text(480, 365, this.stageNumber < 50 ? "NEXT STAGE  ▶" : "THE 50 STAGE QUEST IS COMPLETE", {
-      fontSize: "18px", color: "#9feaff", fontStyle: "bold", backgroundColor: "#173d59", padding: { x: 18, y: 10 }
-    }).setOrigin(0.5).setDepth(41).setInteractive({ useHandCursor: true });
+    const nextLabel = this.add.text(480, 365, this.stageNumber < 50 ? "NEXT STAGE  ▶" : "THE 50 STAGE QUEST IS COMPLETE", { fontSize: "18px", color: "#9feaff", fontStyle: "bold", backgroundColor: "#173d59", padding: { x: 18, y: 10 } }).setOrigin(0.5).setDepth(41).setInteractive({ useHandCursor: true });
     nextLabel.on("pointerdown", () => {
       if (this.stageNumber < 50) {
         this.stageNumber++;
+        this.pendingStageTransitionDirection = getStageTransitionDirection(this.stageNumber);
         this.scene.restart();
       } else {
-        const ending = this.add.text(480, 430, `${this.selectedHero.superPower.toUpperCase()} - THE KINGDOM IS SAFE!`, {
-          fontSize: "17px", color: "#ffe17a", fontStyle: "bold"
-        }).setOrigin(0.5).setDepth(45);
+        const ending = this.add.text(480, 430, `${this.selectedHero.superPower.toUpperCase()} - THE KINGDOM IS SAFE!`, { fontSize: "17px", color: "#ffe17a", fontStyle: "bold" }).setOrigin(0.5).setDepth(45);
         this.tweens.add({ targets: ending, alpha: 0, y: 390, duration: 5000 });
       }
     });
@@ -1938,137 +1921,54 @@ class ZeroGameScene extends Phaser.Scene {
   }
 
   damageHero(hero, enemy) {
-    if (
-      this.gameOver ||
-      this.stageCleared ||
-      !enemy.active ||
-      enemy.getData("frozen")
-    ) return;
-
+    if (this.gameOver || this.stageCleared || this.stageTransitionActive || !enemy.active || enemy.getData("frozen")) return;
     const now = this.time.now;
-
     if (now - this.lastDamage < 1200) return;
-
-    this.lastDamage = now;
-    this.health--;
-
-    this.updateLivesLabel();
-    this.healthLabel.setColor("#ff7777");
-
+    this.lastDamage = now; this.health--; this.updateLivesLabel(); this.healthLabel.setColor("#ff7777");
     const direction = hero.x < enemy.x ? -1 : 1;
-
-    hero.setVelocityX(direction * 260);
-    hero.setVelocityY(-220);
-
-    if (this.heroVisual) {
-      this.tweens.add({
-        targets: this.heroVisual,
-        angle: direction * 12,
-        duration: 100,
-        yoyo: true,
-        repeat: 2
-      });
-    }
-
-    this.time.delayedCall(450, () => {
-      if (hero.active && !this.gameOver) {
-        if (this.heroVisual) {
-          this.heroVisual.setAngle(0);
-        }
-      }
-    });
-
-    if (this.heroVisual?.active) {
-      this.tweens.add({ targets: this.heroVisual, alpha: 0.25, duration: 90, yoyo: true, repeat: 3 });
-    }
+    hero.setVelocityX(direction * 260); hero.setVelocityY(-220);
+    if (this.heroVisual) this.tweens.add({ targets: this.heroVisual, angle: direction * 12, duration: 100, yoyo: true, repeat: 2 });
+    this.time.delayedCall(450, () => { if (hero.active && !this.gameOver && this.heroVisual) this.heroVisual.setAngle(0); });
+    if (this.heroVisual?.active) this.tweens.add({ targets: this.heroVisual, alpha: 0.25, duration: 90, yoyo: true, repeat: 3 });
     if (this.health <= 0) {
-      this.gameOver = true;
-      hero.setVelocity(0, 0);
-      if (this.heroVisual?.active) this.heroVisual.setVisible(false);
-      this.enemies.getChildren().forEach(item => {
-        if (item.active && item.getData("isTimeHunter")) {
-          const hunterVisual = item.getData("visual");
-          if (hunterVisual?.active) hunterVisual.destroy();
-          item.destroy();
-        }
+      const lives = loseCampaignHeart({ chances: this.chances, hearts: 0, gameOver: false });
+      this.chances = lives.chances; this.health = lives.hearts;
+      hero.setVelocity(0, 0); hero.body.enable = false;
+      if (this.heroVisual?.active) this.heroVisual.setVisible(false).setAlpha(1).setAngle(0);
+      this.updateLivesLabel();
+      if (lives.gameOver) { this.gameOver = true; this.showContinueScreen(); return; }
+      this.lastDamage = this.time.now + 900;
+      this.statusLabel.setText(`CHANCE LOST! ${this.chances} CHANCE(S) LEFT`).setColor("#ffe17a");
+      this.time.delayedCall(950, () => {
+        if (this.gameOver || !hero.active) return;
+        hero.body.enable = true; hero.setPosition(480, 450).setVelocity(0, 0);
+        this.heroVisual?.setPosition(480, 450).setVisible(true).setAlpha(1).setScale(1);
+        this.lastDamage = this.time.now;
+        this.statusLabel.setText("NEW CHANCE! THREE HEARTS RESTORED").setColor("#62ffb4");
       });
-      this.showContinueScreen();
     } else {
       this.time.delayedCall(650, () => {
         if (!this.gameOver && hero.active) {
-          hero.setPosition(480, 450);
-          hero.setVelocity(0, 0);
-          if (this.heroVisual?.active) {
-            this.heroVisual.setPosition(480, 450).setVisible(true).setAlpha(1);
-            this.tweens.add({ targets: this.heroVisual, scaleY: 1.12, duration: 180, yoyo: true });
-          }
+          hero.setPosition(480, 450); hero.setVelocity(0, 0);
+          if (this.heroVisual?.active) { this.heroVisual.setPosition(480, 450).setVisible(true).setAlpha(1); this.tweens.add({ targets: this.heroVisual, scaleY: 1.12, duration: 180, yoyo: true }); }
         }
       });
     }
   }
 
-  resumeFromFailure() {    this.setMobileControlsVisible(true);
-
-    this.tokenCount--;
-    localStorage.setItem("dastaan_tokens", String(this.tokenCount));
-    this.clearMenu();
-    this.gameOver = false;
-    this.gameStarted = true;
-    this.health = 3;
-    this.lastDamage = this.time.now;
-    this.stageStartedAt = this.time.now;
-    this.stageTimeLeft = this.stageConfig.timeLimit || 120;
-    this.timeHunterSpawned = false;
-    this.jumpCount = 0;
-    this.hero.setPosition(480, 450).setVelocity(0, 0);
-    this.heroVisual.setPosition(480, 450).setVisible(true).setAlpha(1).setScale(1);
-    this.bossShots.clear(true, true);
-    this.updateLivesLabel();
-    this.statusLabel.setText("BACK IN THE BATTLE!").setColor("#62ffb4");
+  resumeFromFailure() {
+    this.startNewCampaign();
   }
 
-  showContinueScreen() {    this.setMobileControlsVisible(false);
-
-    const shade = this.add.rectangle(480, 270, 960, 540, 0x071426, 0.82).setDepth(50);
-    const title = this.add.text(480, 190, "TRY AGAIN!", {
-      fontSize: "48px", color: "#ff8b9c", fontStyle: "bold", stroke: "#351b35", strokeThickness: 7
-    }).setOrigin(0.5).setDepth(51);
-    const info = this.add.text(480, 255, "", {
-      fontSize: "20px", color: "#ffffff", fontStyle: "bold", align: "center"
-    }).setOrigin(0.5).setDepth(51);
-    const continueButton = this.add.text(480, 340, "START / CONTINUE (1 TOKEN = 3 LIVES)", {
-      fontSize: "18px", color: "#ffffff", backgroundColor: "#236b65", padding: { x: 18, y: 12 }, fontStyle: "bold"
-    }).setOrigin(0.5).setDepth(52).setInteractive({ useHandCursor: true });
-    const tokenButton = this.add.text(480, 405, "GET DEMO TOKEN (+1)", {
-      fontSize: "16px", color: "#ffe17a", backgroundColor: "#59452c", padding: { x: 16, y: 9 }, fontStyle: "bold"
-    }).setOrigin(0.5).setDepth(52).setInteractive({ useHandCursor: true });
-    let seconds = 10;
-    const refresh = () => {
-      info.setText(`RETURN TO STORY IN ${seconds}s   |   TOKENS: ${this.tokenCount}`);
-      continueButton.setAlpha(this.tokenCount > 0 ? 1 : 0.35);
-    };
-    refresh();
-    const tick = this.time.addEvent({ delay: 1000, repeat: 9, callback: () => {
-      seconds--;
-      refresh();
-      if (seconds <= 0) {
-        tick.remove(false);
-        shade.destroy(); title.destroy(); info.destroy(); continueButton.destroy(); tokenButton.destroy();
-        this.showStoryScreen();
-      }
-    }});
-    const resume = () => {
-      if (this.tokenCount <= 0) return;
-      tick.remove(false);
-      shade.destroy(); title.destroy(); info.destroy(); continueButton.destroy(); tokenButton.destroy();
-      this.resumeFromFailure();
-    };
-    continueButton.on("pointerdown", resume);
-    tokenButton.on("pointerdown", () => {
-      this.tokenCount++;
-      localStorage.setItem("dastaan_tokens", String(this.tokenCount));
-      refresh();
-    });
+  showContinueScreen() {
+    this.setMobileControlsVisible(false);
+    const shade = this.add.rectangle(480, 270, 960, 540, 0x071426, 0.9).setDepth(50);
+    const title = this.add.text(480, 175, "GAME OVER", { fontSize: "52px", color: "#ff8b9c", fontStyle: "bold", stroke: "#351b35", strokeThickness: 7 }).setOrigin(0.5).setDepth(51);
+    const info = this.add.text(480, 250, "ALL THREE CHANCES HAVE BEEN USED", { fontSize: "19px", color: "#ffffff", fontStyle: "bold", align: "center" }).setOrigin(0.5).setDepth(51);
+    const stats = this.add.text(480, 292, `FINAL SCORE: ${this.score.toLocaleString()}   •   STAGE: ${this.stageNumber}`, { fontSize: "15px", color: "#ffe17a", fontStyle: "bold" }).setOrigin(0.5).setDepth(51);
+    const restart = this.add.text(480, 365, "START NEW CAMPAIGN", { fontSize: "19px", color: "#ffffff", backgroundColor: "#236b65", padding: { x: 22, y: 12 }, fontStyle: "bold" }).setOrigin(0.5).setDepth(52).setInteractive({ useHandCursor: true });
+    this.menuObjects.push(shade, title, info, stats, restart);
+    restart.on("pointerdown", () => this.startNewCampaign());
   }
 
   getPowerPalette() {
@@ -2372,6 +2272,7 @@ class ZeroGameScene extends Phaser.Scene {
       return;
     }
 
+    if (this.stageTransitionActive) return;
     if (this.defeated >= this.stageEnemyCount && !this.stageConfig.boss && !this.stageCleared) this.completeStage();
     if (this.stageCleared || this.gameOver) this.setMobileControlsVisible(false);
     if (!this.hero || !this.gameStarted || this.gameOver || this.stageCleared) return;
