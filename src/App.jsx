@@ -43,6 +43,7 @@ class ZeroGameScene extends Phaser.Scene {
     this.chances = 3;
     this.stageTransitionActive = false;
     this.pendingStageTransitionDirection = null;
+    this.snowballTutorialShown = false;
     this.stageEnemyCount = this.stageConfig.enemyCount;
     this.score = 0;
     this.lives = 3;
@@ -1427,6 +1428,10 @@ class ZeroGameScene extends Phaser.Scene {
       enemy.setData("elementBall", ball);
       enemy.setData("ballPalette", palette);
       this.tweens.add({ targets: ball, scale: 1.18, duration: 180, yoyo: true });
+      if (!this.snowballTutorialShown) {
+        this.snowballTutorialShown = true;
+        this.statusLabel.setText("FROZEN! MOVE CLOSE AND TAP FIRE TO KICK").setColor("#9feaff");
+      }
     } else {
       const ball = enemy.getData("elementBall");
       if (ball?.active) { ball.setScale(1 + hits * 0.12); this.tweens.add({ targets: ball, angle: ball.angle + 18, duration: 90, yoyo: true }); }
