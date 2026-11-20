@@ -235,3 +235,15 @@ Committed source implementation:
 - Verify the chance/heart HUD, damage invulnerability, respawn timing, Game Over and new-campaign reset in gameplay.
 - Continue the remaining animation, enemy/snowball, specials, bosses, audio and Android compatibility work.
 - Do not create an Android APK until every requested feature and all regression checks are complete.
+
+
+### Follow-up implementation — automatic stage loading and snowball guidance
+
+- Cleared stages now advance automatically after a short victory interlude; the player may also tap the on-screen Next Stage prompt to advance immediately.
+- Keyboard stage advance uses the same single guarded transition function, preventing double stage increments.
+- Stage transition direction is calculated from the incoming stage number and remains deterministic.
+- Added a first-time-per-campaign tutorial cue when an enemy freezes: move close and tap Fire to kick the elemental ball. The cue resets for a fresh campaign.
+- Removed the obsolete demo-token continue state; the campaign's three-chance rule is now the only retry system.
+- CI run [44751460273](https://github.com/adeeldo-ctrl/zero-game/actions/runs/44751460273) passed `npm test`, `npm run lint`, and `npm run build` on commit `f6f7b023eff1b3e1d99715b187427a060fc51127`.
+
+**Still not claimed as physically verified:** the transition animation and physics-body alignment require in-game runtime inspection. No Android APK has been built for this work.
