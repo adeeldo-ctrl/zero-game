@@ -1931,7 +1931,7 @@ class ZeroGameScene extends Phaser.Scene {
     this.time.delayedCall(450, () => { if (hero.active && !this.gameOver && this.heroVisual) this.heroVisual.setAngle(0); });
     if (this.heroVisual?.active) this.tweens.add({ targets: this.heroVisual, alpha: 0.25, duration: 90, yoyo: true, repeat: 3 });
     if (this.health <= 0) {
-      const lives = loseCampaignHeart({ chances: this.chances, hearts: 0, gameOver: false });
+      const lives = loseCampaignHeart({ chances: this.chances, hearts: 1, gameOver: false });
       this.chances = lives.chances; this.health = lives.hearts;
       hero.setVelocity(0, 0); hero.body.enable = false;
       if (this.heroVisual?.active) this.heroVisual.setVisible(false).setAlpha(1).setAngle(0);
