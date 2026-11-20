@@ -2651,13 +2651,11 @@ export default function App() {
       width: 960,
       height: 540,
       backgroundColor: "#75c9ef",
-
       render: {
         antialias: true,
         pixelArt: false,
         roundPixels: true
       },
-
       physics: {
         default: "arcade",
         arcade: {
@@ -2665,20 +2663,24 @@ export default function App() {
           debug: false
         }
       },
-
       scale: {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
         width: 960,
         height: 540
       },
-
       scene: [ZeroGameScene]
     });
 
     gameRef.current = game;
 
-    return (
+    return () => {
+      game.destroy(true);
+      gameRef.current = null;
+    };
+  }, []);
+
+  return (
     <main className="game-page">
       <section className="game-frame">
         <div id="game-container"></div>
