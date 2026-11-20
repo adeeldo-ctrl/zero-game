@@ -2058,6 +2058,8 @@ class ZeroGameScene extends Phaser.Scene {
   }
 
   startElementBallRoll(enemy) {
+    this.audio.unlock();
+    this.audio.play("kick");
     const ball = enemy.getData("elementBall");
     if (!ball?.active) return;
     const direction = this.facing;
@@ -2350,6 +2352,15 @@ class ZeroGameScene extends Phaser.Scene {
       this.openTreasureChest();
     }
     if (Phaser.Input.Keyboard.JustDown(this.keys.cyclePower)) this.cyclePower();
+    if (Phaser.Input.Keyboard.JustDown(this.keys.musicToggle)) {
+      this.audio.setMusicEnabled(!this.audio.isMusicEnabled());
+      this.musicToggleLabel?.setText(`MUSIC ${this.audio.isMusicEnabled() ? "ON" : "OFF"}`);
+      this.audio.play("ui");
+    }
+    if (Phaser.Input.Keyboard.JustDown(this.keys.sfxToggle)) {
+      this.audio.setSfxEnabled(!this.audio.isSfxEnabled());
+      this.sfxToggleLabel?.setText(`SFX ${this.audio.isSfxEnabled() ? "ON" : "OFF"}`);
+    }
     if (Phaser.Input.Keyboard.JustDown(this.keys.super) || this.touch.super || this.mobileActionQueue.delete("super")) {
       this.superAttack();
       this.touch.super = false;
