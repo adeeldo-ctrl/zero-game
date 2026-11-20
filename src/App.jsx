@@ -7,6 +7,7 @@ import { createGameAudio } from "./gameAudio";
 import { createCampaignLives, loseCampaignHeart, getStageTransitionDirection } from "./campaignRules";
 import { shouldHeroCollideWithPlatform, shouldDropThroughPlatform } from "./platformRules";
 import { getBossPhase, getSpecialCooldownStatus, SPECIAL_MOVE_COOLDOWN_MS } from "./combatRules";
+import { canKickElementBall, canRollingBallHitTarget, isRollingBallOutOfBounds } from "./snowballRules";
 import "./App.css";
 
 class ZeroGameScene extends Phaser.Scene {
@@ -2023,12 +2024,17 @@ class ZeroGameScene extends Phaser.Scene {
   }
 
   kickNearestElementBall() {
-    const candidates = this.enemies.getChildren().filter(e => e.active && e.getData("frozen") && !e.getData("rolling"));
+    const candidates = this.enemies.getChildren();
     let chosen = null, best = 118;
     for (const enemy of candidates) {
       const dx = enemy.x - this.hero.x;
-      const dy = Math.abs(enemy.y - this.hero.y);
-      if (dx * this.facing >= -24 && dy < 78 && Math.abs(dx) < best) { best = Math.abs(dx); chosen = enemy; }
+      const dy = enemy.y - this.hero.y;
+      if (canKickElementBall({
+        active: enemy.active,
+        frozen: enemy.getData("frozen"),
+        rolling: enemy.getData("rolling"),
+        dx, dy, facing: this.facing, maxDistance: best,
+      })) { best = Math.abs(dx); chosen = enemy; }
     }
     if (!chosen) return false;
     this.startElementBallRoll(chosen);
@@ -2069,7 +2075,7 @@ class ZeroGameScene extends Phaser.Scene {
     const hits = enemy.getData("rollHits") || [];
     for (const target of this.enemies.getChildren()) {
       if (!target.active || target === enemy || hits.includes(target)) continue;
-      if (Math.abs(target.x - enemy.x) > 64 || Math.abs(target.y - enemy.y) > 72) continue;
+      if (!canRollingBallHitTarget(target.x - enemy.x, target.y - enemy.y)) continue;
       hits.push(target);
       enemy.setData("rollHits", hits);
       if (target.getData("isBoss")) {
@@ -2092,7 +2098,7 @@ class ZeroGameScene extends Phaser.Scene {
         }
       }
     }
-    if (enemy.x < -90 || enemy.x > 1050) {
+    if (isRollingBallOutOfBounds(enemy.x)) {
       if (ball.active) ball.destroy();
       enemy.destroy();
     }
