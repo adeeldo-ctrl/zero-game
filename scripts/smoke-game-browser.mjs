@@ -94,10 +94,40 @@ try {
     await page.waitForFunction(() => window.__ZERO_GAME_TRANSITION_DONE__ === true, { timeout: 7000 });
   }
 
+  // Advance through the real scene-restart path and verify campaign identity/state persist.
+  await page.evaluate(() => {
+    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+    if (!scene) throw new Error("Game scene unavailable for campaign persistence test");
+    window.__ZERO_GAME_PERSISTENCE__ = {
+      heroId: scene.selectedHero?.id,
+      chances: scene.chances,
+      hearts: scene.health,
+    };
+    scene.stageCleared = true;
+    scene.stageAdvancePending = false;
+    scene.advanceToNextStage();
+  });
+  await page.waitForFunction(() => {
+    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+    return scene?.stageNumber === 2 && scene.stageConfig?.number === 2 &&
+      scene.gameStarted && !scene.stageTransitionActive;
+  }, { timeout: 10000 });
+  await page.evaluate(() => {
+    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+    const before = window.__ZERO_GAME_PERSISTENCE__;
+    if (scene.selectedHero?.id !== before.heroId) throw new Error("Selected hero changed during stage advance");
+    if (scene.chances !== before.chances || scene.health !== before.hearts) {
+      throw new Error("Campaign hearts/chances did not persist through stage advance");
+    }
+    if (!scene.heroSelectionLocked || !scene.campaignActive) {
+      throw new Error("Hero selection/campaign lock did not persist");
+    }
+  });
+
   if (runtimeErrors.length) {
     throw new Error(`Browser runtime errors:\n${runtimeErrors.join("\n")}`);
   }
-  console.log("Browser smoke test passed: campaign, hero selection, gameplay inputs, four boss visuals, all three stage transitions, and no uncaught runtime errors.");
+  console.log("Browser smoke test passed: campaign, hero persistence, gameplay inputs, four boss visuals, all three transition directions, real stage advance, and no uncaught runtime errors.");
 } finally {
   if (browser) await browser.close();
   if (server.exitCode === null) {
