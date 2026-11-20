@@ -97,3 +97,41 @@ test("all fifty stage transitions use a deterministic Snow Bros style entry dire
   }
   assert.deepEqual(new Set(Array.from({ length: 50 }, (_, i) => getStageTransitionDirection(i + 1))), new Set(expected));
 });
+
+
+test("all elevated platforms have a reachable route from the permanent floor", () => {
+  for (const stage of STAGES) {
+    const platforms = stage.platforms.map((platform) => ({
+      left: platform.x - platform.width / 2,
+      right: platform.x + platform.width / 2,
+      y: platform.y,
+    }));
+    const reachable = new Set();
+    let changed = true;
+    while (changed) {
+      changed = false;
+      platforms.forEach((platform, index) => {
+        if (reachable.has(index)) return;
+        const sources = [
+          { left: 0, right: 960, y: 518 },
+          ...platforms.filter((_, sourceIndex) => reachable.has(sourceIndex)),
+        ];
+        const canReach = sources.some((source) => {
+          const verticalRise = source.y - platform.y;
+          const horizontalGap = Math.max(
+            0,
+            platform.left - source.right,
+            source.left - platform.right,
+          );
+          return verticalRise > 0 && verticalRise <= 155 && horizontalGap <= 360;
+        });
+        if (canReach) {
+          reachable.add(index);
+          changed = true;
+        }
+      });
+    }
+    assert.equal(reachable.size, platforms.length,
+      `stage ${stage.number}: every elevated platform must be reachable from the floor`);
+  }
+});
