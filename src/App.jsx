@@ -1284,6 +1284,7 @@ class ZeroGameScene extends Phaser.Scene {
   beginCampaign({ transitionDirection = null } = {}) {
     this.setMobileControlsVisible(true); this.clearMenu();
     this.campaignActive = true; this.gameStarted = true; this.gameOver = false; this.stageCleared = false;
+    this.stageAdvancePending = false;
     this.stageStartedAt = this.time.now; this.stageTimeLeft = this.stageConfig.timeLimit || 120;
     this.jumpCount = 0; this.lastDamage = this.time.now;
     this.hero.setPosition(480, 450).setVelocity(0, 0).setVisible(false);
@@ -1900,23 +1901,29 @@ class ZeroGameScene extends Phaser.Scene {
     }
   }
 
+  advanceToNextStage() {
+    if (this.stageAdvancePending || this.stageNumber >= 50 || !this.stageCleared) return;
+    this.stageAdvancePending = true;
+    this.stageNumber++;
+    this.pendingStageTransitionDirection = getStageTransitionDirection(this.stageNumber);
+    this.scene.restart();
+  }
+
   showVictory() {
     const shade = this.add.rectangle(480, 270, 960, 540, 0x071426, 0.72).setDepth(40);
     const title = this.add.text(480, 225, "VICTORY!", { fontSize: "58px", color: "#ffe17a", fontStyle: "bold", stroke: "#6b321f", strokeThickness: 8 }).setOrigin(0.5).setDepth(41).setScale(0.2);
     const subtitle = this.add.text(480, 290, this.stageNumber === 50 ? `${this.selectedHero.name.toUpperCase()} - THE LEGENDARY GUARDIAN!` : `${this.stageConfig.name.toUpperCase()} COMPLETED`, { fontSize: "19px", color: "#ffffff", fontStyle: "bold" }).setOrigin(0.5).setDepth(41).setAlpha(0);
     this.tweens.add({ targets: title, scale: 1, duration: 550, ease: "Back.easeOut" });
     this.tweens.add({ targets: subtitle, alpha: 1, y: 305, duration: 500, delay: 300 });
-    const nextLabel = this.add.text(480, 365, this.stageNumber < 50 ? "NEXT STAGE  ▶" : "THE 50 STAGE QUEST IS COMPLETE", { fontSize: "18px", color: "#9feaff", fontStyle: "bold", backgroundColor: "#173d59", padding: { x: 18, y: 10 } }).setOrigin(0.5).setDepth(41).setInteractive({ useHandCursor: true });
-    nextLabel.on("pointerdown", () => {
-      if (this.stageNumber < 50) {
-        this.stageNumber++;
-        this.pendingStageTransitionDirection = getStageTransitionDirection(this.stageNumber);
-        this.scene.restart();
-      } else {
-        const ending = this.add.text(480, 430, `${this.selectedHero.superPower.toUpperCase()} - THE KINGDOM IS SAFE!`, { fontSize: "17px", color: "#ffe17a", fontStyle: "bold" }).setOrigin(0.5).setDepth(45);
-        this.tweens.add({ targets: ending, alpha: 0, y: 390, duration: 5000 });
-      }
-    });
+    if (this.stageNumber < 50) {
+      const nextLabel = this.add.text(480, 365, "NEXT STAGE LOADING…  ▶", { fontSize: "18px", color: "#9feaff", fontStyle: "bold", backgroundColor: "#173d59", padding: { x: 18, y: 10 } }).setOrigin(0.5).setDepth(41).setInteractive({ useHandCursor: true });
+      nextLabel.on("pointerdown", () => this.advanceToNextStage());
+      this.time.delayedCall(2300, () => this.advanceToNextStage());
+    } else {
+      const ending = this.add.text(480, 380, "THE 50 STAGE QUEST IS COMPLETE", { fontSize: "18px", color: "#9feaff", fontStyle: "bold" }).setOrigin(0.5).setDepth(41);
+      const legend = this.add.text(480, 430, `${this.selectedHero.superPower.toUpperCase()} - THE KINGDOM IS SAFE!`, { fontSize: "17px", color: "#ffe17a", fontStyle: "bold" }).setOrigin(0.5).setDepth(45);
+      this.tweens.add({ targets: [ending, legend], alpha: 0.65, duration: 1100, yoyo: true, repeat: -1 });
+    }
     this.tweens.add({ targets: shade, alpha: 0.82, duration: 350 });
   }
 
@@ -2267,11 +2274,7 @@ class ZeroGameScene extends Phaser.Scene {
       Phaser.Input.Keyboard.JustDown(this.keys.restart) &&
       this.stageCleared
     ) {
-      if (this.stageNumber < 50) {
-        this.stageNumber++;
-        this.pendingStageTransitionDirection = getStageTransitionDirection(this.stageNumber);
-      }
-      this.scene.restart();
+      this.advanceToNextStage();
       return;
     }
 
