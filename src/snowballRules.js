@@ -18,6 +18,43 @@ export function canRollingBallHitTarget(dx, dy) {
   return Math.abs(dx) <= 64 && Math.abs(dy) <= 72;
 }
 
+// Snow Bros-inspired arcade rolling: the ball accelerates while grounded,
+// keeps momentum in the air, and spins in proportion to distance travelled.
+export const ROLLING_BALL_START_SPEED = 390;
+export const ROLLING_BALL_ACCELERATION = 520;
+export const ROLLING_BALL_MAX_SPEED = 700;
+export const ROLLING_BALL_RADIUS = 27;
+
+export function calculateRollingBallMotion({
+  velocityX = 0,
+  direction = 1,
+  deltaMs = 16,
+  grounded = false,
+  blockedLeft = false,
+  blockedRight = false,
+}) {
+  const dt = Math.max(0, Math.min(deltaMs, 50)) / 1000;
+  let nextDirection = Math.sign(velocityX) || Math.sign(direction) || 1;
+  let speed = Math.abs(velocityX);
+
+  if (blockedLeft) {
+    nextDirection = 1;
+    speed = Math.max(speed, ROLLING_BALL_START_SPEED) * 0.78;
+  } else if (blockedRight) {
+    nextDirection = -1;
+    speed = Math.max(speed, ROLLING_BALL_START_SPEED) * 0.78;
+  } else if (grounded) {
+    speed = Math.min(ROLLING_BALL_MAX_SPEED, Math.max(speed, ROLLING_BALL_START_SPEED) + ROLLING_BALL_ACCELERATION * dt);
+  } else {
+    // Keep most horizontal momentum while the ball drops between platforms.
+    speed *= Math.max(0.985, 1 - dt * 0.18);
+  }
+
+  const nextVelocityX = nextDirection * speed;
+  const rotationDelta = (nextVelocityX * dt / ROLLING_BALL_RADIUS) * (180 / Math.PI);
+  return { velocityX: nextVelocityX, direction: nextDirection, rotationDelta };
+}
+
 export function isRollingBallOutOfBounds(x) {
   return x < -90 || x > 1050;
 }

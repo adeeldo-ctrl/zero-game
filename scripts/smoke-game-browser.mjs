@@ -124,6 +124,9 @@ try {
     };
     window.__ZERO_GAME_SPECIAL_TARGETS__ = [makeTarget(390), makeTarget(410), makeTarget(430)];
     scene.specialMove(0);
+    if (scene.specialPoseType !== "wave" || scene.specialPoseUntil <= scene.time.now) {
+      throw new Error("EXTRA 1 did not start its timed charge-and-thrust animation");
+    }
     const wave = scene.projectiles.getChildren().find((projectile) =>
       projectile.active && projectile.getData("specialAttack")
     );
@@ -152,6 +155,9 @@ try {
     targets[1].body.setAllowGravity(false);
     targets[1].setData("frozen", false);
     scene.specialMove(1);
+    if (scene.specialPoseType !== "uppercut" || scene.hero.body.velocity.y > -400) {
+      throw new Error("EXTRA 2 did not launch its rising uppercut movement and animation");
+    }
     const secondDamage = targets[1].getData("visual")?.getData("damageParts");
     if (targets[1].getData("hitCount") < 2 || !secondDamage ||
         secondDamage.hornR?.active || secondDamage.armR?.active) {
@@ -166,6 +172,9 @@ try {
     targets[2].body.setAllowGravity(false);
     targets[2].setData("frozen", false);
     scene.specialMove(2);
+    if (scene.specialPoseType !== "spin" || scene.specialDashUntil <= scene.time.now) {
+      throw new Error("EXTRA 3 did not activate its spinning-kick dash choreography");
+    }
     const thirdDamage = targets[2].getData("visual")?.getData("damageParts");
     if (targets[2].getData("hitCount") < 2 || !thirdDamage ||
         thirdDamage.hornR?.active || thirdDamage.armR?.active) {
