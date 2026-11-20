@@ -938,11 +938,24 @@ class ZeroGameScene extends Phaser.Scene {
       this.touch.right = false;
       this.tweens.add({ targets: this.joystickKnob, x: cx, y: cy, scale: 1, duration: 130, ease: "Back.easeOut" });
     };
+    // Track every finger independently. Phaser's global pointer-up events are
+    // more reliable on Android WebView than relying on release over a GameObject.
+    this.mobileActionPointers = new Map();
     this.joystickBase.on("pointerdown", startStick);
     this.joystickKnob.on("pointerdown", startStick);
     this.input.on("pointermove", moveStick);
-    this.input.on("pointerup", stopStick);
-    this.input.on("pointerupoutside", stopStick);
+    this.input.on("pointerup", pointer => {
+      stopStick(pointer);
+      this.releaseMobileActionPointer(pointer);
+    });
+    this.input.on("pointerupoutside", pointer => {
+      stopStick(pointer);
+      this.releaseMobileActionPointer(pointer);
+    });
+    this.input.on("gameout", () => {
+      stopStick();
+      this.releaseAllMobileActionPointers();
+    });
     // Three independent signature-move buttons sit in one row above the right-side action buttons.
     this.createControl(665, 340, "EXTRA 1", "special1");
     this.createControl(775, 340, "EXTRA 2", "special2");
@@ -950,6 +963,32 @@ class ZeroGameScene extends Phaser.Scene {
     this.createControl(650, 448, "SUPER", "super");
     this.createControl(765, 448, "FIRE", "attack");
     this.createControl(885, 448, "JUMP", "jump");
+  }
+
+  releaseMobileActionPointer(pointer) {
+    if (!pointer || !this.mobileActionPointers) return;
+    const actions = this.mobileActionPointers.get(pointer.id);
+    if (!actions) return;
+    actions.forEach(action => {
+      const stillPressed = [...this.mobileActionPointers.entries()].some(
+        ([id, set]) => id !== pointer.id && set.has(action)
+      );
+      this.touch[action] = stillPressed;
+      const control = this.mobileControlVisuals?.get(action);
+      if (control && !stillPressed) {
+        control.bg.setFillStyle(control.baseFill);
+        this.tweens.add({ targets: [control.bg, control.text], scale: 1, duration: 100, ease: "Back.easeOut" });
+        this.tweens.add({ targets: control.ring, scale: 1, alpha: 0.72, duration: 160 });
+      }
+    });
+    this.mobileActionPointers.delete(pointer.id);
+  }
+
+  releaseAllMobileActionPointers() {
+    if (!this.mobileActionPointers) return;
+    for (const pointerId of [...this.mobileActionPointers.keys()]) {
+      this.releaseMobileActionPointer({ id: pointerId });
+    }
   }
 
   moveJoystick(pointer) {
@@ -977,33 +1016,29 @@ class ZeroGameScene extends Phaser.Scene {
     const bg = this.add.circle(x, y, action.startsWith("special") ? 35 : 43, baseFill, 0.98)
       .setStrokeStyle(5, accent).setDepth(30)
       .setInteractive(new Phaser.Geom.Circle(0, 0, 43), Phaser.Geom.Circle.Contains);
+    if (!this.mobileControlVisuals) this.mobileControlVisuals = new Map();
+    this.mobileControlVisuals.set(action, { bg, ring, baseFill });
     const text = this.add.text(x, y, label, {
       fontSize: "17px", color: "#ffffff", fontStyle: "bold",
       stroke: "#10243a", strokeThickness: 4
     }).setOrigin(0.5).setDepth(31);
     if (action === "attack") this.attackRing = ring;
     this.tweens.add({ targets: glow, scale: 1.12, alpha: 0.04, duration: 900, yoyo: true, repeat: -1 });
-    let pressedPointerId = null;
     bg.on("pointerdown", pointer => {
-      if (pressedPointerId !== null) return;
-      pressedPointerId = pointer.id;
+      if (!this.mobileActionPointers) this.mobileActionPointers = new Map();
+      let pointerActions = this.mobileActionPointers.get(pointer.id);
+      if (!pointerActions) {
+        pointerActions = new Set();
+        this.mobileActionPointers.set(pointer.id, pointerActions);
+      }
+      if (pointerActions.has(action)) return;
+      pointerActions.add(action);
       this.touch[action] = true;
       bg.setFillStyle(pressedFill);
       this.tweens.add({ targets: [bg, text], scale: 0.88, duration: 85, yoyo: true, ease: "Back.easeOut" });
       this.tweens.add({ targets: ring, scale: 1.3, alpha: 1, duration: 110 });
       this.cameras.main.shake(45, 0.0015);
     });
-    const release = pointer => {
-      if (pressedPointerId === null) return;
-      if (pointer && pointer.id !== pressedPointerId) return;
-      pressedPointerId = null;
-      this.touch[action] = false;
-      bg.setFillStyle(baseFill);
-      this.tweens.add({ targets: [bg, text], scale: 1, duration: 100, ease: "Back.easeOut" });
-      this.tweens.add({ targets: ring, scale: 1, alpha: 0.72, duration: 160 });
-    };
-    bg.on("pointerup", release);
-    bg.on("pointerupoutside", release);
   }
 
   clearMenu() {
