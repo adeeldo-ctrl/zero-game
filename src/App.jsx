@@ -38,6 +38,7 @@ class ZeroGameScene extends Phaser.Scene {
     this.campaignActive = false;
     this.heroSelectionLocked = false;
     this.chances = 3;
+    this.chanceLossInProgress = false;
     this.stageTransitionActive = false;
     this.pendingStageTransitionDirection = null;
     this.snowballTutorialShown = false;
@@ -1770,10 +1771,16 @@ class ZeroGameScene extends Phaser.Scene {
     this.score += points;
     const extra = Math.floor(this.score / 10000);
     if (extra > this.extraLivesAwarded) {
-      if (this.health < 3) this.health++;
-      else this.chances = Math.min(3, this.chances + 1);
+      if (this.health < 3) {
+        this.health = Math.min(3, this.health + 1);
+        this.statusLabel.setText("10,000 BONUS! +1 HEART").setColor("#ffe17a");
+      } else if (this.chances < 3) {
+        this.chances = Math.min(3, this.chances + 1);
+        this.statusLabel.setText("10,000 BONUS! +1 CHANCE").setColor("#ffe17a");
+      } else {
+        this.statusLabel.setText("10,000 BONUS! CAMPAIGN LIVES ARE FULL").setColor("#ffe17a");
+      }
       this.extraLivesAwarded = extra;
-      this.statusLabel.setText("10,000 BONUS! +1 HEART / CHANCE").setColor("#ffe17a");
       this.updateLivesLabel();
     }
     if (this.scoreLabel?.active) this.scoreLabel.setText(`SCORE: ${this.score.toLocaleString()}`);
@@ -1811,9 +1818,9 @@ class ZeroGameScene extends Phaser.Scene {
       this.powerLabel.setText(`POWER: ${element.name.toUpperCase()} [C]`).setColor("#" + element.color.toString(16).padStart(6, "0"));
       this.statusLabel.setText(`${element.name.toUpperCase()} POWER FOUND!`).setColor("#ffe17a");
     } else if (reward <= 6) {
-      this.health++;
+      this.health = Math.min(3, this.health + 1);
       this.updateLivesLabel();
-      this.statusLabel.setText("TREASURE! +1 LIFE").setColor("#62ffb4");
+      this.statusLabel.setText(this.health === 3 ? "TREASURE! HEARTS RESTORED" : "TREASURE! +1 HEART").setColor("#62ffb4");
     } else if (reward <= 8) {
       this.addScore(1500);
       this.statusLabel.setText("TREASURE! +1500 SCORE").setColor("#ffe17a");
@@ -1929,22 +1936,30 @@ class ZeroGameScene extends Phaser.Scene {
   }
 
   damageHero(hero, enemy) {
-    if (this.gameOver || this.stageCleared || this.stageTransitionActive || !enemy.active || enemy.getData("frozen")) return;
+    if (this.gameOver || this.stageCleared || this.stageTransitionActive || this.chanceLossInProgress ||
+        !hero?.active || !enemy?.active || enemy.getData("frozen")) return;
     const now = this.time.now;
-    if (now - this.lastDamage < 1200) return;
-    this.lastDamage = now; this.health--; this.updateLivesLabel(); this.healthLabel.setColor("#ff7777");
+    if (now - this.lastDamage < 1200 || this.health <= 0) return;
+    this.lastDamage = now;
+    const lives = loseCampaignHeart({ chances: this.chances, hearts: this.health, gameOver: false });
+    this.chances = lives.chances;
+    this.health = lives.hearts;
+    this.updateLivesLabel();
+    if (this.healthLabel?.active) this.healthLabel.setColor("#ff7777");
     const direction = hero.x < enemy.x ? -1 : 1;
     hero.setVelocityX(direction * 260); hero.setVelocityY(-220);
     if (this.heroVisual) this.tweens.add({ targets: this.heroVisual, angle: direction * 12, duration: 100, yoyo: true, repeat: 2 });
     this.time.delayedCall(450, () => { if (hero.active && !this.gameOver && this.heroVisual) this.heroVisual.setAngle(0); });
     if (this.heroVisual?.active) this.tweens.add({ targets: this.heroVisual, alpha: 0.25, duration: 90, yoyo: true, repeat: 3 });
-    if (this.health <= 0) {
-      const lives = loseCampaignHeart({ chances: this.chances, hearts: 1, gameOver: false });
-      this.chances = lives.chances; this.health = lives.hearts;
+    if (lives.chanceLost) {
+      this.chanceLossInProgress = true;
       hero.setVelocity(0, 0); hero.body.enable = false;
       if (this.heroVisual?.active) this.heroVisual.setVisible(false).setAlpha(1).setAngle(0);
-      this.updateLivesLabel();
-      if (lives.gameOver) { this.gameOver = true; this.showContinueScreen(); return; }
+      if (lives.gameOver) {
+        this.gameOver = true;
+        this.showContinueScreen();
+        return;
+      }
       this.lastDamage = this.time.now + 900;
       this.statusLabel.setText(`CHANCE LOST! ${this.chances} CHANCE(S) LEFT`).setColor("#ffe17a");
       this.time.delayedCall(950, () => {
@@ -1952,6 +1967,7 @@ class ZeroGameScene extends Phaser.Scene {
         hero.body.enable = true; hero.setPosition(480, 450).setVelocity(0, 0);
         this.heroVisual?.setPosition(480, 450).setVisible(true).setAlpha(1).setScale(1);
         this.lastDamage = this.time.now;
+        this.chanceLossInProgress = false;
         this.statusLabel.setText("NEW CHANCE! THREE HEARTS RESTORED").setColor("#62ffb4");
       });
     } else {
