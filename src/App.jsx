@@ -6,7 +6,7 @@ import { ELEMENTS, HEROES, getElement, getStage, getHero } from "./gameData";
 import { createGameAudio } from "./gameAudio";
 import { createCampaignLives, loseCampaignHeart, getStageTransitionDirection } from "./campaignRules";
 import { shouldHeroCollideWithPlatform, shouldDropThroughPlatform } from "./platformRules";
-import { getBossPhase, getSpecialCooldownStatus, SPECIAL_MOVE_COOLDOWN_MS } from "./combatRules";
+import { getBossPhase } from "./combatRules";
 import { canKickElementBall, canRollingBallHitTarget, isRollingBallOutOfBounds, calculateRollingBallMotion } from "./snowballRules";
 import { getEnemyMovementSpeed } from "./enemyRules";
 import "./App.css";
@@ -69,7 +69,6 @@ class ZeroGameScene extends Phaser.Scene {
     this.attackChargeStart = 0;
     this.attackCharge = 0;
     this.superReadyAt = 0;
-    this.specialReadyAt = [0, 0, 0];
     this.jumpFlipDirection = 1;
     this.jumpStartedAt = 0;
     this.jumpWasMoving = false;
@@ -1416,7 +1415,6 @@ class ZeroGameScene extends Phaser.Scene {
     this.stageTransitionActive = false;
     this.pendingStageTransitionDirection = null;
     this.stageAdvancePending = false;
-    this.specialReadyAt = [0, 0, 0];
     this.stageNumber = 1; this.score = 0; this.extraLivesAwarded = 0; this.defeated = 0;
     this.chances = 3; this.health = 3; this.snowballTutorialShown = false;
     this.openHeroSelectAfterRestart = true;
@@ -2313,15 +2311,10 @@ class ZeroGameScene extends Phaser.Scene {
     if (!this.gameStarted || this.gameOver || this.stageCleared) return;
     const moves = this.selectedHero?.specialMoves || [];
     if (!moves.length) return;
-    // Each extra button maps to its own signature move and independent cooldown.
+    // EXTRA buttons are immediately reusable: no cooldown, countdown, meter,
+    // limited-use counter or animation lock.
     const selectedIndex = Math.max(0, Math.min(2, moveIndex));
     const move = moves[selectedIndex];
-    const cooldown = getSpecialCooldownStatus(this.specialReadyAt[selectedIndex] || 0, this.time.now);
-    if (!cooldown.ready) {
-      this.statusLabel.setText(`EXTRA ${selectedIndex + 1} RECHARGING: ${cooldown.remainingSeconds}s`).setColor("#9feaff");
-      return;
-    }
-    this.specialReadyAt[selectedIndex] = this.time.now + SPECIAL_MOVE_COOLDOWN_MS;
     this.audio.unlock();
     this.audio.play("special");
     this.specialPoseType = move.type;
