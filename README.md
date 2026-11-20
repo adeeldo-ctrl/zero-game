@@ -28,19 +28,19 @@ The host PC and both players must be on the same trusted Wi-Fi network. Allow No
 
 ## Heroes and special moves
 
-The four original hero designs now follow distinct Street Fighter-inspired archetypes:
+The four original playable heroes are:
 
-- Ryo — Ryu-inspired balanced martial artist.
-- Ken — Ken-inspired flame martial artist.
-- Chun-Li — agile lightning kicker with rapid kicks and aerial techniques.
-- Blanka — wild electric fighter with rolling attacks and grapples.
+- Ryo — balanced ember warrior: Ember Wave, Guardian Rise, Ember Cyclone Kick.
+- Kairo — blazing rush warrior: Flare Wave, Flare Uppercut, Inferno Spin Kick.
+- Mei — lightning sky dancer: Flash Kick Barrage, Skywheel Kick, Thunder Orb.
+- Volt — wildstorm electric guardian: Storm Burst, Thunder Roll, Wild Fang Toss.
 
-The three on-screen EXTRA buttons are independent:
-- EXTRA 1: Ryo Hadouken-style energy wave; Ken flame energy wave; Chun-Li Lightning Legs; Blanka Electric Thunder.
-- EXTRA 2: Ryo rising dragon uppercut; Ken flame uppercut; Chun-Li Spinning Bird Kick; Blanka Rolling Attack.
-- EXTRA 3: Ryo spinning hurricane kick; Ken blazing spin kick; Chun-Li Kikoken energy wave; Blanka Wild Fang throw.
+The three on-screen EXTRA buttons are independent and always map to the selected hero's matching signature move:
+- EXTRA 1: the selected hero's first special move.
+- EXTRA 2: the selected hero's second special move.
+- EXTRA 3: the selected hero's third special move.
 
-All three special buttons have unlimited use: no cooldown, countdown, power meter or limited-use counter. Their effects physically knock enemies back, launch them, or throw them according to the move. Bosses take balanced damage and resist normal throws.
+All twelve signature moves are implemented through distinct wave, uppercut, spin, rapid-strike, electric-burst, rolling-charge or throw effects. All three special buttons have unlimited use: no cooldown, countdown, power meter or limited-use counter. Existing movement, jump, double-jump, charged Fire attack, Super attack, elemental selection, stage progression and co-op systems remain in place.
 
 Enemies use original archetypes inspired by other Street Fighter-style fighters, including masked claw acrobats, boxing bruisers, military chargers, heavy grapplers and electric wild fighters. Their AI includes chaser, runner, jumper, flyer, guard and charger behaviors. Boss encounters are themed around the Tiger Emperor, Crimson Claw, Iron Champion and Psycho Warlord archetypes.
 
