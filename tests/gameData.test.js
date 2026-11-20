@@ -28,6 +28,26 @@ test("stage definitions do not change when read repeatedly", () => {
   for (let i = 0; i < 20; i++) assert.equal(JSON.stringify(getStage(17)), first);
 });
 
+
+test("50 stages are distributed across ten distinct themed worlds", () => {
+  assert.equal(new Set(STAGES.map((stage) => stage.world)).size, 10);
+  for (let worldIndex = 0; worldIndex < 10; worldIndex++) {
+    const worldStages = STAGES.filter((stage) => stage.worldIndex === worldIndex);
+    assert.equal(worldStages.length, 5, `world ${worldIndex} has five stages`);
+    assert.equal(new Set(worldStages.map((stage) => stage.name)).size, 5);
+  }
+});
+
+test("every stage has a themed palette and a unique stage identity", () => {
+  assert.equal(new Set(STAGES.map((stage) => stage.name)).size, 50);
+  for (const stage of STAGES) {
+    assert.ok(Number.isInteger(stage.worldIndex));
+    assert.ok(stage.worldIndex >= 0 && stage.worldIndex < 10);
+    assert.ok(stage.background.platform !== undefined);
+    assert.ok(stage.background.accent !== undefined);
+  }
+});
+
 test("the final four milestone bosses cover the four requested original archetypes", () => {
   const styles = STAGES.filter((stage) => stage.boss).map((stage) => stage.boss.style);
   assert.ok(styles.some((style) => style.includes("boxing")));
