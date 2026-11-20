@@ -2797,6 +2797,8 @@ export default function App() {
     if (distance(132, 448) <= 94) return "stick";
 
     const fallbackButtons = [
+      ["musicVolume", 610, 43, 42],
+      ["sfxVolume", 690, 43, 42],
       ["special1", 665, 340, 58],
       ["special2", 775, 340, 58],
       ["special3", 885, 340, 58],
