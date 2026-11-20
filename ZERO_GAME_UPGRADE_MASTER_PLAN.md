@@ -274,3 +274,11 @@ Committed source implementation:
 - CI includes `npm test`, `npm run lint`, and `npm run build`; all passed on those commits.
 
 **Remaining work is still substantial:** runtime/visual verification in the actual Phaser game, final animation and visual polish, detailed enemy and boss balancing, snowball edge-case verification, Android workflow/icon/landscape/fullscreen validation, and final integrated Android build. Automated data/rule checks do not replace gameplay runtime or physical-device testing. APK workflows remain manual-only and have not been dispatched.
+
+
+## Android policy and launcher validation hardening — 2026-11-20
+
+- Added `scripts/validate-android-config.py` to statically validate the package id, app name, Capacitor web directory, adaptive/legacy icon XML, icon installation script, and workflow trigger policy.
+- Added the static Android validation to the push/PR CI workflow. It does not create an Android project, invoke Gradle, assemble an APK, or upload an APK.
+- CI run [44756164437](https://github.com/adeeldo-ctrl/zero-game/actions/runs/44756164437) passed on commit `da0aaaed028db5db1ce3290ce50e0241a4de5cdd`: automated tests, lint, Android configuration validation, and web build all succeeded.
+- Confirmed both APK workflows remain manual-only. No APK workflow has been dispatched.
