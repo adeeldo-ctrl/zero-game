@@ -60,11 +60,75 @@ body {
 
 #game-container canvas {
   display: block !important;
-  width: 100% !important;
-  height: 100% !important;
+  position: absolute !important;
+  left: 50% !important;
+  top: 50% !important;
+  width: min(100vw, 177.7778vh) !important;
+  height: min(56.25vw, 100vh) !important;
   max-width: 100%;
   max-height: 100%;
+  transform: translate(-50%, -50%);
   touch-action: none;
   user-select: none;
   -webkit-user-select: none;
+}
+
+.mobile-controls-overlay {
+  position: absolute;
+  z-index: 20;
+  display: none;
+  left: 50%;
+  top: 50%;
+  width: min(100vw, 177.7778vh);
+  height: min(56.25vw, 100vh);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.mobile-stick-hit,
+.mobile-button-hit {
+  position: absolute;
+  display: block;
+  transform: translate(-50%, -50%);
+  pointer-events: auto;
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
+  background: transparent;
+}
+
+.mobile-stick-hit {
+  left: 13.75%;
+  top: 82.96%;
+  width: 15%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+}
+
+.mobile-button-hit {
+  width: 9.6%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+}
+
+.mobile-button-hit.extra-one,
+.mobile-button-hit.extra-two,
+.mobile-button-hit.extra-three {
+  width: 8.1%;
+}
+
+.mobile-button-hit.extra-one { left: 69.27%; top: 62.96%; }
+.mobile-button-hit.extra-two { left: 80.73%; top: 62.96%; }
+.mobile-button-hit.extra-three { left: 92.19%; top: 62.96%; }
+.mobile-button-hit.super { left: 67.71%; top: 82.96%; }
+.mobile-button-hit.fire { left: 79.69%; top: 82.96%; }
+.mobile-button-hit.jump { left: 92.19%; top: 82.96%; }
+
+.mobile-stick-hit:active,
+.mobile-button-hit:active {
+  background: rgba(255, 255, 255, 0.035);
 }
