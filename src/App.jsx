@@ -915,7 +915,6 @@ class ZeroGameScene extends Phaser.Scene {
     if (action === "jump") {
       this.mobileJumpHeld = true;
       this.mobileJumpPressedAt = this.time?.now || 0;
-      this.touch.jump = true;
       this.mobileActionQueue.add("jump");
       return;
     }
