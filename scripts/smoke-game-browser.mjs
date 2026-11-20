@@ -62,6 +62,7 @@ try {
       enemy.getData("elementBall")?.destroy();
       enemy.destroy();
     });
+    scene.projectiles.clear(true, true);
     scene.hero.setPosition(300, 450).setVelocity(0, 0);
     scene.facing = 1;
     // The initial keyboard smoke inputs may have started cooldowns; reset them
