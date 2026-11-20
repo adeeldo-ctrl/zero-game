@@ -328,3 +328,12 @@ Committed source implementation:
 - Complete any final gameplay/Android configuration checks, then rerun integrated CI after the last source/documentation changes.
 - Only after every requested feature and verification is complete, manually dispatch the single APK workflow and verify the generated APK artifact.
 - Redmi Note 8 physical touch, screen, audio and installation checks remain pending user-device verification.
+
+
+## Mobile-input and boss-phase integration verification — 2026-11-20
+
+- Latest integrated CI run **44779266235** passed in full: unit/regression tests, lint, Android static configuration, web build, and the expanded Chromium gameplay smoke test.
+- Expanded runtime coverage now exercises the DOM touch overlay used by mobile devices: joystick rightward axis, DOWN direction, joystick release/reset, MUSIC and SFX volume hit targets, and all three on-screen EXTRA buttons.
+- Expanded boss integration coverage verifies the final warlord enters phase two at 60% health and phase three at 25% health, and that phase three fires the expected seven-projectile volley.
+- All automated project checks are now green on the tested commit. This remains headless-browser verification; native Android WebView behavior, device-specific touch alignment, audio playback and installation still need physical-device confirmation after APK delivery.
+- The APK workflow remains manual-only and has not yet been dispatched. The APK is still reserved as the final build step.
