@@ -55,3 +55,45 @@ test("the final four milestone bosses cover the four requested original archetyp
   assert.ok(styles.some((style) => style.includes("master")));
   assert.ok(styles.some((style) => style.includes("final")));
 });
+
+
+import {
+  CHANCES_PER_CAMPAIGN,
+  HEARTS_PER_CHANCE,
+  createCampaignLives,
+  loseCampaignHeart,
+  getStageTransitionDirection,
+} from "../src/campaignRules.js";
+
+test("a new campaign starts with exactly three chances and three hearts", () => {
+  assert.deepEqual(createCampaignLives(), {
+    chances: CHANCES_PER_CAMPAIGN,
+    hearts: HEARTS_PER_CHANCE,
+    gameOver: false,
+  });
+  assert.equal(CHANCES_PER_CAMPAIGN, 3);
+  assert.equal(HEARTS_PER_CHANCE, 3);
+});
+
+test("each set of three lost hearts consumes exactly one chance", () => {
+  let state = createCampaignLives();
+  state = loseCampaignHeart(state);
+  assert.deepEqual(state, { chances: 3, hearts: 2, gameOver: false, chanceLost: false });
+  state = loseCampaignHeart(state);
+  state = loseCampaignHeart(state);
+  assert.deepEqual(state, { chances: 2, hearts: 3, gameOver: false, chanceLost: true });
+  for (let i = 0; i < 3; i++) state = loseCampaignHeart(state);
+  assert.deepEqual(state, { chances: 1, hearts: 3, gameOver: false, chanceLost: true });
+  for (let i = 0; i < 3; i++) state = loseCampaignHeart(state);
+  assert.deepEqual(state, { chances: 0, hearts: 0, gameOver: true, chanceLost: true });
+  assert.deepEqual(loseCampaignHeart(state), { ...state, chanceLost: false });
+});
+
+test("all fifty stage transitions use a deterministic Snow Bros style entry direction", () => {
+  const expected = ["down", "right", "left"];
+  for (let stage = 1; stage <= 50; stage++) {
+    assert.equal(getStageTransitionDirection(stage), expected[(stage - 1) % 3]);
+    assert.equal(getStageTransitionDirection(stage), getStageTransitionDirection(stage));
+  }
+  assert.deepEqual(new Set(Array.from({ length: 50 }, (_, i) => getStageTransitionDirection(i + 1))), new Set(expected));
+});
