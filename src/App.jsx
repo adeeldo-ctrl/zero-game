@@ -1366,6 +1366,7 @@ class ZeroGameScene extends Phaser.Scene {
 
   showHeroSelect() {
     this.setMobileControlsVisible(false);
+    this.gameStarted = false;
     this.clearMenu();
     this.heroSelectionLocked = false;
     const shade = this.add.rectangle(480, 270, 960, 540, 0x050b19, 0.96).setDepth(60);
