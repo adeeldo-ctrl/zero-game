@@ -1457,6 +1457,7 @@ class ZeroGameScene extends Phaser.Scene {
     boss.setData("bossAttackAt", this.time.now + 1800);
     boss.setData("bossAttackState", "rest");
     boss.setData("bossAttackIndex", 0);
+    boss.setData("bossStyle", this.stageConfig.boss?.style || "intro bruiser");
     this.bossPhase = 1;
     this.bossDefeated = false;
     boss.setData("wasAirborne", true);
@@ -1523,7 +1524,12 @@ class ZeroGameScene extends Phaser.Scene {
     const direction = targetX >= enemy.x ? 1 : -1;
     const attackState = enemy.getData("bossAttackState") || "rest";
     const attackIndex = enemy.getData("bossAttackIndex") || 0;
-    const speed = this.bossPhase === 3 ? 175 : this.bossPhase === 2 ? 125 : 82;
+    const bossStyle = enemy.getData("bossStyle") || "";
+    const baseSpeed = bossStyle.includes("agile") ? 132
+      : bossStyle.includes("boxing") ? 72
+      : bossStyle.includes("master") ? 102
+      : bossStyle.includes("final") ? 126 : 82;
+    const speed = this.bossPhase === 3 ? baseSpeed * 1.65 : this.bossPhase === 2 ? baseSpeed * 1.3 : baseSpeed;
     enemy.setVelocityX(attackState === "dash" ? (enemy.getData("bossDashDirection") || direction) * (this.bossPhase === 3 ? 500 : 390) : direction * speed);
     const visual = this.bossVisual;
     if (visual?.active) {
@@ -1544,7 +1550,10 @@ class ZeroGameScene extends Phaser.Scene {
       visual.y = enemy.y + Math.abs(swing) * -2;
     }
     if (attackState === "rest" && this.time.now >= enemy.getData("bossAttackAt") && enemy.body.blocked.down) {
-      const nextAttack = attackIndex % 3;
+      const attackPattern = bossStyle.includes("boxing") ? [0, 2, 0]
+        : bossStyle.includes("agile") ? [2, 1, 2]
+        : bossStyle.includes("master") ? [1, 0, 1] : [0, 1, 2];
+      const nextAttack = attackPattern[attackIndex % attackPattern.length];
       enemy.setData("bossAttackIndex", attackIndex + 1);
       enemy.setData("bossAttackState", "tell");
       enemy.setData("bossAttackKind", nextAttack);
