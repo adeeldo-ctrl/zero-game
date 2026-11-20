@@ -919,6 +919,20 @@ class ZeroGameScene extends Phaser.Scene {
   setMobileControlsVisible(visible) {
     const overlay = document.getElementById("mobile-controls-overlay");
     if (overlay) overlay.style.display = visible ? "block" : "none";
+    if (!visible) {
+      this.mobileActionQueue?.clear();
+      if (this.touch) {
+        this.touch.axis = 0;
+        this.touch.left = false;
+        this.touch.right = false;
+        this.touch.jump = false;
+        this.touch.attack = false;
+        this.touch.super = false;
+        this.touch.special1 = false;
+        this.touch.special2 = false;
+        this.touch.special3 = false;
+      }
+    }
   }
 
   createMobileControls() {
