@@ -1,0 +1,20 @@
+{
+  "id": "/",
+  "name": "ZERO GAME",
+  "short_name": "ZERO GAME",
+  "description": "ZERO GAME - arcade action adventure",
+  "start_url": "./",
+  "scope": "./",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#071426",
+  "theme_color": "#071426",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
