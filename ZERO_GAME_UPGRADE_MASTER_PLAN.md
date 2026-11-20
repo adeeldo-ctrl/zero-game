@@ -118,6 +118,10 @@ The following source changes have been committed to `main`:
 - **Android icon:** Added original vector launcher artwork and a build script that installs adaptive and legacy Android launcher icon resources.
 - **Automated checks:** Added Node tests for 50-stage count, unique fixed layouts, in-bounds platform geometry, deterministic reads, and final boss archetype coverage. Added `npm test` to the Android CI workflow.
 
+
+- **Hero special animation poses:** Added separate visual pose states for wave, uppercut, spin, rapid, electric, roll, and throw signature moves, while retaining the existing walk/jump/double-jump/landing animation flow.
+- **Stage-layout refinement:** Removed a temporary width-only distinction and adjusted repeated layouts so all 50 stage platform arrangements are distinct through actual platform placement changes; all 200 elevated platforms remain within the 960×540 arena bounds.
+
 ### Still pending before APK delivery
 
 - Complete and verify the requested hero animation upgrade and all special-move-specific animation timing.
