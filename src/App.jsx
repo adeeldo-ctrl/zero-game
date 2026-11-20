@@ -1016,12 +1016,12 @@ class ZeroGameScene extends Phaser.Scene {
     const bg = this.add.circle(x, y, action.startsWith("special") ? 35 : 43, baseFill, 0.98)
       .setStrokeStyle(5, accent).setDepth(30)
       .setInteractive(new Phaser.Geom.Circle(0, 0, 43), Phaser.Geom.Circle.Contains);
-    if (!this.mobileControlVisuals) this.mobileControlVisuals = new Map();
-    this.mobileControlVisuals.set(action, { bg, ring, baseFill });
     const text = this.add.text(x, y, label, {
       fontSize: "17px", color: "#ffffff", fontStyle: "bold",
       stroke: "#10243a", strokeThickness: 4
     }).setOrigin(0.5).setDepth(31);
+    if (!this.mobileControlVisuals) this.mobileControlVisuals = new Map();
+    this.mobileControlVisuals.set(action, { bg, ring, text, baseFill });
     if (action === "attack") this.attackRing = ring;
     this.tweens.add({ targets: glow, scale: 1.12, alpha: 0.04, duration: 900, yoyo: true, repeat: -1 });
     bg.on("pointerdown", pointer => {
