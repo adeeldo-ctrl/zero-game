@@ -261,6 +261,7 @@ try {
       heroId: scene.selectedHero?.id,
       chances: scene.chances,
       hearts: scene.health,
+      landmarkSignature: scene.stageVariantLandmark?.getData("stageLandmarkSignature"),
     };
     scene.stageCleared = true;
     scene.stageAdvancePending = false;
@@ -281,6 +282,13 @@ try {
     if (!scene.heroSelectionLocked || !scene.campaignActive) {
       throw new Error("Hero selection/campaign lock did not persist");
     }
+    const expectedStageOne = "world-0-stage-variant-0";
+    const expectedStageTwo = "world-0-stage-variant-1";
+    if (before.landmarkSignature !== expectedStageOne ||
+        scene.stageVariantLandmark?.getData("stageLandmarkSignature") !== expectedStageTwo ||
+        !scene.stageVariantLandmark.active) {
+      throw new Error("Stage-specific landmark composition did not change with the stage");
+    }
   });
 
   const campaignIdentity = await page.evaluate(() => {
@@ -289,8 +297,14 @@ try {
       heroId: scene.selectedHero?.id,
       chances: scene.chances,
       hearts: scene.health,
+      landmarkSignatures: [
+        window.__ZERO_GAME_PERSISTENCE__.landmarkSignature,
+        scene.stageVariantLandmark?.getData("stageLandmarkSignature"),
+      ],
     };
   });
+  const landmarkSignatures = new Set(campaignIdentity.landmarkSignatures);
+  if (landmarkSignatures.size !== 2) throw new Error("Stage 1 and stage 2 landmark compositions are not unique");
 
   // Walk the actual Phaser scene-restart path through every remaining stage.
   const visitedStages = [1, 2];
@@ -321,6 +335,8 @@ try {
         world: scene.stageConfig.world,
         worldIndex: scene.stageConfig.worldIndex,
         variant: scene.stageConfig.background.stageVariant,
+        landmarkSignature: scene.stageVariantLandmark?.getData("stageLandmarkSignature"),
+        landmarkActive: !!scene.stageVariantLandmark?.active,
         platforms: scene.platforms.getChildren().length,
         boss: !!scene.stageConfig.boss,
         enemies: scene.enemies.getChildren().filter((enemy) =>
@@ -344,6 +360,11 @@ try {
         stageState.worldIndex !== Math.floor((nextStage - 1) / 5)) {
       throw new Error(`Stage ${nextStage} theme/atmosphere identity is incorrect`);
     }
+    const expectedLandmark = `world-${stageState.worldIndex}-stage-variant-${stageState.variant}`;
+    if (!stageState.landmarkActive || stageState.landmarkSignature !== expectedLandmark) {
+      throw new Error(`Stage ${nextStage} did not create its stage-specific landmark composition`);
+    }
+    landmarkSignatures.add(stageState.landmarkSignature);
     if (stageState.boss !== (nextStage % 10 === 0)) {
       throw new Error(`Stage ${nextStage} boss milestone is incorrect`);
     }
@@ -359,11 +380,14 @@ try {
     visitedStages.push(stageState.number);
   }
   if (new Set(visitedStages).size !== 50) throw new Error("The complete 50-stage campaign did not visit every unique stage");
+  if (landmarkSignatures.size !== 50) {
+    throw new Error(`Expected 50 unique world/stage landmark compositions, received ${landmarkSignatures.size}`);
+  }
 
   if (runtimeErrors.length) {
     throw new Error(`Browser runtime errors:\n${runtimeErrors.join("\n")}`);
   }
-  console.log("Browser smoke test passed: campaign, hero persistence, gameplay inputs, four boss visuals and attacks, three-heart/chance recovery, real platform physics, all four boss attacks, all three transition directions, all 50 real stage restarts, persistent campaign identity, grounded enemy checks, and no uncaught runtime errors.");
+  console.log("Browser smoke test passed: campaign, hero persistence, gameplay inputs, four boss visuals and attacks, three-heart/chance recovery, real platform physics, all four boss attacks, all three transition directions, all 50 real stage restarts, 50 unique stage landmark compositions, persistent campaign identity, grounded enemy checks, and no uncaught runtime errors.");
 } finally {
   if (browser) await browser.close();
   if (server.exitCode === null) {
