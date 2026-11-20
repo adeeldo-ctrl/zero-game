@@ -915,6 +915,7 @@ class ZeroGameScene extends Phaser.Scene {
     if (action === "jump") {
       this.mobileJumpHeld = true;
       this.mobileJumpPressedAt = this.time?.now || 0;
+      this.touch.jump = true;
       this.mobileActionQueue.add("jump");
       return;
     }
@@ -2654,33 +2655,24 @@ export default function App() {
   const getTouchTarget = (event) => {
     const overlay = event.currentTarget;
     const scene = getPlayableScene();
-    // Hit-test against the actual Phaser canvas, not the transparent touch
-    // overlay. This keeps action buttons aligned with their rendered positions
-    // on Android WebView when the canvas is letterboxed/scaled.
-    const canvas = gameRef.current?.canvas;
-    const rect = (canvas || overlay).getBoundingClientRect();
-    const overlayRect = overlay.getBoundingClientRect();
-    if (!rect.width || !rect.height || !overlayRect.width || !overlayRect.height) return null;
+    // All touch targets use the exact same overlay coordinate system as the
+    // rendered game controls. This avoids canvas/WebView scaling mismatches.
+    const rect = overlay.getBoundingClientRect();
+    if (!rect.width || !rect.height) return null;
     const x = ((event.clientX - rect.left) / rect.width) * 960;
     const y = ((event.clientY - rect.top) / rect.height) * 540;
-    // Keep joystick detection on its original overlay coordinate system so
-    // the already-working joystick feel and hit area remain untouched.
-    const stickX = ((event.clientX - overlayRect.left) / overlayRect.width) * 960;
-    const stickY = ((event.clientY - overlayRect.top) / overlayRect.height) * 540;
-    if (Math.hypot(stickX - 132, stickY - 448) <= 94) return "stick";
-
     const distance = (cx, cy) => Math.hypot(x - cx, y - cy);
 
-    // Read button centers from the same Phaser objects that draw the labels.
-    // This prevents the visible SUPER/FIRE/JUMP buttons and their touch
-    // actions from drifting out of sync.
+    // Keep the established joystick center, radius and movement logic.
+    if (distance(132, 448) <= 94) return "stick";
+
     const fallbackButtons = [
-      ["special1", 665, 340, 52],
-      ["special2", 775, 340, 52],
-      ["special3", 885, 340, 52],
-      ["super", 650, 448, 60],
-      ["attack", 765, 448, 60],
-      ["jump", 885, 448, 60]
+      ["special1", 665, 340, 58],
+      ["special2", 775, 340, 58],
+      ["special3", 885, 340, 58],
+      ["super", 650, 448, 68],
+      ["attack", 765, 448, 68],
+      ["jump", 885, 448, 76]
     ];
     const buttons = fallbackButtons.map(([action, fallbackX, fallbackY, radius]) => {
       const visual = scene?.mobileControlVisuals?.get(action);
