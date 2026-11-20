@@ -61,6 +61,26 @@ jobs:
       - name: Sync Capacitor Android
         run: npx cap sync android
 
+      - name: Force Android app to landscape
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          manifest = Path("android/app/src/main/AndroidManifest.xml")
+          content = manifest.read_text(encoding="utf-8")
+          activity = 'android:name=".MainActivity"'
+          if activity not in content:
+              raise SystemExit("Capacitor MainActivity entry was not found in AndroidManifest.xml")
+          content = content.replace(
+              activity,
+              activity + ' android:screenOrientation="landscape"',
+              1
+          )
+          manifest.write_text(content, encoding="utf-8")
+          if 'android:screenOrientation="landscape"' not in content:
+              raise SystemExit("Landscape orientation was not applied")
+          print("Android launch orientation locked to landscape.")
+          PY
+
       - name: Build debug APK
         working-directory: android
         run: |
