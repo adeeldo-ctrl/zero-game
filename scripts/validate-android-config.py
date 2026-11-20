@@ -34,10 +34,16 @@ apk_workflow = workflow_dir / "zero-game-android.yml"
 content = apk_workflow.read_text(encoding="utf-8")
 trigger_block = re.search(r"(?ms)^on:\s*\n((?:[ \t]+.*\n)*)", content)
 assert trigger_block and re.search(r"(?m)^  workflow_dispatch:\s*$", trigger_block.group(1)), (
-    "The single Android APK workflow must be manually dispatched"
+    "The Android APK workflow must remain manually dispatchable"
 )
-assert not re.search(r"(?m)^  (?:push|pull_request):", trigger_block.group(1)), (
-    "The Android APK workflow must not build APKs on pushes or pull requests"
+assert re.search(r"(?m)^  push:\s*$", trigger_block.group(1)), (
+    "The Android APK workflow must build a fresh APK after a main-branch update"
+)
+assert re.search(r"(?m)^      - main\s*$", trigger_block.group(1)), (
+    "Automatic APK builds must be limited to the main branch"
+)
+assert not re.search(r"(?m)^  pull_request:", trigger_block.group(1)), (
+    "Pull requests must not trigger Android APK builds"
 )
 assert "assembleDebug" in content and "upload-artifact@v4" in content
 assert "screenOrientation" in content, "Android launcher must be locked to landscape"
@@ -81,4 +87,4 @@ with tempfile.TemporaryDirectory(prefix="zero-game-android-check-") as temporary
     ):
         assert (temp_root / relative).is_file(), f"Icon installer missed {relative}"
 
-print("Android package, launcher icon installation, and manual-only APK workflow policy validated.")
+print("Android package, launcher icon installation, main-push APK build, and manual dispatch policy validated.")
