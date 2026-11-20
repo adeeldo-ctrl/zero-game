@@ -2053,9 +2053,8 @@ class ZeroGameScene extends Phaser.Scene {
       this.addScore(75);
     };
     if (move.type === "dash") {
-      this.hero.setVelocityX(this.facing * 500);
+      this.specialDashUntil = this.time.now + 260;
       this.tweens.add({ targets: this.heroVisual, scaleX: this.facing * 1.28, scaleY: 0.82, duration: 120, yoyo: true });
-      this.time.delayedCall(260, () => { if (this.hero?.active && Math.abs(this.hero.body.velocity.x) > 400) this.hero.setVelocityX(0); });
       if (nearest && !nearest.getData("isBoss")) impact(nearest, this.facing * 390, -250);
     } else if (move.type === "throw") {
       if (boss) { this.hitBoss(boss, 3); this.statusLabel.setText("BOSS RESISTS THE THROW!").setColor("#ffcf75"); }
@@ -2208,7 +2207,9 @@ class ZeroGameScene extends Phaser.Scene {
       Phaser.Input.Keyboard.JustDown(this.keys.up) ||
       this.touch.jump;
 
-    if (Math.abs(moveAxis) > 0.16) {
+    if (time < (this.specialDashUntil || 0)) {
+      this.hero.setVelocityX(this.facing * 500);
+    } else if (Math.abs(moveAxis) > 0.16) {
       this.hero.setVelocityX(moveAxis * 270);
       this.facing = moveAxis < 0 ? -1 : 1;
     } else {
