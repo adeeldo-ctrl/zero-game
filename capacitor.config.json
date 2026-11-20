@@ -1,6 +1,6 @@
 {
-  "appId": "com.dastaanheroes.arcade",
-  "appName": "Dastaan Heroes",
+  "appId": "com.zerogame.arcade",
+  "appName": "ZERO GAME",
   "webDir": "dist",
   "bundledWebRuntime": false,
   "server": {
