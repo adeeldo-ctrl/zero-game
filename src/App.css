@@ -82,53 +82,12 @@ body {
   width: min(100vw, 177.7778vh);
   height: min(56.25vw, 100vh);
   transform: translate(-50%, -50%);
-  pointer-events: none;
-  touch-action: none;
-  user-select: none;
-  -webkit-user-select: none;
-}
-
-.mobile-stick-hit,
-.mobile-button-hit {
-  position: absolute;
-  display: block;
-  transform: translate(-50%, -50%);
   pointer-events: auto;
   touch-action: none;
-  -webkit-tap-highlight-color: transparent;
   user-select: none;
   -webkit-user-select: none;
-  background: transparent;
+  -webkit-tap-highlight-color: transparent;
 }
 
-.mobile-stick-hit {
-  left: 13.75%;
-  top: 82.96%;
-  width: 15%;
-  aspect-ratio: 1;
-  border-radius: 50%;
-}
-
-.mobile-button-hit {
-  width: 9.6%;
-  aspect-ratio: 1;
-  border-radius: 50%;
-}
-
-.mobile-button-hit.extra-one,
-.mobile-button-hit.extra-two,
-.mobile-button-hit.extra-three {
-  width: 8.1%;
-}
-
-.mobile-button-hit.extra-one { left: 69.27%; top: 62.96%; }
-.mobile-button-hit.extra-two { left: 80.73%; top: 62.96%; }
-.mobile-button-hit.extra-three { left: 92.19%; top: 62.96%; }
-.mobile-button-hit.super { left: 67.71%; top: 82.96%; }
-.mobile-button-hit.fire { left: 79.69%; top: 82.96%; }
-.mobile-button-hit.jump { left: 92.19%; top: 82.96%; }
-
-.mobile-stick-hit:active,
-.mobile-button-hit:active {
   background: rgba(255, 255, 255, 0.035);
 }
