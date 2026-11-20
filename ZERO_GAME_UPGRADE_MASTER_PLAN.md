@@ -311,3 +311,20 @@ Committed source implementation:
 - Removed the redundant legacy Android APK workflow. There is now one manual-only APK workflow, which applies landscape orientation, immersive full-screen navigation/status-bar hiding, launcher resources, and only then assembles/uploads the debug APK.
 - Strengthened Android static validation so CI checks the single workflow's manual-only trigger, landscape setting, immersive flags, APK artifact step, and absence of APK building in continuous checks.
 - APK workflows have not been dispatched. No APK has been built. Physical Redmi Note 8 touch/display/audio testing remains a user-device verification step; Chromium automation is not represented as physical-device testing.
+
+
+## Latest integrated verification — 2026-11-20
+
+- Updated the Chromium smoke harness to stabilize the hero and test enemies before invoking directional special moves. This prevents enemy AI/physics drift from making the EXTRA 2 / EXTRA 3 assertions depend on frame timing.
+- Latest integrated CI run **44778446475** completed successfully: `npm test`, `npm run lint`, Android static validation, `npm run build`, Chromium installation, and the full Chromium campaign smoke test all passed.
+- The Chromium smoke test verified all three special moves against active Phaser enemies, the snowball kick/roll collision, three hearts / three chances / Game Over / new-campaign reset, upward platform pass-through, elevated-platform landing, DOWN+JUMP drop-through, permanent-floor protection, four boss archetypes and their attack patterns, all three stage-entry directions, campaign persistence, all 50 real stage restarts, 50 unique stage landmark compositions, grounded enemy spawns, and no uncaught browser runtime errors.
+- The CI run is automated browser verification only; it does not prove physical Android touch/audio/display behavior.
+- Confirmed `.github/workflows/` contains only `zero-game-ci.yml` and `zero-game-android.yml`. The CI workflow performs no APK assembly or artifact upload; the sole APK workflow remains `workflow_dispatch` only.
+- No APK workflow has been dispatched and no APK has been built.
+
+### Remaining before final APK delivery
+
+- Review the remaining animation and boss behavior in the actual game, including phase transitions and attack/defeat feedback; automated smoke currently verifies boss archetype visuals and first attack patterns.
+- Complete any final gameplay/Android configuration checks, then rerun integrated CI after the last source/documentation changes.
+- Only after every requested feature and verification is complete, manually dispatch the single APK workflow and verify the generated APK artifact.
+- Redmi Note 8 physical touch, screen, audio and installation checks remain pending user-device verification.
