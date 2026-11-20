@@ -12,6 +12,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: zero-game-ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   verify:
     name: Test and validate game
