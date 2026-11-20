@@ -101,13 +101,13 @@ try {
     const secondDamage = targets[1].getData("visual")?.getData("damageParts");
     if (targets[1].getData("hitCount") < 2 || !secondDamage ||
         secondDamage.hornR?.active || secondDamage.armR?.active) {
-      throw new Error("EXTRA 2 did not apply its expected multi-hit damage");
+      throw new Error("EXTRA 2 damage check failed: hitCount=" + targets[1].getData("hitCount") + ", frozen=" + targets[1].getData("frozen") + ", moveType=" + scene.selectedHero?.specialMoves?.[1]?.type + ", visualActive=" + targets[1].getData("visual")?.active);
     }
     scene.specialMove(2);
     const thirdDamage = targets[2].getData("visual")?.getData("damageParts");
     if (targets[2].getData("hitCount") < 2 || !thirdDamage ||
         thirdDamage.hornR?.active || thirdDamage.armR?.active) {
-      throw new Error("EXTRA 3 did not apply its expected multi-hit damage");
+      throw new Error("EXTRA 3 damage check failed: hitCount=" + targets[2].getData("hitCount") + ", frozen=" + targets[2].getData("frozen") + ", moveType=" + scene.selectedHero?.specialMoves?.[2]?.type + ", visualActive=" + targets[2].getData("visual")?.active);
     }
     if (scene.specialReadyAt.some((readyAt) => readyAt <= scene.time.now)) {
       throw new Error("Each of the three special moves must start its own cooldown");
