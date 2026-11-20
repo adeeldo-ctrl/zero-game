@@ -2657,7 +2657,10 @@ export default function App() {
       scene.touch.right = false;
       scene.joystickKnob?.setPosition(132, 448).setScale(1);
     } else if (scene) {
-      scene.touch[action] = [...mobilePointers.current.values()].includes(action);
+      const stillPressed = [...mobilePointers.current.values()].includes(action);
+      scene.touch[action] = stillPressed;
+      // A very quick FIRE tap may begin and end between two game frames.
+      if (action === "attack" && !stillPressed && !scene.attackHeld) scene.fireAttack(0);
     }
     try { event.currentTarget.releasePointerCapture(event.pointerId); } catch {}
     event.preventDefault();
