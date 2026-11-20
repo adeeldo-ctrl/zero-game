@@ -1,0 +1,9 @@
+{
+  "appId": "com.dastaanheroes.arcade",
+  "appName": "Dastaan Heroes",
+  "webDir": "dist",
+  "bundledWebRuntime": false,
+  "server": {
+    "androidScheme": "http"
+  }
+}
