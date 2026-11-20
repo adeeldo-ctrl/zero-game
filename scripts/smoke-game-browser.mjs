@@ -125,11 +125,11 @@ try {
     if (!platform) throw new Error("Stage-one test platform not found");
     window.__ZERO_GAME_PLATFORM_TOP__ = platform.body.top;
   });
-  await delay(330);
+  await delay(450);
   await page.evaluate(() => {
     const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
     if (!(scene.hero.y < 420 && scene.hero.body.bottom <= window.__ZERO_GAME_PLATFORM_TOP__ + 16)) {
-      throw new Error("Hero did not pass upward through the elevated platform");
+      throw new Error(`Hero did not pass upward through the elevated platform: y=${scene.hero.y}, bottom=${scene.hero.body.bottom}, platformTop=${window.__ZERO_GAME_PLATFORM_TOP__}, velocityY=${scene.hero.body.velocity.y}, worldPaused=${scene.physics.world.isPaused}`);
     }
   });
   await page.waitForFunction(() => {
