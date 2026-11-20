@@ -246,6 +246,12 @@ try {
       return scene?.stageNumber === number && scene.stageConfig?.number === number &&
         scene.gameStarted && !scene.stageTransitionActive;
     }, nextStage, { timeout: 10000 });
+    await page.waitForFunction(() => {
+      const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+      return scene?.enemies?.getChildren().some((enemy) =>
+        enemy.active && !enemy.getData("isBoss") && !enemy.getData("isTimeHunter")
+      );
+    }, { timeout: 3000 });
     const stageState = await page.evaluate(() => {
       const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
       return {
