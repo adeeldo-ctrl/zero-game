@@ -53,6 +53,74 @@ try {
   await page.keyboard.press("x");
   await delay(700);
 
+  // Verify every equipped special move damages a live enemy through the real Phaser scene.
+  await page.evaluate(() => {
+    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+    if (!scene?.sys.isActive()) throw new Error("Game scene unavailable for special-move runtime test");
+    scene.enemies.getChildren().forEach((enemy) => {
+      enemy.getData("visual")?.destroy();
+      enemy.getData("elementBall")?.destroy();
+      enemy.destroy();
+    });
+    scene.hero.setPosition(300, 450).setVelocity(0, 0);
+    scene.facing = 1;
+    const makeTarget = (x) => {
+      const enemy = scene.enemies.create(x, 450, "enemy0");
+      enemy.setCollideWorldBounds(true).setBounce(0);
+      enemy.body.setAllowGravity(true);
+      enemy.setData("frozen", false);
+      enemy.setData("isTimeHunter", false);
+      enemy.setData("aiType", "chaser");
+      scene.createEnemyVisual(enemy, 0x8b4a3e, 0xffd36b);
+      return enemy;
+    };
+    window.__ZERO_GAME_SPECIAL_TARGETS__ = [makeTarget(390), makeTarget(410), makeTarget(430)];
+    scene.specialMove(0);
+  });
+  await page.waitForFunction(() => {
+    const targets = window.__ZERO_GAME_SPECIAL_TARGETS__;
+    return targets?.[0]?.getData("frozen") === true && targets[0].getData("hitCount") >= 2;
+  }, { timeout: 3000 });
+  await page.evaluate(() => {
+    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+    const targets = window.__ZERO_GAME_SPECIAL_TARGETS__;
+    scene.specialMove(1);
+    if (targets[1].getData("frozen") !== true || targets[1].getData("hitCount") < 2) {
+      throw new Error("EXTRA 2 did not damage and freeze its target");
+    }
+    scene.specialMove(2);
+    if (targets[2].getData("frozen") !== true || targets[2].getData("hitCount") < 2) {
+      throw new Error("EXTRA 3 did not damage and freeze its target");
+    }
+    if (scene.specialReadyAt.some((readyAt) => readyAt <= scene.time.now)) {
+      throw new Error("Each of the three special moves must start its own cooldown");
+    }
+    targets.forEach((enemy) => {
+      enemy.getData("visual")?.destroy();
+      enemy.getData("elementBall")?.destroy();
+      enemy.destroy();
+    });
+    const rollingEnemy = scene.enemies.create(360, 450, "enemy0");
+    rollingEnemy.setCollideWorldBounds(true);
+    rollingEnemy.body.setAllowGravity(false);
+    rollingEnemy.setData("frozen", true);
+    rollingEnemy.setData("rolling", false);
+    rollingEnemy.setData("ballPalette", scene.getPowerPalette());
+    rollingEnemy.setData("elementBall", scene.add.container(360, 450));
+    const rollTarget = scene.enemies.create(410, 450, "enemy1");
+    rollTarget.setCollideWorldBounds(true);
+    rollTarget.body.setAllowGravity(true);
+    rollTarget.setData("frozen", false);
+    scene.hero.setPosition(300, 450);
+    scene.facing = 1;
+    if (!scene.kickNearestElementBall()) throw new Error("FIRE did not kick a nearby frozen elemental ball");
+    if (!rollingEnemy.getData("rolling")) throw new Error("Kicked elemental ball did not enter rolling state");
+    scene.updateRollingBall(rollingEnemy, 16);
+    if (rollTarget.active) throw new Error("Rolling elemental ball did not hit and clear a nearby enemy");
+    rollingEnemy.getData("elementBall")?.destroy();
+    rollingEnemy.destroy();
+  });
+
   // Exercise the integrated three-heart / three-chance damage and respawn flow.
   await page.evaluate(() => {
     const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
