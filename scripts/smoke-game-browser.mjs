@@ -69,10 +69,37 @@ try {
       scene.stageConfig = { ...originalStage, boss: { ...bossData, hp: 30, attack: "Test attack" } };
       scene.bossHealth = 30;
       scene.bossMaxHealth = 30;
+      scene.bossDefeated = false;
       scene.spawnBoss();
       if (!scene.bossVisual?.active) throw new Error(`Boss visual failed: ${bossData.style}`);
-      scene.boss?.destroy();
+      const expectedFirstAttack = bossData.style.includes("boxing") ? 0
+        : bossData.style.includes("agile") ? 2
+        : bossData.style.includes("master") ? 1 : 0;
+      const boss = scene.boss;
+      boss.body.blocked.down = true;
+      boss.setData("wasAirborne", false);
+      boss.setData("bossAttackState", "rest");
+      boss.setData("bossAttackAt", 0);
+      scene.updateBoss(boss, 16);
+      if (boss.getData("bossAttackState") !== "tell" ||
+          boss.getData("bossAttackKind") !== expectedFirstAttack) {
+        throw new Error(`Boss attack pattern failed: ${bossData.style}`);
+      }
+      boss.setData("bossTellUntil", 0);
+      scene.updateBoss(boss, 16);
+      const state = boss.getData("bossAttackState");
+      if (expectedFirstAttack === 0 && state !== "slam") {
+        throw new Error(`Ground slam failed: ${bossData.style}`);
+      }
+      if (expectedFirstAttack === 1 && scene.bossShots.countActive() < 1) {
+        throw new Error(`Energy volley failed: ${bossData.style}`);
+      }
+      if (expectedFirstAttack === 2 && state !== "dash") {
+        throw new Error(`Dash attack failed: ${bossData.style}`);
+      }
+      boss.destroy();
       scene.bossVisual?.destroy();
+      scene.bossShots.clear(true, true);
       scene.boss = null;
       scene.bossVisual = null;
     }
@@ -124,10 +151,61 @@ try {
     }
   });
 
+  // Walk the actual Phaser scene-restart path through every remaining stage.
+  const visitedStages = [1, 2];
+  for (let nextStage = 3; nextStage <= 50; nextStage++) {
+    await page.evaluate(() => {
+      const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+      if (!scene?.sys.isActive()) throw new Error("Game scene unavailable during 50-stage campaign sweep");
+      scene.stageCleared = true;
+      scene.stageAdvancePending = false;
+      scene.advanceToNextStage();
+    });
+    await page.waitForFunction((number) => {
+      const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+      return scene?.stageNumber === number && scene.stageConfig?.number === number &&
+        scene.gameStarted && !scene.stageTransitionActive;
+    }, nextStage, { timeout: 10000 });
+    const stageState = await page.evaluate(() => {
+      const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+      return {
+        number: scene.stageNumber,
+        name: scene.stageConfig.name,
+        world: scene.stageConfig.world,
+        worldIndex: scene.stageConfig.worldIndex,
+        variant: scene.stageConfig.background.stageVariant,
+        platforms: scene.platforms.getChildren().length,
+        boss: !!scene.stageConfig.boss,
+        enemies: scene.enemies.getChildren().filter((enemy) =>
+          enemy.active && !enemy.getData("isBoss") && !enemy.getData("isTimeHunter")
+        ).map((enemy) => ({
+          type: enemy.getData("aiType"),
+          gravity: enemy.body.allowGravity,
+          y: enemy.y,
+        })),
+      };
+    });
+    if (stageState.number !== nextStage || stageState.platforms !== 5) {
+      throw new Error(`Stage ${nextStage} did not create its fixed arena and four elevated platforms`);
+    }
+    if (stageState.variant !== (nextStage - 1) % 5 ||
+        stageState.worldIndex !== Math.floor((nextStage - 1) / 5)) {
+      throw new Error(`Stage ${nextStage} theme/atmosphere identity is incorrect`);
+    }
+    if (stageState.boss !== (nextStage % 10 === 0)) {
+      throw new Error(`Stage ${nextStage} boss milestone is incorrect`);
+    }
+    if (stageState.enemies.some((enemy) => !enemy.gravity || enemy.type === "flyer")) {
+      throw new Error(`Stage ${nextStage} spawned a non-grounded regular enemy`);
+    }
+    visitedStages.push(stageState.number);
+  }
+  if (new Set(visitedStages).size !== 50) throw new Error("The complete 50-stage campaign did not visit every unique stage");
+
   if (runtimeErrors.length) {
     throw new Error(`Browser runtime errors:\n${runtimeErrors.join("\n")}`);
   }
-  console.log("Browser smoke test passed: campaign, hero persistence, gameplay inputs, four boss visuals, all three transition directions, real stage advance, and no uncaught runtime errors.");
+  console.log("Browser smoke test passed: campaign, hero persistence, gameplay inputs, four boss visuals and attacks, all three transition directions, all 50 real stage restarts, grounded enemy checks, and no uncaught runtime errors.");
 } finally {
   if (browser) await browser.close();
   if (server.exitCode === null) {
