@@ -829,25 +829,22 @@ class ZeroGameScene extends Phaser.Scene {
   createPlatforms() {
     this.platforms = this.physics.add.staticGroup();
 
+    // Keep the original continuous floor so no stage can strand the player.
     this.platforms.create(480, 528, "platform")
       .setScale(5.4, 1)
       .refreshBody();
 
-    this.platforms.create(160, 420, "platform")
-      .refreshBody();
+    const authored = this.stageConfig.platforms || [
+      { x: 160, y: 420, width: 200, height: 18 },
+      { x: 480, y: 345, width: 200, height: 18 },
+      { x: 800, y: 420, width: 200, height: 18 }
+    ];
 
-    this.platforms.create(480, 345, "platform")
-      .refreshBody();
-
-    this.platforms.create(800, 420, "platform")
-      .refreshBody();
-
-    [160, 480, 800].forEach((x, i) => {
-      const y = i === 1 ? 345 : 420;
-
-      this.add.ellipse(
-        x, y - 12, 140, 12, 0xc2ff8b, 0.15
-      ).setDepth(1);
+    authored.forEach(({ x, y, width = 200 }) => {
+      const platform = this.platforms.create(x, y, "platform");
+      platform.setScale(width / 100, 1).refreshBody();
+      this.add.ellipse(x, y - 12, width * 0.82, 12,
+        this.stageConfig.background.accent, 0.14).setDepth(1);
     });
   }
 
@@ -1308,7 +1305,7 @@ class ZeroGameScene extends Phaser.Scene {
         enemy.setData("frozen", false);
         enemy.setData("baseTexture", `enemy${i % 3}`);
         enemy.setData("enemyName", this.stageConfig.enemyTypes[i % this.stageConfig.enemyTypes.length]);
-        const aiTypes = ["chaser", "runner", "jumper", "flyer", "guard", "charger"];
+        const aiTypes = ["chaser", "runner", "jumper", "guard", "charger", "chaser"];
         const aiType = aiTypes[i % aiTypes.length];
         enemy.setData("aiType", aiType);
         enemy.setData("aiState", aiType === "runner" || aiType === "charger" ? "tell" : aiType === "guard" ? "guard" : "patrol");
