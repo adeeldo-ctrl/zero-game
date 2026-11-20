@@ -53,6 +53,50 @@ try {
   await page.keyboard.press("x");
   await delay(700);
 
+  // Exercise the actual DOM pointer layer used by the Android touch overlay.
+  await page.evaluate(() => {
+    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+    scene.audio.setMusicVolume(0.5);
+    scene.audio.setSfxVolume(0.5);
+    scene.specialReadyAt = [0, 0, 0];
+  });
+  await page.mouse.click(610, 43);
+  await page.mouse.click(690, 43);
+  await page.evaluate(() => {
+    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+    if (scene.audio.getMusicVolume() !== 0.75 || scene.audio.getSfxVolume() !== 0.75) {
+      throw new Error("Touch overlay did not route the MUSIC/SFX volume controls");
+    }
+  });
+  await page.mouse.move(132, 448);
+  await page.mouse.down();
+  await page.mouse.move(180, 448);
+  await page.evaluate(() => {
+    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+    if (scene.touch.axis < 0.7) throw new Error("Touch joystick did not preserve rightward movement mapping");
+  });
+  await page.mouse.move(132, 500);
+  await page.evaluate(() => {
+    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+    if (!scene.touch.down) throw new Error("Touch joystick did not detect the DOWN direction");
+  });
+  await page.mouse.up();
+  await page.evaluate(() => {
+    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+    if (scene.touch.axis !== 0 || scene.touch.down) throw new Error("Touch joystick did not reset on release");
+  });
+  for (const [index, x] of [[0, 665], [1, 775], [2, 885]]) {
+    await page.mouse.click(x, 340);
+    await page.waitForFunction((moveIndex) => {
+      const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+      return scene?.specialReadyAt?.[moveIndex] > scene.time.now;
+    }, index, { timeout: 1500 });
+    await page.evaluate((moveIndex) => {
+      const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+      scene.specialReadyAt[moveIndex] = 0;
+    }, index);
+  }
+
   // Verify every equipped special move damages a live enemy through the real Phaser scene.
   await page.evaluate(() => {
     const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
