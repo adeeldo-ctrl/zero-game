@@ -2606,6 +2606,65 @@ class ZeroGameScene extends Phaser.Scene {
 
 export default function App() {
   const gameRef = useRef(null);
+  const mobilePointers = useRef(new Map());
+
+  const getPlayableScene = () => {
+    const game = gameRef.current;
+    if (!game) return null;
+    const scene = game.scene.getScene("ZeroGameScene");
+    if (!scene || !scene.sys.isActive() || !scene.gameStarted || scene.gameOver || scene.stageCleared) return null;
+    return scene;
+  };
+
+  const updateDomJoystick = event => {
+    const scene = getPlayableScene();
+    if (!scene || mobilePointers.current.get(event.pointerId) !== "stick") return;
+    const rect = event.currentTarget.getBoundingClientRect();
+    const dx = (event.clientX - (rect.left + rect.width / 2)) / (rect.width / 2);
+    const dy = (event.clientY - (rect.top + rect.height / 2)) / (rect.height / 2);
+    scene.moveJoystick({
+      x: 132 + Math.max(-1, Math.min(1, dx)) * 52,
+      y: 448 + Math.max(-1, Math.min(1, dy)) * 52
+    });
+  };
+
+  const startDomJoystick = event => {
+    const scene = getPlayableScene();
+    if (!scene) return;
+    event.preventDefault();
+    event.stopPropagation();
+    mobilePointers.current.set(event.pointerId, "stick");
+    try { event.currentTarget.setPointerCapture(event.pointerId); } catch {}
+    updateDomJoystick(event);
+  };
+
+  const endDomPointer = event => {
+    const action = mobilePointers.current.get(event.pointerId);
+    if (!action) return;
+    mobilePointers.current.delete(event.pointerId);
+    const scene = gameRef.current?.scene.getScene("ZeroGameScene");
+    if (scene && action === "stick") {
+      scene.touch.axis = 0;
+      scene.touch.left = false;
+      scene.touch.right = false;
+      scene.joystickKnob?.setPosition(132, 448).setScale(1);
+    } else if (scene) {
+      scene.touch[action] = [...mobilePointers.current.values()].includes(action);
+    }
+    try { event.currentTarget.releasePointerCapture(event.pointerId); } catch {}
+    event.preventDefault();
+    event.stopPropagation();
+  };
+
+  const startDomAction = (action, event) => {
+    const scene = getPlayableScene();
+    if (!scene) return;
+    event.preventDefault();
+    event.stopPropagation();
+    mobilePointers.current.set(event.pointerId, action);
+    scene.touch[action] = true;
+    try { event.currentTarget.setPointerCapture(event.pointerId); } catch {}
+  };
 
   useEffect(() => {
     if (gameRef.current) return;
@@ -2654,6 +2713,36 @@ export default function App() {
     <main className="game-page">
       <section className="game-frame">
         <div id="game-container"></div>
+        <div id="mobile-controls-overlay" className="mobile-controls-overlay">
+          <div
+            className="mobile-stick-hit"
+            aria-label="Joystick"
+            onPointerDown={startDomJoystick}
+            onPointerMove={updateDomJoystick}
+            onPointerUp={endDomPointer}
+            onPointerCancel={endDomPointer}
+            onLostPointerCapture={endDomPointer}
+          />
+          {[
+            { action: "special1", cls: "extra-one", label: "Extra 1" },
+            { action: "special2", cls: "extra-two", label: "Extra 2" },
+            { action: "special3", cls: "extra-three", label: "Extra 3" },
+            { action: "super", cls: "super", label: "Super" },
+            { action: "attack", cls: "fire", label: "Fire" },
+            { action: "jump", cls: "jump", label: "Jump" }
+          ].map(control => (
+            <div
+              key={control.action}
+              className={`mobile-button-hit ${control.cls}`}
+              role="button"
+              aria-label={control.label}
+              onPointerDown={event => startDomAction(control.action, event)}
+              onPointerUp={endDomPointer}
+              onPointerCancel={endDomPointer}
+              onLostPointerCapture={endDomPointer}
+            />
+          ))}
+        </div>
       </section>
     </main>
   );
