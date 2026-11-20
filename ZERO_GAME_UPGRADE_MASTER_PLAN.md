@@ -261,3 +261,16 @@ Committed source implementation:
 - Platform-rule integration and its new regression tests are committed; their CI runs are pending verification at the time of this update.
 
 **Still outstanding:** visual/runtime inspection of all stages and transitions; verify the complete campaign on the actual game runtime; further animation polish, enemy grounding and AI checks, snowball collision edge cases, special-move/boss balance, audio lifecycle, Android icon resources and Android compatibility. No APK has been built.
+
+
+## Further integrated work — 2026-11-20
+
+- Added a reachability regression test across all 50 authored stage layouts. It verifies every elevated platform can be reached from the permanent floor through a sequence of reasonable vertical and horizontal jumps; all 50 layouts pass this graph-based design check.
+- Added persisted music and SFX volume levels (0%, 25%, 50%, 75%, 100%). Tapping the MUSIC / SFX HUD labels cycles their respective volume levels; keyboard M/N continues to toggle each channel on/off. Audio volume settings are stored locally.
+- Restarted the background music/stage cue from the campaign entry path so it resumes after a stage scene restart instead of waiting indefinitely for a new keyboard event.
+- Added independent cooldown timers for EXTRA 1, EXTRA 2 and EXTRA 3, with a remaining-time message when a move is pressed before it is ready. Cooldowns reset on a new campaign.
+- Fixed the fresh-campaign reset so a Game Over chance-loss lock cannot remain active and make the next campaign immune to enemy damage.
+- CI passed for the latest campaign reset and special-move cooldown changes on commit `fa6ee007be52d3ed0dd96ea80b74c0fb39f53699`, run [44756020934](https://github.com/adeeldo-ctrl/zero-game/actions/runs/44756020934). The associated audio-volume and audio-resume commits also passed CI (runs [44755848793](https://github.com/adeeldo-ctrl/zero-game/actions/runs/44755848793) and [44755917082](https://github.com/adeeldo-ctrl/zero-game/actions/runs/44755917082)).
+- CI includes `npm test`, `npm run lint`, and `npm run build`; all passed on those commits.
+
+**Remaining work is still substantial:** runtime/visual verification in the actual Phaser game, final animation and visual polish, detailed enemy and boss balancing, snowball edge-case verification, Android workflow/icon/landscape/fullscreen validation, and final integrated Android build. Automated data/rule checks do not replace gameplay runtime or physical-device testing. APK workflows remain manual-only and have not been dispatched.
