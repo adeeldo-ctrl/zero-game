@@ -41,4 +41,4 @@ wss.on("connection", socket => {
     if (!room.players.length) rooms.delete(socket.roomCode);
   });
 });
-wss.on("listening", () => console.log(`Dastaan Heroes Wi-Fi room server listening on 0.0.0.0:${PORT}`));
+wss.on("listening", () => console.log(`ZERO GAME Wi-Fi room server listening on 0.0.0.0:${PORT}`));
