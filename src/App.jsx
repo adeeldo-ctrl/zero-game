@@ -2691,7 +2691,7 @@ export default function App() {
     event.preventDefault();
     event.stopPropagation();
     mobilePointers.current.set(event.pointerId, target);
-    try { event.currentTarget.setPointerCapture(event.pointerId); } catch {}
+    try { event.currentTarget.setPointerCapture(event.pointerId); } catch { /* Pointer capture is optional on Android WebView. */ }
     if (target === "stick") {
       updateDomJoystick(event);
     } else {
@@ -2719,7 +2719,7 @@ export default function App() {
         scene.fireAttack(0);
       }
     }
-    try { event.currentTarget.releasePointerCapture(event.pointerId); } catch {}
+    try { event.currentTarget.releasePointerCapture(event.pointerId); } catch { /* Pointer capture is optional on Android WebView. */ }
     event.preventDefault();
     event.stopPropagation();
   };
