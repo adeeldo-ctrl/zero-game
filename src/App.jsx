@@ -962,21 +962,8 @@ class ZeroGameScene extends Phaser.Scene {
       this.musicToggleLabel.setText(`MUSIC ${this.audio.isMusicEnabled() ? "ON" : "OFF"} ${Math.round(this.audio.getMusicVolume() * 100)}%`);
       this.sfxToggleLabel.setText(`SFX ${this.audio.isSfxEnabled() ? "ON" : "OFF"} ${Math.round(this.audio.getSfxVolume() * 100)}%`);
     };
-    const nextVolume = (current) => {
-      const levels = [0, 0.25, 0.5, 0.75, 1];
-      return levels.find((level) => level > current + 0.001) ?? 0;
-    };
-    this.musicToggleLabel.on("pointerdown", () => {
-      this.audio.unlock();
-      this.audio.setMusicVolume(nextVolume(this.audio.getMusicVolume()));
-      this.audio.play("ui");
-      refreshAudioLabels();
-    });
-    this.sfxToggleLabel.on("pointerdown", () => {
-      this.audio.setSfxVolume(nextVolume(this.audio.getSfxVolume()));
-      refreshAudioLabels();
-      this.audio.play("ui");
-    });
+    this.musicToggleLabel.on("pointerdown", () => this.cycleAudioVolume("music"));
+    this.sfxToggleLabel.on("pointerdown", () => this.cycleAudioVolume("sfx"));
     refreshAudioLabels();
 
     this.statusLabel = this.add.text(
@@ -995,8 +982,31 @@ class ZeroGameScene extends Phaser.Scene {
       .setOrigin(0, 0.5).setDepth(24).setVisible(false);
   }
 
+  cycleAudioVolume(channel) {
+    const levels = [0, 0.25, 0.5, 0.75, 1];
+    if (channel === "music") {
+      const current = this.audio.getMusicVolume();
+      const next = levels.find((level) => level > current + 0.001) ?? 0;
+      this.audio.setMusicVolume(next);
+      this.musicToggleLabel?.setText(`MUSIC ${this.audio.isMusicEnabled() ? "ON" : "OFF"} ${Math.round(next * 100)}%`);
+    } else if (channel === "sfx") {
+      const current = this.audio.getSfxVolume();
+      const next = levels.find((level) => level > current + 0.001) ?? 0;
+      this.audio.setSfxVolume(next);
+      this.sfxToggleLabel?.setText(`SFX ${this.audio.isSfxEnabled() ? "ON" : "OFF"} ${Math.round(next * 100)}%`);
+    } else {
+      return;
+    }
+    this.audio.unlock();
+    this.audio.play("ui");
+  }
+
   pressMobileAction(action) {
     this.audio.unlock();
+    if (action === "musicVolume" || action === "sfxVolume") {
+      this.cycleAudioVolume(action === "musicVolume" ? "music" : "sfx");
+      return;
+    }
     if (action === "jump") {
       this.mobileJumpHeld = true;
       this.mobileJumpPressedAt = this.time?.now || 0;
