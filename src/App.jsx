@@ -2093,6 +2093,14 @@ class ZeroGameScene extends Phaser.Scene {
       enemy.setData("specialKnockback", true);
       enemy.setData("specialKnockbackUntil", this.time.now + 620);
       enemy.setVelocity(vx, vy);
+
+      // Route special impacts through the same authoritative hit pipeline as fire.
+      // This keeps enemy damage, defeat counters, score and boss-stage progression in sync.
+      const impactProjectile = this.projectiles.create(this.hero.x, this.hero.y - 12, "shot");
+      impactProjectile.setData("specialAttack", true);
+      impactProjectile.setData("powerType", this.powerType);
+      this.hitEnemy(impactProjectile, enemy);
+
       const visual = enemy.getData("visual");
       if (visual?.active) {
         this.tweens.add({ targets: visual, angle: this.facing * 22, scaleX: 1.2, duration: 95, yoyo: true, repeat: 1 });
