@@ -62,17 +62,17 @@ export const ENEMY_FAMILIES = [
   {
     id: "striker",
     inspiration: "boxing and military charge fighters",
-    names: ["Heavy Boxing Bruiser (Balrog-inspired)", "Sonic Charge Guard (Guile-inspired)", "Tiger Strike Rival (Sagat-inspired)", "Flame Fist Scout (Ken-inspired)", "Arena Boxing Captain", "Iron Guard Fighter"]
+    names: ["Heavy Boxing Bruiser", "Sonic Charge Guard", "Tiger Strike Rival", "Flame Fist Scout", "Arena Boxing Captain", "Iron Guard Fighter"]
   },
   {
     id: "agile",
     inspiration: "claw acrobats and fast kick fighters",
-    names: ["Masked Claw Acrobat (Vega-inspired)", "Rapid Kick Scout (Chun-Li-inspired)", "Shadow Ninja Runner", "Whirlwind Claw Fighter", "Sky-Step Acrobat", "Swift Arena Kicker"]
+    names: ["Masked Claw Acrobat", "Rapid Kick Scout", "Shadow Ninja Runner", "Whirlwind Claw Fighter", "Sky-Step Acrobat", "Swift Arena Kicker"]
   },
   {
     id: "power",
     inspiration: "heavy wrestlers and wild electric fighters",
-    names: ["Mighty Grappler (Zangief-inspired)", "Electric Beast Charger (Blanka-inspired)", "Psycho Power Guard (Bison-inspired)", "Heavyweight Wrestler", "Stone Fist Champion", "Wild Charge Brute"]
+    names: ["Mighty Grappler", "Electric Beast Charger", "Psychic Force Guard", "Heavyweight Wrestler", "Stone Fist Champion", "Wild Charge Brute"]
   }
 ];
 
