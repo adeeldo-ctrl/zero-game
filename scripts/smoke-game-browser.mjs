@@ -53,6 +53,77 @@ try {
   await page.keyboard.press("x");
   await delay(700);
 
+  // Exercise real Arcade Physics for pass-through, landing, drop-through and permanent floor.
+  await page.evaluate(() => {
+    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+    if (!scene?.sys.isActive()) throw new Error("Game scene unavailable for platform physics test");
+    scene.stageCleared = true;
+    scene.enemies.getChildren().forEach((enemy) => enemy.getData("visual")?.destroy());
+    scene.enemies.clear(true, true);
+  });
+  // Let already-scheduled stage-one enemy entries expire while the stage is frozen.
+  await delay(4200);
+  await page.evaluate(() => {
+    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+    scene.stageCleared = false;
+    scene.hero.setPosition(170, 470);
+    scene.hero.setVelocity(0, -470);
+    scene.jumpCount = 1;
+    const platform = scene.platforms.getChildren().find((item) => item !== scene.groundPlatform && Math.abs(item.x - 170) < 2);
+    if (!platform) throw new Error("Stage-one test platform not found");
+    window.__ZERO_GAME_PLATFORM_TOP__ = platform.body.top;
+  });
+  await delay(330);
+  await page.evaluate(() => {
+    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+    if (!(scene.hero.body.bottom < window.__ZERO_GAME_PLATFORM_TOP__)) {
+      throw new Error("Hero did not pass upward through the elevated platform");
+    }
+  });
+  await page.waitForFunction(() => {
+    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+    return scene?.hero?.body?.blocked?.down === true;
+  }, { timeout: 5000 });
+  await page.evaluate(() => {
+    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+    if (Math.abs(scene.hero.body.bottom - window.__ZERO_GAME_PLATFORM_TOP__) > 8) {
+      throw new Error("Hero did not land on the elevated platform from above");
+    }
+    scene.touch.down = true;
+    scene.touch.jump = true;
+  });
+  await delay(80);
+  await page.evaluate(() => {
+    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+    scene.touch.down = false;
+    scene.touch.jump = false;
+  });
+  await page.waitForFunction(() => {
+    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+    return scene?.hero?.body?.blocked?.down === true && scene.hero.y >= 455;
+  }, { timeout: 5000 });
+  await page.evaluate(() => {
+    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+    if (scene.hero.y < 455) throw new Error("DOWN + JUMP did not land on the permanent floor");
+    scene.hero.setPosition(480, 480);
+    scene.hero.setVelocity(0, 0);
+    scene.touch.down = true;
+    scene.touch.jump = true;
+  });
+  await delay(80);
+  await page.evaluate(() => {
+    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+    scene.touch.down = false;
+    scene.touch.jump = false;
+  });
+  await delay(120);
+  await page.evaluate(() => {
+    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+    if (!(scene.hero.y < 480)) {
+      throw new Error("DOWN + JUMP incorrectly dropped the hero through the permanent ground");
+    }
+  });
+
   // Exercise the four requested boss visual archetypes without changing production game flow.
   await page.evaluate(() => {
     const game = window.__ZERO_GAME_TEST__;
