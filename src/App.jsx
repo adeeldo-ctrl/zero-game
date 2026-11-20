@@ -348,9 +348,100 @@ class ZeroGameScene extends Phaser.Scene {
     } else {
       xs.forEach((x,i)=>{const h=145+((i+variant)%3)*35;g.fillStyle(0x262d61,0.98);g.fillRoundedRect(x-25,base-h,50,h,8);g.fillStyle(0x555a9b,0.95);g.fillTriangle(x-34,base-h,x,base-h-48,x+34,base-h);g.fillStyle(0xffdf88,0.95);g.fillCircle(x,base-h-8,8+(variant%2)*3);glow.fillStyle(0xffdf88,0.13);glow.fillCircle(x,base-h-8,48+variant*3);});
     }
+    // A second, stage-indexed landmark layer gives each of the five stages
+    // in every world a different silhouette, not merely a palette variation.
+    this.createStageVariantLandmark(variant, accent, far);
     glow.fillStyle(accent,0.07);glow.fillEllipse(480,365,780+variant*22,170);
     this.tweens.add({targets:glow,alpha:0.72,duration:1800+variant*120,yoyo:true,repeat:-1});
     this.add.rectangle(480,455,960,2,accent,0.18).setDepth(-1);
+  }
+
+  createStageVariantLandmark(variant, accent, far) {
+    const world = this.stageConfig.worldIndex || 0;
+    const g = this.add.graphics().setDepth(-14);
+    const signature = `world-${world}-stage-variant-${variant}`;
+    g.setData("stageLandmarkSignature", signature);
+    this.stageVariantLandmark = g;
+    const gold = 0xffdf88;
+    const pale = 0xeaf8ff;
+    const side = variant % 2 === 0 ? -1 : 1;
+
+    if (variant === 0) {
+      // Twin monumental arches framing the arena.
+      [115, 845].forEach((x, i) => {
+        const lean = (i ? -1 : 1) * (world % 3) * 7;
+        g.lineStyle(15, far, 0.9);
+        g.strokeRoundedRect(x - 48 + lean, 190, 96, 250, 44);
+        g.lineStyle(5, accent, 0.95);
+        g.strokeRoundedRect(x - 34 + lean, 205, 68, 220, 32);
+        g.fillStyle(accent, 0.72);
+        g.fillCircle(x + lean, 205, 9 + (world % 4));
+      });
+    } else if (variant === 1) {
+      // Hanging pennants and lanterns create a tall festival-like skyline.
+      for (let i = 0; i < 7; i++) {
+        const x = 75 + i * 135;
+        const top = 125 + ((i + world) % 3) * 24;
+        g.lineStyle(4, far, 0.9);
+        g.lineBetween(x, top - 35, x, top + 78);
+        g.fillStyle(i % 2 ? accent : gold, 0.9);
+        g.fillTriangle(x - 23, top, x + 23, top + 8, x - 4, top + 58 + (world % 3) * 7);
+        g.fillStyle(pale, 0.8);
+        g.fillCircle(x + 25 * side, top + 72, 5 + (i % 3));
+      }
+    } else if (variant === 2) {
+      // Floating stepped monoliths with crystal caps.
+      for (let i = 0; i < 5; i++) {
+        const x = 95 + i * 190;
+        const y = 255 + ((i + world) % 3) * 38;
+        const width = 78 + ((i + variant) % 2) * 22;
+        g.fillStyle(far, 0.82);
+        g.fillRoundedRect(x - width / 2, y, width, 115 + (i % 2) * 25, 12);
+        g.fillStyle(accent, 0.9);
+        g.fillTriangle(x - 19, y + 5, x, y - 38 - (world % 4) * 5, x + 21, y + 5);
+        g.lineStyle(3, pale, 0.72);
+        g.lineBetween(x, y + 18, x, y + 95);
+      }
+    } else if (variant === 3) {
+      // A broad sun/moon halo with radiating rays and side pillars.
+      g.lineStyle(12, far, 0.82);
+      g.strokeCircle(480, 235, 108 + (world % 4) * 8);
+      g.lineStyle(4, accent, 0.95);
+      g.strokeCircle(480, 235, 82 + (world % 3) * 7);
+      for (let i = 0; i < 16; i++) {
+        const angle = (Math.PI * 2 * i) / 16;
+        const inner = 118;
+        const outer = 148 + (i % 3) * 9;
+        g.lineBetween(
+          480 + Math.cos(angle) * inner,
+          235 + Math.sin(angle) * inner,
+          480 + Math.cos(angle) * outer,
+          235 + Math.sin(angle) * outer
+        );
+      }
+      [145, 815].forEach((x, i) => {
+        g.fillStyle(far, 0.92);
+        g.fillRoundedRect(x - 20, 250 - i * 18, 40, 190 + i * 18, 9);
+        g.fillStyle(accent, 0.9);
+        g.fillTriangle(x - 29, 250 - i * 18, x, 205 - i * 18, x + 29, 250 - i * 18);
+      });
+    } else {
+      // A star gate and constellation bridges for the final atmosphere variant.
+      g.lineStyle(13, far, 0.92);
+      g.strokeRoundedRect(350, 145, 260, 285, 72);
+      g.lineStyle(5, accent, 0.95);
+      g.strokeRoundedRect(370, 165, 220, 245, 58);
+      const nodes = [[390,205],[480,160],[570,205],[550,315],[410,315],[480,375]];
+      g.lineStyle(3, gold, 0.7);
+      [[0,1],[1,2],[2,3],[3,5],[5,4],[4,0],[0,3],[1,5],[2,4]].forEach(([a,b]) =>
+        g.lineBetween(nodes[a][0], nodes[a][1], nodes[b][0], nodes[b][1])
+      );
+      nodes.forEach(([x,y], i) => {
+        g.fillStyle(i % 2 ? accent : gold, 0.95);
+        g.fillCircle(x, y, 7 + (i % 3) * 2);
+      });
+    }
+    g.setAlpha(0.78);
   }
 
   createCastle(x, y) {
