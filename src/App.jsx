@@ -2267,7 +2267,10 @@ class ZeroGameScene extends Phaser.Scene {
       Phaser.Input.Keyboard.JustDown(this.keys.restart) &&
       this.stageCleared
     ) {
-      if (this.stageNumber < 50) this.stageNumber++;
+      if (this.stageNumber < 50) {
+        this.stageNumber++;
+        this.pendingStageTransitionDirection = getStageTransitionDirection(this.stageNumber);
+      }
       this.scene.restart();
       return;
     }
