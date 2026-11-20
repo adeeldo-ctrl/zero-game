@@ -104,3 +104,27 @@ For all four:
 - [ ] Original ZERO GAME icon is applied to Android launcher and app branding.
 - [ ] Automated checks pass and a fresh Android APK is built and linked.
 - [ ] Physical-device verification status is reported honestly.
+
+
+## Implementation progress — 2026-11-20
+
+The following source changes have been committed to `main`:
+
+- **50 stage layouts:** Added fixed platform definitions for every stage, with four elevated platforms plus the permanent floor. Layouts are deterministic and have 50 distinct signatures.
+- **Enemy movement:** Removed the unintended gravity-disabled flyer from the normal enemy spawn rotation. Ground-based enemy types now use the existing physics/platform collision system.
+- **Special damage:** Routed special-move impacts through the same enemy hit/damage pipeline used by projectiles, so damage counters, defeat progression, and scoring stay synchronized.
+- **Boss archetypes:** Replaced the final four milestone boss descriptions with original martial-arts-master, agile-claw, boxing-champion, and final-warlord archetypes; added silhouette details keyed to those styles.
+- **Audio foundation:** Added original synthesized music and sound effects, session-persistent music/SFX toggles, HUD toggles, and M/N keyboard shortcuts. Connected jump, double-jump, fire, special, enemy hit/defeat, snowball kick, and boss sounds.
+- **Android icon:** Added original vector launcher artwork and a build script that installs adaptive and legacy Android launcher icon resources.
+- **Automated checks:** Added Node tests for 50-stage count, unique fixed layouts, in-bounds platform geometry, deterministic reads, and final boss archetype coverage. Added `npm test` to the Android CI workflow.
+
+### Still pending before APK delivery
+
+- Complete and verify the requested hero animation upgrade and all special-move-specific animation timing.
+- Complete boss-specific attack/intro/defeat animation and phase behavior beyond the current style-based movement/pattern foundation.
+- Finish and verify the full snowball freeze/roll/kick collision rules and tutorial cue.
+- Verify audio playback, mobile HUD toggle usability, volume balance, and lifecycle behavior on Android.
+- Run the new tests, lint, web build, and Android Gradle APK build; resolve any failures.
+- Physically test the resulting APK on the target Android device before claiming device verification.
+
+**Status:** Implementation is in progress. No upgraded APK is declared ready until the CI checks and Android APK artifact have completed successfully.
