@@ -55,8 +55,8 @@
 ## 6. Extra 1 / Extra 2 / Extra 3 special buttons
 - Fix all three special buttons so each reliably damages or affects valid enemies; currently they appear not to damage enemies.
 - Give each button its own distinct, polished, readable hero animation and matching visual/audio effect. The moves should feel like original arcade-fighter specials, not generic or identical attacks.
-- Ensure hitboxes, target detection, damage application, cooldowns, and animation timing are synchronized. A successful visual attack must produce its intended gameplay effect.
-- Provide clear cooldown/availability feedback and prevent accidental repeated activation while an animation is locked.
+- Ensure hitboxes, target detection, damage application, and animation timing are synchronized. A successful visual attack must produce its intended gameplay effect.
+- All three EXTRA moves have unlimited immediate use: no cooldown, countdown, power meter, limited-use counter, or animation lock. Repeated presses must trigger the move again immediately.
 - Test each special against normal enemies and bosses, including edge-of-screen and airborne/grounded cases where supported.
 - Preserve existing button positions and working touch targeting unless a tested usability correction is essential.
 
@@ -84,7 +84,7 @@ For all four:
 ## 9. Quality gates and delivery
 - Inspect the existing implementation before changing it; reuse existing systems and avoid unnecessary rewrites.
 - Implement the work in integrated phases, with each phase including its own automated tests and regression checks. Do not defer all verification to a separate review phase.
-- Add/update automated tests for fixed stage determinism, stage count, platform collision/reachability invariants, enemy grounding, snowball collision/kick, special-button damage/cooldowns, boss phase logic, and audio lifecycle where testable.
+- Add/update automated tests for fixed stage determinism, stage count, platform collision/reachability invariants, enemy grounding, snowball collision/kick, special-button damage and immediate repeat-use, boss phase logic, and audio lifecycle where testable.
 - Run dependency checks, lint/type/build checks available in the repository, game tests, and Android Gradle debug APK build.
 - Test Android landscape/fullscreen, touch target alignment, joystick, fire, super, jump/double-jump, and all three special buttons for regressions. Clearly distinguish automated verification from physical-device testing.
 - Build a fresh installable APK from the final commit and provide the GitHub Actions run/artifact link. Do not claim device testing unless actually performed.
@@ -337,3 +337,12 @@ Committed source implementation:
 - Expanded boss integration coverage verifies the final warlord enters phase two at 60% health and phase three at 25% health, and that phase three fires the expected seven-projectile volley.
 - All automated project checks are now green on the tested commit. This remains headless-browser verification; native Android WebView behavior, device-specific touch alignment, audio playback and installation still need physical-device confirmation after APK delivery.
 - The APK workflow remains manual-only and has not yet been dispatched. The APK is still reserved as the final build step.
+
+
+## Unlimited special-move use and automatic final APK build — 2026-11-21
+
+- The latest direct user instruction supersedes earlier cooldown wording: EXTRA 1, EXTRA 2 and EXTRA 3 must be usable repeatedly with no cooldown, countdown, meter, use counter or animation lock.
+- Removed the cooldown timer/state and recharge-message path from the Phaser scene and combat rules.
+- Updated the Chromium gameplay smoke test to press every on-screen EXTRA button twice in immediate succession and verify repeated special-projectile activation.
+- Updated Android configuration validation and the single Android workflow so a push to `main` builds and uploads a fresh debug APK; manual `workflow_dispatch` remains available. Pull requests do not build APKs.
+- Automated CI and the fresh APK workflow are pending for this commit. Physical Android device verification remains separate and must not be claimed without testing.
