@@ -59,9 +59,21 @@ export const HEROES = [
 ];
 
 export const ENEMY_FAMILIES = [
-  { id: "striker", names: ["Street Striker", "Arena Boxer", "Red Sash Fighter", "Rising Kick Adept", "Guard Captain", "Training Champion", "Power Puncher", "Iron Step Fighter"] },
-  { id: "agile", names: ["Swift Claw Runner", "Sky Kicker", "Shadow Acrobat", "Quickstep Fighter", "Whirlwind Adept", "Flash Jumper", "Twin Kick Scout", "Darting Champion"] },
-  { id: "power", names: ["Heavyweight Guard", "Iron Fist Brawler", "Stone Step Fighter", "Thunder Guard", "Arena Bruiser", "Mighty Grappler", "Heavy Kick Expert", "Steel Wall Fighter"] }
+  {
+    id: "striker",
+    inspiration: "boxing and military charge fighters",
+    names: ["Heavy Boxing Bruiser (Balrog-inspired)", "Sonic Charge Guard (Guile-inspired)", "Tiger Strike Rival (Sagat-inspired)", "Flame Fist Scout (Ken-inspired)", "Arena Boxing Captain", "Iron Guard Fighter"]
+  },
+  {
+    id: "agile",
+    inspiration: "claw acrobats and fast kick fighters",
+    names: ["Masked Claw Acrobat (Vega-inspired)", "Rapid Kick Scout (Chun-Li-inspired)", "Shadow Ninja Runner", "Whirlwind Claw Fighter", "Sky-Step Acrobat", "Swift Arena Kicker"]
+  },
+  {
+    id: "power",
+    inspiration: "heavy wrestlers and wild electric fighters",
+    names: ["Mighty Grappler (Zangief-inspired)", "Electric Beast Charger (Blanka-inspired)", "Psycho Power Guard (Bison-inspired)", "Heavyweight Wrestler", "Stone Fist Champion", "Wild Charge Brute"]
+  }
 ];
 
 const WORLDS = [
@@ -78,11 +90,11 @@ const WORLDS = [
 ];
 
 const BOSS_DATA = [
-  { name: "Ironback Brawler", family: "power", element: "earth", hp: 34, attack: "Ground Pulse", color: 0x8a5943, style: "intro bruiser" },
-  { name: "The Pit Champion", family: "striker", element: "fire", hp: 46, attack: "Heavy Impact", color: 0xa64b3d, style: "boxing champion" },
-  { name: "Crimson Talon", family: "agile", element: "wind", hp: 54, attack: "Aerial Rush", color: 0x8d405e, style: "agile aerial fighter" },
-  { name: "Summit Master", family: "striker", element: "lightning", hp: 64, attack: "Thunder Form", color: 0x6259a7, style: "martial arts master" },
-  { name: "Obsidian Warlord", family: "power", element: "shadow", hp: 82, attack: "Warlord Storm", color: 0x493b76, style: "final warlord" }
+  { name: "Arena Gatekeeper", family: "power", element: "earth", hp: 34, attack: "Ground Pulse", color: 0x8a5943, style: "intro grappler" },
+  { name: "Tiger Emperor", family: "striker", element: "fire", hp: 46, attack: "Tiger Rush", color: 0xa64b3d, style: "Sagat-inspired long-range boss" },
+  { name: "Crimson Claw", family: "agile", element: "wind", hp: 54, attack: "Claw Dive", color: 0x8d405e, style: "Vega-inspired agile boss" },
+  { name: "Iron Champion", family: "striker", element: "earth", hp: 64, attack: "Heavy Barrage", color: 0x6259a7, style: "Balrog-inspired boxing boss" },
+  { name: "Psycho Warlord", family: "power", element: "shadow", hp: 82, attack: "Psycho Storm", color: 0x493b76, style: "M Bison-inspired final boss" }
 ];
 
 const stageColor = (color, step, channelShift = 1) => {
