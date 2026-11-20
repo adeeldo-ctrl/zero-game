@@ -1277,6 +1277,7 @@ class ZeroGameScene extends Phaser.Scene {
   startNewCampaign() {
     this.clearMenu();
     this.gameOver = false; this.stageCleared = false; this.campaignActive = false; this.heroSelectionLocked = false;
+    this.chanceLossInProgress = false;
     this.stageNumber = 1; this.score = 0; this.extraLivesAwarded = 0; this.defeated = 0;
     this.chances = 3; this.health = 3; this.snowballTutorialShown = false;
     this.showHeroSelect();
@@ -1821,9 +1822,13 @@ class ZeroGameScene extends Phaser.Scene {
       this.powerLabel.setText(`POWER: ${element.name.toUpperCase()} [C]`).setColor("#" + element.color.toString(16).padStart(6, "0"));
       this.statusLabel.setText(`${element.name.toUpperCase()} POWER FOUND!`).setColor("#ffe17a");
     } else if (reward <= 6) {
-      this.health = Math.min(3, this.health + 1);
+      if (this.health < 3) {
+        this.health = Math.min(3, this.health + 1);
+        this.statusLabel.setText("TREASURE! +1 HEART").setColor("#62ffb4");
+      } else {
+        this.statusLabel.setText("TREASURE! HEARTS ALREADY FULL").setColor("#9feaff");
+      }
       this.updateLivesLabel();
-      this.statusLabel.setText(this.health === 3 ? "TREASURE! HEARTS RESTORED" : "TREASURE! +1 HEART").setColor("#62ffb4");
     } else if (reward <= 8) {
       this.addScore(1500);
       this.statusLabel.setText("TREASURE! +1500 SCORE").setColor("#ffe17a");
