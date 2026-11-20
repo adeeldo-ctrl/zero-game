@@ -40,7 +40,7 @@ export function createGameAudio() {
   };
 
   const tone = (frequency, duration = 0.12, type = "triangle", volume = 0.12, destination = null) => {
-    if (!context) return;
+    if (!context || volume <= 0) return;
     const oscillator = context.createOscillator();
     const gain = context.createGain();
     const now = context.currentTime;
