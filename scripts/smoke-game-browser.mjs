@@ -85,18 +85,25 @@ try {
     if (scene.touch.axis !== 0 || scene.touch.down) throw new Error("Touch joystick did not reset on release");
   });
   for (const [index, x] of [[0, 665], [1, 775], [2, 885]]) {
-    const expectedName = await page.evaluate((moveIndex) => {
+    const expectedType = await page.evaluate((moveIndex) => {
       const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
-      return scene.selectedHero.specialMoves[moveIndex].name.toUpperCase() + "!";
+      return scene.selectedHero.specialMoves[moveIndex].type;
     }, index);
-    // Press each mobile EXTRA button twice immediately. The second press
-    // must work without a recharge message or animation lock.
+    // Press each mobile EXTRA button twice immediately. Verify a fresh
+    // animation start each time; the HUD may legitimately show "no enemy
+    // in range" when the arena has already been cleared.
     for (let repeat = 0; repeat < 2; repeat++) {
-      await page.mouse.click(x, 340);
-      await page.waitForFunction((name) => {
+      const previousStart = await page.evaluate(() => {
         const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
-        return scene?.statusLabel?.text === name && scene.specialPoseUntil > scene.time.now;
-      }, expectedName, { timeout: 1500 });
+        return scene.specialPoseStartedAt || 0;
+      });
+      await page.mouse.click(x, 340);
+      await page.waitForFunction(({ type, previousStart: lastStart }) => {
+        const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+        return scene?.specialPoseType === type &&
+          scene.specialPoseStartedAt > lastStart &&
+          scene.specialPoseUntil > scene.time.now;
+      }, { type: expectedType, previousStart }, { timeout: 1500 });
     }
   }
 
