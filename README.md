@@ -77,3 +77,13 @@ npx cap sync android
 ```
 
 Then open the Android project in Android Studio or build the debug APK using the Gradle wrapper.
+
+## Accessibility and mobile use
+
+- Play in landscape orientation; the game canvas is designed to occupy the full device viewport.
+- Keyboard controls are available alongside the on-screen mobile controls: move with A/D or the arrow keys, jump with Space/Up, fire with X, Super with Z, and select an elemental power with C.
+- On mobile, use the left virtual joystick for movement and the right-side buttons for Jump, Fire, Super and the three EXTRA actions. The touch overlay supports simultaneous pointer input.
+- Music and sound effects can be adjusted independently using the in-game MUSIC and SFX controls. Keyboard shortcuts M and N toggle the corresponding audio channels.
+- Audio starts after the first player interaction to comply with mobile browser/WebView audio restrictions.
+- The current game uses animated visual effects and does not yet expose a dedicated reduced-motion setting or screen-reader navigation mode; these are known accessibility limitations rather than supported features.
+
