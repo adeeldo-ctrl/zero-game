@@ -365,3 +365,12 @@ Committed source implementation:
 - Work on weapon-use or attack-enabling mechanics is paused. Do not continue those features or build an APK containing new weapon-use functionality.
 - Non-combat work such as menus, stage presentation, accessibility, sound settings, general performance, and documentation can be considered separately.
 - No APK has been built from the current changes.
+
+
+## Audio-control usability correction — 2026-11-25
+
+- Updated the in-game MUSIC and SFX HUD labels so tapping either label toggles that channel on/off without changing its saved volume level.
+- Keyboard shortcuts M and N use the same toggle path as the HUD, keeping labels and enabled state synchronized.
+- Volume cycling remains a separate operation and saved volume preferences are preserved when muting/unmuting.
+- Source change: `src/App.jsx`, commit `318fcf29a8863db4473e672592bd4617c0ed1e76`.
+- This is a focused source change; consolidated CI and Android delivery have not been run after it.
