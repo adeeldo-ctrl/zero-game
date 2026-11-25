@@ -11,7 +11,9 @@ const NOTE_FREQUENCIES = {
 const SOUND_NOTES = {
   jump: [440, 660], doubleJump: [523, 784, 988], fire: [180, 320, 520],
   special: [260, 390, 580, 780], hit: [170, 120], defeat: [420, 620, 880],
-  boss: [110, 165, 220], bossHit: [130, 260], kick: [95, 180, 360],
+  boss: [110, 165, 220], bossHit: [130, 260], bossPhase: [110, 220, 330, 440, 660],
+  kick: [95, 180, 360], land: [150, 190], collect: [660, 880, 1046],
+  stageClear: [392, 523, 659, 784, 988], gameOver: [330, 247, 196, 147],
   ui: [520, 660], stage: [392, 523, 659]
 };
 
