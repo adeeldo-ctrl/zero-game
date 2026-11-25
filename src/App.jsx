@@ -3446,7 +3446,7 @@ export default function App() {
         scene.touch.special1 = false;
         scene.touch.special2 = false;
         scene.touch.special3 = false;
-        scene.mobileActionQueue?.clear();
+        if (scene.mobileActionQueue) scene.mobileActionQueue.length = 0;
         scene.mobileJumpHeld = false;
         scene.mobileJumpPressedAt = 0;
         scene.attackHeld = false;
