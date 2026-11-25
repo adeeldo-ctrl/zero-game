@@ -76,7 +76,7 @@ class ZeroGameScene extends Phaser.Scene {
     this.dropThroughUntil = 0;
     this.touch.axis = 0;
     this.touch.down = false;
-    this.mobileActionQueue = new Set();
+    this.mobileActionQueue = [];
     this.mobileJumpHeld = false;
     this.mobileJumpPressedAt = 0;
     this.audio = createGameAudio();
@@ -1130,17 +1130,24 @@ class ZeroGameScene extends Phaser.Scene {
       return;
     }
     if (["super", "special1", "special2", "special3"].includes(action)) {
-      this.mobileActionQueue.add(action);
+      this.mobileActionQueue.push(action);
       return;
     }
     this.touch[action] = true;
+  }
+
+  consumeMobileAction(action) {
+    const index = this.mobileActionQueue.indexOf(action);
+    if (index < 0) return false;
+    this.mobileActionQueue.splice(index, 1);
+    return true;
   }
 
   setMobileControlsVisible(visible) {
     const overlay = document.getElementById("mobile-controls-overlay");
     if (overlay) overlay.style.display = visible ? "block" : "none";
     if (!visible) {
-      this.mobileActionQueue?.clear();
+      if (this.mobileActionQueue) this.mobileActionQueue.length = 0;
       if (this.touch) {
         this.touch.axis = 0;
         this.touch.left = false;
@@ -2645,19 +2652,19 @@ class ZeroGameScene extends Phaser.Scene {
       this.audio.setSfxEnabled(!this.audio.isSfxEnabled());
       this.sfxToggleLabel?.setText(`SFX ${this.audio.isSfxEnabled() ? "ON" : "OFF"} ${Math.round(this.audio.getSfxVolume() * 100)}%`);
     }
-    if (Phaser.Input.Keyboard.JustDown(this.keys.super) || this.touch.super || this.mobileActionQueue.delete("super")) {
+    if (Phaser.Input.Keyboard.JustDown(this.keys.super) || this.touch.super || this.consumeMobileAction("super")) {
       this.superAttack();
       this.touch.super = false;
     }
-    if (Phaser.Input.Keyboard.JustDown(this.keys.special1) || this.touch.special1 || this.mobileActionQueue.delete("special1")) {
+    if (Phaser.Input.Keyboard.JustDown(this.keys.special1) || this.touch.special1 || this.consumeMobileAction("special1")) {
       this.specialMove(0);
       this.touch.special1 = false;
     }
-    if (Phaser.Input.Keyboard.JustDown(this.keys.special2) || this.touch.special2 || this.mobileActionQueue.delete("special2")) {
+    if (Phaser.Input.Keyboard.JustDown(this.keys.special2) || this.touch.special2 || this.consumeMobileAction("special2")) {
       this.specialMove(1);
       this.touch.special2 = false;
     }
-    if (Phaser.Input.Keyboard.JustDown(this.keys.special3) || this.touch.special3 || this.mobileActionQueue.delete("special3")) {
+    if (Phaser.Input.Keyboard.JustDown(this.keys.special3) || this.touch.special3 || this.consumeMobileAction("special3")) {
       this.specialMove(2);
       this.touch.special3 = false;
     }
@@ -2683,7 +2690,7 @@ class ZeroGameScene extends Phaser.Scene {
     const jump =
       Phaser.Input.Keyboard.JustDown(this.keys.jump) ||
       Phaser.Input.Keyboard.JustDown(this.keys.up) ||
-      this.touch.jump || this.mobileActionQueue.delete("jump") ||
+      this.touch.jump || this.consumeMobileAction("jump") ||
       (this.mobileJumpHeld && this.jumpCount === 1 && !this.hero.body.blocked.down &&
         time - this.mobileJumpPressedAt >= 180);
     const wantsDropThrough = shouldDropThroughPlatform({
