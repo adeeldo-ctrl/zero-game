@@ -383,3 +383,11 @@ Committed source implementation:
 - This avoids continued gameplay/audio in the background and reduces the risk of a stuck joystick/action after an app switch.
 - Source commit: `573b53aa7b1c1be52587058b96fec2cb83c10c83`.
 - This change has not yet been included in the one final consolidated CI run; no APK has been built.
+
+
+## Mobile input reset correction — 2026-11-25
+
+- Corrected the blur/visibility touch-reset path to clear `mobileActionQueue` as an array (`length = 0`) rather than calling the unsupported `.clear()` method.
+- This prevents a runtime TypeError when the browser window loses focus while the game is active, while still clearing queued mobile actions so no held action remains stuck.
+- Source commit: `a1ae5e098b539b4c35c6c9abe4e1717629ca10f8`.
+- Consolidated verification remains pending until the approved non-combat development scope is complete; no APK has been built.
