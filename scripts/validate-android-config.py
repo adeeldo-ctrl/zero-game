@@ -33,14 +33,23 @@ workflow_dir = root / ".github/workflows"
 apk_workflow = workflow_dir / "zero-game-android.yml"
 content = apk_workflow.read_text(encoding="utf-8")
 trigger_block = re.search(r"(?ms)^on:\s*\n((?:[ \t]+.*\n)*)", content)
-assert trigger_block and re.search(r"(?m)^  workflow_dispatch:\s*$", trigger_block.group(1)), (
-    "The Android APK workflow must remain manually dispatchable"
+assert trigger_block and re.search(r"(?m)^  workflow_run:\s*$", trigger_block.group(1)), (
+    "The Android APK workflow must be triggered by the completed final verification workflow"
+)
+assert "ZERO GAME Continuous Checks" in trigger_block.group(1), (
+    "The APK workflow must wait for ZERO GAME Continuous Checks"
 )
 assert not re.search(r"(?m)^  push:", trigger_block.group(1)), (
-    "Android APK builds must be reserved for final manual delivery"
+    "Source pushes must not directly trigger Android APK builds"
 )
 assert not re.search(r"(?m)^  pull_request:", trigger_block.group(1)), (
     "Pull requests must not trigger Android APK builds"
+)
+assert "workflow_run.conclusion == 'success'" in content, (
+    "The Android APK must build only after successful integrated verification"
+)
+assert "workflow_run.head_sha" in content, (
+    "The APK must be built from the exact verified source commit"
 )
 assert "assembleDebug" in content and "upload-artifact@v4" in content
 assert "screenOrientation" in content, "Android launcher must be locked to landscape"
@@ -50,11 +59,14 @@ assert not (workflow_dir / "android-apk.yml").exists(), "Remove the redundant le
 
 ci = (workflow_dir / "zero-game-ci.yml").read_text(encoding="utf-8")
 ci_trigger = re.search(r"(?ms)^on:\s*\n((?:[ \t]+.*\n)*)", ci)
-assert ci_trigger and re.search(r"(?m)^  workflow_dispatch:\s*$", ci_trigger.group(1)), (
+assert ci_trigger and re.search(r"(?m)^  push:\s*$", ci_trigger.group(1)), (
     "Integrated verification must be manually dispatchable"
 )
-assert not re.search(r"(?m)^  push:", ci_trigger.group(1)) and not re.search(r"(?m)^  pull_request:", ci_trigger.group(1)), (
-    "Integrated verification must not run after every intermediate commit"
+assert re.search(r"(?m)^      - main\s*$", ci_trigger.group(1)), (
+    "Integrated verification must run only for the final main-branch commit"
+)
+assert not re.search(r"(?m)^  pull_request:", ci_trigger.group(1)), (
+    "Pull requests must not start the final delivery pipeline"
 )
 assert "npm test" in ci and "npm run lint" in ci and "npm run build" in ci
 assert "assembleDebug" not in ci and "upload-artifact" not in ci, (
@@ -91,4 +103,4 @@ with tempfile.TemporaryDirectory(prefix="zero-game-android-check-") as temporary
     ):
         assert (temp_root / relative).is_file(), f"Icon installer missed {relative}"
 
-print("Android package, launcher icon installation, manual final APK build, and consolidated verification policy validated.")
+print("Android package, launcher icon installation, CI-gated final APK build, and consolidated delivery policy validated.")

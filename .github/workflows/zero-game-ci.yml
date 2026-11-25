@@ -1,7 +1,9 @@
 name: ZERO GAME Continuous Checks
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - main
 
 permissions:
   contents: read

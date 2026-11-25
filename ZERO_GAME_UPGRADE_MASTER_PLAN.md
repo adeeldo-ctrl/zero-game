@@ -344,7 +344,7 @@ Committed source implementation:
 - The latest direct user instruction supersedes earlier cooldown wording: EXTRA 1, EXTRA 2 and EXTRA 3 must be usable repeatedly with no cooldown, countdown, meter, use counter or animation lock.
 - Removed the cooldown timer/state and recharge-message path from the Phaser scene and combat rules.
 - Updated the Chromium gameplay smoke test to press every on-screen EXTRA button twice in immediate succession and verify repeated special-projectile activation.
-- Android APK creation is reserved for a manual `workflow_dispatch` after all requested development and the final consolidated verification are complete. Pushes and pull requests do not build or upload APKs.
+- Android APK creation is reserved for the final delivery pipeline: the final `main` commit runs consolidated verification, and the APK workflow starts only after that exact run succeeds. Source pushes do not directly trigger APK assembly; pull requests do not start the delivery pipeline.
 - Automated CI and the fresh APK workflow are pending for this commit. Physical Android device verification remains separate and must not be claimed without testing.
 
 
@@ -353,8 +353,8 @@ Committed source implementation:
 - Continue the complete approved ZERO GAME scope in the existing repository; preserve the existing game identity, campaign, controls, 50 stages, selected-hero persistence, chances/hearts, co-op and gameplay systems.
 - Do not send intermediate working-step, log, line-by-line or progress updates in chat. Provide the completion report only when the work is finished, or state a genuine unavoidable blocker.
 - Avoid unnecessary repeated testing. Keep the integrated CI workflow manually dispatchable and run the consolidated verification once after the requested development is complete.
-- The Android APK workflow is manual-only. Do not dispatch it, run Gradle APK assembly, or upload an APK before all requested work and final verification are complete.
-- Latest delivery workflow change: `.github/workflows/zero-game-android.yml` now uses `workflow_dispatch` only; `.github/workflows/zero-game-ci.yml` is also manual-only for one final consolidated run. Android static validation was updated to enforce this policy.
+- The Android APK workflow is gated by successful completion of the final integrated CI workflow. Do not build or upload an APK before all requested work and final verification are complete.
+- Latest delivery workflow change: `.github/workflows/zero-game-ci.yml` runs on the final `main` push; `.github/workflows/zero-game-android.yml` waits for that exact run to succeed before building the APK. Android static validation enforces the CI success gate and exact verified commit.
 - README now documents the final-only APK process.
 - Additional polish committed: boss phase changes now have a distinct visual/audio cue; boss anticipation, dash, slam and energy-volley poses vary by boss archetype; bosses remain stationary during their volley pose. Added original synthesized landing, pickup, stage-clear, game-over and boss-phase sound cues and connected them to the corresponding game events.
-- These source changes have not yet received the final consolidated CI run or Android APK build. Do not mark delivery complete until those final steps succeed. Physical-device behavior must remain clearly distinguished from automated verification.
+- The final delivery commit is intended to start one consolidated CI run, followed by the Android APK build only if CI succeeds. Do not mark delivery complete until the run and artifact are confirmed. Physical-device behavior must remain clearly distinguished from automated verification.

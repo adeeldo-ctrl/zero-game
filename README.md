@@ -56,7 +56,7 @@ Enemies use original archetypes inspired by other Street Fighter-style fighters,
 
 ## Android debug APK
 
-The GitHub Actions workflow `.github/workflows/zero-game-android.yml` is reserved for the final Android APK delivery and runs only when manually started from the Actions tab. Ordinary source updates do not build or upload APKs.
+The final delivery pipeline runs the consolidated checks on the final commit pushed to `main`. Only after **ZERO GAME Continuous Checks** succeeds does `.github/workflows/zero-game-android.yml` build and upload the Android debug APK from that exact verified commit. Source pushes do not directly start an APK build.
 
 1. Open the repository's Actions tab.
 2. Select **ZERO GAME Android APK**.
