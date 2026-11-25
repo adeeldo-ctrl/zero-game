@@ -36,11 +36,8 @@ trigger_block = re.search(r"(?ms)^on:\s*\n((?:[ \t]+.*\n)*)", content)
 assert trigger_block and re.search(r"(?m)^  workflow_dispatch:\s*$", trigger_block.group(1)), (
     "The Android APK workflow must remain manually dispatchable"
 )
-assert re.search(r"(?m)^  push:\s*$", trigger_block.group(1)), (
-    "The Android APK workflow must build a fresh APK after a main-branch update"
-)
-assert re.search(r"(?m)^      - main\s*$", trigger_block.group(1)), (
-    "Automatic APK builds must be limited to the main branch"
+assert not re.search(r"(?m)^  push:", trigger_block.group(1)), (
+    "Android APK builds must be reserved for final manual delivery"
 )
 assert not re.search(r"(?m)^  pull_request:", trigger_block.group(1)), (
     "Pull requests must not trigger Android APK builds"
@@ -52,6 +49,13 @@ for flag in ("SYSTEM_UI_FLAG_IMMERSIVE_STICKY", "SYSTEM_UI_FLAG_HIDE_NAVIGATION"
 assert not (workflow_dir / "android-apk.yml").exists(), "Remove the redundant legacy APK workflow"
 
 ci = (workflow_dir / "zero-game-ci.yml").read_text(encoding="utf-8")
+ci_trigger = re.search(r"(?ms)^on:\s*\n((?:[ \t]+.*\n)*)", ci)
+assert ci_trigger and re.search(r"(?m)^  workflow_dispatch:\s*$", ci_trigger.group(1)), (
+    "Integrated verification must be manually dispatchable"
+)
+assert not re.search(r"(?m)^  push:", ci_trigger.group(1)) and not re.search(r"(?m)^  pull_request:", ci_trigger.group(1)), (
+    "Integrated verification must not run after every intermediate commit"
+)
 assert "npm test" in ci and "npm run lint" in ci and "npm run build" in ci
 assert "assembleDebug" not in ci and "upload-artifact" not in ci, (
     "Continuous checks must never build or upload an APK"
@@ -87,4 +91,4 @@ with tempfile.TemporaryDirectory(prefix="zero-game-android-check-") as temporary
     ):
         assert (temp_root / relative).is_file(), f"Icon installer missed {relative}"
 
-print("Android package, launcher icon installation, main-push APK build, and manual dispatch policy validated.")
+print("Android package, launcher icon installation, manual final APK build, and consolidated verification policy validated.")
