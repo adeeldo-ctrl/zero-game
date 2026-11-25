@@ -1078,8 +1078,11 @@ class ZeroGameScene extends Phaser.Scene {
       this.musicToggleLabel.setText(`MUSIC ${this.audio.isMusicEnabled() ? "ON" : "OFF"} ${Math.round(this.audio.getMusicVolume() * 100)}%`);
       this.sfxToggleLabel.setText(`SFX ${this.audio.isSfxEnabled() ? "ON" : "OFF"} ${Math.round(this.audio.getSfxVolume() * 100)}%`);
     };
-    this.musicToggleLabel.on("pointerdown", () => this.cycleAudioVolume("music"));
-    this.sfxToggleLabel.on("pointerdown", () => this.cycleAudioVolume("sfx"));
+    // Tap the HUD labels to mute/unmute; volume cycling remains available
+    // through cycleAudioVolume so a mute toggle never unexpectedly changes
+    // the player's saved volume preference.
+    this.musicToggleLabel.on("pointerdown", () => this.toggleAudioChannel("music"));
+    this.sfxToggleLabel.on("pointerdown", () => this.toggleAudioChannel("sfx"));
     refreshAudioLabels();
 
     this.statusLabel = this.add.text(
@@ -1096,6 +1099,19 @@ class ZeroGameScene extends Phaser.Scene {
       .setStrokeStyle(2, 0xffd36b).setDepth(23).setVisible(false);
     this.bossBar = this.add.rectangle(331, 96, 296, 7, 0xff594f)
       .setOrigin(0, 0.5).setDepth(24).setVisible(false);
+  }
+
+  toggleAudioChannel(channel) {
+    if (channel === "music") {
+      this.audio.setMusicEnabled(!this.audio.isMusicEnabled());
+      this.musicToggleLabel?.setText(`MUSIC ${this.audio.isMusicEnabled() ? "ON" : "OFF"} ${Math.round(this.audio.getMusicVolume() * 100)}%`);
+    } else if (channel === "sfx") {
+      this.audio.setSfxEnabled(!this.audio.isSfxEnabled());
+      this.sfxToggleLabel?.setText(`SFX ${this.audio.isSfxEnabled() ? "ON" : "OFF"} ${Math.round(this.audio.getSfxVolume() * 100)}%`);
+    } else {
+      return;
+    }
+    this.audio.play("ui");
   }
 
   cycleAudioVolume(channel) {
@@ -2644,15 +2660,8 @@ class ZeroGameScene extends Phaser.Scene {
       this.openTreasureChest();
     }
     if (Phaser.Input.Keyboard.JustDown(this.keys.cyclePower)) this.cyclePower();
-    if (Phaser.Input.Keyboard.JustDown(this.keys.musicToggle)) {
-      this.audio.setMusicEnabled(!this.audio.isMusicEnabled());
-      this.musicToggleLabel?.setText(`MUSIC ${this.audio.isMusicEnabled() ? "ON" : "OFF"} ${Math.round(this.audio.getMusicVolume() * 100)}%`);
-      this.audio.play("ui");
-    }
-    if (Phaser.Input.Keyboard.JustDown(this.keys.sfxToggle)) {
-      this.audio.setSfxEnabled(!this.audio.isSfxEnabled());
-      this.sfxToggleLabel?.setText(`SFX ${this.audio.isSfxEnabled() ? "ON" : "OFF"} ${Math.round(this.audio.getSfxVolume() * 100)}%`);
-    }
+    if (Phaser.Input.Keyboard.JustDown(this.keys.musicToggle)) this.toggleAudioChannel("music");
+    if (Phaser.Input.Keyboard.JustDown(this.keys.sfxToggle)) this.toggleAudioChannel("sfx");
     if (Phaser.Input.Keyboard.JustDown(this.keys.super) || this.touch.super || this.consumeMobileAction("super")) {
       this.superAttack();
       this.touch.super = false;
