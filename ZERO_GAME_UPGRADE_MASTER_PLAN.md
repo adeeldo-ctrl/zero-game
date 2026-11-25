@@ -374,3 +374,12 @@ Committed source implementation:
 - Volume cycling remains a separate operation and saved volume preferences are preserved when muting/unmuting.
 - Source change: `src/App.jsx`, commit `318fcf29a8863db4473e672592bd4617c0ed1e76`.
 - This is a focused source change; consolidated CI and Android delivery have not been run after it.
+
+
+## Mobile lifecycle and background-resume hardening — 2026-11-25
+
+- Added app visibility handling in `src/App.jsx`: when the app/browser is backgrounded, active touch flags are cleared, gameplay is paused, and audio timers/oscillators are stopped.
+- When the app returns to the foreground, gameplay resumes. Audio remains subject to the existing mobile autoplay policy and is unlocked by the player's next interaction.
+- This avoids continued gameplay/audio in the background and reduces the risk of a stuck joystick/action after an app switch.
+- Source commit: `573b53aa7b1c1be52587058b96fec2cb83c10c83`.
+- This change has not yet been included in the one final consolidated CI run; no APK has been built.
