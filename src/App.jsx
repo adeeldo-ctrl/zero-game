@@ -3501,7 +3501,28 @@ export default function App() {
     gameRef.current = game;
     if (import.meta.env.DEV) window.__ZERO_GAME_TEST__ = game;
 
+    // Suspend gameplay while the app is backgrounded. This prevents held
+    // touch/keyboard input from sticking and stops audio timers/oscillators;
+    // audio is unlocked again only by the player's next interaction.
+    const handleVisibilityChange = () => {
+      const scene = game.scene.getScene("ZeroGameScene");
+      if (document.hidden) {
+        if (scene?.touch) {
+          Object.keys(scene.touch).forEach((key) => {
+            if (typeof scene.touch[key] === "boolean") scene.touch[key] = false;
+          });
+          scene.touch.axis = 0;
+        }
+        scene?.audio?.stop?.();
+        game.scene.pause("ZeroGameScene");
+      } else if (game.isRunning) {
+        game.scene.resume("ZeroGameScene");
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
     return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
       if (import.meta.env.DEV && window.__ZERO_GAME_TEST__ === game) {
         delete window.__ZERO_GAME_TEST__;
       }
