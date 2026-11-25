@@ -1718,7 +1718,7 @@ class ZeroGameScene extends Phaser.Scene {
     this.tweens.add({ targets: orbitA, x: -86, y: -48, duration: bossElement === "ice" ? 620 : 900, yoyo: true, repeat: -1, ease: "Sine.easeInOut" });
     this.tweens.add({ targets: orbitB, x: 86, y: -48, duration: bossElement === "shadow" ? 620 : 900, yoyo: true, repeat: -1, ease: "Sine.easeInOut" });
     c.setData("parts", { shadow, legL, legR, footL, footR, armL, armR,
-      fistL, fistR, body, belly, pupilL, pupilR });
+      fistL, fistR, body, belly, pupilL, pupilR, aura });
     return c;
   }
 
@@ -1774,7 +1774,20 @@ class ZeroGameScene extends Phaser.Scene {
       .setStrokeStyle(4, 0xffffff).setDepth(25);
     this.tweens.add({ targets: burst, scale: 2.7, alpha: 0, duration: 260,
       onComplete: () => burst.destroy() });
+    const previousBossPhase = this.bossPhase;
     this.bossPhase = getBossPhase(this.bossHealth, this.bossMaxHealth);
+    if (this.bossPhase > previousBossPhase && v?.active) {
+      const parts = v.getData("parts");
+      if (parts?.aura?.active) {
+        parts.aura.setAlpha(0.48).setScale(1.42);
+        this.tweens.add({ targets: parts.aura, alpha: 0.2, scale: 1.16, duration: 620, ease: "Cubic.easeOut" });
+      }
+      const phaseFlash = this.add.circle(boss.x, boss.y - 12, 48, this.stageConfig.boss?.color || 0xb94770, 0.28)
+        .setStrokeStyle(7, 0xffffff, 0.9).setDepth(26);
+      this.tweens.add({ targets: phaseFlash, scale: 3.2, alpha: 0, duration: 520, onComplete: () => phaseFlash.destroy() });
+      this.cameras.main.shake(260, 0.006);
+      this.audio.play("boss");
+    }
     this.statusLabel.setText(this.bossPhase === 3 ? "FINAL PHASE! BOSS UNLEASHED!" : this.bossPhase === 2 ? "BOSS IS ENRAGED!" : "KEEP FIRING!");
     this.statusLabel.setColor(this.bossPhase === 3 ? "#ff6b8a" : "#ffe17a");
 
@@ -1810,6 +1823,9 @@ class ZeroGameScene extends Phaser.Scene {
     const targetX = this.remoteVisual?.active && this.remoteVisual.alpha > 0.7 && Math.abs(this.remoteVisual.x - enemy.x) < Math.abs(this.hero.x - enemy.x) ? this.remoteVisual.x : this.hero.x;
     const direction = targetX >= enemy.x ? 1 : -1;
     const attackState = enemy.getData("bossAttackState") || "rest";
+    if (attackState === "volley" && this.time.now >= (enemy.getData("bossVolleyUntil") || 0)) {
+      enemy.setData("bossAttackState", "rest");
+    }
     const attackIndex = enemy.getData("bossAttackIndex") || 0;
     const bossStyle = enemy.getData("bossStyle") || "";
     const baseSpeed = bossStyle.includes("agile") ? 132
@@ -1835,6 +1851,62 @@ class ZeroGameScene extends Phaser.Scene {
       p.fistL.y = 24 + Math.sin(t * 0.006) * 3;
       p.fistR.y = 24 - Math.sin(t * 0.006) * 3;
       visual.y = enemy.y + Math.abs(swing) * -2;
+
+      // Bosses now use readable, style-specific anticipation and attack poses.
+      // These are visual-only poses layered over the shared physics movement.
+      if (attackState === "tell") {
+        const kind = enemy.getData("bossAttackKind");
+        const crouch = kind === 0 ? 0.34 : 0.16;
+        p.legL.rotation -= crouch;
+        p.legR.rotation += crouch;
+        if (bossStyle.includes("boxing")) {
+          p.armL.rotation = -1.05;
+          p.armR.rotation = 1.05;
+          p.fistL.y = 2;
+          p.fistR.y = 2;
+          visual.setAngle(direction * -0.045);
+        } else if (bossStyle.includes("agile")) {
+          p.armL.rotation = -1.85;
+          p.armR.rotation = 1.85;
+          p.fistL.y = 13;
+          p.fistR.y = 13;
+          visual.setAngle(direction * 0.035);
+        } else if (bossStyle.includes("master")) {
+          p.armL.rotation = -1.35;
+          p.armR.rotation = 0.55;
+          p.fistL.y = 8;
+          p.fistR.y = 30;
+          visual.setAngle(direction * -0.025);
+        } else if (bossStyle.includes("final")) {
+          p.armL.rotation = -2.25;
+          p.armR.rotation = 2.25;
+          p.fistL.y = -8;
+          p.fistR.y = -8;
+          visual.setAngle(0);
+        }
+        visual.setScale(direction * (1.15 + crouch * 0.05), 1 - crouch * 0.08);
+      } else if (attackState === "dash") {
+        p.armL.rotation = -0.35;
+        p.armR.rotation = 0.35;
+        p.legL.rotation = -0.78;
+        p.legR.rotation = 0.78;
+        visual.setAngle(direction * -0.16);
+        visual.setScale(direction * 1.28, 0.88);
+      } else if (attackState === "slam") {
+        p.armL.rotation = -2.15;
+        p.armR.rotation = 2.15;
+        p.legL.rotation = -0.95;
+        p.legR.rotation = 0.95;
+        visual.setAngle(direction * 0.08);
+        visual.setScale(direction * 1.2, 1.12);
+      } else if (attackState === "volley") {
+        p.armL.rotation = -2.05;
+        p.armR.rotation = 2.05;
+        p.fistL.y = -13;
+        p.fistR.y = -13;
+        visual.setAngle(0);
+        visual.setScale(direction * 1.18, 1.06);
+      }
     }
     if (attackState === "rest" && this.time.now >= enemy.getData("bossAttackAt") && enemy.body.blocked.down) {
       const attackPattern = bossStyle.includes("boxing") ? [0, 2, 0]
@@ -1861,8 +1933,10 @@ class ZeroGameScene extends Phaser.Scene {
         enemy.setVelocityY(this.bossPhase === 3 ? -650 : this.bossPhase === 2 ? -560 : -490);
         enemy.setVelocityX(direction * 95);
       } else if (kind === 1) {
-        enemy.setData("bossAttackState", "rest");
+        enemy.setData("bossAttackState", "volley");
+        enemy.setData("bossVolleyUntil", this.time.now + 460);
         enemy.setData("bossAttackAt", this.time.now + (this.bossPhase === 3 ? 700 : this.bossPhase === 2 ? 1050 : 1650));
+        enemy.setVelocityX(0);
         this.fireBossVolley(enemy);
       } else {
         enemy.setData("bossAttackState", "dash");
