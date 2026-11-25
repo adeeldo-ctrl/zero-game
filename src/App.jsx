@@ -1126,7 +1126,7 @@ class ZeroGameScene extends Phaser.Scene {
     if (action === "jump") {
       this.mobileJumpHeld = true;
       this.mobileJumpPressedAt = this.time?.now || 0;
-      this.mobileActionQueue.add("jump");
+      this.mobileActionQueue.push("jump");
       return;
     }
     if (["super", "special1", "special2", "special3"].includes(action)) {
@@ -2402,6 +2402,7 @@ class ZeroGameScene extends Phaser.Scene {
     // limited-use counter or animation lock.
     const selectedIndex = Math.max(0, Math.min(2, moveIndex));
     const move = moves[selectedIndex];
+    this.specialActivationCount = (this.specialActivationCount || 0) + 1;
     this.audio.unlock();
     this.audio.play("special");
     this.specialPoseType = move.type;
