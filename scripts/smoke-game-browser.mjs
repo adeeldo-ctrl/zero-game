@@ -93,17 +93,17 @@ try {
     // animation start each time; the HUD may legitimately show "no enemy
     // in range" when the arena has already been cleared.
     for (let repeat = 0; repeat < 2; repeat++) {
-      const previousStart = await page.evaluate(() => {
+      const previousCount = await page.evaluate(() => {
         const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
-        return scene.specialPoseStartedAt || 0;
+        return scene.specialActivationCount || 0;
       });
       await page.mouse.click(x, 340);
-      await page.waitForFunction(({ type, previousStart: lastStart }) => {
+      await page.waitForFunction(({ type, count }) => {
         const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
         return scene?.specialPoseType === type &&
-          scene.specialPoseStartedAt > lastStart &&
+          scene.specialActivationCount > count &&
           scene.specialPoseUntil > scene.time.now;
-      }, { type: expectedType, previousStart }, { timeout: 1500 });
+      }, { type: expectedType, count: previousCount }, { timeout: 1500 });
     }
   }
 
