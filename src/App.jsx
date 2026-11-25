@@ -1833,7 +1833,9 @@ class ZeroGameScene extends Phaser.Scene {
       : bossStyle.includes("master") ? 102
       : bossStyle.includes("final") ? 126 : 82;
     const speed = this.bossPhase === 3 ? baseSpeed * 1.65 : this.bossPhase === 2 ? baseSpeed * 1.3 : baseSpeed;
-    enemy.setVelocityX(attackState === "dash" ? (enemy.getData("bossDashDirection") || direction) * (this.bossPhase === 3 ? 500 : 390) : direction * speed);
+    enemy.setVelocityX(attackState === "dash"
+      ? (enemy.getData("bossDashDirection") || direction) * (this.bossPhase === 3 ? 500 : 390)
+      : attackState === "volley" ? 0 : direction * speed);
     const visual = this.bossVisual;
     if (visual?.active) {
       visual.setPosition(enemy.x, enemy.y);
