@@ -1363,7 +1363,7 @@ class ZeroGameScene extends Phaser.Scene {
     host.on("pointerdown", () => this.connectMultiplayer("HOST"));
     join.on("pointerdown", () => this.connectMultiplayer("JOIN"));
     this.tweens.add({ targets: start, scale: 1.055, duration: 620, yoyo: true, repeat: -1 });
-    start.on("pointerdown", () => this.startNewCampaign());
+    start.on("pointerdown", () => { this.audio.unlock(); this.audio.play("ui"); this.startNewCampaign(); });
   }
 
   showHeroSelect() {
@@ -1393,7 +1393,7 @@ class ZeroGameScene extends Phaser.Scene {
       this.tweens.add({ targets: glow, scale: 1.16, alpha: 0.2, duration: 900 + index * 100, yoyo: true, repeat: -1 });
       const select = () => {
         if (this.heroSelectionLocked) return;
-        this.heroSelectionLocked = true; this.selectedHero = hero;
+        this.heroSelectionLocked = true; this.audio.unlock(); this.audio.play("ui"); this.selectedHero = hero;
         localStorage.setItem("zero_game_hero", hero.id);
         this.powerType = hero.element; this.campaignActive = true;
         const lives = createCampaignLives();
@@ -1405,7 +1405,7 @@ class ZeroGameScene extends Phaser.Scene {
     });
     const back = this.add.text(480, 529, "BACK", { fontSize: "12px", color: "#9feaff", backgroundColor: "#173d59", padding: { x: 17, y: 5 } }).setOrigin(0.5).setDepth(65).setInteractive({ useHandCursor: true });
     this.menuObjects.push(back);
-    back.on("pointerdown", () => this.showStoryScreen());
+    back.on("pointerdown", () => { this.audio.play("ui"); this.showStoryScreen(); });
   }
 
   startNewCampaign() {
@@ -1430,7 +1430,7 @@ class ZeroGameScene extends Phaser.Scene {
     this.campaignActive = true; this.gameStarted = true; this.gameOver = false; this.stageCleared = false;
     this.stageAdvancePending = false;
     this.stageStartedAt = this.time.now; this.stageTimeLeft = this.stageConfig.timeLimit || 120;
-    this.jumpCount = 0; this.lastDamage = this.time.now;
+    this.jumpCount = 0; this.lastDamage = this.time.now; this.nextFootstepAt = this.time.now + 200;
     this.hero.setPosition(480, 450).setVelocity(0, 0).setVisible(false);
     this.heroVisual.setPosition(480, 450).setVisible(true).setAlpha(1).setScale(1);
     this.heroTitleLabel.setText(`${this.selectedHero.name.toUpperCase()}  |  STAGE ${String(this.stageNumber).padStart(2,"0")}`);
@@ -2210,7 +2210,7 @@ class ZeroGameScene extends Phaser.Scene {
     this.tweens.add({ targets: subtitle, alpha: 1, y: 305, duration: 500, delay: 300 });
     if (this.stageNumber < 50) {
       const nextLabel = this.add.text(480, 365, "NEXT STAGE LOADING…  ▶", { fontSize: "18px", color: "#9feaff", fontStyle: "bold", backgroundColor: "#173d59", padding: { x: 18, y: 10 } }).setOrigin(0.5).setDepth(41).setInteractive({ useHandCursor: true });
-      nextLabel.on("pointerdown", () => this.advanceToNextStage());
+      nextLabel.on("pointerdown", () => { this.audio.play("ui"); this.advanceToNextStage(); });
       this.time.delayedCall(2300, () => this.advanceToNextStage());
     } else {
       const ending = this.add.text(480, 380, "THE 50 STAGE QUEST IS COMPLETE", { fontSize: "18px", color: "#9feaff", fontStyle: "bold" }).setOrigin(0.5).setDepth(41);
@@ -2747,6 +2747,10 @@ class ZeroGameScene extends Phaser.Scene {
     const t = this.heroAnimTime * 0.012;
     const moving = Math.abs(h.body.velocity.x) > 10;
     const airborne = !h.body.blocked.down;
+    if (!airborne && moving && time >= (this.nextFootstepAt || 0)) {
+      this.audio.play("step");
+      this.nextFootstepAt = time + (heroId === "volt" ? 235 : 275);
+    }
     const heroId = this.selectedHero?.id || "ryo";
     const gait = {
       ryo:   { stride: 0.44, guard: 0.76, bounce: 2.0, cadence: 2.25 },
