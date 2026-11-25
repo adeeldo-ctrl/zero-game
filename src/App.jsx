@@ -1786,13 +1786,14 @@ class ZeroGameScene extends Phaser.Scene {
         .setStrokeStyle(7, 0xffffff, 0.9).setDepth(26);
       this.tweens.add({ targets: phaseFlash, scale: 3.2, alpha: 0, duration: 520, onComplete: () => phaseFlash.destroy() });
       this.cameras.main.shake(260, 0.006);
-      this.audio.play("boss");
+      this.audio.play("bossPhase");
     }
     this.statusLabel.setText(this.bossPhase === 3 ? "FINAL PHASE! BOSS UNLEASHED!" : this.bossPhase === 2 ? "BOSS IS ENRAGED!" : "KEEP FIRING!");
     this.statusLabel.setColor(this.bossPhase === 3 ? "#ff6b8a" : "#ffe17a");
 
     this.addScore(250);
     if (this.bossHealth <= 0) {
+      this.audio.play("stageClear");
       this.addScore(5000);
       this.dropBossRewardShower(boss.x, boss.y);
       this.bossDefeated = true;
@@ -2138,6 +2139,7 @@ class ZeroGameScene extends Phaser.Scene {
 
   collectBonusItem(hero, orb) {
     if (!orb?.active) return;
+    this.audio.play("collect");
     if (orb.getData("bonusOrb") && !this.bonusMode) return;
     const isBonusOrb = !!orb.getData("bonusOrb");
     const value = isBonusOrb ? 750 : (orb.getData("rewardValue") || 250);
@@ -2180,6 +2182,7 @@ class ZeroGameScene extends Phaser.Scene {
 
   completeStage() {
     if (this.stageCleared) return;
+    this.audio.play("stageClear");
     this.stageCleared = true;
     this.hero.setVelocity(0, 0);
     this.statusLabel.setText(`STAGE ${String(this.stageNumber).padStart(2,"0")} COMPLETE!`).setColor("#ffe17a");
@@ -2238,6 +2241,7 @@ class ZeroGameScene extends Phaser.Scene {
       hero.setVelocity(0, 0); hero.body.enable = false;
       if (this.heroVisual?.active) this.heroVisual.setVisible(false).setAlpha(1).setAngle(0);
       if (lives.gameOver) {
+        this.audio.play("gameOver");
         this.gameOver = true;
         this.showContinueScreen();
         return;
@@ -3005,6 +3009,7 @@ class ZeroGameScene extends Phaser.Scene {
 
     // Landing animation
     if (this.heroWasAirborne && !airborne) {
+      this.audio.play("land");
       visual.setScale(this.facing, 0.88);
 
       this.tweens.add({
