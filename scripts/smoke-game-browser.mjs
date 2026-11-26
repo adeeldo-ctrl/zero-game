@@ -690,16 +690,18 @@ try {
     enemies.forEach((enemy, index) => enemy.setData("smokeCheckId", index));
     return {
       activations: scene.specialActivationCount || 0,
+      powerType: scene.powerType,
       animTime: scene.heroAnimTime || 0,
       enemyAnimTimes: enemies.map((enemy) => [enemy.getData("smokeCheckId"), enemy.getData("animTime") || 0])
     };
   });
 
   await dispatchTouch("touchstart", [point(1, 132, 448), point(2, 665, 340), point(3, 885, 340)]);
-  await nativePage.waitForFunction((count) => {
+  await nativePage.waitForFunction((before) => {
     const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
-    return (scene?.specialActivationCount || 0) >= count + 2;
-  }, beforeTripleTouch.activations, { timeout: 3000 });
+    return (scene?.specialActivationCount || 0) > before.activations &&
+      scene?.powerType !== before.powerType;
+  }, beforeTripleTouch, { timeout: 3000 });
   await dispatchTouch("touchmove", [point(1, 245, 448), point(2, 665, 340), point(3, 885, 340)]);
   await nativePage.waitForFunction(() => {
     const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
@@ -730,7 +732,7 @@ try {
   await nativePage.evaluate((animTime) => {
     const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
     if (!scene || scene.heroAnimTime <= animTime || !scene.sys.isActive()) {
-      throw new Error("Scene update loop stalled after simultaneous joystick + Extra 1 + Extra 3 input");
+      throw new Error("Scene update loop stalled after simultaneous joystick + Extra 1 + POWER input");
     }
   }, beforeTripleTouch.animTime);
   await nativePage.waitForFunction((before) => {
@@ -747,7 +749,7 @@ try {
   if (runtimeErrors.length) {
     throw new Error(`Browser runtime errors:\n${runtimeErrors.join("\n")}`);
   }
-  console.log("Browser smoke test passed: campaign and stage regression coverage, all three live enemy class visuals, restored shot/platform textures, joystick + Extra 1 + Extra 3 via three simultaneous Android Touch identifiers, joystick movement beyond its touch zone, repeated presses, clean release, gameplay update continuity, boss and stage progression, and no uncaught runtime errors.");
+  console.log("Browser smoke test passed: campaign and stage regression coverage, all three live enemy class visuals, restored shot/platform textures, joystick + Extra 1 + POWER via three simultaneous Android Touch identifiers, joystick movement beyond its touch zone, repeated presses, clean release, gameplay update continuity, boss and stage progression, and no uncaught runtime errors.");
 } finally {
   if (browser) await browser.close();
   if (server.exitCode === null) {
