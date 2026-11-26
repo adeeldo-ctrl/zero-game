@@ -1,10 +1,7 @@
 name: ZERO GAME Android APK
 
 on:
-  workflow_run:
-    workflows: ["ZERO GAME Continuous Checks"]
-    types: [completed]
-    branches: [main]
+  # APK assembly is intentionally manual-only. Pushes run checks, never APK builds.
   workflow_dispatch:
 
 permissions:
@@ -12,7 +9,7 @@ permissions:
 
 jobs:
   build-android:
-    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    if: github.event_name == 'workflow_dispatch'
     name: Build debug APK
     runs-on: ubuntu-latest
     timeout-minutes: 35
@@ -24,7 +21,7 @@ jobs:
       - name: Checkout verified source commit
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+          ref: ${{ github.sha }}
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
