@@ -1563,7 +1563,7 @@ class ZeroGameScene extends Phaser.Scene {
 
   hitEnemy(projectile, enemy) {
     if (!projectile.active || !enemy.active || enemy.getData("isTimeHunter")) return;
-    this.audio.play("hit");
+    this.audio.play("ballImpact");
     const superHit = !!projectile.getData("superAttack");
     const specialHit = !!projectile.getData("specialAttack");
     const glow = projectile.getData("glow");
@@ -2385,6 +2385,7 @@ class ZeroGameScene extends Phaser.Scene {
       if (!canRollingBallHitTarget(target.x - enemy.x, target.y - enemy.y)) continue;
       hits.push(target);
       enemy.setData("rollHits", hits);
+      this.audio.play("ballImpact");
       if (target.getData("isBoss")) {
         this.hitBoss(target, 5);
         this.statusLabel.setText("BOSS HIT BY ELEMENTAL BALL!").setColor("#ffe17a");
