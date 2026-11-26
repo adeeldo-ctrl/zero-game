@@ -9,6 +9,7 @@ import { shouldHeroCollideWithPlatform, shouldDropThroughPlatform } from "./plat
 import { getBossPhase } from "./combatRules";
 import { canKickElementBall, canRollingBallHitTarget, isRollingBallOutOfBounds, calculateRollingBallMotion } from "./snowballRules";
 import { getEnemyMovementSpeed } from "./enemyRules";
+import { enqueueMobileAction, consumeMobileAction } from "./mobileActionQueue";
 import "./App.css";
 
 class ZeroGameScene extends Phaser.Scene {
@@ -1108,21 +1109,18 @@ class ZeroGameScene extends Phaser.Scene {
     if (action === "jump") {
       this.mobileJumpHeld = true;
       this.mobileJumpPressedAt = this.time?.now || 0;
-      this.mobileActionQueue.push("jump");
+      enqueueMobileAction(this.mobileActionQueue, "jump");
       return;
     }
     if (["super", "special1", "special2", "special3", "cyclePower"].includes(action)) {
-      this.mobileActionQueue.push(action);
+      enqueueMobileAction(this.mobileActionQueue, action);
       return;
     }
     this.touch[action] = true;
   }
 
   consumeMobileAction(action) {
-    const index = this.mobileActionQueue.indexOf(action);
-    if (index < 0) return false;
-    this.mobileActionQueue.splice(index, 1);
-    return true;
+    return consumeMobileAction(this.mobileActionQueue, action);
   }
 
   setMobileControlsVisible(visible) {
@@ -1163,9 +1161,12 @@ class ZeroGameScene extends Phaser.Scene {
       .setStrokeStyle(4, 0xffffff).setDepth(30);
     this.mobileControlDecorations = [this.joystickBase, joystickInner, this.joystickKnob];
     this.mobileControlVisuals = new Map();
-    this.createControl(665, 340, "EXTRA 1", "special1");
-    this.createControl(775, 340, "EXTRA 2", "special2");
-    this.createControl(885, 340, "POWER", "cyclePower");
+    // Keep all three EXTRA moves visible as separate, equally reachable
+    // controls. POWER remains available beside them instead of replacing EXTRA 3.
+    this.createControl(580, 340, "EXTRA 1", "special1");
+    this.createControl(680, 340, "EXTRA 2", "special2");
+    this.createControl(780, 340, "EXTRA 3", "special3");
+    this.createControl(880, 340, "POWER", "cyclePower");
     this.createControl(650, 448, "SUPER", "super");
     this.createControl(765, 448, "FIRE", "attack");
     this.createControl(885, 448, "JUMP", "jump");
@@ -1189,7 +1190,7 @@ class ZeroGameScene extends Phaser.Scene {
   }
 
   createControl(x, y, label, action) {
-    const accents = { attack: 0xffa33c, super: 0xffd36b, jump: 0x75eaff, special1: 0xff8b5e, special2: 0x72e0ff, cyclePower: 0x9cebdc };
+    const accents = { attack: 0xffa33c, super: 0xffd36b, jump: 0x75eaff, special1: 0xff8b5e, special2: 0x72e0ff, special3: 0xc69bff, cyclePower: 0x9cebdc };
     const accent = accents[action] || 0x75eaff;
     const baseFill = action === "attack" ? 0x9b451f : (action.startsWith("special") || action === "cyclePower") ? 0x263c72 : 0x176184;
     const glow = this.add.circle(x, y, (action.startsWith("special") || action === "cyclePower") ? 45 : 54, accent, 0.12).setDepth(28);
@@ -3449,9 +3450,10 @@ export default function App() {
     const fallbackButtons = [
       ["musicVolume", 610, 43, 34],
       ["sfxVolume", 690, 43, 34],
-      ["special1", 665, 340, 58],
-      ["special2", 775, 340, 58],
-      ["cyclePower", 885, 340, 58],
+      ["special1", 580, 340, 48],
+      ["special2", 680, 340, 48],
+      ["special3", 780, 340, 48],
+      ["cyclePower", 880, 340, 48],
       ["super", 650, 448, 68],
       ["attack", 765, 448, 68],
       ["jump", 885, 448, 76]
