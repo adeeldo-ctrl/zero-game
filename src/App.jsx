@@ -742,19 +742,16 @@ class ZeroGameScene extends Phaser.Scene {
       const spike3 = this.add.triangle(17, -54, -12, 12, 0, -16, 13, 14, 0xf2c34e).setStrokeStyle(1, 0x9b6b22);
       const headband = this.add.rectangle(0, -43, 44, 6, 0xd83b32).setStrokeStyle(2, 0xffd16b);
       const belt = this.add.rectangle(0, 15, 34, 6, 0xffd16b);
-      const flame = this.add.triangle(0, -66, -8, 12, 0, -14, 10, 12, 0xff783b);
-      items.push(spike1, spike2, spike3, headband, belt, flame);
+      // Keep the hero's hair silhouette and outfit; remove the floating flame marker.
+      items.push(spike1, spike2, spike3, headband, belt);
     } else if (hero.id === "mei") {
       // Twin hair buns, blue outfit ribbons and gold wrist guards: original hero design.
       const bunL = this.add.circle(-17, -53, 9, 0x30251f).setStrokeStyle(3, 0xffd36b);
       const bunR = this.add.circle(17, -53, 9, 0x30251f).setStrokeStyle(3, 0xffd36b);
-      const ribbonL = this.add.triangle(-24, -47, -8, -8, -2, 9, -18, 14, 0x9cecff);
-      const ribbonR = this.add.triangle(24, -47, 8, -8, 2, 9, 18, 14, 0x9cecff);
-      const sashL = this.add.triangle(-22, 7, -8, -9, 10, 7, -5, 27, 0x9cecff);
-      const sashR = this.add.triangle(22, 7, -8, -9, 10, 7, -5, 27, 0x9cecff);
       const cuffL = this.add.rectangle(-28, 15, 10, 15, 0xffd36b).setStrokeStyle(2, 0x9b6c2c);
       const cuffR = this.add.rectangle(28, 15, 10, 15, 0xffd36b).setStrokeStyle(2, 0x9b6c2c);
-      items.push(bunL, bunR, ribbonL, ribbonR, sashL, sashR, cuffL, cuffR);
+      // Retain Mei's twin buns and wrist guards without directional-looking ribbons.
+      items.push(bunL, bunR, cuffL, cuffR);
     } else {
       // Green skin, orange crest and electric markings: original wild fighter design.
       const spike1 = this.add.triangle(-17, -54, -11, 15, 0, -19, 12, 14, 0xf28a32).setStrokeStyle(2, 0x8b4b24);
@@ -762,8 +759,8 @@ class ZeroGameScene extends Phaser.Scene {
       const spike3 = this.add.triangle(17, -54, -12, 14, 0, -18, 12, 15, 0xf28a32).setStrokeStyle(2, 0x8b4b24);
       const stripeL = this.add.rectangle(-18, 4, 7, 27, 0xffe16a).setAngle(-18);
       const stripeR = this.add.rectangle(18, 4, 7, 27, 0xffe16a).setAngle(18);
-      const bolt = this.add.text(0, -9, "ϟ", { fontSize: "27px", color: "#fff2a6", fontStyle: "bold", stroke: "#276d43", strokeThickness: 3 }).setOrigin(0.5);
-      items.push(spike1, spike2, spike3, stripeL, stripeR, bolt);
+      // Keep Volt's crest and suit markings; remove the floating lightning glyph.
+      items.push(spike1, spike2, spike3, stripeL, stripeR);
     }
     visual.add(items);
     visual.setData("heroLookItems", items);
@@ -2437,7 +2434,8 @@ class ZeroGameScene extends Phaser.Scene {
     enemy.setData("rollDirection", direction);
     enemy.body.setAllowGravity(true);
     enemy.setCollideWorldBounds(true);
-    enemy.setBounce(0.78, 0.035);
+    // A kicked ball should finish on first wall contact, not rebound back into play.
+    enemy.setBounce(0, 0);
     enemy.setDragX(0, false);
     enemy.setMaxVelocity(700, 950);
     enemy.setVelocity(0, 0);
@@ -2499,6 +2497,12 @@ class ZeroGameScene extends Phaser.Scene {
       blockedLeft: enemy.body.blocked.left,
       blockedRight: enemy.body.blocked.right,
     });
+    if (motion.hitWall) {
+      enemy.setVelocity(0, 0);
+      enemy.body.enable = false;
+      this.finishRollingBallCarrier(enemy, ball, true);
+      return;
+    }
     enemy.setData("rollDirection", motion.direction);
     enemy.setVelocityX(motion.velocityX);
     ball.setPosition(enemy.x, enemy.y);
@@ -2762,22 +2766,39 @@ class ZeroGameScene extends Phaser.Scene {
     }
     const power = this.getPowerPalette();
     const strength = Phaser.Math.Clamp(charge / 1500, 0, 1);
+    const isFire = this.powerType === "fire";
+    // Fire has three mechanically distinct normal attacks: quick Ember Shot,
+    // a two-lane Flame Fan, and a slower wide Dragon Wave on the kick beat.
+    const fireKind = isFire ? (combo === 1 ? "fan" : combo === 2 ? "dragon-wave" : "ember-shot") : "element-shot";
     const radius = 22 + strength * 22;
     const startX = this.hero.x + this.facing * 43, startY = this.hero.y - 8;
-    const glow = this.add.circle(startX, startY, radius * 1.35, power.glow, 0.55).setDepth(12);
-    const projectile = this.projectiles.create(startX, startY, "shot");
-    projectile.setTint(power.ball).setScale(1.8 + strength * 1.8).setDepth(14);
-    projectile.setVelocityX(this.facing * (720 + strength * 330)).setVelocityY(0);
-    projectile.body.setAllowGravity(false); projectile.body.setSize(22 + strength * 24, 22 + strength * 24);
-    projectile.body.setOffset(0, 0); projectile.setData("glow", glow);
-    projectile.setData("powerType", this.powerType); projectile.setData("charge", strength);
-    this.spawnElementParticles(startX, startY, this.powerType, 10, 0.8);
-    const trail = this.add.circle(startX - this.facing * 12, startY, 9 + strength * 8, power.trail, 0.9).setDepth(13);
-    projectile.setData("trail", trail);
-    this.tweens.add({ targets: projectile, angle: 360, duration: 240, repeat: -1 });
-    this.tweens.add({ targets: glow, scale: 1.9 + strength, alpha: 0.04, duration: 170, yoyo: true, repeat: -1 });
-    this.tweens.add({ targets: this.heroVisual, scaleX: this.facing * 1.12, duration: 80, yoyo: true });
-    this.time.delayedCall(1500, () => { if (projectile.active) { if (glow.active) glow.destroy(); if (trail.active) trail.destroy(); projectile.destroy(); } });
+    const shots = fireKind === "fan" ? [{ y: -13, vy: -72 }, { y: 13, vy: 72 }] : [{ y: 0, vy: 0 }];
+    shots.forEach((shot, index) => {
+      const wide = fireKind === "dragon-wave";
+      const shotX = startX, shotY = startY + shot.y;
+      const glow = this.add.circle(shotX, shotY, wide ? radius * 1.8 : radius * 1.15, power.glow, wide ? 0.68 : 0.5).setDepth(12);
+      const projectile = this.projectiles.create(shotX, shotY, "shot");
+      projectile.setTint(power.ball).setScale(wide ? 2.9 + strength * 1.1 : fireKind === "fan" ? 1.35 + strength : 1.8 + strength * 1.8).setDepth(14);
+      const speed = wide ? 560 + strength * 160 : fireKind === "fan" ? 660 + strength * 180 : 780 + strength * 300;
+      projectile.setVelocityX(this.facing * speed).setVelocityY(shot.vy);
+      projectile.body.setAllowGravity(false);
+      projectile.body.setSize(wide ? 48 : fireKind === "fan" ? 18 : 22 + strength * 24, wide ? 34 : 18 + strength * 12);
+      projectile.body.setOffset(0, 0); projectile.setData("glow", glow);
+      projectile.setData("powerType", this.powerType); projectile.setData("charge", strength);
+      projectile.setData("fireAttackType", fireKind);
+      this.spawnElementParticles(shotX, shotY, this.powerType, wide ? 18 : 8, wide ? 1.15 : 0.75);
+      const trail = this.add.circle(shotX - this.facing * (wide ? 24 : 12), shotY, wide ? 17 : 9 + strength * 8, power.trail, 0.9).setDepth(13);
+      projectile.setData("trail", trail);
+      this.tweens.add({ targets: projectile, angle: this.facing * (wide ? 18 : 360), duration: wide ? 260 : 240, repeat: -1 });
+      this.tweens.add({ targets: glow, scale: wide ? 2.5 : 1.9 + strength, alpha: 0.04, duration: 170, yoyo: true, repeat: -1 });
+      this.time.delayedCall(1500, () => { if (projectile.active) { if (glow.active) glow.destroy(); if (trail.active) trail.destroy(); projectile.destroy(); } });
+    });
+    if (fireKind === "dragon-wave") {
+      const arc = this.add.arc(startX + this.facing * 18, startY, 42, 205, 155, false, 0xffa23b, 0.85)
+        .setStrokeStyle(9, 0xffdf75, 0.95).setDepth(13);
+      this.tweens.add({ targets: arc, scaleX: 2.2, scaleY: 1.35, alpha: 0, duration: 320, onComplete: () => arc.destroy() });
+    }
+    this.tweens.add({ targets: this.heroVisual, scaleX: this.facing * (fireKind === "dragon-wave" ? 1.2 : 1.12), duration: 80, yoyo: true });
   }
 
   update(time, delta) {
