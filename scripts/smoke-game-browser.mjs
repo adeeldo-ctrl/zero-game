@@ -26,7 +26,6 @@ try {
 
   browser = await chromium.launch({
     headless: true,
-    executablePath: "C:/Program Files/Google/Chrome/Application/chrome.exe",
     args: ["--no-sandbox", "--disable-dev-shm-usage"]
   });
   const page = await browser.newPage({ viewport: { width: 960, height: 540 } });
