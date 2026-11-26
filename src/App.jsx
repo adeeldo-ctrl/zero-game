@@ -1108,7 +1108,7 @@ class ZeroGameScene extends Phaser.Scene {
       this.mobileActionQueue.push("jump");
       return;
     }
-    if (["super", "special1", "special2", "special3"].includes(action)) {
+    if (["super", "special1", "special2", "special3", "cyclePower"].includes(action)) {
       this.mobileActionQueue.push(action);
       return;
     }
@@ -1154,7 +1154,7 @@ class ZeroGameScene extends Phaser.Scene {
     this.mobileControlVisuals = new Map();
     this.createControl(665, 340, "EXTRA 1", "special1");
     this.createControl(775, 340, "EXTRA 2", "special2");
-    this.createControl(885, 340, "EXTRA 3", "special3");
+    this.createControl(885, 340, "POWER", "cyclePower");
     this.createControl(650, 448, "SUPER", "super");
     this.createControl(765, 448, "FIRE", "attack");
     this.createControl(885, 448, "JUMP", "jump");
@@ -1178,13 +1178,13 @@ class ZeroGameScene extends Phaser.Scene {
   }
 
   createControl(x, y, label, action) {
-    const accents = { attack: 0xffa33c, super: 0xffd36b, jump: 0x75eaff, special1: 0xff8b5e, special2: 0x72e0ff, special3: 0xb69cff };
+    const accents = { attack: 0xffa33c, super: 0xffd36b, jump: 0x75eaff, special1: 0xff8b5e, special2: 0x72e0ff, cyclePower: 0x9cebdc };
     const accent = accents[action] || 0x75eaff;
-    const baseFill = action === "attack" ? 0x9b451f : action.startsWith("special") ? 0x263c72 : 0x176184;
-    const glow = this.add.circle(x, y, action.startsWith("special") ? 45 : 54, accent, 0.12).setDepth(28);
+    const baseFill = action === "attack" ? 0x9b451f : (action.startsWith("special") || action === "cyclePower") ? 0x263c72 : 0x176184;
+    const glow = this.add.circle(x, y, (action.startsWith("special") || action === "cyclePower") ? 45 : 54, accent, 0.12).setDepth(28);
     const ring = this.add.circle(x, y, 49, 0x000000, 0)
       .setStrokeStyle(4, accent, 0.72).setDepth(29);
-    const bg = this.add.circle(x, y, action.startsWith("special") ? 35 : 43, baseFill, 0.98)
+    const bg = this.add.circle(x, y, (action.startsWith("special") || action === "cyclePower") ? 35 : 43, baseFill, 0.98)
       .setStrokeStyle(5, accent).setDepth(30);
     const text = this.add.text(x, y, label, {
       fontSize: "17px", color: "#ffffff", fontStyle: "bold",
@@ -1426,7 +1426,8 @@ class ZeroGameScene extends Phaser.Scene {
     this.applyHeroLook(this.heroVisual, this.selectedHero);
     this.powerType = this.selectedHero.element;
     const element = getElement(this.powerType);
-    this.powerLabel.setText(`POWER: ${element.name.toUpperCase()} [C]`).setColor("#" + element.color.toString(16).padStart(6, "0"));
+    this.powerLabel.setText(`POWER: ${element.name.toUpperCase()} [POWER]`).setColor("#" + element.color.toString(16).padStart(6, "0"));
+    this.mobileControlVisuals?.get("cyclePower")?.text?.setText(`POWER\n${element.name.toUpperCase()}`).setFontSize("11px");
     this.updateLivesLabel();
     const enterGameplay = () => {
       this.stageTransitionActive = false;
@@ -1539,6 +1540,27 @@ class ZeroGameScene extends Phaser.Scene {
     });
   }
 
+  createElementBall(x, y, palette) {
+    const ball = this.add.container(x, y).setDepth(16);
+    const outer = this.add.circle(0, 0, 27, palette.ball, 1).setStrokeStyle(5, palette.edge);
+    const shine = this.add.arc(0, 0, 22, 205, 320, false, palette.edge).setStrokeStyle(4, palette.edge);
+    const details = [];
+    switch (palette.id) {
+      case "fire": details.push(this.add.ellipse(-8, 5, 9, 20, 0xffd05a, 0.95).setAngle(-28), this.add.ellipse(5, 3, 8, 17, 0xff7b32, 0.95).setAngle(24)); break;
+      case "ice": details.push(this.add.star(0, 0, 6, 4, 11, 0xffffff, 0.95), this.add.star(0, 0, 6, 2, 16, palette.edge, 0.8)); break;
+      case "water": details.push(this.add.circle(-9, 5, 5, 0xd8f7ff, 0.9), this.add.circle(8, -7, 4, 0xffffff, 0.95), this.add.arc(0, 2, 16, 205, 330, false, 0xc5f4ff, 0.9).setStrokeStyle(4, 0xc5f4ff)); break;
+      case "wind": details.push(this.add.arc(0, 0, 17, 15, 165, false, 0xffffff, 0.95).setStrokeStyle(4, 0xffffff), this.add.arc(0, 0, 11, 195, 345, false, palette.edge, 0.95).setStrokeStyle(3, palette.edge)); break;
+      case "lightning": { const bolt = this.add.graphics(); bolt.lineStyle(5, 0xffffff, 1); bolt.beginPath(); bolt.moveTo(-3, -17); bolt.lineTo(7, -3); bolt.lineTo(-2, 1); bolt.lineTo(5, 17); bolt.strokePath(); details.push(bolt); break; }
+      case "nature": details.push(this.add.ellipse(-8, 0, 9, 17, 0xbaff83, 0.95).setAngle(-35), this.add.ellipse(8, 2, 9, 17, 0x5de078, 0.95).setAngle(35)); break;
+      case "earth": details.push(this.add.triangle(-7, 2, 0, -11, 8, 9, 0xe9bd7b, 1), this.add.triangle(9, -3, 0, -8, 7, 8, 0x9d7047, 1)); break;
+      case "light": details.push(this.add.star(0, 0, 8, 5, 14, 0xffffff, 0.98), this.add.circle(0, 0, 4, 0xfff4a6, 1)); break;
+      case "shadow": details.push(this.add.circle(-8, -2, 10, 0x24154e, 0.9), this.add.circle(8, 5, 7, 0x9c78e8, 0.8)); break;
+      default: details.push(this.add.circle(-8, -5, 7, 0xffb1dd, 0.95), this.add.circle(8, 7, 6, 0xffffff, 0.95), this.add.star(0, 0, 6, 3, 12, palette.edge, 0.85)); break;
+    }
+    ball.add([outer, ...details, shine]);
+    return ball;
+  }
+
   hitEnemy(projectile, enemy) {
     if (!projectile.active || !enemy.active || enemy.getData("isTimeHunter")) return;
     this.audio.play("hit");
@@ -1562,11 +1584,7 @@ class ZeroGameScene extends Phaser.Scene {
       enemy.setData("frozen", true); enemy.setVelocity(0, 0);
       if (visual?.active) visual.setVisible(false);
       const palette = this.getPowerPalette();
-      const ball = this.add.container(enemy.x, enemy.y).setDepth(16);
-      const outer = this.add.circle(0, 0, 27, palette.ball, 1).setStrokeStyle(5, palette.edge);
-      const inner = this.add.circle(-7, -8, 8, 0xffffff, 0.8);
-      const shine = this.add.arc(0, 0, 22, 205, 320, false, palette.edge).setStrokeStyle(4, palette.edge);
-      ball.add([outer, inner, shine]);
+      const ball = this.createElementBall(enemy.x, enemy.y, palette);
       enemy.setData("elementBall", ball);
       enemy.setData("ballPalette", palette);
       this.tweens.add({ targets: ball, scale: 1.18, duration: 180, yoyo: true });
@@ -2273,15 +2291,18 @@ class ZeroGameScene extends Phaser.Scene {
 
   getPowerPalette() {
     const element = getElement(this.powerType);
-    return { ball: element.ball, edge: element.edge, glow: element.glow, trail: element.trail };
+    return { id: element.id, effect: element.effect, ball: element.ball, edge: element.edge, glow: element.glow, trail: element.trail };
   }
 
   cyclePower() {
     const modes = ELEMENTS.map(element => element.id);
     this.powerType = modes[(modes.indexOf(this.powerType) + 1) % modes.length];
     const colors = Object.fromEntries(ELEMENTS.map(element => [element.id, "#" + element.color.toString(16).padStart(6, "0")]));
-    this.powerLabel.setText(`POWER: ${this.powerType.toUpperCase()} [C]`).setColor(colors[this.powerType]);
-    this.statusLabel.setText(`${this.powerType.toUpperCase()} POWER READY!`).setColor(colors[this.powerType]);
+    const element = getElement(this.powerType);
+    this.powerLabel.setText(`POWER: ${element.name.toUpperCase()} [POWER]`).setColor(colors[this.powerType]);
+    this.statusLabel.setText(`${element.name.toUpperCase()} POWER READY!`).setColor(colors[this.powerType]);
+    this.mobileControlVisuals?.get("cyclePower")?.text?.setText(`POWER\n${element.name.toUpperCase()}`).setFontSize("11px");
+    this.audio.play("powerSwitch");
     this.cameras.main.flash(120, 150, 220, 255, false);
   }
 
@@ -2305,13 +2326,15 @@ class ZeroGameScene extends Phaser.Scene {
 
   startElementBallRoll(enemy) {
     this.audio.unlock();
-    this.audio.play("kick");
+    this.audio.play("ballKick");
     const ball = enemy.getData("elementBall");
     if (!ball?.active) return;
     const direction = this.facing;
     enemy.setData("rolling", true);
     enemy.setData("rollDirection", direction);
     enemy.setData("rollHits", []);
+    enemy.setData("rollStartedAt", this.time.now);
+    enemy.setData("rollDistanceOrigin", enemy.x);
     enemy.setData("rollDirection", direction);
     enemy.body.setAllowGravity(true);
     enemy.setCollideWorldBounds(true);
@@ -2327,6 +2350,7 @@ class ZeroGameScene extends Phaser.Scene {
     const palette = enemy.getData("ballPalette") || this.getPowerPalette();
     const flash = this.add.circle(enemy.x, enemy.y, 36, palette.glow, 0.8).setStrokeStyle(5, palette.edge).setDepth(20);
     this.tweens.add({ targets: flash, scale: 2.3, alpha: 0, duration: 220, onComplete: () => flash.destroy() });
+    this.audio.play("ballRoll");
     this.statusLabel.setText("ELEMENTAL BALL! CLEAR THE PATH!").setColor("#ffe17a");
     this.cameras.main.shake(130, 0.004);
   }
@@ -2334,6 +2358,14 @@ class ZeroGameScene extends Phaser.Scene {
   updateRollingBall(enemy, delta) {
     const ball = enemy.getData("elementBall");
     if (!ball?.active) { enemy.destroy(); return; }
+    const rollAge = this.time.now - (enemy.getData("rollStartedAt") || this.time.now);
+    if (rollAge >= 4200 || Math.abs(enemy.x - (enemy.getData("rollDistanceOrigin") ?? enemy.x)) >= 2600) {
+      this.audio.play("ballEnd");
+      this.tweens.add({ targets: ball, scale: 0.2, alpha: 0, duration: 180, onComplete: () => { if (ball.active) ball.destroy(); if (enemy.active) enemy.destroy(); } });
+      enemy.setVelocity(0, 0);
+      enemy.body.enable = false;
+      return;
+    }
     const motion = calculateRollingBallMotion({
       velocityX: enemy.body.velocity.x,
       direction: enemy.getData("rollDirection") || 1,
@@ -2578,6 +2610,7 @@ class ZeroGameScene extends Phaser.Scene {
     this.lastAttack = now;
     this.audio.unlock();
     this.audio.play(`${this.selectedHero?.id || "ryo"}Attack`);
+    this.audio.play(`element-${this.powerType}`);
     this.normalAttackUntil = now + 190;
     const combo = now - (this.lastComboAt || 0) < 620 ? ((this.normalComboCount || 0) + 1) % 3 : 0;
     this.normalComboCount = combo;
@@ -2654,7 +2687,7 @@ class ZeroGameScene extends Phaser.Scene {
         Phaser.Math.Distance.Between(this.hero.x, this.hero.y, this.treasureChest.x, this.treasureChest.y) < 58) {
       this.openTreasureChest();
     }
-    if (Phaser.Input.Keyboard.JustDown(this.keys.cyclePower)) this.cyclePower();
+    if (Phaser.Input.Keyboard.JustDown(this.keys.cyclePower) || this.consumeMobileAction("cyclePower")) this.cyclePower();
     if (Phaser.Input.Keyboard.JustDown(this.keys.musicToggle)) this.toggleAudioChannel("music");
     if (Phaser.Input.Keyboard.JustDown(this.keys.sfxToggle)) this.toggleAudioChannel("sfx");
     if (Phaser.Input.Keyboard.JustDown(this.keys.super) || this.touch.super || this.consumeMobileAction("super")) {
@@ -3263,7 +3296,7 @@ export default function App() {
       ["sfxVolume", 690, 43, 34],
       ["special1", 665, 340, 58],
       ["special2", 775, 340, 58],
-      ["special3", 885, 340, 58],
+      ["cyclePower", 885, 340, 58],
       ["super", 650, 448, 68],
       ["attack", 765, 448, 68],
       ["jump", 885, 448, 76]
