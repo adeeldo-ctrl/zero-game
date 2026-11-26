@@ -40,11 +40,13 @@ test("rolling ball keeps momentum while falling between platforms", () => {
   assert.ok(falling.rotationDelta > 0);
 });
 
-test("rolling ball turns around after striking a side boundary", () => {
+test("rolling snowball ends on first side-wall collision", () => {
   const left = calculateRollingBallMotion({ velocityX: -600, direction: -1, deltaMs: 16, blockedLeft: true });
   const right = calculateRollingBallMotion({ velocityX: 600, direction: 1, deltaMs: 16, blockedRight: true });
-  assert.ok(left.velocityX > 0);
-  assert.ok(right.velocityX < 0);
+  assert.equal(left.hitWall, true);
+  assert.equal(right.hitWall, true);
+  assert.equal(left.velocityX, 0);
+  assert.equal(right.velocityX, 0);
 });
 
 test("rolling snowballs are cleaned up after leaving the arena", () => {
