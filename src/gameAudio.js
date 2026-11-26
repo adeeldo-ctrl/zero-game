@@ -10,11 +10,16 @@ const NOTE_FREQUENCIES = {
 
 const SOUND_NOTES = {
   jump: [440, 660], doubleJump: [523, 784, 988], fire: [180, 320, 520],
+  powerSwitch: [660, 880, 1046], ballKick: [105, 165, 260, 390], ballRoll: [95, 125, 155], ballImpact: [130, 210, 330, 490], ballEnd: [520, 390, 260],
   special: [260, 390, 580, 780], hit: [170, 120], defeat: [420, 620, 880],
   boss: [110, 165, 220], bossHit: [130, 260], bossPhase: [110, 220, 330, 440, 660],
   kick: [95, 180, 360], step: [92, 138], land: [150, 190], collect: [660, 880, 1046],
   stageClear: [392, 523, 659, 784, 988], gameOver: [330, 247, 196, 147],
   ui: [520, 660], stage: [392, 523, 659], punch: [190, 280], enemyAttack: [125, 190, 265], bossAttack: [82, 123, 186],
+  "element-fire": [170, 260, 390, 620], "element-ice": [720, 880, 1040], "element-water": [220, 330, 440, 660],
+  "element-wind": [390, 520, 780], "element-lightning": [95, 430, 980, 520], "element-nature": [260, 390, 520],
+  "element-earth": [85, 130, 190], "element-light": [660, 880, 1320], "element-shadow": [110, 165, 220],
+  "element-plasma": [310, 620, 930, 1240],
   ryoPower1: [310, 520, 740], ryoPower2: [190, 390, 650, 850], ryoPower3: [110, 260, 520, 780],
   ryoAttack: [240, 360],
   kairoPower1: [360, 610, 880], kairoPower2: [170, 330, 550, 740], kairoPower3: [120, 240, 480, 720],
@@ -28,6 +33,7 @@ const SOUND_NOTES = {
 export function createGameAudio() {
   let context = null;
   let musicTimer = null;
+  let musicGeneration = 0;
   let musicIndex = 0;
   const pendingTimers = new Set();
   const activeOscillators = new Set();
@@ -104,9 +110,10 @@ export function createGameAudio() {
   ];
   const scheduleMusic = () => {
     if (!musicEnabled || !context || musicTimer) return;
+    const generation = musicGeneration;
     const step = () => {
       musicTimer = null;
-      if (!musicEnabled || !context) return;
+      if (generation !== musicGeneration || !musicEnabled || !context) return;
       const bossIndex = Number(activeTrack.split("-")[1]);
       const notes = activeTrack.startsWith("boss-")
         ? bossThemes[bossIndex] || bossThemes[0]
@@ -124,6 +131,7 @@ export function createGameAudio() {
   };
 
   const setTrack = (track) => {
+    musicGeneration++;
     activeTrack = track;
     musicIndex = 0;
     if (musicTimer) { clearTimeout(musicTimer); pendingTimers.delete(musicTimer); musicTimer = null; }
@@ -199,10 +207,12 @@ export function createGameAudio() {
   };
 
   const setMusicEnabled = (enabled) => {
+    musicGeneration++;
     musicEnabled = !!enabled;
     localStorage.setItem("zero_game_music", musicEnabled ? "on" : "off");
     if (!musicEnabled && musicTimer) {
       clearTimeout(musicTimer);
+      pendingTimers.delete(musicTimer);
       musicTimer = null;
     } else if (musicEnabled) {
       unlock();
@@ -229,6 +239,7 @@ export function createGameAudio() {
   };
 
   const stop = () => {
+    musicGeneration++;
     for (const timer of pendingTimers) clearTimeout(timer);
     pendingTimers.clear();
     musicTimer = null;
