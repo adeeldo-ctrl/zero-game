@@ -101,6 +101,12 @@ class ZeroGameScene extends Phaser.Scene {
 
     this.stageConfig = getStage(this.stageNumber);
     this.stageEnemyCount = this.stageConfig.enemyCount;
+    // A Phaser scene restart reuses this scene instance; reset every stage-scoped
+    // boss reference/guard so a later boss cannot be skipped by stale state.
+    this.boss = null;
+    this.bossVisual = null;
+    this.bossSpawnQueued = false;
+    this.bossDefeated = false;
     this.bossHealth = this.stageConfig.boss?.hp || 24;
     this.bossMaxHealth = this.bossHealth;
     this.stageTimeLeft = this.stageConfig.timeLimit || 120;
@@ -1711,10 +1717,6 @@ class ZeroGameScene extends Phaser.Scene {
         this.audio.play("defeat");
         this.dropReward(enemy.x, enemy.y); this.addScore(500); this.recordEnemyDefeat(enemy); enemy.destroy();
         this.statusLabel.setText("ELEMENTAL ORB POPPED!"); this.statusLabel.setColor("#62ffb4");
-        if (this.defeated >= this.stageEnemyCount && !this.boss && this.stageConfig.boss) {
-          this.statusLabel.setText("WARNING! THE BOSS IS COMING!"); this.statusLabel.setColor("#ff795e");
-          this.cameras.main.shake(350, 0.008); this.time.delayedCall(1100, () => this.spawnBoss());
-        }
       }
       return;
     }
@@ -1750,12 +1752,6 @@ class ZeroGameScene extends Phaser.Scene {
     this.statusLabel.setText("ENEMY DEFEATED!");
     this.statusLabel.setColor("#62ffb4");
 
-    if (this.defeated >= this.stageEnemyCount && !this.boss && this.stageConfig.boss) {
-      this.statusLabel.setText("WARNING! THE BOSS IS COMING!");
-      this.statusLabel.setColor("#ff795e");
-      this.cameras.main.shake(350, 0.008);
-      this.time.delayedCall(1100, () => this.spawnBoss());
-    }
   }
 
   createBossVisual(enemy) {
