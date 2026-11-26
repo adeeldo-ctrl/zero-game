@@ -97,14 +97,12 @@ try {
       projectile.active && projectile.getData("charge") === 0 && projectile.body.velocity.x > 700
     );
   }, undefined, { timeout: 2000 });
-  for (const [index, x] of [[0, 665], [1, 775], [2, 885]]) {
+  for (const [index, x] of [[0, 665], [1, 775]]) {
     const expectedType = await page.evaluate((moveIndex) => {
       const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
       return scene.selectedHero.specialMoves[moveIndex].type;
     }, index);
-    // Press each mobile EXTRA button twice immediately. Verify a fresh
-    // animation start each time; the HUD may legitimately show "no enemy
-    // in range" when the arena has already been cleared.
+    // EXTRA 1 and EXTRA 2 remain the two special-move buttons.
     for (let repeat = 0; repeat < 2; repeat++) {
       const previousCount = await page.evaluate(() => {
         const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
@@ -119,6 +117,20 @@ try {
       }, { type: expectedType, count: previousCount }, { timeout: 1500 });
     }
   }
+  // EXTRA 3 now advances through the ten elemental powers.
+  const initialPower = await page.evaluate(() => window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene")?.powerType);
+  await page.mouse.click(885, 340);
+  await page.waitForFunction((previous) => {
+    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+    return scene?.powerType !== previous;
+  }, initialPower, { timeout: 1500 });
+  const powerAfterOnePress = await page.evaluate(() => window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene")?.powerType);
+  if (!powerAfterOnePress || powerAfterOnePress === initialPower) throw new Error("EXTRA 3 did not advance the selected power");
+  await page.mouse.click(885, 340);
+  await page.waitForFunction((previous) => {
+    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+    return scene?.powerType !== previous;
+  }, powerAfterOnePress, { timeout: 1500 });
 
   // Verify every equipped special move damages a live enemy through the real Phaser scene.
   await page.evaluate(() => {
