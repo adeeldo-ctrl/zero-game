@@ -2,7 +2,9 @@
   "appId": "com.zerogame.arcade",
   "appName": "ZERO GAME",
   "webDir": "dist",
-  "bundledWebRuntime": false,
+  "android": {
+    "orientation": "landscape"
+  },
   "server": {
     "androidScheme": "http"
   }

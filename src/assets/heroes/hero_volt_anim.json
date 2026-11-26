@@ -1,0 +1,31 @@
+{
+  "frameWidth": 210,
+  "frameHeight": 212,
+  "framesPerRow": 6,
+  "animations": {
+    "idle": {
+      "start": 0,
+      "end": 3
+    },
+    "land": {
+      "start": 4,
+      "end": 5
+    },
+    "walk": {
+      "start": 6,
+      "end": 11
+    },
+    "jump": {
+      "start": 12,
+      "end": 14
+    },
+    "turn": {
+      "start": 15,
+      "end": 16
+    },
+    "victory": {
+      "start": 18,
+      "end": 21
+    }
+  }
+}

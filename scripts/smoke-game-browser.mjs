@@ -24,7 +24,11 @@ try {
   }
   if (!ready) throw new Error(`Vite did not start. Server output:\n${serverOutput}`);
 
-  browser = await chromium.launch({ headless: true, args: ["--no-sandbox", "--disable-dev-shm-usage"] });
+  browser = await chromium.launch({
+    headless: true,
+    executablePath: "C:/Program Files/Google/Chrome/Application/chrome.exe",
+    args: ["--no-sandbox", "--disable-dev-shm-usage"]
+  });
   const page = await browser.newPage({ viewport: { width: 960, height: 540 } });
   page.setDefaultTimeout(15000);
   page.setDefaultNavigationTimeout(15000);
@@ -47,10 +51,6 @@ try {
   await page.mouse.click(120, 486);
   await delay(2600);
   await page.keyboard.press("Space");
-  await page.keyboard.press("1");
-  await page.keyboard.press("2");
-  await page.keyboard.press("3");
-  await page.keyboard.press("x");
   await delay(700);
 
   // Exercise the actual DOM pointer layer used by the Android touch overlay.
@@ -84,6 +84,20 @@ try {
     const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
     if (scene.touch.axis !== 0 || scene.touch.down) throw new Error("Touch joystick did not reset on release");
   });
+  await page.evaluate(() => {
+    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+    scene.projectiles.clear(true, true);
+    scene.lastAttack = -10000;
+  });
+  await page.mouse.move(765, 448);
+  await page.mouse.down();
+  await page.mouse.up();
+  await page.waitForFunction(() => {
+    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+    return scene?.projectiles.getChildren().some((projectile) =>
+      projectile.active && projectile.getData("charge") === 0 && projectile.body.velocity.x > 700
+    );
+  }, undefined, { timeout: 2000 });
   for (const [index, x] of [[0, 665], [1, 775], [2, 885]]) {
     const expectedType = await page.evaluate((moveIndex) => {
       const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
@@ -615,10 +629,126 @@ try {
     throw new Error(`Expected 50 unique world/stage landmark compositions, received ${landmarkSignatures.size}`);
   }
 
+  const nativePage = await browser.newPage({ viewport: { width: 960, height: 540 } });
+  const nativeErrors = [];
+  nativePage.on("pageerror", (error) => nativeErrors.push(error.message));
+  nativePage.on("console", (message) => {
+    if (message.type() === "error") nativeErrors.push(message.text());
+  });
+  await nativePage.addInitScript(() => { window.__ZERO_GAME_TEST_NATIVE_TOUCH__ = true; });
+  await nativePage.goto("http://127.0.0.1:4173", { waitUntil: "domcontentloaded" });
+  await nativePage.locator("#game-container canvas").last().waitFor({ state: "visible" });
+  // Enter gameplay directly for this page so the special native-touch test
+  // does not depend on mouse events in the hero-select screen.
+  await nativePage.evaluate(() => {
+    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+    scene.heroSelectionLocked = true;
+    scene.beginCampaign();
+  });
+  await nativePage.waitForFunction(() => {
+    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+    return scene?.campaignActive && scene?.heroSelectionLocked;
+  }, undefined, { timeout: 10000 });
+  await delay(3000);
+
+  const point = (id, x, y) => ({ id, x, y, radiusX: 12, radiusY: 12, force: 1 });
+  const dispatchTouch = (type, changedPoints, activePoints = changedPoints) => nativePage.evaluate(
+    ({ type, changedPoints, activePoints }) => {
+      const toTouch = ({ id, x, y }) => ({ identifier: id, clientX: x, clientY: y });
+      const event = new Event(type, { bubbles: true, cancelable: true });
+      Object.defineProperty(event, "changedTouches", { value: changedPoints.map(toTouch) });
+      Object.defineProperty(event, "touches", { value: activePoints.map(toTouch) });
+      const destination = type === "touchstart"
+        ? document.getElementById("mobile-controls-overlay")
+        : window;
+      destination.dispatchEvent(event);
+    }, { type, changedPoints, activePoints }
+  );
+  await nativePage.evaluate(() => {
+    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+    scene.hero.setPosition(480, 450);
+    scene.facing = 1;
+    scene.lastAttack = -10000;
+    scene.projectiles.clear(true, true);
+  });
+  const beforeTripleTouch = await nativePage.evaluate(() => {
+    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+    if (!scene?.textures.exists("shot") || !scene?.textures.exists("platform")) {
+      throw new Error("Restored gameplay shot or platform texture is missing");
+    }
+    scene.lastDamage = scene.time.now + 100000;
+    const enemies = scene.enemies.getChildren().filter((enemy) => enemy.active && !enemy.getData("isBoss"));
+    const classes = new Set(enemies.map((enemy) => enemy.getData("enemyClass")));
+    if (!["fast", "heavy", "special"].every((enemyClass) => classes.has(enemyClass))) {
+      throw new Error(`Live stage did not spawn all three enemy classes: ${[...classes].join(",")}`);
+    }
+    const profiles = new Set(enemies.map((enemy) => enemy.getData("visual")?.getData("classProfile")));
+    if (enemies.some((enemy) => !enemy.getData("visual")?.visible ||
+        !enemy.getData("visual")?.getData("classProfile")) ||
+        !["swift-scarf", "armored-bruiser", "arcane-aura"].every((profile) => profiles.has(profile))) {
+      throw new Error("A live stage enemy is still using the hidden legacy sprite instead of its visible class visual");
+    }
+    enemies.forEach((enemy, index) => enemy.setData("smokeCheckId", index));
+    return {
+      activations: scene.specialActivationCount || 0,
+      animTime: scene.heroAnimTime || 0,
+      enemyAnimTimes: enemies.map((enemy) => [enemy.getData("smokeCheckId"), enemy.getData("animTime") || 0])
+    };
+  });
+
+  await dispatchTouch("touchstart", [point(1, 132, 448), point(2, 665, 340), point(3, 885, 340)]);
+  await nativePage.waitForFunction((count) => {
+    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+    return (scene?.specialActivationCount || 0) >= count + 2;
+  }, beforeTripleTouch.activations, { timeout: 3000 });
+  await dispatchTouch("touchmove", [point(1, 245, 448), point(2, 665, 340), point(3, 885, 340)]);
+  await nativePage.waitForFunction(() => {
+    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+    return scene?.touch.axis > 0.95;
+  }, undefined, { timeout: 2000 });
+  await dispatchTouch("touchend", [point(2, 665, 340)], [point(1, 245, 448), point(3, 885, 340)]);
+  await nativePage.waitForFunction(() => {
+    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+    return scene?.touch.axis > 0.95;
+  }, undefined, { timeout: 1000 });
+
+  const beforeRepeat = await nativePage.evaluate(() => {
+    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+    return scene.specialActivationCount || 0;
+  });
+  await dispatchTouch("touchstart", [point(4, 665, 340)], [point(1, 245, 448), point(3, 885, 340), point(4, 665, 340)]);
+  await nativePage.waitForFunction((count) => {
+    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+    return (scene?.specialActivationCount || 0) > count;
+  }, beforeRepeat, { timeout: 2000 });
+  await dispatchTouch("touchmove", [point(1, 245, 448), point(3, 885, 340), point(4, 665, 340)]);
+  await dispatchTouch("touchend", [point(1, 245, 448), point(3, 885, 340), point(4, 665, 340)], []);
+  await nativePage.waitForFunction(() => {
+    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+    return scene?.touch.axis === 0 && scene?.touch.down === false;
+  }, undefined, { timeout: 2000 });
+  await delay(150);
+  await nativePage.evaluate((animTime) => {
+    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+    if (!scene || scene.heroAnimTime <= animTime || !scene.sys.isActive()) {
+      throw new Error("Scene update loop stalled after simultaneous joystick + Extra 1 + Extra 3 input");
+    }
+  }, beforeTripleTouch.animTime);
+  await nativePage.waitForFunction((before) => {
+    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+    const enemies = scene?.enemies.getChildren().filter((enemy) => enemy.active && !enemy.getData("isBoss")) || [];
+    const byId = new Map(enemies.map((enemy) => [enemy.getData("smokeCheckId"), enemy.getData("animTime") || 0]));
+    return before.some(([id, animTime]) => byId.has(id) && byId.get(id) > animTime);
+  }, beforeTripleTouch.enemyAnimTimes, { timeout: 2000 });
+  await nativePage.close();
+
+  if (nativeErrors.length) {
+    throw new Error(`Android TouchEvent path runtime errors:\n${nativeErrors.join("\n")}`);
+  }
   if (runtimeErrors.length) {
     throw new Error(`Browser runtime errors:\n${runtimeErrors.join("\n")}`);
   }
-  console.log("Browser smoke test passed: campaign, hero persistence, gameplay inputs, four boss visuals and attacks, three-heart/chance recovery, real platform physics, all four boss attacks, all three transition directions, all 50 real stage restarts, 50 unique stage landmark compositions, persistent campaign identity, grounded enemy checks, and no uncaught runtime errors.");
+  console.log("Browser smoke test passed: campaign and stage regression coverage, all three live enemy class visuals, restored shot/platform textures, joystick + Extra 1 + Extra 3 via three simultaneous Android Touch identifiers, joystick movement beyond its touch zone, repeated presses, clean release, gameplay update continuity, boss and stage progression, and no uncaught runtime errors.");
 } finally {
   if (browser) await browser.close();
   if (server.exitCode === null) {

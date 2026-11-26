@@ -3,9 +3,9 @@ export function clampAudioVolume(value) {
 }
 
 const NOTE_FREQUENCIES = {
-  C4: 261.63, D4: 293.66, E4: 329.63, G4: 392.0,
-  A4: 440.0, C5: 523.25, D5: 587.33, E5: 659.25,
-  G3: 196.0, C3: 130.81
+  C3: 130.81, D3: 146.83, "D#3": 155.56, E3: 164.81, G3: 196.0, A3: 220.0, B3: 246.94,
+  C4: 261.63, D4: 293.66, E4: 329.63, "F#4": 369.99, G4: 392.0, A4: 440.0, B4: 493.88,
+  C5: 523.25, D5: 587.33, E5: 659.25
 };
 
 const SOUND_NOTES = {
@@ -14,7 +14,15 @@ const SOUND_NOTES = {
   boss: [110, 165, 220], bossHit: [130, 260], bossPhase: [110, 220, 330, 440, 660],
   kick: [95, 180, 360], step: [92, 138], land: [150, 190], collect: [660, 880, 1046],
   stageClear: [392, 523, 659, 784, 988], gameOver: [330, 247, 196, 147],
-  ui: [520, 660], stage: [392, 523, 659]
+  ui: [520, 660], stage: [392, 523, 659], punch: [190, 280], enemyAttack: [125, 190, 265], bossAttack: [82, 123, 186],
+  ryoPower1: [310, 520, 740], ryoPower2: [190, 390, 650, 850], ryoPower3: [110, 260, 520, 780],
+  ryoAttack: [240, 360],
+  kairoPower1: [360, 610, 880], kairoPower2: [170, 330, 550, 740], kairoPower3: [120, 240, 480, 720],
+  kairoAttack: [330, 500],
+  meiPower1: [500, 740, 990], meiPower2: [280, 560, 830, 1100], meiPower3: [420, 630, 840, 1050],
+  meiAttack: [420, 630],
+  voltPower1: [120, 240, 480], voltPower2: [100, 210, 420, 630], voltPower3: [80, 160, 320, 640],
+  voltAttack: [150, 300]
 };
 
 export function createGameAudio() {
@@ -23,6 +31,7 @@ export function createGameAudio() {
   let musicIndex = 0;
   const pendingTimers = new Set();
   const activeOscillators = new Set();
+  const lastSoundAt = new Map();
 
   const schedule = (callback, delay) => {
     const timer = setTimeout(() => {
@@ -40,8 +49,6 @@ export function createGameAudio() {
     ? clampAudioVolume(storedMusicVolume) : 0.7;
   let sfxVolume = Number.isFinite(storedSfxVolume) && localStorage.getItem("zero_game_sfx_volume") !== null
     ? clampAudioVolume(storedSfxVolume) : 0.75;
-  const melody = ["C4", "E4", "G4", "E4", "D4", "G4", "A4", "G4", "C4", "E4", "G4", "C5", "A4", "G4", "E4", "D4"];
-
   const ensureContext = () => {
     if (!context) {
       const AudioContextClass = window.AudioContext || window.webkitAudioContext;
@@ -76,6 +83,10 @@ export function createGameAudio() {
 
   const play = (name) => {
     if (!sfxEnabled) return;
+    const now = Date.now();
+    const minimumGap = name === "step" ? 105 : name === "hit" || name === "bossHit" ? 75 : 45;
+    if (now - (lastSoundAt.get(name) || 0) < minimumGap) return;
+    lastSoundAt.set(name, now);
     ensureContext();
     const notes = SOUND_NOTES[name] || SOUND_NOTES.ui;
     notes.forEach((frequency, index) => {
@@ -83,19 +94,103 @@ export function createGameAudio() {
     });
   };
 
+  let activeTrack = "world-0";
+  const bossThemes = [
+    ["C3", "G3", "D4", "G3", "A3", "D4"],
+    ["G3", "D4", "A4", "D4", "C4", "G4"],
+    ["D3", "A3", "E4", "A3", "G3", "D4"],
+    ["A3", "E4", "B4", "E4", "D4", "A4"],
+    ["C3", "D#3", "G3", "B3", "C4", "G3"]
+  ];
   const scheduleMusic = () => {
     if (!musicEnabled || !context || musicTimer) return;
     const step = () => {
       musicTimer = null;
       if (!musicEnabled || !context) return;
-      const name = melody[musicIndex % melody.length];
-      const frequency = NOTE_FREQUENCIES[name];
-      tone(frequency, 0.22, "triangle", 0.025 * musicVolume);
+      const bossIndex = Number(activeTrack.split("-")[1]);
+      const notes = activeTrack.startsWith("boss-")
+        ? bossThemes[bossIndex] || bossThemes[0]
+        : ["C4", "E4", "G4", "A4", "G4", "E4", "D4", "G4"];
+      const name = notes[musicIndex % notes.length];
+      const frequency = NOTE_FREQUENCIES[name] || 130.81;
+      tone(frequency, activeTrack.startsWith("boss-") ? 0.32 : 0.22,
+        activeTrack.startsWith("boss-") ? "sawtooth" : "triangle",
+        (activeTrack.startsWith("boss-") ? 0.033 : 0.025) * musicVolume);
       if (musicIndex % 4 === 0) tone(NOTE_FREQUENCIES.C3, 0.28, "sine", 0.018 * musicVolume);
       musicIndex++;
-      musicTimer = schedule(step, 260);
+      musicTimer = schedule(step, activeTrack.startsWith("boss-") ? 330 : 260);
     };
     step();
+  };
+
+  const setTrack = (track) => {
+    activeTrack = track;
+    musicIndex = 0;
+    if (musicTimer) { clearTimeout(musicTimer); pendingTimers.delete(musicTimer); musicTimer = null; }
+    if (musicEnabled) scheduleMusic();
+  };
+
+  // ---------- Procedural Menu Music ----------
+  const menuMelody = ["C4","E4","G4","C5"];
+  let menuIndex = 0;
+  let menuTimer = null;
+  const playMenuMusic = () => {
+    if (!musicEnabled || !context) return;
+    const step = () => {
+      const name = menuMelody[menuIndex % menuMelody.length];
+      const freq = NOTE_FREQUENCIES[name];
+      tone(freq, 0.3, "triangle", 0.04 * musicVolume);
+      menuIndex++;
+      menuTimer = schedule(step, 500);
+    };
+    step();
+  };
+  const stopMenuMusic = () => {
+    if (menuTimer) { clearTimeout(menuTimer); menuTimer = null; }
+  };
+
+  // ---------- Procedural Gameplay Loop ----------
+  const gameplayMelody = ["G3","C4","E4","G4","B4","C5"];
+  let gameplayIndex = 0;
+  let gameplayTimer = null;
+  const playGameplayLoop = () => {
+    if (!musicEnabled || !context) return;
+    const step = () => {
+      const name = gameplayMelody[gameplayIndex % gameplayMelody.length];
+      const freq = NOTE_FREQUENCIES[name] || NOTE_FREQUENCIES["C4"];
+      tone(freq, 0.2, "sine", 0.03 * musicVolume);
+      gameplayIndex++;
+      gameplayTimer = schedule(step, 400);
+    };
+    step();
+  };
+  const stopGameplayLoop = () => {
+    if (gameplayTimer) { clearTimeout(gameplayTimer); gameplayTimer = null; }
+  };
+
+  // ---------- World‑Specific Tracks ----------
+  const worldTracks = {
+    forest: ["C4","E4","G4","A4"],
+    desert: ["D4","F#4","A4","C5"],
+    ocean: ["E4","G4","B4","D5"]
+  };
+  const worldTimers = {};
+  const playWorldTrack = (world) => {
+    const track = worldTracks[world];
+    if (!track) return;
+    let idx = 0;
+    const step = () => {
+      if (!musicEnabled || !context) return;
+      const name = track[idx % track.length];
+      const freq = NOTE_FREQUENCIES[name] || NOTE_FREQUENCIES["C4"];
+      tone(freq, 0.25, "triangle", 0.035 * musicVolume);
+      idx++;
+      worldTimers[world] = schedule(step, 600);
+    };
+    step();
+  };
+  const stopWorldTrack = (world) => {
+    if (worldTimers[world]) { clearTimeout(worldTimers[world]); delete worldTimers[world]; }
   };
 
   const unlock = () => {
@@ -145,10 +240,20 @@ export function createGameAudio() {
   };
 
   return {
-    unlock, play, stop, setMusicEnabled, setSfxEnabled, setMusicVolume, setSfxVolume,
+    unlock, play, stop,
+    setMusicEnabled, setSfxEnabled, setMusicVolume, setSfxVolume,
     isMusicEnabled: () => musicEnabled,
     isSfxEnabled: () => sfxEnabled,
     getMusicVolume: () => musicVolume,
-    getSfxVolume: () => sfxVolume
+    getSfxVolume: () => sfxVolume,
+    // New procedural audio controls
+    playMenuMusic,
+    stopMenuMusic,
+    playGameplayLoop,
+    stopGameplayLoop,
+    playWorldTrack,
+    stopWorldTrack,
+    playWorldTheme: (worldIndex) => setTrack(`world-${Math.max(0, Math.floor(Number(worldIndex) || 0) % 10)}`),
+    playBossTheme: (bossIndex) => setTrack(`boss-${Math.max(0, Math.floor(Number(bossIndex) || 0) % 5)}`)
   };
 }

@@ -1,5 +1,5 @@
 
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import Phaser from "phaser";
 import { Capacitor } from "@capacitor/core";
 import { ELEMENTS, HEROES, getElement, getStage, getHero } from "./gameData";
@@ -12,6 +12,10 @@ import { getEnemyMovementSpeed } from "./enemyRules";
 import "./App.css";
 
 class ZeroGameScene extends Phaser.Scene {
+  preload() {
+    // Combat visuals are built from Phaser graphics when the scene is created.
+  }
+
   constructor() {
     super("ZeroGameScene");
 
@@ -117,6 +121,7 @@ class ZeroGameScene extends Phaser.Scene {
 
     // Animated visual character
     this.heroVisual = this.createHeroVisual(480, 450);
+    this.applyHeroLook(this.heroVisual, this.selectedHero);
 
     this.heroPlatformCollider = this.physics.add.collider(this.hero, this.platforms, null,
       (hero, platform) => shouldHeroCollideWithPlatform({
@@ -549,58 +554,9 @@ class ZeroGameScene extends Phaser.Scene {
   }
 
   createTextures() {
-    const hero = this.make.graphics({
-      x: 0,
-      y: 0,
-      add: false
-    });
-
-    hero.fillStyle(0x142c45, 0.2);
-    hero.fillEllipse(34, 85, 48, 9);
-
-    hero.fillStyle(0x49372e);
-    hero.fillRoundedRect(9, 73, 22, 10, 5);
-    hero.fillRoundedRect(37, 73, 22, 10, 5);
-
-    hero.fillStyle(0x806044);
-    hero.fillRoundedRect(12, 73, 16, 4, 3);
-    hero.fillRoundedRect(40, 73, 16, 4, 3);
-
-    hero.fillStyle(0xf0e6d0);
-    hero.fillRoundedRect(13, 48, 20, 28, 8);
-    hero.fillRoundedRect(34, 48, 20, 28, 8);
-
-    hero.fillStyle(0x168e85);
-    hero.fillRoundedRect(12, 28, 44, 32, 9);
-
-    hero.fillStyle(0x263d58);
-    hero.fillRoundedRect(10, 27, 45, 32, 8);
-
-    hero.fillStyle(0x168e85);
-    hero.fillRoundedRect(2, 32, 15, 24, 7);
-    hero.fillRoundedRect(51, 32, 15, 24, 7);
-
-    hero.fillStyle(0xe9b38b);
-    hero.fillRect(25, 22, 17, 12);
-    hero.fillEllipse(33, 18, 42, 43);
-
-    hero.fillStyle(0x30251f);
-    hero.fillEllipse(33, 5, 42, 18);
-
-    hero.fillStyle(0x263b54);
-    hero.fillRoundedRect(13, 0, 40, 13, 5);
-
-    hero.fillStyle(0x47c3b2);
-    hero.fillRect(16, 8, 34, 3);
-
-    hero.fillStyle(0xffffff);
-    hero.fillEllipse(24, 19, 9, 11);
-    hero.fillEllipse(42, 19, 9, 11);
-
-    hero.fillStyle(0x272b35);
-    hero.fillCircle(25, 20, 3);
-    hero.fillCircle(41, 20, 3);
-
+    const hero = this.make.graphics({ x: 0, y: 0, add: false });
+    hero.fillStyle(0xf0e6d0).fillRoundedRect(14, 12, 40, 70, 12);
+    hero.fillStyle(0xe9b38b).fillCircle(34, 20, 16);
     hero.generateTexture("ryo", 68, 90);
     hero.destroy();
 
@@ -608,45 +564,19 @@ class ZeroGameScene extends Phaser.Scene {
     this.createEnemyTexture("enemy1", 0xe56a42, 0xffa36b, 0x7ff1e4);
     this.createEnemyTexture("enemy2", 0x397cbb, 0x67b8f1, 0xffdc74);
 
-    const shot = this.make.graphics({
-      x: 0,
-      y: 0,
-      add: false
-    });
-
-    shot.fillStyle(0x00bce9, 0.2);
-    shot.fillCircle(13, 13, 13);
-
-    shot.fillStyle(0x44edff);
-    shot.fillCircle(13, 13, 9);
-
-    shot.lineStyle(3, 0xffffff);
-    shot.strokeCircle(13, 13, 7);
-
-    shot.fillStyle(0xffffff);
-    shot.fillCircle(10, 9, 3);
-
+    const shot = this.make.graphics({ x: 0, y: 0, add: false });
+    shot.fillStyle(0x00bce9, 0.2).fillCircle(13, 13, 13);
+    shot.fillStyle(0x44edff).fillCircle(13, 13, 9);
+    shot.lineStyle(3, 0xffffff).strokeCircle(13, 13, 7);
+    shot.fillStyle(0xffffff).fillCircle(10, 9, 3);
     shot.generateTexture("shot", 26, 26);
     shot.destroy();
 
-    const platform = this.make.graphics({
-      x: 0,
-      y: 0,
-      add: false
-    });
-
-    platform.fillStyle(0x614a42);
-    platform.fillRoundedRect(0, 4, 180, 28, 5);
-
-    platform.fillStyle(0x8a6a50);
-    platform.fillRect(3, 13, 174, 17);
-
-    platform.fillStyle(0x4a9b53);
-    platform.fillRoundedRect(0, 0, 180, 13, 5);
-
-    platform.fillStyle(0x8ad35b);
-    platform.fillRoundedRect(5, 1, 170, 5, 3);
-
+    const platform = this.make.graphics({ x: 0, y: 0, add: false });
+    platform.fillStyle(0x614a42).fillRoundedRect(0, 4, 180, 28, 5);
+    platform.fillStyle(0x8a6a50).fillRect(3, 13, 174, 17);
+    platform.fillStyle(0x4a9b53).fillRoundedRect(0, 0, 180, 13, 5);
+    platform.fillStyle(0x8ad35b).fillRoundedRect(5, 1, 170, 5, 3);
     platform.generateTexture("platform", 180, 32);
     platform.destroy();
   }
@@ -835,6 +765,10 @@ class ZeroGameScene extends Phaser.Scene {
   }
 
   createEnemyVisual(enemy, color, hornColor) {
+    const enemyClass = enemy.getData("enemyClass") || "special";
+    const isFast = enemyClass === "fast";
+    const isHeavy = enemyClass === "heavy";
+    const isSpecial = enemyClass === "special";
     const c = this.add.container(
       enemy.x,
       enemy.y
@@ -860,17 +794,18 @@ class ZeroGameScene extends Phaser.Scene {
       23, 0, 12, 22, color
     ).setOrigin(0.5, 0.1);
 
-    const body = this.add.ellipse(
-      0, -2, 48, 43, color
-    );
+    const body = this.add.ellipse(0, -2,
+      isFast ? 42 : isHeavy ? 58 : 50,
+      isHeavy ? 50 : 43,
+      color).setStrokeStyle(isHeavy ? 3 : 1, isHeavy ? 0xe5c18c : 0x30263e, 0.85);
 
     const belly = this.add.ellipse(
       0, 7, 25, 20, 0xffffff, 0.25
     );
 
-    const headband = this.add.rectangle(0, -23, 43, 7, hornColor).setStrokeStyle(1, 0xffffff, 0.75);
-    const hornL = this.add.triangle(-23, -19, -5, -5, 12, 0, -8, 13, hornColor);
-    const hornR = this.add.triangle(23, -19, -12, 0, 5, -5, 8, 13, hornColor);
+    const headband = this.add.rectangle(0, -23, isHeavy ? 52 : 43, isSpecial ? 10 : 7, hornColor).setStrokeStyle(1, 0xffffff, 0.75);
+    const hornL = this.add.triangle(isHeavy ? -28 : -23, -19, -5, -5, 12, 0, -8, 13, hornColor);
+    const hornR = this.add.triangle(isHeavy ? 28 : 23, -19, -12, 0, 5, -5, 8, 13, hornColor);
     const belt = this.add.rectangle(0, 14, 31, 5, 0x282d46).setStrokeStyle(1, 0xffffff, 0.35);
 
     const eyeL = this.add.ellipse(
@@ -889,6 +824,31 @@ class ZeroGameScene extends Phaser.Scene {
       11, -4, 3, 0x25233a
     );
 
+    const classDetails = [];
+    if (isFast) {
+      classDetails.push(
+        this.add.triangle(-17, -28, 0, 0, 30, -5, 0, 10, hornColor).setAngle(-8),
+        this.add.triangle(17, -28, 0, 0, -30, -5, 0, 10, hornColor).setAngle(8),
+        this.add.ellipse(-23, 10, 14, 8, 0xf1e9da),
+        this.add.ellipse(23, 10, 14, 8, 0xf1e9da)
+      );
+    } else if (isHeavy) {
+      classDetails.push(
+        this.add.ellipse(-24, -8, 22, 20, 0x72523f).setStrokeStyle(3, hornColor),
+        this.add.ellipse(24, -8, 22, 20, 0x72523f).setStrokeStyle(3, hornColor),
+        this.add.rectangle(0, -15, 34, 8, 0x4b3741).setStrokeStyle(2, hornColor),
+        this.add.ellipse(0, 5, 28, 17, 0xc9a377, 0.65)
+      );
+    } else {
+      const aura = this.add.circle(0, -3, 37, hornColor, 0.08).setStrokeStyle(3, hornColor, 0.86);
+      const sigil = this.add.text(0, 1, "✦", {
+        fontSize: "23px", color: `#${hornColor.toString(16).padStart(6, "0")}`,
+        fontStyle: "bold", stroke: "#251f37", strokeThickness: 3
+      }).setOrigin(0.5);
+      classDetails.push(aura, sigil);
+      this.tweens.add({ targets: aura, scale: 1.25, alpha: 0.2, duration: 460, yoyo: true, repeat: -1 });
+    }
+
     c.add([
       shadow,
       legL, legR,
@@ -896,7 +856,8 @@ class ZeroGameScene extends Phaser.Scene {
       body, belly,
       headband, hornL, hornR, belt,
       eyeL, eyeR,
-      pupilL, pupilR
+      pupilL, pupilR,
+      ...classDetails
     ]);
 
     const inspiration = enemy.getData("enemyName") || "";
@@ -934,6 +895,8 @@ class ZeroGameScene extends Phaser.Scene {
 });
 
     enemy.setData("visual", c);
+    c.setData("enemyClass", enemyClass);
+    c.setData("classProfile", isFast ? "swift-scarf" : isHeavy ? "armored-bruiser" : "arcane-aura");
     enemy.setData("animTime", 0);
 
     return c;
@@ -1450,6 +1413,7 @@ class ZeroGameScene extends Phaser.Scene {
     this.setMobileControlsVisible(true); this.clearMenu();
     this.audio.unlock();
     this.audio.play("stage");
+    this.audio.playWorldTheme(this.stageConfig.worldIndex);
     this.campaignActive = true; this.gameStarted = true; this.gameOver = false; this.stageCleared = false;
     this.stageAdvancePending = false;
     this.stageStartedAt = this.time.now; this.stageTimeLeft = this.stageConfig.timeLimit || 120;
@@ -1549,6 +1513,8 @@ class ZeroGameScene extends Phaser.Scene {
         enemy.setData("frozen", false);
         enemy.setData("baseTexture", `enemy${i % 3}`);
         enemy.setData("enemyName", this.stageConfig.enemyTypes[i % this.stageConfig.enemyTypes.length]);
+        const enemyClass = ["fast", "heavy", "special"][i % 3];
+        enemy.setData("enemyClass", enemyClass);
         const aiTypes = ["chaser", "runner", "jumper", "guard", "charger", "chaser"];
         const aiType = aiTypes[i % aiTypes.length];
         enemy.setData("aiType", aiType);
@@ -1774,6 +1740,7 @@ class ZeroGameScene extends Phaser.Scene {
     this.boss = boss;
     this.bossVisual = this.createBossVisual(boss);
     this.bossVisual.setScale(1.15);
+    this.audio.playBossTheme(Math.floor(this.stageNumber / 10) - 1);
 
     const entrance = this.add.circle(480, 160, 55, 0xff5b43, 0.35)
       .setStrokeStyle(5, 0xffd36b).setDepth(8);
@@ -1955,16 +1922,19 @@ class ZeroGameScene extends Phaser.Scene {
     if (attackState === "tell" && this.time.now >= enemy.getData("bossTellUntil")) {
       const kind = enemy.getData("bossAttackKind");
       if (kind === 0) {
+        this.audio.play("bossAttack");
         enemy.setData("bossAttackState", "slam");
         enemy.setVelocityY(this.bossPhase === 3 ? -650 : this.bossPhase === 2 ? -560 : -490);
         enemy.setVelocityX(direction * 95);
       } else if (kind === 1) {
+        this.audio.play("bossAttack");
         enemy.setData("bossAttackState", "volley");
         enemy.setData("bossVolleyUntil", this.time.now + 460);
         enemy.setData("bossAttackAt", this.time.now + (this.bossPhase === 3 ? 700 : this.bossPhase === 2 ? 1050 : 1650));
         enemy.setVelocityX(0);
         this.fireBossVolley(enemy);
       } else {
+        this.audio.play("bossAttack");
         enemy.setData("bossAttackState", "dash");
         enemy.setData("bossDashDirection", direction);
         enemy.setData("bossDashUntil", this.time.now + (this.bossPhase === 3 ? 680 : this.bossPhase === 2 ? 520 : 390));
@@ -2249,6 +2219,7 @@ class ZeroGameScene extends Phaser.Scene {
     const now = this.time.now;
     if (now - this.lastDamage < 1200 || this.health <= 0) return;
     this.lastDamage = now;
+    this.audio.play("hit");
     const lives = loseCampaignHeart({ chances: this.chances, hearts: this.health, gameOver: false });
     this.chances = lives.chances;
     this.health = lives.hearts;
@@ -2418,13 +2389,14 @@ class ZeroGameScene extends Phaser.Scene {
     // limited-use counter or animation lock.
     const selectedIndex = Math.max(0, Math.min(2, moveIndex));
     const move = moves[selectedIndex];
+    const now = this.time.now;
     this.specialActivationCount = (this.specialActivationCount || 0) + 1;
     this.audio.unlock();
-    this.audio.play("special");
+    this.audio.play(`${this.selectedHero.id}Power${selectedIndex + 1}`);
     this.specialPoseType = move.type;
-    this.specialPoseStartedAt = this.time.now;
-    this.specialPoseUntil = this.time.now + (move.type === "rapid" ? 900 : move.type === "throw" ? 980 : 1050);
-    this.specialImpactAt = this.time.now + (move.type === "rapid" ? 390 : move.type === "uppercut" ? 420 : 470);
+    this.specialPoseStartedAt = now;
+    this.specialPoseUntil = now + (move.type === "rapid" ? 900 : move.type === "throw" ? 980 : 1050);
+    this.specialImpactAt = now + (move.type === "rapid" ? 390 : move.type === "uppercut" ? 420 : 470);
     this.specialImpactTriggered = false;
     this.normalAttackUntil = 0;
     const accent = this.selectedHero.accent || 0x7deaff;
@@ -2601,14 +2573,37 @@ class ZeroGameScene extends Phaser.Scene {
   }
 
   fireAttack(charge = 0) {
-    this.audio.unlock();
-    this.audio.play("fire");
     const now = this.time.now;
     if (now - this.lastAttack < 170) return;
     this.lastAttack = now;
+    this.audio.unlock();
+    this.audio.play(`${this.selectedHero?.id || "ryo"}Attack`);
     this.normalAttackUntil = now + 190;
+    const combo = now - (this.lastComboAt || 0) < 620 ? ((this.normalComboCount || 0) + 1) % 3 : 0;
+    this.normalComboCount = combo;
+    this.lastComboAt = now;
+    this.normalAttackKind = combo === 2 ? "kick" : "punch";
     this.sendNet({ type: "shot", x: this.hero.x, y: this.hero.y - 8, direction: this.facing, powerType: this.powerType, charge });
     if (this.kickNearestElementBall()) return;
+    const meleeTarget = this.enemies.getChildren().find((enemy) => enemy.active &&
+      !enemy.getData("frozen") && Math.abs(enemy.y - this.hero.y) < 72 &&
+      (enemy.x - this.hero.x) * this.facing > -18 &&
+      (enemy.x - this.hero.x) * this.facing < 88);
+    if (meleeTarget) {
+      this.audio.play(combo === 2 ? "kick" : "punch");
+      if (meleeTarget.getData("isBoss")) this.hitBoss(meleeTarget, combo === 2 ? 3 : 2);
+      else {
+        const strike = this.projectiles.create(this.hero.x + this.facing * 42, this.hero.y - 12, "shot");
+        strike.setData("specialAttack", combo === 2);
+        strike.setData("powerType", this.powerType);
+        this.hitEnemy(strike, meleeTarget);
+        meleeTarget.setVelocity(this.facing * (combo === 2 ? 310 : 185), combo === 2 ? -260 : -120);
+        this.addScore(40);
+      }
+      const impact = this.add.circle(meleeTarget.x, meleeTarget.y - 12, combo === 2 ? 26 : 18,
+        combo === 2 ? 0xffc766 : 0xffffff, 0.82).setDepth(25);
+      this.tweens.add({ targets: impact, scale: 2.4, alpha: 0, duration: 180, onComplete: () => impact.destroy() });
+    }
     const power = this.getPowerPalette();
     const strength = Phaser.Math.Clamp(charge / 1500, 0, 1);
     const radius = 22 + strength * 22;
@@ -2764,11 +2759,11 @@ class ZeroGameScene extends Phaser.Scene {
     const t = this.heroAnimTime * 0.012;
     const moving = Math.abs(h.body.velocity.x) > 10;
     const airborne = !h.body.blocked.down;
+    const heroId = this.selectedHero?.id || "ryo";
     if (!airborne && moving && time >= (this.nextFootstepAt || 0)) {
       this.audio.play("step");
       this.nextFootstepAt = time + (heroId === "volt" ? 235 : 275);
     }
-    const heroId = this.selectedHero?.id || "ryo";
     const gait = {
       ryo:   { stride: 0.44, guard: 0.76, bounce: 2.0, cadence: 2.25 },
       kairo: { stride: 0.58, guard: 0.68, bounce: 2.8, cadence: 2.65 },
@@ -2842,6 +2837,15 @@ class ZeroGameScene extends Phaser.Scene {
       p.handL.y = 13;
       p.handR.y = 10;
     } else if (time < (this.normalAttackUntil || 0)) {
+      if (this.normalAttackKind === "kick") {
+        const kick = Math.sin(Phaser.Math.Clamp((this.normalAttackUntil - time) / 190, 0, 1) * Math.PI);
+        p.armL.rotation = -0.7;
+        p.armR.rotation = this.facing * -0.9;
+        p.legR.rotation = this.facing * (1.2 + kick * 0.9);
+        p.shoeR.x = 12 + kick * 21;
+        p.shoeR.y = 35 - kick * 8;
+        visual.setAngle(this.facing * -kick * 0.045);
+      } else {
       // Quick straight punch with a planted rear foot and torso lean.
       const punchProgress = Phaser.Math.Clamp((this.normalAttackUntil - time) / 190, 0, 1);
       const punch = Math.sin((1 - punchProgress) * Math.PI);
@@ -2852,6 +2856,7 @@ class ZeroGameScene extends Phaser.Scene {
       p.legL.rotation = -0.2;
       p.legR.rotation = 0.3;
       visual.setAngle(this.facing * -punch * 0.055);
+      }
     } else {
       p.handR.y = 12;
     }
@@ -3125,6 +3130,7 @@ class ZeroGameScene extends Phaser.Scene {
       } else if (aiType === "runner") {
         let state = enemy.getData("aiState") || "tell";
         if (state === "tell" && elapsed >= enemy.getData("aiStateUntil")) {
+          this.audio.play("enemyAttack");
           state = "dash"; enemy.setData("aiState", state); enemy.setData("aiStateUntil", elapsed + 430);
           enemy.setData("dashDirection", direction);
           this.tweens.add({ targets: enemyVisual, scaleX: 1.35, scaleY: 0.78, duration: 110, yoyo: true });
@@ -3150,6 +3156,7 @@ class ZeroGameScene extends Phaser.Scene {
       } else if (aiType === "charger") {
         let state = enemy.getData("aiState") || "tell";
         if (state === "tell" && elapsed >= enemy.getData("aiStateUntil")) {
+          this.audio.play("enemyAttack");
           state = "charge";
           enemy.setData("aiState", state);
           enemy.setData("aiStateUntil", elapsed + 520);
@@ -3221,17 +3228,18 @@ class ZeroGameScene extends Phaser.Scene {
 export default function App() {
   const gameRef = useRef(null);
   const mobilePointers = useRef(new Map());
-  const isNativeAndroid = Capacitor.getPlatform() === "android";
+  const isNativeAndroid = Capacitor.getPlatform() === "android" ||
+    (import.meta.env.DEV && window.__ZERO_GAME_TEST_NATIVE_TOUCH__ === true);
 
-  const getPlayableScene = () => {
+  const getPlayableScene = useCallback(() => {
     const game = gameRef.current;
     if (!game) return null;
     const scene = game.scene.getScene("ZeroGameScene");
     if (!scene || !scene.sys.isActive() || !scene.gameStarted || scene.gameOver || scene.stageCleared) return null;
     return scene;
-  };
+  }, []);
 
-  const getTouchTarget = (event) => {
+  const getTouchTarget = useCallback((event) => {
     const overlay = event.currentTarget;
     const scene = getPlayableScene();
     // All touch targets use the exact same overlay coordinate system as the
@@ -3243,7 +3251,12 @@ export default function App() {
     const distance = (cx, cy) => Math.hypot(x - cx, y - cy);
 
     // Keep the established joystick center, radius and movement logic.
-    if (distance(132, 448) <= 94) return "stick";
+    if (distance(132, 448) <= 94) {
+      // One finger owns the analog stick; other fingers remain free for any
+      // combination of attack buttons, avoiding stale vectors on lift.
+      if ([...mobilePointers.current.values()].includes("stick")) return null;
+      return "stick";
+    }
 
     const fallbackButtons = [
       ["musicVolume", 610, 43, 34],
@@ -3269,7 +3282,7 @@ export default function App() {
       }
     }
     return nearest;
-  };
+  }, [getPlayableScene]);
 
   const updateDomJoystick = (event) => {
     if (mobilePointers.current.get(event.pointerId) !== "stick") return;
@@ -3461,7 +3474,7 @@ export default function App() {
       window.removeEventListener("blur", resetTouches);
       resetTouches();
     };
-  }, [isNativeAndroid, getTouchTarget]);
+  }, [isNativeAndroid, getTouchTarget, getPlayableScene]);
 
   useEffect(() => {
     if (gameRef.current) return;
