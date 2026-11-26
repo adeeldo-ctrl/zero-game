@@ -1650,6 +1650,8 @@ class ZeroGameScene extends Phaser.Scene {
   recordEnemyDefeat(enemy) {
     if (!enemy?.active || enemy.getData("defeatCounted")) return false;
     enemy.setData("defeatCounted", true);
+    // The time-hunter is a timed bonus threat, not part of the stage's quota.
+    if (enemy.getData("isTimeHunter")) return true;
     this.defeated = Math.min(this.stageEnemyCount, this.defeated + 1);
     this.enemyLabel?.setText(`ENEMIES: ${this.defeated}/${this.stageEnemyCount}`);
     if (this.defeated >= this.stageEnemyCount && this.stageConfig.boss && !this.boss && !this.bossDefeated && !this.bossSpawnQueued) {
