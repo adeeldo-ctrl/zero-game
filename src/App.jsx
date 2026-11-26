@@ -1125,6 +1125,13 @@ class ZeroGameScene extends Phaser.Scene {
   setMobileControlsVisible(visible) {
     const overlay = document.getElementById("mobile-controls-overlay");
     if (overlay) overlay.style.display = visible ? "block" : "none";
+    (this.mobileControlDecorations || []).forEach((item) => item?.setVisible?.(visible));
+    this.mobileControlVisuals?.forEach((control) => {
+      control.bg?.setVisible(visible);
+      control.ring?.setVisible(visible);
+      control.text?.setVisible(visible);
+      control.glow?.setVisible(visible);
+    });
     if (!visible) {
       if (this.mobileActionQueue) this.mobileActionQueue.length = 0;
       if (this.touch) {
@@ -1147,10 +1154,11 @@ class ZeroGameScene extends Phaser.Scene {
     // bypasses game-object hit testing and is reliable with multiple fingers.
     this.joystickBase = this.add.circle(cx, cy, 72, 0x102d4b, 0.78)
       .setStrokeStyle(5, 0x8ceeff, 0.95).setDepth(29);
-    this.add.circle(cx, cy, 53, 0x1b4e70, 0.38)
+    const joystickInner = this.add.circle(cx, cy, 53, 0x1b4e70, 0.38)
       .setStrokeStyle(2, 0x70dfff, 0.55).setDepth(29);
     this.joystickKnob = this.add.circle(cx, cy, 32, 0x36b9df, 1)
       .setStrokeStyle(4, 0xffffff).setDepth(30);
+    this.mobileControlDecorations = [this.joystickBase, joystickInner, this.joystickKnob];
     this.mobileControlVisuals = new Map();
     this.createControl(665, 340, "EXTRA 1", "special1");
     this.createControl(775, 340, "EXTRA 2", "special2");
@@ -1540,9 +1548,79 @@ class ZeroGameScene extends Phaser.Scene {
     });
   }
 
+  spawnElementParticles(x, y, elementId = this.powerType, count = 12, scale = 1) {
+    const element = getElement(elementId || "fire");
+    const colors = {
+      fire: [0xfff3a1, 0xffb02e, 0xff5428],
+      ice: [0xffffff, 0x9beaff, 0x4ebeea],
+      lightning: [0xffffff, 0xe3c6ff, 0x8b55ff],
+      water: [0xe6fbff, 0x68d7ff, 0x1689df],
+      nature: [0xe4ffc0, 0x8be86c, 0x319b4d],
+      wind: [0xffffff, 0xc4fff4, 0x66cdbd],
+      earth: [0xffe3b2, 0xc18a52, 0x79502f],
+      light: [0xffffff, 0xfff29a, 0xffc83d],
+      shadow: [0xe0d2ff, 0x9b75e8, 0x493078],
+      plasma: [0xffffff, 0xffa6d0, 0xe63f91],
+    };
+    const palette = colors[element.id] || colors.fire;
+    for (let i = 0; i < count; i++) {
+      const angle = (Math.PI * 2 * i / count) + Phaser.Math.FloatBetween(-0.22, 0.22);
+      const speed = Phaser.Math.Between(24, 105) * scale;
+      const color = palette[i % palette.length];
+      let particle;
+      switch (element.id) {
+        case "fire":
+          particle = this.add.ellipse(x, y, Phaser.Math.Between(5, 10), Phaser.Math.Between(11, 19), color, 0.98).setAngle(Phaser.Math.Between(-35, 35));
+          break;
+        case "ice":
+          particle = this.add.star(x, y, 4, 2, Phaser.Math.Between(7, 12), color, 0.98);
+          break;
+        case "lightning":
+          particle = this.add.triangle(x, y, -3, -9, 5, 0, -2, 10, color, 1).setAngle(Phaser.Math.Between(-65, 65));
+          break;
+        case "water":
+          particle = this.add.circle(x, y, Phaser.Math.Between(3, 7), color, 0.9).setStrokeStyle(2, 0xffffff, 0.8);
+          break;
+        case "nature":
+          particle = this.add.ellipse(x, y, 7, 15, color, 0.95).setAngle(Phaser.Math.Between(-70, 70));
+          break;
+        case "wind":
+          particle = this.add.ellipse(x, y, 18, 4, color, 0.9).setAngle(Phaser.Math.Between(-60, 60));
+          break;
+        case "earth":
+          particle = this.add.triangle(x, y, -7, 6, 0, -9, 8, 6, color, 1).setAngle(Phaser.Math.Between(0, 360));
+          break;
+        case "light":
+          particle = this.add.star(x, y, 5, 3, 11, color, 1);
+          break;
+        case "shadow":
+          particle = this.add.circle(x, y, Phaser.Math.Between(4, 8), color, 0.88).setStrokeStyle(2, 0x211438, 0.9);
+          break;
+        default:
+          particle = this.add.star(x, y, 6, 3, Phaser.Math.Between(8, 13), color, 0.95).setAngle(Phaser.Math.Between(0, 360));
+          break;
+      }
+      particle.setDepth(25);
+      const travel = speed * (element.id === "wind" ? 1.45 : element.id === "earth" ? 0.72 : 1);
+      this.tweens.add({
+        targets: particle,
+        x: x + Math.cos(angle) * travel,
+        y: y + Math.sin(angle) * travel - (element.id === "fire" ? Phaser.Math.Between(10, 28) : 0),
+        alpha: 0,
+        scaleX: element.id === "wind" ? 0.15 : 0.35,
+        scaleY: 0.25,
+        angle: particle.angle + Phaser.Math.Between(-180, 180),
+        duration: Phaser.Math.Between(260, 520),
+        ease: "Cubic.easeOut",
+        onComplete: () => particle.destroy(),
+      });
+    }
+  }
+
   createElementBall(x, y, palette) {
     const ball = this.add.container(x, y).setDepth(16);
     const outer = this.add.circle(0, 0, 27, palette.ball, 1).setStrokeStyle(5, palette.edge);
+    const innerGlow = this.add.circle(0, 0, 19, palette.glow, 0.28).setStrokeStyle(2, palette.edge, 0.85);
     const shine = this.add.arc(0, 0, 22, 205, 320, false, palette.edge).setStrokeStyle(4, palette.edge);
     const details = [];
     switch (palette.id) {
@@ -1557,13 +1635,34 @@ class ZeroGameScene extends Phaser.Scene {
       case "shadow": details.push(this.add.circle(-8, -2, 10, 0x24154e, 0.9), this.add.circle(8, 5, 7, 0x9c78e8, 0.8)); break;
       default: details.push(this.add.circle(-8, -5, 7, 0xffb1dd, 0.95), this.add.circle(8, 7, 6, 0xffffff, 0.95), this.add.star(0, 0, 6, 3, 12, palette.edge, 0.85)); break;
     }
-    ball.add([outer, ...details, shine]);
+    ball.add([outer, innerGlow, ...details, shine]);
+    this.tweens.add({ targets: innerGlow, scale: 1.22, alpha: 0.12, duration: 420, yoyo: true, repeat: -1 });
+    this.spawnElementParticles(x, y, palette.id, 14, 0.8);
     return ball;
   }
 
+  recordEnemyDefeat(enemy) {
+    if (!enemy?.active || enemy.getData("defeatCounted")) return false;
+    enemy.setData("defeatCounted", true);
+    this.defeated = Math.min(this.stageEnemyCount, this.defeated + 1);
+    this.enemyLabel?.setText(`ENEMIES: ${this.defeated}/${this.stageEnemyCount}`);
+    if (this.defeated >= this.stageEnemyCount && this.stageConfig.boss && !this.boss && !this.bossDefeated && !this.bossSpawnQueued) {
+      this.bossSpawnQueued = true;
+      this.statusLabel?.setText("WARNING! THE BOSS IS COMING!").setColor("#ff795e");
+      this.cameras.main.shake(280, 0.006);
+      this.time.delayedCall(850, () => {
+        if (!this.gameOver && !this.stageCleared && !this.boss) this.spawnBoss();
+      });
+    }
+    return true;
+  }
+
   hitEnemy(projectile, enemy) {
-    if (!projectile.active || !enemy.active || enemy.getData("isTimeHunter")) return;
+    if (!projectile.active || !enemy.active || enemy.getData("defeatCounted")) return;
+    const projectilePower = projectile.getData("powerType") || this.powerType;
+    const hitPalette = (() => { const e = getElement(projectilePower); return { id: e.id, effect: e.effect, ball: e.ball, edge: e.edge, glow: e.glow, trail: e.trail }; })();
     this.audio.play("ballImpact");
+    this.spawnElementParticles(enemy.x, enemy.y - 10, projectilePower, 18, 1.1);
     const superHit = !!projectile.getData("superAttack");
     const specialHit = !!projectile.getData("specialAttack");
     const glow = projectile.getData("glow");
@@ -1583,7 +1682,7 @@ class ZeroGameScene extends Phaser.Scene {
     if (hits === 1) {
       enemy.setData("frozen", true); enemy.setVelocity(0, 0);
       if (visual?.active) visual.setVisible(false);
-      const palette = this.getPowerPalette();
+      const palette = hitPalette;
       const ball = this.createElementBall(enemy.x, enemy.y, palette);
       enemy.setData("elementBall", ball);
       enemy.setData("ballPalette", palette);
@@ -1606,10 +1705,11 @@ class ZeroGameScene extends Phaser.Scene {
       if (hits >= 3) {
         const ball = enemy.getData("elementBall");
         if (ball?.active) this.tweens.add({ targets: ball, scale: 1.9, alpha: 0, duration: 220, onComplete: () => ball.destroy() });
-        const pop = this.add.circle(enemy.x, enemy.y, 28, this.getPowerPalette().edge, 0.9).setStrokeStyle(4, 0xffffff).setDepth(20);
+        const pop = this.add.circle(enemy.x, enemy.y, 28, hitPalette.edge, 0.9).setStrokeStyle(4, 0xffffff).setDepth(20);
+        this.spawnElementParticles(enemy.x, enemy.y, hitPalette.id, 24, 1.25);
         this.tweens.add({ targets: pop, scale: 3.2, alpha: 0, duration: 260, onComplete: () => pop.destroy() });
         this.audio.play("defeat");
-        this.dropReward(enemy.x, enemy.y); enemy.destroy(); this.defeated++; this.addScore(500); this.enemyLabel.setText(`ENEMIES: ${this.defeated}/${this.stageEnemyCount}`);
+        this.dropReward(enemy.x, enemy.y); this.addScore(500); this.recordEnemyDefeat(enemy); enemy.destroy();
         this.statusLabel.setText("ELEMENTAL ORB POPPED!"); this.statusLabel.setColor("#62ffb4");
         if (this.defeated >= this.stageEnemyCount && !this.boss && this.stageConfig.boss) {
           this.statusLabel.setText("WARNING! THE BOSS IS COMING!"); this.statusLabel.setColor("#ff795e");
@@ -1644,10 +1744,9 @@ class ZeroGameScene extends Phaser.Scene {
     if (visual.active) visual.destroy();
     this.audio.play("defeat");
     this.dropReward(enemy.x, enemy.y);
-    enemy.destroy();
-    this.defeated++;
     this.addScore(500);
-    this.enemyLabel.setText(`ENEMIES: ${this.defeated}/${this.stageEnemyCount}`);
+    this.recordEnemyDefeat(enemy);
+    enemy.destroy();
     this.statusLabel.setText("ENEMY DEFEATED!");
     this.statusLabel.setColor("#62ffb4");
 
@@ -2301,6 +2400,8 @@ class ZeroGameScene extends Phaser.Scene {
     const element = getElement(this.powerType);
     this.powerLabel.setText(`POWER: ${element.name.toUpperCase()} [POWER]`).setColor(colors[this.powerType]);
     this.statusLabel.setText(`${element.name.toUpperCase()} POWER READY!`).setColor(colors[this.powerType]);
+    this.audio.play("powerSwitch");
+    this.spawnElementParticles(this.hero.x + this.facing * 24, this.hero.y - 22, this.powerType, 12, 0.65);
     this.mobileControlVisuals?.get("cyclePower")?.text?.setText(`POWER\n${element.name.toUpperCase()}`).setFontSize("11px");
     this.audio.play("powerSwitch");
     this.cameras.main.flash(120, 150, 220, 255, false);
@@ -2348,6 +2449,7 @@ class ZeroGameScene extends Phaser.Scene {
     ball.setScale(1.45);
     this.tweens.add({ targets: ball, scale: 1.7, duration: 130, yoyo: true });
     const palette = enemy.getData("ballPalette") || this.getPowerPalette();
+    this.spawnElementParticles(enemy.x, enemy.y, palette.id, 16, 1.05);
     const flash = this.add.circle(enemy.x, enemy.y, 36, palette.glow, 0.8).setStrokeStyle(5, palette.edge).setDepth(20);
     this.tweens.add({ targets: flash, scale: 2.3, alpha: 0, duration: 220, onComplete: () => flash.destroy() });
     this.audio.play("ballRoll");
@@ -2386,6 +2488,7 @@ class ZeroGameScene extends Phaser.Scene {
       hits.push(target);
       enemy.setData("rollHits", hits);
       this.audio.play("ballImpact");
+      this.spawnElementParticles(target.x, target.y, (enemy.getData("ballPalette") || this.getPowerPalette()).id, 18, 1);
       if (target.getData("isBoss")) {
         this.hitBoss(target, 5);
         this.statusLabel.setText("BOSS HIT BY ELEMENTAL BALL!").setColor("#ffe17a");
@@ -2397,15 +2500,11 @@ class ZeroGameScene extends Phaser.Scene {
         const ballPalette = enemy.getData("ballPalette") || this.getPowerPalette();
         const burst = this.add.circle(target.x, target.y, 32, ballPalette.edge, 0.95).setStrokeStyle(5, 0xffffff).setDepth(22);
         this.tweens.add({ targets: burst, scale: 2.8, alpha: 0, duration: 260, onComplete: () => burst.destroy() });
+        this.spawnElementParticles(target.x, target.y, ballPalette.id, 22, 1.15);
         this.dropReward(target.x, target.y);
-        target.destroy();
-        this.defeated++;
         this.addScore(500);
-        this.enemyLabel.setText(`ENEMIES: ${Math.min(this.defeated, this.stageEnemyCount)}/${this.stageEnemyCount}`);
-        if (this.defeated >= this.stageEnemyCount && !this.boss && this.stageConfig.boss) {
-          this.statusLabel.setText("WARNING! THE BOSS IS COMING!").setColor("#ff795e");
-          this.time.delayedCall(800, () => this.spawnBoss());
-        }
+        this.recordEnemyDefeat(target);
+        target.destroy();
       }
     }
     if (isRollingBallOutOfBounds(enemy.x)) {
@@ -2595,6 +2694,7 @@ class ZeroGameScene extends Phaser.Scene {
       projectile.body.setVelocity(Math.cos(angle) * this.facing * speed, Math.sin(angle) * speed);
       projectile.setData("superAttack", true);
       projectile.setData("powerType", this.powerType);
+      this.spawnElementParticles(projectile.x, projectile.y, this.powerType, 8, 0.7);
       const glow = this.add.circle(projectile.x, projectile.y, 22, palette.glow, 0.55).setDepth(15);
       projectile.setData("glow", glow);
       this.tweens.add({ targets: projectile, angle: 360, duration: 170 + index * 15, repeat: -1 });
@@ -2649,6 +2749,7 @@ class ZeroGameScene extends Phaser.Scene {
     projectile.body.setAllowGravity(false); projectile.body.setSize(22 + strength * 24, 22 + strength * 24);
     projectile.body.setOffset(0, 0); projectile.setData("glow", glow);
     projectile.setData("powerType", this.powerType); projectile.setData("charge", strength);
+    this.spawnElementParticles(startX, startY, this.powerType, 10, 0.8);
     const trail = this.add.circle(startX - this.facing * 12, startY, 9 + strength * 8, power.trail, 0.9).setDepth(13);
     projectile.setData("trail", trail);
     this.tweens.add({ targets: projectile, angle: 360, duration: 240, repeat: -1 });
@@ -2669,6 +2770,10 @@ class ZeroGameScene extends Phaser.Scene {
 
     if (this.stageTransitionActive) return;
     if (this.defeated >= this.stageEnemyCount && !this.stageConfig.boss && !this.stageCleared) this.completeStage();
+    if (this.stageConfig.boss && this.defeated >= this.stageEnemyCount && !this.boss && !this.bossSpawnQueued && !this.bossDefeated) {
+      this.bossSpawnQueued = true;
+      this.time.delayedCall(500, () => { if (!this.gameOver && !this.stageCleared && !this.boss) this.spawnBoss(); });
+    }
     if (this.stageCleared || this.gameOver) this.setMobileControlsVisible(false);
     if (!this.hero || !this.gameStarted || this.gameOver || this.stageCleared) return;
     const elapsedSeconds = Math.floor((time - this.stageStartedAt - (this.bonusMode ? time - this.bonusStartedAt : 0)) / 1000);
@@ -3252,6 +3357,12 @@ class ZeroGameScene extends Phaser.Scene {
       if (trail && trail.active) {
         const direction = Math.sign(projectile.body.velocity.x) || this.facing;
         trail.setPosition(projectile.x - direction * 20, projectile.y);
+      }
+      const particleClock = projectile.getData("nextElementParticleAt") || 0;
+      if (time >= particleClock) {
+        projectile.setData("nextElementParticleAt", time + 52);
+        this.spawnElementParticles(projectile.x - Math.sign(projectile.body.velocity.x || this.facing) * 13, projectile.y,
+          projectile.getData("powerType") || this.powerType, 2, 0.55);
       }
     });
 
