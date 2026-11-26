@@ -9,7 +9,7 @@ import { shouldHeroCollideWithPlatform, shouldDropThroughPlatform } from "./plat
 import { getBossPhase } from "./combatRules";
 import { canKickElementBall, canRollingBallHitTarget, isRollingBallOutOfBounds, calculateRollingBallMotion } from "./snowballRules";
 import { getEnemyMovementSpeed } from "./enemyRules";
-import { enqueueMobileAction, consumeMobileAction } from "./mobileActionQueue";
+import { MOBILE_ACTION_BUTTONS, enqueueMobileAction, consumeMobileAction } from "./mobileActionQueue";
 import "./App.css";
 
 class ZeroGameScene extends Phaser.Scene {
@@ -1161,15 +1161,10 @@ class ZeroGameScene extends Phaser.Scene {
       .setStrokeStyle(4, 0xffffff).setDepth(30);
     this.mobileControlDecorations = [this.joystickBase, joystickInner, this.joystickKnob];
     this.mobileControlVisuals = new Map();
-    // Keep all three EXTRA moves visible as separate, equally reachable
-    // controls. POWER remains available beside them instead of replacing EXTRA 3.
-    this.createControl(580, 340, "EXTRA 1", "special1");
-    this.createControl(680, 340, "EXTRA 2", "special2");
-    this.createControl(780, 340, "EXTRA 3", "special3");
-    this.createControl(880, 340, "POWER", "cyclePower");
-    this.createControl(650, 448, "SUPER", "super");
-    this.createControl(765, 448, "FIRE", "attack");
-    this.createControl(885, 448, "JUMP", "jump");
+    // All three EXTRA moves remain visible; the same layout also drives hit testing.
+    MOBILE_ACTION_BUTTONS.forEach(({ x, y, label, action }) => {
+      this.createControl(x, y, label, action);
+    });
     this.mobileActionPointers = new Map();
     this.setMobileControlsVisible(false);
   }
@@ -3450,13 +3445,7 @@ export default function App() {
     const fallbackButtons = [
       ["musicVolume", 610, 43, 34],
       ["sfxVolume", 690, 43, 34],
-      ["special1", 580, 340, 48],
-      ["special2", 680, 340, 48],
-      ["special3", 780, 340, 48],
-      ["cyclePower", 880, 340, 48],
-      ["super", 650, 448, 68],
-      ["attack", 765, 448, 68],
-      ["jump", 885, 448, 76]
+      ...MOBILE_ACTION_BUTTONS.map(({ action, x, y, radius }) => [action, x, y, radius])
     ];
     const buttons = fallbackButtons.map(([action, fallbackX, fallbackY, radius]) => {
       const visual = scene?.mobileControlVisuals?.get(action);
