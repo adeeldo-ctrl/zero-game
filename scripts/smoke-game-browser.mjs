@@ -125,8 +125,8 @@ try {
     return scene?.powerType !== previous;
   }, initialPower, { timeout: 1500 });
   const powerAfterOnePress = await page.evaluate(() => window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene")?.powerType);
-  if (!powerAfterOnePress || powerAfterOnePress === initialPower) throw new Error("EXTRA 3 did not advance the selected power");
-  await page.mouse.click(885, 340);
+  if (!powerAfterOnePress || powerAfterOnePress === initialPower) throw new Error("POWER button did not advance the selected element");
+  await page.mouse.click(880, 340);
   await page.waitForFunction((previous) => {
     const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
     return scene?.powerType !== previous;
