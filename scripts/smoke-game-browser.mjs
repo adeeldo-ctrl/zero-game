@@ -97,12 +97,12 @@ try {
       projectile.active && projectile.getData("charge") === 0 && projectile.body.velocity.x > 700
     );
   }, undefined, { timeout: 2000 });
-  for (const [index, x] of [[0, 665], [1, 775]]) {
+  for (const [index, x] of [[0, 580], [1, 680], [2, 780]]) {
     const expectedType = await page.evaluate((moveIndex) => {
       const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
       return scene.selectedHero.specialMoves[moveIndex].type;
     }, index);
-    // EXTRA 1 and EXTRA 2 remain the two special-move buttons.
+    // All three EXTRA buttons trigger their own immediate special move.
     for (let repeat = 0; repeat < 2; repeat++) {
       const previousCount = await page.evaluate(() => {
         const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
@@ -117,9 +117,9 @@ try {
       }, { type: expectedType, count: previousCount }, { timeout: 1500 });
     }
   }
-  // EXTRA 3 now advances through the ten elemental powers.
+  // POWER remains separate from the three EXTRA special-move buttons.
   const initialPower = await page.evaluate(() => window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene")?.powerType);
-  await page.mouse.click(885, 340);
+  await page.mouse.click(880, 340);
   await page.waitForFunction((previous) => {
     const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
     return scene?.powerType !== previous;
