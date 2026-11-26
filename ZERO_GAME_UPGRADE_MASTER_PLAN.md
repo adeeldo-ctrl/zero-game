@@ -391,3 +391,17 @@ Committed source implementation:
 - This prevents a runtime TypeError when the browser window loses focus while the game is active, while still clearing queued mobile actions so no held action remains stuck.
 - Source commit: `a1ae5e098b539b4c35c6c9abe4e1717629ca10f8`.
 - Consolidated verification remains pending until the approved non-combat development scope is complete; no APK has been built.
+
+
+## Final user delivery instructions — 2026-11-27
+
+These instructions supersede earlier project-level delivery preferences where they conflict:
+
+- Complete the existing ZERO GAME project against this Master Plan and the latest `main` branch; preserve the established game identity, 50-stage campaign, four heroes, controls, co-op, progression, lives/hearts, bosses, audio, and existing working systems.
+- Complete and polish the remaining planned game features, animations, stage presentation, enemy behavior, boss behavior, input reliability, and mobile compatibility. Fix the reported joystick / EXTRA-button freezes and verify the fixes in the integrated runtime.
+- EXTRA 1, EXTRA 2, and EXTRA 3 must remain independently usable without cooldowns, countdowns, meters, use counters, or animation locks.
+- Fictional, non-realistic arcade visual effects are in scope: stylized fire, energy, glow, lightning, magical projectiles, impact flashes, and signature-move animations. Do not implement real-world weapon operation, realistic weapon-use instruction, or real-world attack replication.
+- The 2025-11-25 project safety pause is superseded only for the fictional visual-effect and abstract arcade-game scope described above. It does not authorize realistic real-world weapon mechanics or attack replication.
+- Do not provide intermediate progress, line-by-line updates, or unnecessary test reports. Deliver only the final APK and a complete report, or identify a genuine unavoidable blocker.
+- Final Android deliverable must be a Release APK, not a Debug APK. Do not claim the game is complete or the APK is ready until source implementation, consolidated automated verification, Android Release build, and artifact verification have actually succeeded.
+- Distinguish automated CI/browser verification from physical Android-device testing. Do not claim Redmi Note 8 testing unless it has actually been performed.
