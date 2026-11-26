@@ -33,7 +33,7 @@ workflow_dir = root / ".github/workflows"
 apk_workflow = workflow_dir / "zero-game-android.yml"
 content = apk_workflow.read_text(encoding="utf-8")
 trigger_block = re.search(r"(?ms)^on:\s*\n((?:[ \t]+.*\n)*)", content)
-assert trigger_block and re.search(r"(?m)^  workflow_dispatch:\\s*$", trigger_block.group(1)), (
+assert trigger_block and re.search(r"(?m)^  workflow_dispatch:\s*$", trigger_block.group(1)), (
     "The Android APK workflow must be manually dispatchable"
 )
 assert not re.search(r"(?m)^  workflow_run:", trigger_block.group(1)), (
