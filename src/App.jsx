@@ -2773,7 +2773,7 @@ class ZeroGameScene extends Phaser.Scene {
     const radius = 22 + strength * 22;
     const startX = this.hero.x + this.facing * 43, startY = this.hero.y - 8;
     const shots = fireKind === "fan" ? [{ y: -13, vy: -72 }, { y: 13, vy: 72 }] : [{ y: 0, vy: 0 }];
-    shots.forEach((shot, index) => {
+    shots.forEach((shot) => {
       const wide = fireKind === "dragon-wave";
       const shotX = startX, shotY = startY + shot.y;
       const glow = this.add.circle(shotX, shotY, wide ? radius * 1.8 : radius * 1.15, power.glow, wide ? 0.68 : 0.5).setDepth(12);
