@@ -90,13 +90,28 @@ export function createGameAudio() {
   const play = (name) => {
     if (!sfxEnabled) return;
     const now = Date.now();
-    const minimumGap = name === "step" ? 105 : name === "hit" || name === "bossHit" ? 75 : 45;
+    const minimumGap = name === "step" ? 120 : name === "ballRoll" ? 190 : name === "hit" || name === "bossHit" || name === "ballImpact" ? 78 : 42;
     if (now - (lastSoundAt.get(name) || 0) < minimumGap) return;
     lastSoundAt.set(name, now);
     ensureContext();
     const notes = SOUND_NOTES[name] || SOUND_NOTES.ui;
+    const element = name.startsWith("element-") ? name.slice(8) : "";
+    const wave = element === "fire" ? "sawtooth"
+      : element === "ice" || element === "light" ? "sine"
+      : element === "lightning" ? "square"
+      : element === "water" || element === "wind" ? "triangle"
+      : element === "earth" ? "sawtooth"
+      : element === "shadow" ? "sine"
+      : element === "plasma" ? "triangle" : "square";
+    const duration = element === "earth" || name === "ballImpact" ? 0.16 : element === "fire" || element === "lightning" ? 0.13 : 0.105;
+    const volume = (name === "ballImpact" || name === "defeat" || name === "bossPhase" ? 0.075 : 0.052) * sfxVolume;
     notes.forEach((frequency, index) => {
-      if (context) schedule(() => tone(frequency, 0.09, "square", 0.055 * sfxVolume), index * 48);
+      if (context) schedule(() => {
+        tone(frequency, duration, wave, volume, null);
+        if (index === 0 && (name === "ballImpact" || name === "defeat" || name === "bossAttack" || name === "kick")) {
+          tone(Math.max(48, frequency * 0.48), 0.19, "sine", volume * 0.7, null);
+        }
+      }, index * (element === "lightning" ? 27 : 42));
     });
   };
 
@@ -120,12 +135,18 @@ export function createGameAudio() {
         : ["C4", "E4", "G4", "A4", "G4", "E4", "D4", "G4"];
       const name = notes[musicIndex % notes.length];
       const frequency = NOTE_FREQUENCIES[name] || 130.81;
-      tone(frequency, activeTrack.startsWith("boss-") ? 0.32 : 0.22,
-        activeTrack.startsWith("boss-") ? "sawtooth" : "triangle",
-        (activeTrack.startsWith("boss-") ? 0.033 : 0.025) * musicVolume);
-      if (musicIndex % 4 === 0) tone(NOTE_FREQUENCIES.C3, 0.28, "sine", 0.018 * musicVolume);
+      const bossTrack = activeTrack.startsWith("boss-");
+      const beat = musicIndex % 4;
+      tone(frequency, bossTrack ? 0.29 : 0.2, bossTrack ? "sawtooth" : "triangle",
+        (bossTrack ? 0.038 : 0.03) * musicVolume);
+      if (beat === 0 || beat === 2) {
+        tone(frequency * (bossTrack ? 1.5 : 1.25), bossTrack ? 0.18 : 0.13,
+          bossTrack ? "square" : "sine", 0.014 * musicVolume);
+      }
+      if (beat === 0) tone(NOTE_FREQUENCIES.C3, 0.3, "sine", 0.024 * musicVolume);
+      if (beat === 2) tone(NOTE_FREQUENCIES.G3, 0.22, "sine", 0.016 * musicVolume);
       musicIndex++;
-      musicTimer = schedule(step, activeTrack.startsWith("boss-") ? 330 : 260);
+      musicTimer = schedule(step, bossTrack ? 300 : 235);
     };
     step();
   };
