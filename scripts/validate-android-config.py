@@ -33,23 +33,23 @@ workflow_dir = root / ".github/workflows"
 apk_workflow = workflow_dir / "zero-game-android.yml"
 content = apk_workflow.read_text(encoding="utf-8")
 trigger_block = re.search(r"(?ms)^on:\s*\n((?:[ \t]+.*\n)*)", content)
-assert trigger_block and re.search(r"(?m)^  workflow_run:\s*$", trigger_block.group(1)), (
-    "The Android APK workflow must be triggered by the completed final verification workflow"
+assert trigger_block and re.search(r"(?m)^  workflow_dispatch:\\s*$", trigger_block.group(1)), (
+    "The Android APK workflow must be manually dispatchable"
 )
-assert "ZERO GAME Continuous Checks" in trigger_block.group(1), (
-    "The APK workflow must wait for ZERO GAME Continuous Checks"
+assert not re.search(r"(?m)^  workflow_run:", trigger_block.group(1)), (
+    "APK builds must not start automatically after CI"
 )
 assert not re.search(r"(?m)^  push:", trigger_block.group(1)), (
-    "Source pushes must not directly trigger Android APK builds"
+    "Source pushes must not trigger Android APK builds"
 )
 assert not re.search(r"(?m)^  pull_request:", trigger_block.group(1)), (
     "Pull requests must not trigger Android APK builds"
 )
-assert "workflow_run.conclusion == 'success'" in content, (
-    "The Android APK must build only after successful integrated verification"
+assert "github.event_name == 'workflow_dispatch'" in content, (
+    "The Android APK job must run only for a manual dispatch"
 )
-assert "workflow_run.head_sha" in content, (
-    "The APK must be built from the exact verified source commit"
+assert "workflow_run" not in content, (
+    "The APK workflow must not depend on automatic workflow-run events"
 )
 assert "assembleDebug" in content and "upload-artifact@v4" in content
 assert "screenOrientation" in content, "Android launcher must be locked to landscape"
