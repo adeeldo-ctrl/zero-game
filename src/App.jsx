@@ -2455,15 +2455,40 @@ class ZeroGameScene extends Phaser.Scene {
     this.cameras.main.shake(130, 0.004);
   }
 
+  finishRollingBallCarrier(enemy, ball, animate = true) {
+    if (!enemy?.active || enemy.getData("rollingCarrierResolved")) return;
+    enemy.setData("rollingCarrierResolved", true);
+    // The enemy inside the kicked ball is still a stage enemy. Count it when
+    // the rolling-ball lifecycle ends, otherwise the stage quota can never clear.
+    this.recordEnemyDefeat(enemy);
+    this.dropReward(enemy.x, enemy.y);
+    this.addScore(500);
+    this.audio.play("ballEnd");
+    if (animate && ball?.active) {
+      this.tweens.add({
+        targets: ball,
+        scale: 0.2,
+        alpha: 0,
+        duration: 180,
+        onComplete: () => {
+          if (ball.active) ball.destroy();
+          if (enemy.active) enemy.destroy();
+        }
+      });
+    } else {
+      if (ball?.active) ball.destroy();
+      enemy.destroy();
+    }
+  }
+
   updateRollingBall(enemy, delta) {
     const ball = enemy.getData("elementBall");
-    if (!ball?.active) { enemy.destroy(); return; }
+    if (!ball?.active) { this.finishRollingBallCarrier(enemy, null, false); return; }
     const rollAge = this.time.now - (enemy.getData("rollStartedAt") || this.time.now);
     if (rollAge >= 4200 || Math.abs(enemy.x - (enemy.getData("rollDistanceOrigin") ?? enemy.x)) >= 2600) {
-      this.audio.play("ballEnd");
-      this.tweens.add({ targets: ball, scale: 0.2, alpha: 0, duration: 180, onComplete: () => { if (ball.active) ball.destroy(); if (enemy.active) enemy.destroy(); } });
       enemy.setVelocity(0, 0);
       enemy.body.enable = false;
+      this.finishRollingBallCarrier(enemy, ball, true);
       return;
     }
     const motion = calculateRollingBallMotion({
@@ -2506,8 +2531,7 @@ class ZeroGameScene extends Phaser.Scene {
       }
     }
     if (isRollingBallOutOfBounds(enemy.x)) {
-      if (ball.active) ball.destroy();
-      enemy.destroy();
+      this.finishRollingBallCarrier(enemy, ball, false);
     }
   }
 
