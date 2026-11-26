@@ -37,13 +37,13 @@ export function calculateRollingBallMotion({
   let nextDirection = Math.sign(velocityX) || Math.sign(direction) || 1;
   let speed = Math.abs(velocityX);
 
-  if (blockedLeft) {
-    nextDirection = 1;
-    speed = Math.max(speed, ROLLING_BALL_START_SPEED) * 0.78;
-  } else if (blockedRight) {
-    nextDirection = -1;
-    speed = Math.max(speed, ROLLING_BALL_START_SPEED) * 0.78;
-  } else if (grounded) {
+  // Snow Bros-style finish: first wall contact ends the carried enemy rather
+  // than bouncing the ball back across the level.
+  if (blockedLeft || blockedRight) {
+    return { velocityX: 0, direction: nextDirection, rotationDelta: 0, hitWall: true };
+  }
+
+  if (grounded) {
     speed = Math.min(ROLLING_BALL_MAX_SPEED, Math.max(speed, ROLLING_BALL_START_SPEED) + ROLLING_BALL_ACCELERATION * dt);
   } else {
     // Keep most horizontal momentum while the ball drops between platforms.
