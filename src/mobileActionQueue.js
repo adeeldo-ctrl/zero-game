@@ -7,7 +7,7 @@ export const MOBILE_ACTION_BUTTONS = [
   { action: "cyclePower", label: "POWER", x: 880, y: 340, radius: 48 },
   { action: "super", label: "SUPER", x: 650, y: 448, radius: 68 },
   { action: "attack", label: "FIRE", x: 765, y: 448, radius: 68 },
-  { action: "jump", label: "JUMP", x: 885, y: 448, radius: 76 }
+  { action: "jump", label: "JUMP", x: 885, y: 448, radius: 75 }
 ];
 
 // Multiple fingers or very fast taps must never create an unbounded backlog.
