@@ -69,3 +69,13 @@ After implementation is complete:
 ## One-time final build trigger
 
 The Android Release workflow may be started manually, or by adding `ZERO_GAME_FINAL_RELEASE_TRIGGER.md` to `main` after the final integrated CI run has passed. Ordinary source commits do not trigger APK builds. The marker is a deliberate final-delivery action, not a development build trigger.
+
+
+## Final build result — 2026-11-27
+
+- Final signed Release APK workflow run: `45954385742` (success).
+- Source commit: `5f5e18990bd5cdccb8f3b27d7fe3f59e8af8cd60`.
+- Artifact: `zero-game-release-apk` (ID `15178341478`), `zero-game-release.apk`, 3,620,521 bytes.
+- APK signature verification and upload succeeded. SHA-256: `513c83f7d817b4bb63b328cd226ba76a2a71eb1f750f017520b10b9b6d64d811`.
+- Automated Chromium gameplay checks passed on commit `f98f76d2`; release pipeline game-data tests, lint and web build passed on the release commit.
+- No physical Android handset test is claimed.
