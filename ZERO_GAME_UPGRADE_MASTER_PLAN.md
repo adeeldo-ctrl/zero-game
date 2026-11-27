@@ -1177,3 +1177,11 @@ The first integrated implementation tranche has now been pushed to `main`:
 - Next art pipeline steps: clean/cut out each selected character, map the best 40 distinct enemy designs to the existing 45 campaign archetypes, create five additional matching designs where needed, author missing idle/move/attack/hit/defeat frames, and create five boss sheets in the same visual style.
 - Preserve the existing five boss identities, all 50 stages, enemy AI, combat, controls, scoring, audio, and stage progression. Do not remove the current SVG fallback until replacement raster sheets are complete and runtime-verified.
 - The reference crop ZIP is prepared separately for transfer; no binary spritesheets have been committed and no APK has been built.
+
+### Enemy collage mapping and coverage guard — 2026-11-28
+
+- Added `src/assets/enemies/reference-art-direction.json`: a proposed region-by-region visual mapping from the user's collage crops to all 45 existing enemy archetypes, plus separate art-direction briefs for the five existing bosses.
+- Added `src/assets/enemies/reference-art-direction.test.js` to assert that every campaign enemy ID and all five boss IDs are represented exactly once in the mapping.
+- Repeated visual source references are explicitly only art-direction cues; they must be redrawn with distinct final details so the 45 enemies do not become duplicate characters.
+- This is planning/data groundwork, not final artwork integration. The collage crop pack still retains backgrounds, and the runtime continues to use its existing SVG art until transparent raster sheets with real animation frames are ready.
+- The mapping coverage test has been authored but not run. Keep the single consolidated verification and final-only APK rule.
