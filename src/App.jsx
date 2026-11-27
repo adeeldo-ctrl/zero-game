@@ -2351,9 +2351,26 @@ class ZeroGameScene extends Phaser.Scene {
       this.startBonusStage();
     }
     const powerVisual = this.add.container(chest.x, chest.y - 38).setDepth(30);
-    const halo = this.add.circle(0, 0, 28, 0xffe17a, 0.22).setStrokeStyle(4, 0xffffff, 0.95);
-    const icon = this.add.star(0, 0, 8, 8, 20, 0xffd447, 1).setStrokeStyle(3, 0xffffff);
-    powerVisual.add([halo, icon]);
+    const elementVisual = getElement(this.powerType);
+    const halo = this.add.circle(0, 0, 29, elementVisual.glow, 0.28).setStrokeStyle(4, 0xffffff, 0.95);
+    let icon;
+    if (this.powerType === "fire") {
+      icon = this.add.ellipse(0, 1, 19, 28, 0xff7138).setStrokeStyle(2, 0xffe6a0);
+      const core = this.add.ellipse(0, 6, 9, 16, 0xfff2a0);
+      powerVisual.add([halo, icon, core]);
+    } else if (this.powerType === "ice") {
+      icon = this.add.star(0, 0, 6, 4, 21, 0x9beaff).setStrokeStyle(3, 0xffffff);
+      powerVisual.add([halo, icon]);
+    } else if (this.powerType === "lightning") {
+      icon = this.add.polygon(0, 0, [-5,-21,9,-4,2,-4,7,20,-10,0,-3,0], 0xe3c6ff).setStrokeStyle(3, 0xffffff);
+      powerVisual.add([halo, icon]);
+    } else if (this.powerType === "water") {
+      icon = this.add.circle(0, 1, 15, 0x4fc8ff).setStrokeStyle(3, 0xe6fbff);
+      powerVisual.add([halo, icon, this.add.circle(-5,-5,5,0xffffff,0.8)]);
+    } else {
+      icon = this.add.star(0, 0, 6, 5, 19, elementVisual.color).setStrokeStyle(3, 0xffffff);
+      powerVisual.add([halo, icon]);
+    }
     this.tweens.add({ targets: powerVisual, y: powerVisual.y - 72, scale: 1.7, alpha: 0, duration: 950, onComplete: () => powerVisual.destroy() });
     this.spawnElementParticles(chest.x, chest.y - 12, this.powerType, 32, 1.35, "treasure-burst");
     this.cameras.main.flash(260, 255, 220, 120);
@@ -2389,8 +2406,8 @@ class ZeroGameScene extends Phaser.Scene {
 
   dropReward(x, y, bossTier = 0) {
     const rewards = bossTier > 0
-      ? [{ type: "cake", label: "CAKE", value: 500, color: 0xff8eb4 }, { type: "fruit", label: "FRUIT", value: 750, color: 0xff5b58 }, { type: "chicken", label: "CHICKEN", value: 1000, color: 0xffc45e }, { type: "diamond", label: "DIAMOND", value: 1500, color: 0x69eaff }, { type: "gold", label: "GOLD", value: 2500, color: 0xffd447 }]
-      : [{ type: "cake", label: "CAKE", value: 250, color: 0xff8eb4 }, { type: "fruit", label: "FRUIT", value: 400, color: 0xff5b58 }, { type: "chicken", label: "CHICKEN", value: 500, color: 0xffc45e }, { type: "diamond", label: "DIAMOND", value: 1000, color: 0x69eaff }, { type: "gold", label: "GOLD", value: 1500, color: 0xffd447 }];
+      ? [{ type: "cake", label: "CAKE", value: 500, color: 0xff8eb4 }, { type: "fruit", label: "STRAWBERRY", value: 750, color: 0xff5b58 }, { type: "apple", label: "APPLE", value: 850, color: 0xe83d42 }, { type: "chicken", label: "CHICKEN", value: 1000, color: 0xffc45e }, { type: "diamond", label: "DIAMOND", value: 1500, color: 0x69eaff }, { type: "gold", label: "GOLD", value: 2500, color: 0xffd447 }]
+      : [{ type: "cake", label: "CAKE", value: 250, color: 0xff8eb4 }, { type: "fruit", label: "STRAWBERRY", value: 400, color: 0xff5b58 }, { type: "apple", label: "APPLE", value: 450, color: 0xe83d42 }, { type: "chicken", label: "CHICKEN", value: 500, color: 0xffc45e }, { type: "diamond", label: "DIAMOND", value: 1000, color: 0x69eaff }, { type: "gold", label: "GOLD", value: 1500, color: 0xffd447 }];
     const reward = rewards[Phaser.Math.Between(0, rewards.length - 1)];
     const item = this.add.container(x, y).setDepth(25);
     const glow = this.add.circle(0, 0, 22, reward.color, 0.22).setStrokeStyle(2, 0xffffff, 0.8);
@@ -2402,6 +2419,12 @@ class ZeroGameScene extends Phaser.Scene {
       const leaf2 = this.add.ellipse(6, -14, 13, 7, 0x57c65b).setAngle(28);
       const seeds = [-6,-1,5].map((sx, i) => this.add.ellipse(sx, -2 + (i%2)*8, 2, 4, 0xfff0a5));
       item.add([berry, leaf1, leaf2, ...seeds]);
+    } else if (reward.type === "apple") {
+      const left = this.add.circle(-6, 3, 12, 0xe93442).setStrokeStyle(2, 0xffa1a1);
+      const right = this.add.circle(6, 3, 12, 0xd92337).setStrokeStyle(2, 0xffa1a1);
+      const stem = this.add.rectangle(1, -12, 4, 10, 0x76502c).setAngle(12);
+      const leaf = this.add.ellipse(8, -14, 12, 6, 0x45b94d).setAngle(-25);
+      item.add([left, right, stem, leaf]);
     } else if (reward.type === "cake") {
       item.add([this.add.rectangle(0, 4, 28, 17, 0xffd2e4).setStrokeStyle(2, 0xffffff), this.add.ellipse(0, -5, 30, 13, 0xff86b4), this.add.circle(0, -13, 5, 0xff4e67)]);
     } else if (reward.type === "chicken") {
