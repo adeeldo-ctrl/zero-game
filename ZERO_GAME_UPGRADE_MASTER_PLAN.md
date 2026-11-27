@@ -189,6 +189,12 @@
 - Source commits: `88334a4ced3ac33ab87db7a5f879560507dcb2a3`, `cd0d61ca79e4d6dd8f52f7c03a12a1a0269f2e20`.
 - No tests/builds were run; final consolidated verification and Android APK remain deferred until all development is complete.
 
+### Selected hero is applied to the live campaign character (2026-11-27)
+- Fixed the hero-selection handoff so choosing Kairo, Mei, or Volt updates the actual gameplay hero sprite, palette, and articulated costume accessories before the campaign begins; previously the preview changed while the live scene could retain the initially loaded hero.
+- The selected hero persists through the existing campaign storage and stage-transition flow. Movement, physics, controls, and special move rules are unchanged.
+- Source commit: `942d3df3e2c77173292ac1b7000e3f31a6d8550a`.
+- No tests/builds were run; final consolidated verification and Android APK remain deferred until development is complete.
+
 ## Non-negotiable preservation rules
 - Preserve the currently working joystick/controller movement and touch mapping. Do not regress the approved controls.
 - Keep the game in landscape and make the playable scene fill the complete device viewport.
