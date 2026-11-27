@@ -3638,7 +3638,6 @@ class ZeroGameScene extends Phaser.Scene {
       const authoredBossSprite = visual.getData("authoredSprite");
       if (authoredBossSprite?.active) {
         const attackPose = ["tell", "dash", "volley", "slam"].includes(attackState);
-        const previousAttackState = authoredBossSprite.getData("lastAttackState") || "rest";
         const bossId = visual.getData("bossSheetId");
         authoredBossSprite.setData("lastAttackState", attackState);
         const signatureTilt = bossId === "gale-talon" ? 9
