@@ -405,6 +405,26 @@ class ZeroGameScene extends Phaser.Scene {
     }
     this.tweens.add({ targets: halo, scale: 1.12, alpha: 0.07, duration: 2600, yoyo: true, repeat: -1 });
 
+    // Soft distant cloud banks add slow sky movement without obscuring play.
+    const cloudWeather = ["sunny", "petals", "golden", "sunset", "moonlight", "moon-mist", "clouds"];
+    if (cloudWeather.includes(weather)) {
+      for (let i = 0; i < 3; i++) {
+        const cloudX = 115 + i * 345;
+        const cloudY = 118 + (i % 2) * 52;
+        const cloud = this.add.container(cloudX, cloudY).setDepth(-26).setAlpha(night ? 0.12 : 0.19);
+        const cloudTint = night ? 0x9fb7d8 : weather === "sunset" ? 0xffc4b2 : 0xf4fbff;
+        cloud.add([
+          this.add.ellipse(-25, 5, 82, 22, cloudTint, 0.9),
+          this.add.ellipse(0, -5, 48, 34, cloudTint, 0.9),
+          this.add.ellipse(27, 4, 66, 24, cloudTint, 0.9),
+        ]);
+        this.tweens.add({
+          targets: cloud, x: cloudX + (i % 2 ? -34 : 34),
+          duration: 9000 + i * 1700, ease: "Sine.easeInOut", yoyo: true, repeat: -1
+        });
+      }
+    }
+
     const count = weather === "rain" || weather === "blizzard" || weather === "ashfall" || weather === "starfall" ? 18 : 12;
     for (let i = 0; i < count; i++) {
       const x = 24 + (i * 79 + variant * 31) % 910;
