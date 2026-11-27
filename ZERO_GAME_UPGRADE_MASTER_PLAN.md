@@ -61,6 +61,12 @@
 - Source commit: `77cfacad77d8970a00c8aedc4cb6c5170d422af8`.
 - No tests/builds were run; final consolidated verification and Android APK remain deferred until development is complete.
 
+### Candy Orchard scenery consistency correction (2026-11-27)
+- Replaced the leftover cactus/desert foreground props in Candy Orchard with pastel sugar hills, striped candy-cane pillars, lollipop blooms, and colorful candy stones.
+- The correction is decorative only; stage platforms, layout, collision, gameplay, and controls are unchanged.
+- Source commit: `c30313105835cd9489ca5a7a9171e93dd9f246b8`.
+- No tests/builds were run; final consolidated verification and Android APK remain deferred until development is complete.
+
 ## Non-negotiable preservation rules
 - Preserve the currently working joystick/controller movement and touch mapping. Do not regress the approved controls.
 - Keep the game in landscape and make the playable scene fill the complete device viewport.
