@@ -126,7 +126,7 @@ export function getPremiumStageEnemyRoster(stageNumber) {
   const region = getPremiumEnemyRegion(stage);
   const localStage = ((stage - 1) % 10) + 1;
   // Each stage introduces/combines different members of its region's nine-type roster.
-  const availableCount = Math.min(9, 2 + Math.floor((localStage - 1) * 7 / 9));
+  const availableCount = Math.min(9, 2 + Math.floor((Math.min(localStage, 9) - 1) * 7 / 8));
   const rotation = (localStage - 1) % 9;
   return Array.from({ length: availableCount }, (_, index) =>
     region.enemies[(rotation + index) % region.enemies.length]
