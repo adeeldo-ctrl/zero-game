@@ -1937,7 +1937,7 @@ class ZeroGameScene extends Phaser.Scene {
       g.generateTexture(textureKey, 96, 96);
       g.destroy();
     }
-    const ball = this.add.image(x, y, textureKey).setDepth(16).setDisplaySize(64, 64);
+    const ball = this.add.image(x, y, textureKey).setDepth(16).setDisplaySize(56, 56);
     ball.setData("elementId", palette.id);
     ball.setData("motionStyle", ({
       fire: "flame", ice: "ice-roll", lightning: "spark-dash", water: "flow",
@@ -3855,6 +3855,12 @@ class ZeroGameScene extends Phaser.Scene {
       if (projectile.getData("elementTextureApplied") !== elementId) {
         projectile.setTexture(`shot-${elementId}`);
         projectile.setData("elementTextureApplied", elementId);
+      }
+      const velocity = projectile.body?.velocity;
+      if (velocity && (Math.abs(velocity.x) + Math.abs(velocity.y) > 1)) {
+        const travelAngle = Math.atan2(velocity.y, velocity.x);
+        const uprightElements = ["fire", "water", "lightning", "nature", "earth", "shadow", "plasma"];
+        projectile.rotation = travelAngle + (uprightElements.includes(elementId) ? Math.PI / 2 : 0);
       }
       const glow = projectile.getData("glow");
       const trail = projectile.getData("trail");
