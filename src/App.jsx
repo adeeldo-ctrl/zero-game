@@ -233,13 +233,6 @@ class ZeroGameScene extends Phaser.Scene {
     this.audio = createGameAudio();
     this.reducedMotion = typeof window !== "undefined" &&
       Boolean(window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches);
-    this.netSocket = null;
-    this.netConnected = false;
-    this.netRole = null;
-    this.netSendAt = 0;
-    this.remoteVisual = null;
-    this.remoteState = null;
-    this.netStatusText = null;
   }
 
   create() {
@@ -343,18 +336,7 @@ class ZeroGameScene extends Phaser.Scene {
     this.createHUD();
     this.createMobileControls();
     this.input.keyboard.once("keydown", () => { this.audio.unlock(); this.audio.play("stage"); });
-    // Stage transitions restart this Phaser scene; keep the Wi-Fi co-op
-    // socket alive across those restarts and close it only on final destroy.
     this.events.once("shutdown", () => { this.audio.stop(); });
-    if (!this.netDestroyHandlerRegistered) {
-      this.netDestroyHandlerRegistered = true;
-      this.events.once("destroy", () => {
-        if (this.netSocket) this.netSocket.close();
-        this.netSocket = null;
-        this.netConnected = false;
-        this.remoteState = null;
-      });
-    }
     this.defeated = 0;
     this.stageCleared = false;
     this.stageCollectionActive = false;
@@ -2241,139 +2223,6 @@ class ZeroGameScene extends Phaser.Scene {
     this.menuObjects = [];
   }
 
-  sendNet(payload) {
-    if (this.netSocket?.readyState === WebSocket.OPEN) {
-      this.netSocket.send(JSON.stringify(payload));
-    }
-  }
-
-  ensureRemoteVisual() {
-    if (this.remoteVisual?.active) return;
-    this.remoteVisual = this.createHeroVisual(720, 450, "ryo");
-    this.remoteVisual.setDepth(11).setScale(1).setAlpha(0.9);
-    const ring = this.add.circle(0, -58, 28, 0x62eaff, 0.14)
-      .setStrokeStyle(2, 0x62eaff, 0.9);
-    this.remoteVisual.add(ring);
-    this.remoteVisual.setData("remoteRing", ring);
-    this.remoteVisual.setData("remoteHeroId", "ryo");
-    this.tweens.add({ targets: ring, scale: 1.35, alpha: 0.35,
-      duration: 650, yoyo: true, repeat: -1 });
-  }
-
-  applyRemoteHero(heroId) {
-    const hero = getHero(heroId);
-    if (!hero) return;
-    this.ensureRemoteVisual();
-    if (this.remoteVisual.getData("heroLookId") === hero.id) return;
-    const palette = this.remoteVisual.getData("heroPalette");
-    palette.kurta.setFillStyle(hero.color);
-    palette.waistcoat.setFillStyle(hero.accent);
-    palette.capLine.setFillStyle(hero.accent);
-    this.applyHeroLook(this.remoteVisual, hero);
-    this.remoteVisual.setData("remoteHeroId", heroId);
-  }
-
-  spawnRemoteShot(data, superShot = false) {
-    const element = getElement(data.powerType || "fire");
-    const palette = { ball: element.ball, edge: element.edge, glow: element.glow, trail: element.trail };
-    const directions = superShot
-      ? (data.heroId === "mei" ? [-0.65, -0.32, 0, 0.32, 0.65] : data.heroId === "volt" ? [-0.12, 0, 0.12] : [-0.45, 0, 0.45])
-      : [0];
-    directions.forEach(offset => {
-      const projectile = this.projectiles.create(data.x, data.y, `shot-${data.powerType || "fire"}`);
-      projectile.setTint(palette.ball).setScale(superShot ? 2.7 : 1.8 + Math.min(1, (data.charge || 0) / 1500) * 1.8).setDepth(16);
-      projectile.body.setAllowGravity(false);
-      projectile.body.setSize(26, 26);
-      const angle = offset * (data.direction || 1);
-      const speed = superShot ? (data.heroId === "volt" ? 900 : 650) : 720 + Math.min(1, (data.charge || 0) / 1500) * 330;
-      projectile.body.setVelocity(Math.cos(angle) * (data.direction || 1) * speed, Math.sin(angle) * speed);
-      projectile.setData("powerType", data.powerType || "fire");
-      projectile.setData("superAttack", superShot);
-      const glow = this.add.circle(projectile.x, projectile.y, superShot ? 20 : 15, palette.glow, 0.45).setDepth(15);
-      projectile.setData("glow", glow);
-      this.tweens.add({ targets: projectile, angle: 360, duration: 190, repeat: -1 });
-      this.time.delayedCall(1500, () => {
-        if (projectile.active) projectile.destroy();
-        if (glow.active) glow.destroy();
-      });
-    });
-  }
-
-  connectMultiplayer(role) {
-    if (this.netSocket && this.netSocket.readyState <= WebSocket.OPEN) {
-      this.netStatusText?.setText("ALREADY CONNECTING / CONNECTED");
-      return;
-    }
-    let host = window.location.hostname || "127.0.0.1";
-    if (window.Capacitor?.isNativePlatform?.() || host === "localhost" || host === "127.0.0.1") {
-      const entered = window.prompt("Enter the HOST device Wi-Fi IPv4 address (example: 192.168.1.10)", host === "localhost" ? "" : host);
-      if (!entered) return;
-      host = entered.trim();
-    }
-    const address = `ws://${host}:3001`;
-    this.netRole = role;
-    this.netStatusText?.setText(`CONNECTING TO ${host}:3001 ...`).setColor("#ffe17a");
-    let socket;
-    try { socket = new WebSocket(address); }
-    catch { this.netStatusText?.setText("COULD NOT OPEN WI-FI CONNECTION").setColor("#ff8b8b"); return; }
-    this.netSocket = socket;
-    socket.onopen = () => {
-      socket.send(JSON.stringify({ type: "join", room: "ZERO" }));
-    };
-    socket.onmessage = event => {
-      let msg;
-      try { msg = JSON.parse(event.data); } catch { return; }
-      if (msg.type === "joined") {
-        this.netConnected = true;
-        this.netStatusText?.setText(`WI-FI READY • PLAYER ${msg.playerId} • ROOM ${msg.room}`).setColor("#62ffb4");
-        this.ensureRemoteVisual();
-      } else if (msg.type === "peer-joined") {
-        this.ensureRemoteVisual();
-        this.netStatusText?.setText("PLAYER 2 CONNECTED • CO-OP READY").setColor("#62ffb4");
-      } else if (msg.type === "peer-left") {
-        this.remoteState = null;
-        if (this.remoteVisual?.active) this.remoteVisual.setAlpha(0.25);
-        this.netStatusText?.setText("PLAYER DISCONNECTED • WAITING").setColor("#ffe17a");
-      } else if (msg.type === "room-full") {
-        this.netStatusText?.setText("ROOM FULL • ONLY 2 PLAYERS").setColor("#ff8b8b");
-        socket.close();
-      } else if (msg.type === "already-joined") {
-        this.netStatusText?.setText("THIS CONNECTION ALREADY JOINED A ROOM").setColor("#ff8b8b");
-        socket.close();
-      } else if (msg.type === "invalid-room") {
-        this.netStatusText?.setText("ROOM CODE MUST BE 3-12 LETTERS OR NUMBERS").setColor("#ff8b8b");
-        socket.close();
-      } else if (msg.type === "state") {
-        this.ensureRemoteVisual();
-        this.remoteState = {
-          x: msg.x,
-          y: msg.y,
-          facing: msg.facing < 0 ? -1 : 1,
-          airborne: Boolean(msg.airborne),
-          moving: Boolean(msg.moving),
-          heroId: msg.heroId,
-        };
-        this.remoteVisual.setAlpha(0.92);
-      } else if (msg.type === "hero") {
-        this.applyRemoteHero(msg.heroId);
-      } else if (msg.type === "shot") {
-        this.spawnRemoteShot(msg, false);
-      } else if (msg.type === "super") {
-        this.spawnRemoteShot(msg, true);
-      }
-    };
-    socket.onerror = () => this.netStatusText?.setText("WI-FI SERVER NOT FOUND • START SERVER ON HOST PC").setColor("#ff8b8b");
-    socket.onclose = () => {
-      this.netConnected = false;
-      this.remoteState = null;
-      if (this.remoteVisual?.active) this.remoteVisual.setAlpha(0.25);
-      if (this.netSocket === socket) this.netSocket = null;
-      if (this.netStatusText?.active && this.netStatusText.text.includes("READY")) {
-        this.netStatusText.setText("WI-FI DISCONNECTED").setColor("#ff8b8b");
-      }
-    };
-  }
-
   showStoryScreen() {
     this.setMobileControlsVisible(false);
     this.audio.playMenuTheme?.();
@@ -2404,12 +2253,7 @@ class ZeroGameScene extends Phaser.Scene {
     });
     this.tweens.add({ targets: title, scale: 1, y: 88, duration: 850, ease: "Back.easeOut" });
     const start = this.add.text(480, 502, "START CAMPAIGN", { fontSize: "20px", color: "#ffffff", backgroundColor: "#087e83", padding: { x: 34, y: 10 }, fontStyle: "bold", stroke: "#062b3a", strokeThickness: 2 }).setOrigin(0.5).setDepth(70).setInteractive({ useHandCursor: true });
-    const host = this.add.text(365, 463, "HOST WI-FI", { fontSize: "11px", color: "#ffffff", backgroundColor: "#235a80", padding: { x: 12, y: 6 }, fontStyle: "bold" }).setOrigin(0.5).setDepth(70).setInteractive({ useHandCursor: true });
-    const join = this.add.text(595, 463, "JOIN WI-FI", { fontSize: "11px", color: "#ffffff", backgroundColor: "#235a80", padding: { x: 12, y: 6 }, fontStyle: "bold" }).setOrigin(0.5).setDepth(70).setInteractive({ useHandCursor: true });
-    this.netStatusText = this.add.text(480, 438, "2-PLAYER WI-FI CO-OP", { fontSize: "10px", color: "#9feaff", fontStyle: "bold" }).setOrigin(0.5).setDepth(70);
-    this.menuObjects.push(start, host, join, this.netStatusText);
-    host.on("pointerdown", () => this.connectMultiplayer("HOST"));
-    join.on("pointerdown", () => this.connectMultiplayer("JOIN"));
+    this.menuObjects.push(start);
     this.tweens.add({ targets: start, scale: 1.055, duration: 620, yoyo: true, repeat: -1 });
     start.on("pointerdown", () => { this.audio.unlock(); this.audio.play("ui"); this.startNewCampaign(); });
   }
@@ -3387,8 +3231,7 @@ class ZeroGameScene extends Phaser.Scene {
 
   updateBoss(enemy, delta) {
     if (this.bossDefeated || !enemy.active) return;
-    const targetX = this.remoteVisual?.active && this.remoteVisual.alpha > 0.7 && Math.abs(this.remoteVisual.x - enemy.x) < Math.abs(this.hero.x - enemy.x) ? this.remoteVisual.x : this.hero.x;
-    const direction = targetX >= enemy.x ? 1 : -1;
+    const direction = this.hero.x >= enemy.x ? 1 : -1;
     const attackState = enemy.getData("bossAttackState") || "rest";
     if (attackState === "volley" && this.time.now >= (enemy.getData("bossVolleyUntil") || 0)) {
       enemy.setData("bossAttackState", "rest");
@@ -5052,24 +4895,6 @@ class ZeroGameScene extends Phaser.Scene {
 
     this.heroWasAirborne = airborne;
 
-    if (this.remoteVisual?.active && this.remoteState) {
-      if (this.remoteState.heroId && this.remoteVisual.getData("remoteHeroId") !== this.remoteState.heroId) {
-        this.applyRemoteHero(this.remoteState.heroId);
-      }
-      const blend = 1 - Math.exp(-Math.max(0, delta) / 48);
-      this.remoteVisual.x += (this.remoteState.x - this.remoteVisual.x) * blend;
-      this.remoteVisual.y += (this.remoteState.y - this.remoteVisual.y) * blend;
-      this.remoteVisual.setScale(this.remoteState.facing, this.remoteState.airborne ? 1.05 : 1);
-      this.setHeroSpriteAnimation(this.remoteVisual,
-        this.remoteState.airborne ? "jump" : this.remoteState.moving ? "walk" : "idle");
-    }
-
-    if (this.netConnected && time - this.netSendAt > 45) {
-      this.netSendAt = time;
-      this.sendNet({ type: "state", x: Math.round(h.x), y: Math.round(h.y),
-        facing: this.facing, airborne, moving, heroId: this.selectedHero?.id || "ryo" });
-    }
-
     // Enemy AI and animation
     this.enemies.getChildren().forEach(enemy => {
       if (!enemy || !enemy.active) return;
@@ -5131,8 +4956,7 @@ class ZeroGameScene extends Phaser.Scene {
         return;
       }
       const aiType = enemy.getData("aiType") || "chaser";
-      const targetX = this.remoteVisual?.active && this.remoteVisual.alpha > 0.7 && Math.abs(this.remoteVisual.x - enemy.x) < Math.abs(this.hero.x - enemy.x) ? this.remoteVisual.x : this.hero.x;
-      const direction = targetX > enemy.x ? 1 : -1;
+      const direction = this.hero.x > enemy.x ? 1 : -1;
       const elapsed = this.time.now;
       let speed = 58;
       let visualBob = 0;
