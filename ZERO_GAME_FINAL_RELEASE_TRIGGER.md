@@ -8,3 +8,6 @@ Signing retry: use the PKCS12 keystore password for the private key password as 
 
 
 Final particle tier update release request: 2026-11-27. Include source commit `48f9bdbe0557190a2152d8c6d6ca3a7ff2937126` and the subsequent master-plan documentation commit in the release build.
+
+
+Latest elemental particle and power-ball release request: 2026-11-27. Include source commit `1825c8747f20103974788c29add038fad72edffe`, which passed integrated CI run `45972123344` including automated tests, lint, web build, and Chromium campaign smoke test.
