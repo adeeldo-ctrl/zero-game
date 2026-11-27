@@ -772,6 +772,34 @@ try {
     const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
     return scene?.touch.axis === 0 && scene?.touch.down === false;
   }, undefined, { timeout: 2000 });
+
+  // A background transition must release every captured native touch, even
+  // when the WebView never delivers touchend for fingers that were held.
+  await dispatchTouch("touchstart", [point(5, 132, 448), point(6, 665, 340)]);
+  await nativePage.evaluate(() => {
+    Object.defineProperty(document, "hidden", { configurable: true, value: true });
+    document.dispatchEvent(new Event("visibilitychange"));
+    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+    if (scene?.touch.axis !== 0 || scene?.mobileActionQueue?.length ||
+        scene?.mobileJumpHeld || scene?.attackHeld) {
+      throw new Error("Backgrounding did not clear active joystick and action inputs");
+    }
+  });
+  await nativePage.evaluate(() => {
+    Object.defineProperty(document, "hidden", { configurable: true, value: false });
+    document.dispatchEvent(new Event("visibilitychange"));
+  });
+  await nativePage.waitForFunction(() => {
+    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+    return scene?.sys.isActive();
+  }, undefined, { timeout: 2000 });
+  await dispatchTouch("touchstart", [point(7, 132, 448)]);
+  await dispatchTouch("touchmove", [point(7, 245, 448)]);
+  await nativePage.waitForFunction(() => {
+    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+    return scene?.touch.axis > 0.95;
+  }, undefined, { timeout: 2000 });
+  await dispatchTouch("touchend", [point(7, 245, 448)], []);
   await delay(150);
   await nativePage.evaluate((animTime) => {
     const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
