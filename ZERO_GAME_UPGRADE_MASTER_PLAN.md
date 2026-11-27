@@ -85,6 +85,13 @@
 - Source/test commit: `d85738625c41e7060b09527ca6621f5cf2ebd89c`.
 - This is a source-level test alignment only; no consolidated verification or APK build was run.
 
+### Hero special-move rig visibility correction (2026-11-27)
+- Corrected the hero visual handoff so EXTRA/special moves temporarily show the articulated full-body rig while hiding the authored idle/movement sprite sheet. The previous implementation drove arm/leg poses on hidden rig parts, so the unique move choreography was not visible during gameplay.
+- The selected hero's costume palette is applied to the special-move rig; the authored sprite sheet returns automatically after the move and continues to drive idle/walk/jump/turn/landing states.
+- Special move damage, hit timing, unlimited immediate reuse, movement physics, and control mapping are unchanged.
+- Source commit: `1a2e07754e0c670a462d7454c4ec33ccf6b8752f`.
+- No tests/builds were run; consolidated verification and final Android APK remain deferred until all development is complete.
+
 ## Non-negotiable preservation rules
 - Preserve the currently working joystick/controller movement and touch mapping. Do not regress the approved controls.
 - Keep the game in landscape and make the playable scene fill the complete device viewport.
