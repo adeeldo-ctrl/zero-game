@@ -1,0 +1,784 @@
+{
+  "source": "user-provided Snow Bros 40 Enemies collage",
+  "imageSize": {
+    "width": 1536,
+    "height": 1024
+  },
+  "cropCount": 48,
+  "notes": [
+    "Approximate crop coordinates; some adjacent characters overlap and require manual cleanup.",
+    "The original collage background is retained in these reference crops.",
+    "These are not transparent game-ready sprites and do not contain animation frames.",
+    "Do not replace runtime enemy/boss textures until cleaned spritesheets and real animation frames are supplied."
+  ],
+  "crops": [
+    {
+      "index": 1,
+      "name": "snowman",
+      "row": 1,
+      "column": 1,
+      "sourceCropXYXY": [
+        13,
+        170,
+        96,
+        288
+      ],
+      "file": "01_snowman.png",
+      "status": "reference-crop-only",
+      "background": "retained",
+      "animationFrames": 0
+    },
+    {
+      "index": 2,
+      "name": "green-ice-monster",
+      "row": 1,
+      "column": 2,
+      "sourceCropXYXY": [
+        180,
+        335,
+        96,
+        288
+      ],
+      "file": "02_green-ice-monster.png",
+      "status": "reference-crop-only",
+      "background": "retained",
+      "animationFrames": 0
+    },
+    {
+      "index": 3,
+      "name": "red-horn-demon",
+      "row": 1,
+      "column": 3,
+      "sourceCropXYXY": [
+        345,
+        495,
+        96,
+        288
+      ],
+      "file": "03_red-horn-demon.png",
+      "status": "reference-crop-only",
+      "background": "retained",
+      "animationFrames": 0
+    },
+    {
+      "index": 4,
+      "name": "purple-bat",
+      "row": 1,
+      "column": 4,
+      "sourceCropXYXY": [
+        505,
+        660,
+        96,
+        288
+      ],
+      "file": "04_purple-bat.png",
+      "status": "reference-crop-only",
+      "background": "retained",
+      "animationFrames": 0
+    },
+    {
+      "index": 5,
+      "name": "winter-chick",
+      "row": 1,
+      "column": 5,
+      "sourceCropXYXY": [
+        670,
+        820,
+        96,
+        288
+      ],
+      "file": "05_winter-chick.png",
+      "status": "reference-crop-only",
+      "background": "retained",
+      "animationFrames": 0
+    },
+    {
+      "index": 6,
+      "name": "yeti",
+      "row": 1,
+      "column": 6,
+      "sourceCropXYXY": [
+        830,
+        985,
+        96,
+        288
+      ],
+      "file": "06_yeti.png",
+      "status": "reference-crop-only",
+      "background": "retained",
+      "animationFrames": 0
+    },
+    {
+      "index": 7,
+      "name": "pink-octopus",
+      "row": 1,
+      "column": 7,
+      "sourceCropXYXY": [
+        995,
+        1145,
+        96,
+        288
+      ],
+      "file": "07_pink-octopus.png",
+      "status": "reference-crop-only",
+      "background": "retained",
+      "animationFrames": 0
+    },
+    {
+      "index": 8,
+      "name": "snow-skull",
+      "row": 1,
+      "column": 8,
+      "sourceCropXYXY": [
+        1155,
+        1315,
+        96,
+        288
+      ],
+      "file": "08_snow-skull.png",
+      "status": "reference-crop-only",
+      "background": "retained",
+      "animationFrames": 0
+    },
+    {
+      "index": 9,
+      "name": "pumpkin",
+      "row": 1,
+      "column": 9,
+      "sourceCropXYXY": [
+        1325,
+        1525,
+        96,
+        288
+      ],
+      "file": "09_pumpkin.png",
+      "status": "reference-crop-only",
+      "background": "retained",
+      "animationFrames": 0
+    },
+    {
+      "index": 10,
+      "name": "goggle-brown-creature",
+      "row": 2,
+      "column": 1,
+      "sourceCropXYXY": [
+        40,
+        180,
+        279,
+        466
+      ],
+      "file": "10_goggle-brown-creature.png",
+      "status": "reference-crop-only",
+      "background": "retained",
+      "animationFrames": 0
+    },
+    {
+      "index": 11,
+      "name": "ice-golem",
+      "row": 2,
+      "column": 2,
+      "sourceCropXYXY": [
+        190,
+        330,
+        279,
+        466
+      ],
+      "file": "11_ice-golem.png",
+      "status": "reference-crop-only",
+      "background": "retained",
+      "animationFrames": 0
+    },
+    {
+      "index": 12,
+      "name": "armored-penguin",
+      "row": 2,
+      "column": 3,
+      "sourceCropXYXY": [
+        340,
+        480,
+        279,
+        466
+      ],
+      "file": "12_armored-penguin.png",
+      "status": "reference-crop-only",
+      "background": "retained",
+      "animationFrames": 0
+    },
+    {
+      "index": 13,
+      "name": "chained-ghost",
+      "row": 2,
+      "column": 4,
+      "sourceCropXYXY": [
+        490,
+        630,
+        279,
+        466
+      ],
+      "file": "13_chained-ghost.png",
+      "status": "reference-crop-only",
+      "background": "retained",
+      "animationFrames": 0
+    },
+    {
+      "index": 14,
+      "name": "mushroom-crab",
+      "row": 2,
+      "column": 5,
+      "sourceCropXYXY": [
+        640,
+        780,
+        279,
+        466
+      ],
+      "file": "14_mushroom-crab.png",
+      "status": "reference-crop-only",
+      "background": "retained",
+      "animationFrames": 0
+    },
+    {
+      "index": 15,
+      "name": "brown-goggle-creature",
+      "row": 2,
+      "column": 6,
+      "sourceCropXYXY": [
+        790,
+        930,
+        279,
+        466
+      ],
+      "file": "15_brown-goggle-creature.png",
+      "status": "reference-crop-only",
+      "background": "retained",
+      "animationFrames": 0
+    },
+    {
+      "index": 16,
+      "name": "blue-dragon",
+      "row": 2,
+      "column": 7,
+      "sourceCropXYXY": [
+        940,
+        1080,
+        279,
+        466
+      ],
+      "file": "16_blue-dragon.png",
+      "status": "reference-crop-only",
+      "background": "retained",
+      "animationFrames": 0
+    },
+    {
+      "index": 17,
+      "name": "ice-crab",
+      "row": 2,
+      "column": 8,
+      "sourceCropXYXY": [
+        1090,
+        1230,
+        279,
+        466
+      ],
+      "file": "17_ice-crab.png",
+      "status": "reference-crop-only",
+      "background": "retained",
+      "animationFrames": 0
+    },
+    {
+      "index": 18,
+      "name": "orange-crab",
+      "row": 2,
+      "column": 9,
+      "sourceCropXYXY": [
+        1240,
+        1380,
+        279,
+        466
+      ],
+      "file": "18_orange-crab.png",
+      "status": "reference-crop-only",
+      "background": "retained",
+      "animationFrames": 0
+    },
+    {
+      "index": 19,
+      "name": "ice-robot",
+      "row": 2,
+      "column": 10,
+      "sourceCropXYXY": [
+        1390,
+        1525,
+        279,
+        466
+      ],
+      "file": "19_ice-robot.png",
+      "status": "reference-crop-only",
+      "background": "retained",
+      "animationFrames": 0
+    },
+    {
+      "index": 20,
+      "name": "spiky-hedgehog",
+      "row": 3,
+      "column": 1,
+      "sourceCropXYXY": [
+        30,
+        170,
+        449,
+        631
+      ],
+      "file": "20_spiky-hedgehog.png",
+      "status": "reference-crop-only",
+      "background": "retained",
+      "animationFrames": 0
+    },
+    {
+      "index": 21,
+      "name": "skeleton",
+      "row": 3,
+      "column": 2,
+      "sourceCropXYXY": [
+        180,
+        320,
+        449,
+        631
+      ],
+      "file": "21_skeleton.png",
+      "status": "reference-crop-only",
+      "background": "retained",
+      "animationFrames": 0
+    },
+    {
+      "index": 22,
+      "name": "wolf-guard",
+      "row": 3,
+      "column": 3,
+      "sourceCropXYXY": [
+        330,
+        470,
+        449,
+        631
+      ],
+      "file": "22_wolf-guard.png",
+      "status": "reference-crop-only",
+      "background": "retained",
+      "animationFrames": 0
+    },
+    {
+      "index": 23,
+      "name": "green-frog",
+      "row": 3,
+      "column": 4,
+      "sourceCropXYXY": [
+        480,
+        620,
+        449,
+        631
+      ],
+      "file": "23_green-frog.png",
+      "status": "reference-crop-only",
+      "background": "retained",
+      "animationFrames": 0
+    },
+    {
+      "index": 24,
+      "name": "spider",
+      "row": 3,
+      "column": 5,
+      "sourceCropXYXY": [
+        630,
+        770,
+        449,
+        631
+      ],
+      "file": "24_spider.png",
+      "status": "reference-crop-only",
+      "background": "retained",
+      "animationFrames": 0
+    },
+    {
+      "index": 25,
+      "name": "squirrel",
+      "row": 3,
+      "column": 6,
+      "sourceCropXYXY": [
+        780,
+        920,
+        449,
+        631
+      ],
+      "file": "25_squirrel.png",
+      "status": "reference-crop-only",
+      "background": "retained",
+      "animationFrames": 0
+    },
+    {
+      "index": 26,
+      "name": "rock-creature",
+      "row": 3,
+      "column": 7,
+      "sourceCropXYXY": [
+        930,
+        1070,
+        449,
+        631
+      ],
+      "file": "26_rock-creature.png",
+      "status": "reference-crop-only",
+      "background": "retained",
+      "animationFrames": 0
+    },
+    {
+      "index": 27,
+      "name": "bee",
+      "row": 3,
+      "column": 8,
+      "sourceCropXYXY": [
+        1080,
+        1220,
+        449,
+        631
+      ],
+      "file": "27_bee.png",
+      "status": "reference-crop-only",
+      "background": "retained",
+      "animationFrames": 0
+    },
+    {
+      "index": 28,
+      "name": "ice-fish",
+      "row": 3,
+      "column": 9,
+      "sourceCropXYXY": [
+        1230,
+        1370,
+        449,
+        631
+      ],
+      "file": "28_ice-fish.png",
+      "status": "reference-crop-only",
+      "background": "retained",
+      "animationFrames": 0
+    },
+    {
+      "index": 29,
+      "name": "jellyfish",
+      "row": 3,
+      "column": 10,
+      "sourceCropXYXY": [
+        1380,
+        1525,
+        449,
+        631
+      ],
+      "file": "29_jellyfish.png",
+      "status": "reference-crop-only",
+      "background": "retained",
+      "animationFrames": 0
+    },
+    {
+      "index": 30,
+      "name": "purple-demon",
+      "row": 4,
+      "column": 1,
+      "sourceCropXYXY": [
+        30,
+        170,
+        614,
+        796
+      ],
+      "file": "30_purple-demon.png",
+      "status": "reference-crop-only",
+      "background": "retained",
+      "animationFrames": 0
+    },
+    {
+      "index": 31,
+      "name": "snow-cloud",
+      "row": 4,
+      "column": 2,
+      "sourceCropXYXY": [
+        180,
+        320,
+        614,
+        796
+      ],
+      "file": "31_snow-cloud.png",
+      "status": "reference-crop-only",
+      "background": "retained",
+      "animationFrames": 0
+    },
+    {
+      "index": 32,
+      "name": "blue-fish-monster",
+      "row": 4,
+      "column": 3,
+      "sourceCropXYXY": [
+        330,
+        470,
+        614,
+        796
+      ],
+      "file": "32_blue-fish-monster.png",
+      "status": "reference-crop-only",
+      "background": "retained",
+      "animationFrames": 0
+    },
+    {
+      "index": 33,
+      "name": "mummy",
+      "row": 4,
+      "column": 4,
+      "sourceCropXYXY": [
+        480,
+        620,
+        614,
+        796
+      ],
+      "file": "33_mummy.png",
+      "status": "reference-crop-only",
+      "background": "retained",
+      "animationFrames": 0
+    },
+    {
+      "index": 34,
+      "name": "blue-ogre-a",
+      "row": 4,
+      "column": 5,
+      "sourceCropXYXY": [
+        630,
+        770,
+        614,
+        796
+      ],
+      "file": "34_blue-ogre-a.png",
+      "status": "reference-crop-only",
+      "background": "retained",
+      "animationFrames": 0
+    },
+    {
+      "index": 35,
+      "name": "blue-ogre-b",
+      "row": 4,
+      "column": 6,
+      "sourceCropXYXY": [
+        780,
+        920,
+        614,
+        796
+      ],
+      "file": "35_blue-ogre-b.png",
+      "status": "reference-crop-only",
+      "background": "retained",
+      "animationFrames": 0
+    },
+    {
+      "index": 36,
+      "name": "ice-cube-monster",
+      "row": 4,
+      "column": 7,
+      "sourceCropXYXY": [
+        930,
+        1070,
+        614,
+        796
+      ],
+      "file": "36_ice-cube-monster.png",
+      "status": "reference-crop-only",
+      "background": "retained",
+      "animationFrames": 0
+    },
+    {
+      "index": 37,
+      "name": "green-turtle-a",
+      "row": 4,
+      "column": 8,
+      "sourceCropXYXY": [
+        1080,
+        1220,
+        614,
+        796
+      ],
+      "file": "37_green-turtle-a.png",
+      "status": "reference-crop-only",
+      "background": "retained",
+      "animationFrames": 0
+    },
+    {
+      "index": 38,
+      "name": "green-turtle-b",
+      "row": 4,
+      "column": 9,
+      "sourceCropXYXY": [
+        1230,
+        1370,
+        614,
+        796
+      ],
+      "file": "38_green-turtle-b.png",
+      "status": "reference-crop-only",
+      "background": "retained",
+      "animationFrames": 0
+    },
+    {
+      "index": 39,
+      "name": "green-lizard",
+      "row": 4,
+      "column": 10,
+      "sourceCropXYXY": [
+        1380,
+        1525,
+        614,
+        796
+      ],
+      "file": "39_green-lizard.png",
+      "status": "reference-crop-only",
+      "background": "retained",
+      "animationFrames": 0
+    },
+    {
+      "index": 40,
+      "name": "armored-lizard",
+      "row": 5,
+      "column": 1,
+      "sourceCropXYXY": [
+        20,
+        175,
+        759,
+        951
+      ],
+      "file": "40_armored-lizard.png",
+      "status": "reference-crop-only",
+      "background": "retained",
+      "animationFrames": 0
+    },
+    {
+      "index": 41,
+      "name": "pumpkin-variant",
+      "row": 5,
+      "column": 2,
+      "sourceCropXYXY": [
+        185,
+        340,
+        759,
+        951
+      ],
+      "file": "41_pumpkin-variant.png",
+      "status": "reference-crop-only",
+      "background": "retained",
+      "animationFrames": 0
+    },
+    {
+      "index": 42,
+      "name": "rat-guard",
+      "row": 5,
+      "column": 3,
+      "sourceCropXYXY": [
+        350,
+        505,
+        759,
+        951
+      ],
+      "file": "42_rat-guard.png",
+      "status": "reference-crop-only",
+      "background": "retained",
+      "animationFrames": 0
+    },
+    {
+      "index": 43,
+      "name": "fire-effect",
+      "row": 5,
+      "column": 4,
+      "sourceCropXYXY": [
+        515,
+        670,
+        759,
+        951
+      ],
+      "file": "43_fire-effect.png",
+      "status": "reference-crop-only",
+      "background": "retained",
+      "animationFrames": 0
+    },
+    {
+      "index": 44,
+      "name": "owl-a",
+      "row": 5,
+      "column": 5,
+      "sourceCropXYXY": [
+        680,
+        835,
+        759,
+        951
+      ],
+      "file": "44_owl-a.png",
+      "status": "reference-crop-only",
+      "background": "retained",
+      "animationFrames": 0
+    },
+    {
+      "index": 45,
+      "name": "owl-b",
+      "row": 5,
+      "column": 6,
+      "sourceCropXYXY": [
+        845,
+        1000,
+        759,
+        951
+      ],
+      "file": "45_owl-b.png",
+      "status": "reference-crop-only",
+      "background": "retained",
+      "animationFrames": 0
+    },
+    {
+      "index": 46,
+      "name": "blue-slime",
+      "row": 5,
+      "column": 7,
+      "sourceCropXYXY": [
+        1010,
+        1165,
+        759,
+        951
+      ],
+      "file": "46_blue-slime.png",
+      "status": "reference-crop-only",
+      "background": "retained",
+      "animationFrames": 0
+    },
+    {
+      "index": 47,
+      "name": "ice-knight",
+      "row": 5,
+      "column": 8,
+      "sourceCropXYXY": [
+        1175,
+        1345,
+        759,
+        951
+      ],
+      "file": "47_ice-knight.png",
+      "status": "reference-crop-only",
+      "background": "retained",
+      "animationFrames": 0
+    },
+    {
+      "index": 48,
+      "name": "skull-cloud",
+      "row": 5,
+      "column": 9,
+      "sourceCropXYXY": [
+        1355,
+        1525,
+        759,
+        951
+      ],
+      "file": "48_skull-cloud.png",
+      "status": "reference-crop-only",
+      "background": "retained",
+      "animationFrames": 0
+    }
+  ]
+}
