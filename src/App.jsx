@@ -1983,33 +1983,136 @@ class ZeroGameScene extends Phaser.Scene {
       { x: 800, y: 420, width: 200, height: 18 }
     ];
 
-    authored.forEach(({ x, y, width = 200 }, platformIndex) => {
-      const accent = this.stageConfig.background.accent;
+    const materialStyles = {
+      "polished-stone": { base: 0x6e7788, accent: 0xcbd7e7, detail: 0xeff7ff },
+      "candy-glass": { base: 0xb66c9e, accent: 0xffc6e7, detail: 0xffffff },
+      "carved-wood": { base: 0x76513b, accent: 0xd6a46b, detail: 0xf2d19b },
+      "ice-crystal": { base: 0x668fae, accent: 0xb9f4ff, detail: 0xffffff },
+      "cloud-sky": { base: 0x829fca, accent: 0xe1efff, detail: 0xffffff },
+      "clockwork-metal": { base: 0x626d82, accent: 0xffd36b, detail: 0xe8f1ff },
+      "lava-obsidian": { base: 0x332d3c, accent: 0xff7547, detail: 0xffc078 },
+      "rune-energy": { base: 0x51447f, accent: 0xc7aaff, detail: 0xf0e8ff },
+      "floating-moss": { base: 0x496d56, accent: 0x9de17b, detail: 0xd7ffad },
+      "starfield": { base: 0x34365f, accent: 0x9db5ff, detail: 0xffe7a4 },
+    };
+    authored.forEach(({ x, y, width = 200, materialId = "polished-stone", specialType = null, specialDirection = 1 }, platformIndex) => {
+      const style = materialStyles[materialId] || materialStyles["polished-stone"];
+      const accent = style.accent || this.stageConfig.background.accent;
       const platform = this.platforms.create(x, y, "platform");
-      platform.setScale(getPlatformTextureScale(width), 1).setTint(this.stageConfig.background.platform || 0x8a6a50).refreshBody();
-      this.add.ellipse(x, y - 12, width * 0.9, 15, accent, 0.22).setDepth(1);
-      const trim = this.add.rectangle(x, y - 13, width * 0.94, 4, accent, 0.95).setDepth(2);
-      const bevel = this.add.rectangle(x, y - 8, width * 0.78, 2, 0xffffff, 0.22).setDepth(3);
-      this.tweens.add({ targets: trim, alpha: 0.55, duration: 1300 + (this.stageNumber % 5) * 120, yoyo: true, repeat: -1 });
-      this.tweens.add({ targets: bevel, alpha: 0.08, duration: 1500 + platformIndex * 130, yoyo: true, repeat: -1 });
-      // A stage-indexed rune pattern gives every platform a distinct premium finish.
-      const runeCount = 2 + ((this.stageNumber + platformIndex) % 3);
-      for (let runeIndex = 0; runeIndex < runeCount; runeIndex++) {
-        const progress = (runeIndex + 1) / (runeCount + 1);
-        const runeX = x - width * 0.34 + width * 0.68 * progress;
-        const rune = this.add.star(runeX, y - 7, 4, 2.2, 5, accent, 0.68)
-          .setStrokeStyle(1, 0xffffff, 0.42).setDepth(3);
-        this.tweens.add({
-          targets: rune,
-          alpha: 0.22,
-          angle: 90 + ((this.stageNumber + platformIndex + runeIndex) % 4) * 90,
-          duration: 1150 + ((this.stageNumber + runeIndex) % 5) * 170,
-          yoyo: true,
-          repeat: -1,
-          ease: "Sine.easeInOut",
-        });
+      platform.setScale(getPlatformTextureScale(width), 1).setTint(style.base).refreshBody();
+      platform.setData("materialId", materialId);
+      platform.setData("specialType", specialType);
+      platform.setData("specialDirection", specialDirection);
+      platform.setData("specialCooldownUntil", 0);
+      this.add.ellipse(x, y - 12, width * 0.9, 15, accent, 0.24).setDepth(1);
+      const trim = this.add.rectangle(x, y - 13, width * 0.94, 5, accent, 0.98).setDepth(2);
+      const bevel = this.add.rectangle(x, y - 8, width * 0.78, 2, style.detail, 0.34).setDepth(3);
+      this.tweens.add({ targets: trim, alpha: 0.52, duration: 1050 + (this.stageNumber % 5) * 140, yoyo: true, repeat: -1 });
+      this.tweens.add({ targets: bevel, alpha: 0.08, duration: 1350 + platformIndex * 150, yoyo: true, repeat: -1 });
+      // Material-specific ornament makes each platform family readable beyond its tint.
+      if (materialId === "ice-crystal" || materialId === "candy-glass" || materialId === "starfield") {
+        for (let shard = 0; shard < 3; shard++) {
+          const sx = x - width * 0.28 + shard * width * 0.28;
+          const crystal = this.add.triangle(sx, y - 15, 0, -12 - shard * 2, 8, 3, -8, 3, style.detail, 0.88)
+            .setStrokeStyle(1, accent, 0.85).setDepth(4);
+          this.tweens.add({ targets: crystal, alpha: 0.38, angle: shard % 2 ? 8 : -8, duration: 900 + shard * 170, yoyo: true, repeat: -1 });
+        }
+      } else if (materialId === "clockwork-metal") {
+        for (let gear = 0; gear < 3; gear++) {
+          const gx = x - width * 0.3 + gear * width * 0.3;
+          const cog = this.add.star(gx, y - 8, 8, 4, 7, style.detail, 0.8).setDepth(4);
+          this.tweens.add({ targets: cog, angle: 360, duration: 5200 + gear * 500, repeat: -1 });
+        }
+      } else if (materialId === "lava-obsidian") {
+        const seam = this.add.rectangle(x, y - 5, width * 0.7, 2, style.accent, 0.9).setDepth(4);
+        this.tweens.add({ targets: seam, alpha: 0.25, duration: 460, yoyo: true, repeat: -1 });
+      } else if (materialId === "floating-moss" || materialId === "carved-wood") {
+        for (let tuft = 0; tuft < 4; tuft++) {
+          const tx = x - width * 0.36 + tuft * width * 0.24;
+          this.add.triangle(tx, y - 12, 0, -7, 5, 5, -5, 5, style.detail, 0.78).setDepth(4);
+        }
+      } else {
+        const runeCount = 2 + ((this.stageNumber + platformIndex) % 3);
+        for (let runeIndex = 0; runeIndex < runeCount; runeIndex++) {
+          const progress = (runeIndex + 1) / (runeCount + 1);
+          const runeX = x - width * 0.34 + width * 0.68 * progress;
+          const rune = this.add.star(runeX, y - 7, 4, 2.2, 5, accent, 0.68)
+            .setStrokeStyle(1, 0xffffff, 0.42).setDepth(3);
+          this.tweens.add({ targets: rune, alpha: 0.22, angle: 90 + ((this.stageNumber + platformIndex + runeIndex) % 4) * 90,
+            duration: 1150 + ((this.stageNumber + runeIndex) % 5) * 170, yoyo: true, repeat: -1, ease: "Sine.easeInOut" });
+        }
       }
+      if (specialType) this.createSpecialPlatformDecoration(platform, x, y, width, specialType, accent);
     });
+  }
+
+
+  createSpecialPlatformDecoration(platform, x, y, width, specialType, accent) {
+    const labels = {
+      accelerator: "» » »",
+      "spring-bounce": "✦",
+      "temporary-fade": "···",
+      moving: "↔",
+      "slippery-ice": "❄",
+      "one-way-drop-through": "↓",
+      "elemental-energy": "◇",
+    };
+    const marker = this.add.text(x, y - 25, labels[specialType] || "✦", {
+      fontSize: specialType === "accelerator" ? "17px" : "14px",
+      color: "#ffffff", fontStyle: "bold", stroke: "#17243b", strokeThickness: 3,
+    }).setOrigin(0.5).setDepth(5);
+    platform.setData("specialMarker", marker);
+    if (specialType === "accelerator") {
+      const stripe = this.add.rectangle(x, y - 3, width * 0.72, 3, accent, 0.95).setDepth(4);
+      this.tweens.add({ targets: [marker, stripe], x: `+=${platform.getData("specialDirection") * 5}`, alpha: 0.45, duration: 360, yoyo: true, repeat: -1 });
+    } else if (specialType === "spring-bounce") {
+      this.tweens.add({ targets: marker, y: y - 34, scale: 1.25, duration: 460, yoyo: true, repeat: -1, ease: "Sine.easeInOut" });
+    } else if (specialType === "elemental-energy") {
+      this.tweens.add({ targets: marker, angle: 180, scale: 1.22, alpha: 0.5, duration: 900, yoyo: true, repeat: -1 });
+    } else if (specialType === "slippery-ice") {
+      this.add.rectangle(x, y - 4, width * 0.8, 2, 0xffffff, 0.9).setDepth(4);
+    } else if (specialType === "temporary-fade") {
+      this.tweens.add({ targets: marker, alpha: 0.3, duration: 800, yoyo: true, repeat: -1 });
+    }
+  }
+
+  handleSpecialPlatform(hero, platform) {
+    if (!hero?.active || !platform?.active || platform === this.groundPlatform) return;
+    const type = platform.getData("specialType");
+    if (!type || this.time.now < (platform.getData("specialCooldownUntil") || 0)) return;
+    const grounded = hero.body.blocked.down || hero.body.touching.down;
+    if (!grounded) return;
+    const direction = platform.getData("specialDirection") || 1;
+    if (type === "accelerator") {
+      hero.setVelocityX(direction * 380);
+      platform.setData("specialCooldownUntil", this.time.now + 720);
+      this.spawnElementParticles(hero.x, hero.y + 22, "wind", 7, 0.62);
+    } else if (type === "spring-bounce") {
+      hero.setVelocityY(-690);
+      platform.setData("specialCooldownUntil", this.time.now + 900);
+      this.spawnElementParticles(hero.x, hero.y + 22, "lightning", 12, 0.78);
+      this.audio.play("jump");
+    } else if (type === "temporary-fade") {
+      platform.setData("specialCooldownUntil", this.time.now + 2600);
+      platform.setAlpha(0.32);
+      this.time.delayedCall(550, () => {
+        if (platform.active) platform.body.enable = false;
+      });
+      this.time.delayedCall(2100, () => {
+        if (platform.active) { platform.body.enable = true; platform.refreshBody(); platform.setAlpha(1); }
+      });
+    } else if (type === "moving") {
+      platform.setData("specialCooldownUntil", this.time.now + 1600);
+      this.tweens.add({ targets: platform, x: platform.x + direction * 52, duration: 780, yoyo: true,
+        onUpdate: () => platform.refreshBody(), onComplete: () => platform.refreshBody() });
+    } else if (type === "slippery-ice") {
+      hero.setVelocityX(hero.body.velocity.x * 1.12);
+      platform.setData("specialCooldownUntil", this.time.now + 280);
+    } else if (type === "elemental-energy") {
+      hero.setVelocityY(Math.min(hero.body.velocity.y, -160));
+      platform.setData("specialCooldownUntil", this.time.now + 1100);
+      this.spawnElementParticles(hero.x, hero.y + 20, this.stageConfig.enemyPowerType || "light", 8, 0.7);
+    }
   }
 
   createHUD() {
