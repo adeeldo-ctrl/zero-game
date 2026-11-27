@@ -1,30 +1,30 @@
 {
   "source": "user-uploaded enemy references",
   "count": 5,
-  "note": "Five distinct references enlarged into dedicated 160x160 transparent boss base cutouts. These are static; boss-specific animation frames and visual review remain required.",
+  "note": "Five visually approved enemy cutouts enlarged into dedicated 160x160 transparent boss base cutouts. These remain static base artwork; existing boss animation/gameplay is preserved until genuine boss animation frames are authored.",
   "assets": [
     {
       "id": "gatekeeper",
-      "source": "11_ice-golem.png",
+      "source": "02_green-ice-monster.png",
       "output": "gatekeeper.png",
       "size": "160x160",
-      "removedBackdropRatio": 0.972,
+      "removedBackdropRatio": 0.598,
       "status": "enlarged-static-boss-base-review-required"
     },
     {
       "id": "iron-comet",
-      "source": "19_ice-robot.png",
+      "source": "34_blue-ogre-a.png",
       "output": "iron-comet.png",
       "size": "160x160",
-      "removedBackdropRatio": 0.91,
+      "removedBackdropRatio": 0.68,
       "status": "enlarged-static-boss-base-review-required"
     },
     {
       "id": "gale-talon",
-      "source": "16_blue-dragon.png",
+      "source": "40_armored-lizard.png",
       "output": "gale-talon.png",
       "size": "160x160",
-      "removedBackdropRatio": 0.78,
+      "removedBackdropRatio": 0.662,
       "status": "enlarged-static-boss-base-review-required"
     },
     {
@@ -37,10 +37,10 @@
     },
     {
       "id": "void-sovereign",
-      "source": "30_purple-demon.png",
+      "source": "47_ice-knight.png",
       "output": "void-sovereign.png",
       "size": "160x160",
-      "removedBackdropRatio": 0.937,
+      "removedBackdropRatio": 0.722,
       "status": "enlarged-static-boss-base-review-required"
     }
   ]
