@@ -1856,66 +1856,77 @@ class ZeroGameScene extends Phaser.Scene {
   }
 
   createElementBall(x, y, palette) {
-    // A compact, unmistakable silhouette for each power; no glowing particle cloud.
-    const ball = this.add.container(x, y).setDepth(16);
-    ball.setData("elementId", palette.id);
-    const details = [];
-    const poly = (points, color = palette.ball, stroke = palette.edge, width = 4) =>
-      this.add.polygon(0, 0, points, color, 0.98).setStrokeStyle(width, stroke, 1);
-    switch (palette.id) {
-      case "wind": {
-        const funnel = this.add.graphics();
-        funnel.fillStyle(palette.ball, 0.3);
-        funnel.fillTriangle(-20, -19, 20, -19, 5, 22);
-        funnel.lineStyle(4, palette.edge, 1);
-        funnel.lineBetween(-22, -18, 22, -18);
-        funnel.lineBetween(-17, -2, 17, -2);
-        funnel.lineBetween(-10, 13, 10, 13);
-        details.push(funnel);
-        ball.setData("motionStyle", "twister");
-        break;
+    // Cached high-resolution elemental emblems keep the rolling ball crisp while
+    // avoiding per-enemy Graphics trees and expensive runtime drawing.
+    const textureKey = `element-ball-${palette.id}`;
+    if (!this.textures.exists(textureKey)) {
+      const g = this.make.graphics({ x: 0, y: 0, add: false });
+      const base = palette.ball;
+      const edge = palette.edge;
+      const glow = palette.glow;
+      const points = (values) => values.map(([px, py]) => ({ x: 48 + px, y: 48 + py }));
+      g.fillStyle(glow, 0.22); g.fillCircle(48, 48, 46);
+      g.lineStyle(3, edge, 0.72); g.strokeCircle(48, 48, 42);
+      g.fillStyle(base, 1); g.fillCircle(48, 48, 35);
+      g.fillStyle(edge, 0.2); g.fillCircle(38, 34, 24);
+      g.lineStyle(4, edge, 1); g.strokeCircle(48, 48, 34);
+      g.lineStyle(2, 0xffffff, 0.72); g.beginPath(); g.arc(48, 48, 29, -2.65, -1.15, false); g.strokePath();
+      g.fillStyle(0xffffff, 0.88); g.fillEllipse(34, 29, 10, 5);
+      g.lineStyle(3, edge, 1); g.fillStyle(edge, 0.96);
+      switch (palette.id) {
+        case "fire":
+          g.fillPoints(points([[-19,18],[-17,-4],[-7,-18],[-2,-5],[9,-27],[14,-8],[23,8],[14,23],[-12,23]]), true);
+          g.fillStyle(0xfff5bf, 1); g.fillPoints(points([[-7,17],[-3,1],[4,10],[10,-6],[12,17]]), true);
+          break;
+        case "ice":
+          for (let n=0;n<6;n++){const a=n*Math.PI/3, ex=48+Math.cos(a)*25, ey=48+Math.sin(a)*25;g.lineBetween(48,48,ex,ey);g.lineBetween(ex,ey,ex-Math.cos(a-0.55)*9,ey-Math.sin(a-0.55)*9);g.lineBetween(ex,ey,ex-Math.cos(a+0.55)*9,ey-Math.sin(a+0.55)*9);}
+          g.fillStyle(0xffffff,1);g.fillCircle(48,48,5);
+          break;
+        case "lightning":
+          g.fillPoints(points([[-6,-29],[14,-5],[3,1],[13,27],[-17,0],[-4,-5]]), true);
+          g.lineStyle(3,0xffffff,0.9);g.lineBetween(43,22,39,39);
+          break;
+        case "water":
+          g.fillPoints(points([[0,-29],[15,-8],[22,7],[18,20],[7,28],[-7,28],[-18,19],[-21,6],[-13,-9]]), true);
+          g.fillStyle(0xffffff,0.95);g.fillEllipse(38,39,8,19);
+          g.lineStyle(2,0xffffff,0.9);g.strokeEllipse(48,51,27,30);
+          break;
+        case "nature":
+          g.fillPoints(points([[0,-29],[20,-14],[22,2],[12,19],[0,29],[-15,14],[-22,-3],[-14,-19]]), true);
+          g.lineStyle(3,0xf1ffd2,1);g.lineBetween(31,65,65,31);g.lineBetween(43,53,40,39);g.lineBetween(52,44,64,47);
+          break;
+        case "wind":
+          g.lineStyle(7,edge,0.98);g.beginPath();g.moveTo(23,27);g.lineTo(73,27);g.lineTo(65,39);g.moveTo(29,45);g.lineTo(67,45);g.lineTo(59,57);g.moveTo(36,63);g.lineTo(59,63);g.lineTo(53,73);g.strokePath();
+          g.lineStyle(3,0xffffff,0.9);g.beginPath();g.moveTo(30,19);g.lineTo(70,19);g.strokePath();
+          break;
+        case "earth":
+          g.fillPoints(points([[-27,-10],[-12,-27],[8,-23],[27,-6],[20,18],[2,28],[-23,15]]), true);
+          g.lineStyle(3,edge,1);g.lineBetween(35,31,48,48);g.lineBetween(48,48,66,35);g.lineBetween(48,48,58,70);
+          break;
+        case "light": {
+          const star=[];for(let n=0;n<10;n++){const a=-Math.PI/2+n*Math.PI/5,r=n%2?12:29;star.push({x:48+Math.cos(a)*r,y:48+Math.sin(a)*r});}
+          g.fillPoints(star,true);g.lineStyle(3,0xffffff,0.95);g.strokeCircle(48,48,12);break;
+        }
+        case "shadow":
+          g.fillPoints(points([[20,-25],[3,-29],[-16,-18],[-25,1],[-18,21],[-1,29],[20,19],[5,13],[-2,1],[3,-12]]),true);
+          g.lineStyle(3,edge,0.9);g.beginPath();g.arc(48,48,25,-1.5,1.55,false);g.strokePath();
+          break;
+        default:
+          g.fillPoints(points([[0,-30],[10,-12],[28,-3],[13,7],[5,29],[-8,12],[-28,3],[-11,-9]]),true);
+          g.fillStyle(0xffffff,0.95);g.fillCircle(48,48,7);g.lineStyle(3,edge,0.9);g.strokeCircle(48,48,20);
+          break;
       }
-      case "water":
-        details.push(poly([0,-29,17,-8,23,8,17,23,0,29,-17,23,-23,8,-17,-8]),
-          this.add.ellipse(-7,-8,9,22,0xeaffff,0.95).setAngle(24));
-        ball.setData("motionStyle", "flow");
-        break;
-      case "fire":
-        details.push(poly([-22,17,-17,-4,-7,-25,1,-10,12,-29,17,-7,25,17,12,25,-12,25]),
-          poly([-9,15,-4,-4,3,7,10,-8,12,16], 0xffe17a, 0xffffcf, 2));
-        ball.setData("motionStyle", "flame");
-        break;
-      case "ice":
-        details.push(poly([0,-29,9,-13,25,-17,17,-1,29,8,12,13,15,29,0,19,-15,29,-12,12,-29,8,-14,-2,-25,-18,-8,-13]));
-        ball.setData("motionStyle", "ice-roll");
-        break;
-      case "lightning":
-        details.push(poly([-5,-29,17,-5,4,1,15,27,-17,3,-3,-4]));
-        ball.setData("motionStyle", "spark-dash");
-        break;
-      case "nature":
-        details.push(poly([0,-29,15,-17,22,-2,15,17,0,29,-15,17,-22,-2,-15,-17]),
-          this.add.graphics().lineStyle(3,0xeaffb0,1).lineBetween(0,-22,0,23));
-        ball.setData("motionStyle", "leaf-roll");
-        break;
-      case "earth":
-        details.push(poly([-25,-10,-10,-27,9,-20,26,-5,19,18,3,27,-21,15]));
-        ball.setData("motionStyle", "rock-roll");
-        break;
-      case "light":
-        details.push(this.add.star(0,0,8,12,29,palette.ball).setStrokeStyle(3,palette.edge));
-        ball.setData("motionStyle", "radiant");
-        break;
-      case "shadow":
-        details.push(poly([-22,-15,-5,-28,17,-17,25,2,8,27,-17,18]));
-        ball.setData("motionStyle", "shade");
-        break;
-      default:
-        details.push(poly([-22,-12,-9,-27,9,-21,25,-5,17,17,0,27,-18,15]));
-        ball.setData("motionStyle", "plasma");
-        break;
+      g.generateTexture(textureKey, 96, 96);
+      g.destroy();
     }
-    ball.add(details);
+    const ball = this.add.image(x, y, textureKey).setDepth(16).setDisplaySize(64, 64);
+    ball.setData("elementId", palette.id);
+    ball.setData("motionStyle", ({
+      fire: "flame", ice: "ice-roll", lightning: "spark-dash", water: "flow",
+      nature: "leaf-roll", wind: "twister", earth: "rock-roll", light: "radiant",
+      shadow: "shade", plasma: "plasma"
+    })[palette.id] || "plasma");
+    this.tweens.add({ targets: ball, scale: 1.08, duration: 260, yoyo: true, ease: "Sine.easeInOut" });
     this.spawnElementParticles(x, y, palette.id, 4, 0.55);
     return ball;
   }
