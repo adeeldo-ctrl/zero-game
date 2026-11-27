@@ -541,9 +541,218 @@ class ZeroGameScene extends Phaser.Scene {
     // A second, stage-indexed landmark layer gives each of the five stages
     // in every world a different silhouette, not merely a palette variation.
     this.createStageVariantLandmark(variant, accent, far);
+    this.createStageForegroundDetails(world, variant, accent, far);
     glow.fillStyle(accent,0.07);glow.fillEllipse(480,365,780+variant*22,170);
     this.tweens.add({targets:glow,alpha:0.72,duration:1800+variant*120,yoyo:true,repeat:-1});
     this.add.rectangle(480,455,960,2,accent,0.18).setDepth(-1);
+  }
+
+  createStageForegroundDetails(world, variant, accent, far) {
+    // Decorative framing is kept to the outer margins and lower trim so it
+    // enriches the stage without covering platforms, enemies, or the hero.
+    const g = this.add.graphics().setDepth(-8);
+    const gold = 0xffdf88;
+    const pale = 0xeaf8ff;
+    const left = 28 + variant * 7;
+    const right = 932 - variant * 7;
+
+    if (world === 0) {
+      // Forest: layered roots, fern fans, and luminous mushrooms.
+      [left, right].forEach((x, side) => {
+        g.lineStyle(12, 0x503b2e, 0.88);
+        g.beginPath();
+        g.moveTo(x, 480);
+        g.lineTo(x + (side ? -18 : 18), 447);
+        g.lineTo(x + (side ? -8 : 8), 414);
+        g.strokePath();
+        for (let leaf = 0; leaf < 4; leaf++) {
+          const y = 438 - leaf * 19;
+          g.fillStyle(leaf % 2 ? 0x4f9b62 : 0x80c978, 0.92);
+          g.fillEllipse(x + (side ? -18 : 18), y, 34, 12).setRotation((side ? -1 : 1) * 0.5);
+        }
+        g.fillStyle(0xffa5d1, 0.9);
+        g.fillEllipse(x + (side ? -9 : 9), 455, 20, 8);
+        g.fillStyle(0xffe6a0, 0.95);
+        g.fillCircle(x + (side ? -9 : 9), 451, 3);
+      });
+      for (let i = 0; i < 9; i++) {
+        const x = 100 + i * 95;
+        g.lineStyle(2, 0x2d6849, 0.5);
+        g.lineBetween(x, 470, x + ((i % 2) ? 10 : -10), 450 - (i % 3) * 7);
+      }
+    } else if (world === 1) {
+      // Candy/desert: layered dunes, sculpted cacti and jewel-like stones.
+      g.fillStyle(0xf3c17c, 0.22);
+      g.fillEllipse(210 + variant * 35, 470, 370, 52);
+      g.fillEllipse(760 - variant * 25, 478, 420, 46);
+      [left + 22, right - 22].forEach((x, i) => {
+        g.fillStyle(0x438b72, 0.94);
+        g.fillRoundedRect(x - 6, 407, 12, 67, 6);
+        g.fillRoundedRect(x + (i ? -22 : 10), 432, 31, 9, 5);
+        g.fillRoundedRect(x + (i ? -22 : 10), 416, 9, 25, 5);
+        g.lineStyle(2, 0xb9f0c7, 0.65);
+        g.lineBetween(x, 414, x, 465);
+      });
+      for (let i = 0; i < 7; i++) {
+        const x = 150 + i * 108;
+        g.fillStyle(i % 2 ? 0xffe0a3 : 0xf5a7ad, 0.78);
+        g.fillTriangle(x - 8, 466, x, 448 - (i % 3) * 4, x + 9, 466);
+        g.fillStyle(0xffffff, 0.55);
+        g.fillCircle(x, 459, 2);
+      }
+    } else if (world === 2) {
+      // Ice kingdom: translucent ice shelves, icicles and frosted crystals.
+      [left, right].forEach((x, i) => {
+        g.fillStyle(0x8edcf4, 0.3);
+        g.fillTriangle(x - 34, 476, x + (i ? -3 : 5), 408, x + 38, 476);
+        g.fillStyle(0xe8fbff, 0.78);
+        g.fillTriangle(x - 5, 430, x + (i ? -3 : 5), 408, x + 12, 449);
+        g.lineStyle(3, pale, 0.7);
+        g.lineBetween(x - 42, 478, x + 42, 478);
+      });
+      for (let i = 0; i < 12; i++) {
+        const x = 75 + i * 73;
+        const length = 12 + ((i + variant) % 4) * 7;
+        g.fillStyle(0xb8efff, 0.55);
+        g.fillTriangle(x - 5, 0, x + 5, 0, x, length);
+      }
+    } else if (world === 3) {
+      // Desert ruins: sandstone columns, carved bands and warm torch bowls.
+      [left + 8, right - 8].forEach((x, i) => {
+        g.fillStyle(0x966343, 0.9);
+        g.fillRoundedRect(x - 13, 365, 26, 112, 5);
+        g.fillStyle(0xc28c5d, 0.95);
+        g.fillRect(x - 19, 361, 38, 9);
+        g.fillRect(x - 17, 386, 34, 5);
+        g.lineStyle(2, 0xf2c58a, 0.7);
+        g.lineBetween(x - 7, 398, x - 7, 461);
+        g.fillStyle(0x493b4d, 0.9);
+        g.fillEllipse(x, 354, 31, 13);
+        g.fillStyle(0xffbd62, 0.9);
+        g.fillTriangle(x - 5, 351, x, 328 - (i * 4), x + 5, 351);
+        g.fillStyle(gold, 0.65);
+        g.fillCircle(x, 348, 3);
+      });
+    } else if (world === 4) {
+      // Jungle: layered palm fronds, broad leaves and hanging vines.
+      [left, right].forEach((x, i) => {
+        g.lineStyle(8, 0x315d46, 0.95);
+        g.lineBetween(x, 482, x + (i ? -12 : 12), 385);
+        for (let leaf = 0; leaf < 6; leaf++) {
+          const angle = -1.15 + leaf * 0.46;
+          const endX = x + Math.cos(angle) * 58;
+          const endY = 390 + Math.sin(angle) * 35;
+          g.lineStyle(7, leaf % 2 ? 0x3f9b61 : 0x68bd70, 0.95);
+          g.lineBetween(x + (i ? -12 : 12), 390, endX, endY);
+          g.lineStyle(2, 0xb1e58a, 0.7);
+          g.lineBetween(x + (i ? -12 : 12), 390, endX, endY);
+        }
+        g.lineStyle(3, 0x79b77b, 0.75);
+        g.lineBetween(x + (i ? -12 : 12), 382, x + (i ? -18 : 18), 300);
+      });
+      for (let i = 0; i < 8; i++) {
+        const x = 120 + i * 102;
+        g.fillStyle(i % 2 ? 0xffd66e : 0xff9d83, 0.8);
+        g.fillCircle(x, 465 - (i % 3) * 8, 4);
+      }
+    } else if (world === 5) {
+      // Crystal world: faceted geodes and glowing mineral seams.
+      [left + 10, right - 10].forEach((x, i) => {
+        const h = 48 + ((i + variant) % 3) * 15;
+        g.fillStyle(0x51477e, 0.95);
+        g.fillTriangle(x - 42, 478, x, 478 - h, x + 42, 478);
+        g.fillStyle(i ? 0x9eeaff : 0xd2a8ff, 0.9);
+        g.fillTriangle(x - 20, 474, x, 478 - h + 12, x + 18, 474);
+        g.fillStyle(0xffffff, 0.75);
+        g.fillTriangle(x - 5, 472, x, 478 - h + 15, x + 7, 472);
+        g.lineStyle(2, accent, 0.8);
+        g.lineBetween(x, 478 - h + 16, x, 474);
+      });
+      for (let i = 0; i < 5; i++) {
+        const x = 250 + i * 115;
+        g.fillStyle(pale, 0.65);
+        g.fillCircle(x, 468 - (i % 2) * 12, 2 + (i % 2));
+      }
+    } else if (world === 6) {
+      // Ocean: coral fans, sea grass and pearl bubbles at the arena edge.
+      [left, right].forEach((x, i) => {
+        const coral = i ? 0xff9b9e : 0xffbd78;
+        g.lineStyle(7, coral, 0.92);
+        g.lineBetween(x, 480, x, 421);
+        for (let branch = 0; branch < 4; branch++) {
+          const direction = branch % 2 ? 1 : -1;
+          const y = 451 - branch * 10;
+          g.lineBetween(x, y, x + direction * (16 + branch * 4), y - 15);
+          g.fillStyle(coral, 0.95);
+          g.fillCircle(x + direction * (16 + branch * 4), y - 15, 4);
+        }
+        g.lineStyle(3, 0x67c9ad, 0.85);
+        for (let blade = 0; blade < 4; blade++) {
+          g.lineBetween(x + blade * 5 - 8, 480, x + blade * 8 - 18, 440 - blade * 5);
+        }
+      });
+      for (let i = 0; i < 9; i++) {
+        const x = 130 + i * 88;
+        g.lineStyle(1, pale, 0.5);
+        g.strokeCircle(x, 455 - (i % 3) * 12, 4 + (i % 2) * 2);
+      }
+    } else if (world === 7) {
+      // Sky kingdom: floating cloud banks, gold finials and hanging banners.
+      [left + 18, right - 18].forEach((x, i) => {
+        g.fillStyle(0xeaf5ff, 0.55);
+        g.fillEllipse(x, 468, 100, 24);
+        g.fillEllipse(x - 22, 459, 48, 26);
+        g.fillEllipse(x + 24, 458, 55, 28);
+        g.fillStyle(0xd6c8ff, 0.75);
+        g.fillTriangle(x - 6, 451, x, 411 - i * 9, x + 7, 451);
+        g.fillStyle(gold, 0.95);
+        g.fillCircle(x, 407 - i * 9, 4);
+      });
+      for (let i = 0; i < 5; i++) {
+        const x = 280 + i * 100;
+        g.lineStyle(2, far, 0.65);
+        g.lineBetween(x, 155, x, 204 + (i % 2) * 12);
+        g.fillStyle(accent, 0.75);
+        g.fillTriangle(x, 175, x + 23, 183, x, 205);
+      }
+    } else if (world === 8) {
+      // Volcano: obsidian plates, glowing magma seams and ember vents.
+      [left + 10, right - 10].forEach((x) => {
+        g.fillStyle(0x302b42, 0.96);
+        g.fillTriangle(x - 48, 480, x - 20, 423, x + 22, 480);
+        g.fillStyle(0xff814e, 0.88);
+        g.fillTriangle(x - 18, 477, x - 5, 443, x + 4, 477);
+        g.lineStyle(3, 0xffc36b, 0.85);
+        g.lineBetween(x + 15, 474, x + 26, 449);
+        g.fillStyle(0xffa05b, 0.75);
+        g.fillEllipse(x, 477, 56, 8);
+      });
+      for (let i = 0; i < 7; i++) {
+        const x = 170 + i * 103;
+        g.fillStyle(0xffa05b, 0.65);
+        g.fillCircle(x, 466 - (i % 3) * 9, 2 + (i % 2));
+      }
+    } else {
+      // Cosmic world: observatory runes, orbiting star nodes and a low horizon.
+      g.lineStyle(3, accent, 0.55);
+      g.strokeEllipse(480, 477, 620, 42);
+      g.lineStyle(2, gold, 0.62);
+      g.strokeEllipse(480, 477, 430, 24);
+      for (let i = 0; i < 11; i++) {
+        const x = 90 + i * 78;
+        const y = 458 + (i % 3) * 7;
+        g.fillStyle(i % 2 ? 0x9eb7ff : gold, 0.85);
+        g.fillStar ? g.fillStar(x, y, 5, 2, 5) : g.fillCircle(x, y, 3);
+        g.lineStyle(1, pale, 0.45);
+        g.lineBetween(x, y - 8, x + 12, y - 17);
+      }
+    }
+
+    // Fine metallic inlay along the lower frame unifies each world.
+    g.lineStyle(2, accent, 0.42);
+    g.lineBetween(42, 492, 918, 492);
+    g.lineStyle(1, pale, 0.22);
+    g.lineBetween(42, 496, 918, 496);
   }
 
   createStageVariantLandmark(variant, accent, far) {
