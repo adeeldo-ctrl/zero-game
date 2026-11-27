@@ -227,6 +227,10 @@ test("all five bosses and all 50 stage music cues have unique identities", () =>
 test("all 45 enemy archetypes have dedicated four-frame atlas ranges", () => {
   assert.equal(PREMIUM_ENEMY_ARCHETYPES.length, 45);
   const frameIndexes = PREMIUM_ENEMY_ARCHETYPES.map((enemy) => getPremiumEnemyFrameIndex(enemy.id));
+  for (const enemy of PREMIUM_ENEMY_ARCHETYPES) {
+    assert.deepEqual(enemy.animations, ["idle", "move", "attack", "hit", "defeat"]);
+    assert.ok(enemy.spriteKey.startsWith("enemy-"));
+  }
   assert.deepEqual(frameIndexes, Array.from({ length: 45 }, (_, index) => index));
   assert.equal(new Set(frameIndexes).size, 45);
 });
