@@ -104,6 +104,32 @@ jobs:
           print("Launcher activity is locked to landscape orientation.")
           PY
 
+      - name: Enable Android Wi-Fi co-op network access
+        run: |
+          python - <<'PY'
+          import xml.etree.ElementTree as ET
+          from pathlib import Path
+
+          manifest = Path("android/app/src/main/AndroidManifest.xml")
+          tree = ET.parse(manifest)
+          root = tree.getroot()
+          android = "{http://schemas.android.com/apk/res/android}"
+          internet = "android.permission.INTERNET"
+          if not any(node.get(android + "name") == internet for node in root.findall("uses-permission")):
+              permission = ET.Element("uses-permission")
+              permission.set(android + "name", internet)
+              application = root.find("application")
+              root.insert(list(root).index(application), permission)
+          application = root.find("application")
+          if application is None:
+              raise SystemExit("Android application node is missing")
+          # The co-op relay uses a WebSocket on the player's trusted local Wi-Fi.
+          application.set(android + "usesCleartextTraffic", "true")
+          ET.register_namespace("android", "http://schemas.android.com/apk/res/android")
+          tree.write(manifest, encoding="utf-8", xml_declaration=True)
+          print("Enabled Internet permission and local Wi-Fi WebSocket networking.")
+          PY
+
       - name: Hide Android system bars for immersive full-screen play
         run: |
           python - <<'PY'
