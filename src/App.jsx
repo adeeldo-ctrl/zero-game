@@ -1708,41 +1708,10 @@ class ZeroGameScene extends Phaser.Scene {
     }
   }
 
-  spawnSnowballParticles(x, y, kind = "freeze", count = 12, scale = 1) {
-    for (let i = 0; i < count; i++) {
-      const angle = Phaser.Math.FloatBetween(0, Math.PI * 2);
-      const distance = Phaser.Math.Between(8, 34) * scale;
-      let particle;
-      if (kind === "roll") {
-        particle = this.add.ellipse(x, y, Phaser.Math.Between(8, 15), Phaser.Math.Between(3, 6),
-          i % 3 === 0 ? 0xffffff : 0xbdeeff, 0.92).setAngle(Phaser.Math.Between(-35, 35));
-      } else if (kind === "kick") {
-        particle = this.add.star(x, y, 4, 2, Phaser.Math.Between(5, 9), i % 2 ? 0xffffff : 0x8fe8ff, 0.98)
-          .setAngle(Phaser.Math.Between(0, 360));
-      } else if (kind === "impact") {
-        particle = this.add.triangle(x, y, -7, 5, 0, -10, 8, 6,
-          i % 2 ? 0xffffff : 0x8bdfff, 0.98).setAngle(Phaser.Math.Between(0, 360));
-      } else {
-        particle = this.add.star(x, y, 6, 3, Phaser.Math.Between(7, 12),
-          i % 3 === 0 ? 0xffffff : i % 3 === 1 ? 0xbceeff : 0x77cfff, 0.98)
-          .setAngle(Phaser.Math.Between(0, 360));
-      }
-      particle.setDepth(29);
-      const travel = kind === "roll" ? Phaser.Math.Between(12, 30) : distance;
-      const duration = kind === "kick" ? 300 : kind === "impact" ? 420 : 360;
-      this.tweens.add({
-        targets: particle,
-        x: x + Math.cos(angle) * travel + (kind === "kick" ? 28 : 0),
-        y: y + Math.sin(angle) * travel - (kind === "freeze" ? 8 : 0),
-        angle: particle.angle + Phaser.Math.Between(-210, 210),
-        scaleX: kind === "roll" || kind === "kick" ? 0.18 : 0.48,
-        scaleY: 0.35,
-        alpha: 0,
-        duration,
-        ease: "Cubic.easeOut",
-        onComplete: () => particle.destroy(),
-      });
-    }
+  spawnSnowballParticles(x, y, kind = "freeze", count = 12, scale = 1, elementId = this.powerType) {
+    // Legacy snowball call sites now use the same compact, element-aware
+    // renderer, removing the old generic blue star/dot particle cloud.
+    this.spawnElementParticles(x, y, elementId, count, scale, kind);
   }
 
   spawnElementParticles(x, y, elementId = this.powerType, count = 12, scale = 1, attackVariant = "default") {
@@ -2002,7 +1971,7 @@ class ZeroGameScene extends Phaser.Scene {
       enemy.setData("frozen", true); enemy.setVelocity(0, 0);
       if (visual?.active) visual.setVisible(false);
       const palette = hitPalette;
-      this.spawnSnowballParticles(enemy.x, enemy.y, "freeze", 18, 1.1);
+      this.spawnSnowballParticles(enemy.x, enemy.y, "freeze", 18, 1.1, hitPalette.id);
       const ball = this.createElementBall(enemy.x, enemy.y, palette);
       const powerTier = enemy.getData("snowballPowerTier") || 1;
       ball.setScale(1.15 + Math.min(20, powerTier) * 0.018);
@@ -2018,16 +1987,17 @@ class ZeroGameScene extends Phaser.Scene {
       if (ball?.active) { ball.setScale(1 + hits * 0.12); this.tweens.add({ targets: ball, angle: ball.angle + 18, duration: 90, yoyo: true }); }
     }
     const burst = this.add.circle(enemy.x, enemy.y, 20 + hits * 5,
-      hits === 1 ? 0x65eaff : 0xffbd55, 0.95)
+      hits === 1 ? hitPalette.glow : hitPalette.edge, 0.82)
       .setStrokeStyle(3, 0xffffff).setDepth(18);
     this.tweens.add({ targets: burst, scale: 2.4, alpha: 0, duration: 230,
       onComplete: () => burst.destroy() });
+    this.spawnElementBallEffects(enemy.x, enemy.y, hitPalette.id, "impact", 0.9);
 
     if (enemy.getData("frozen") || !visual || !visual.active) {
       if (hits >= 3) {
         const ball = enemy.getData("elementBall");
         if (ball?.active) this.tweens.add({ targets: ball, scale: 1.9, alpha: 0, duration: 220, onComplete: () => ball.destroy() });
-        this.spawnSnowballParticles(enemy.x, enemy.y, "impact", 24, 1.2);
+        this.spawnSnowballParticles(enemy.x, enemy.y, "impact", 24, 1.2, hitPalette.id);
         const pop = this.add.circle(enemy.x, enemy.y, 28, hitPalette.edge, 0.9).setStrokeStyle(4, 0xffffff).setDepth(20);
         this.spawnElementParticles(enemy.x, enemy.y, hitPalette.id, 24, 1.25);
         this.tweens.add({ targets: pop, scale: 3.2, alpha: 0, duration: 260, onComplete: () => pop.destroy() });
