@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { STAGES, getStage } from "../src/gameData.js";
 import { PREMIUM_ENEMY_REGIONS, PREMIUM_ENEMY_ARCHETYPES, PREMIUM_BOSSES, PREMIUM_STAGE_MUSIC, PREMIUM_PLATFORM_FAMILIES, PREMIUM_PLATFORM_SHAPES, PREMIUM_SPECIAL_PLATFORM_TYPES, getPremiumStageEnemyRoster, getPremiumEnemyFrameIndex } from "../src/premiumCampaignData.js";
 import { getStageThemeSequence, getBossThemeSequence } from "../src/gameAudio.js";
+import { getBossSignatureProfile } from "../src/bossEncounterRules.js";
 
 test("campaign contains exactly 50 deterministic stages", () => {
   assert.equal(STAGES.length, 50);
@@ -173,6 +174,7 @@ test("boss milestones are dedicated boss-only stages with unique arena layouts",
     assert.equal(stage.enemyCount, 0);
     assert.deepEqual(stage.enemyTypes, []);
     assert.ok(stage.boss);
+    assert.equal(stage.boss.signature, getBossSignatureProfile(stage.boss.id).signature);
   }
   assert.equal(new Set(bossStages.map((stage) => JSON.stringify(stage.platforms))).size, 5);
   for (const stage of STAGES.filter((item) => !item.isBossStage)) {
