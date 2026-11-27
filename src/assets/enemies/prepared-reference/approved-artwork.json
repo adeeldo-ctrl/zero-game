@@ -26,5 +26,6 @@
   ],
   "rejectedOrReviewRequired": "All other prepared cutouts remain reference-only and must not be integrated as final character artwork.",
   "animation": "Approved images are static single-frame cutouts, not completed animated sprite sheets. Preserve existing animation behaviour or add genuine authored animation frames separately.",
-  "bosses": "No prepared boss cutout is approved as final artwork; retain existing boss visuals until clean dedicated boss artwork is available."
+  "bosses": "Five distinct boss base designs are now selected from approved intact cutouts: Gatekeeper (02 green ice monster), Iron Comet (34 blue ogre A), Gale Talon (40 armored lizard), Suncrest (09 pumpkin), and Void Sovereign (47 ice knight). Their transparent PNGs are integrated as boss artwork. They remain single-frame bases; existing Phaser action motion is retained, with dedicated hand-authored animation frames still outstanding.",
+  "enemyIntegration": "21 approved static cutouts are integrated selectively for matching enemy archetypes. Unapproved/damaged cutouts remain unused. Existing animation/gameplay update logic is retained; the approved cutouts themselves are single-frame artwork."
 }
