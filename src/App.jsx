@@ -1339,6 +1339,23 @@ class ZeroGameScene extends Phaser.Scene {
     const eyeGlintR = this.add.circle(7, -9, 2.5, 0xffffff, 0.95);
     const cheekL = this.add.ellipse(-16, 3, 7, 3, hornColor, 0.6);
     const cheekR = this.add.ellipse(16, 3, 7, 3, hornColor, 0.6);
+    const backPlate = this.add.ellipse(0, -5, isHeavy ? 48 : 36, isHeavy ? 52 : 43,
+      isHeavy ? 0x38445e : 0x3c4965, 0.88).setStrokeStyle(2, hornColor, 0.8);
+    const foreheadGem = this.add.star(0, -31, 4, 3, isSpecial ? 10 : 7, hornColor, 0.98)
+      .setStrokeStyle(1, 0xffffff, 0.9);
+    const waistSash = this.add.triangle(isFast ? 7 : 0, 17, -7, -3, 10, -3, isFast ? 31 : 25,
+      isFast ? 0xf2c76d : hornColor, 0.95).setStrokeStyle(1, 0xffffff, 0.55);
+    const backSpikes = [-1, 1].map((side) =>
+      this.add.triangle(side * (isHeavy ? 27 : 21), -24, -7, 7, 0, -17, 8, 7,
+        isHeavy ? 0x9baabd : hornColor, 0.92).setStrokeStyle(1, 0xffffff, 0.6)
+        .setAngle(side * 90)
+    );
+    const fastScarf = this.add.triangle(-34, -15, 0, -7, 34, -2, 5, 16, 0xf4bd62, 0.92)
+      .setStrokeStyle(1, 0xfff0bf, 0.7).setVisible(isFast);
+    const heavyKneeL = this.add.ellipse(-10, 20, 16, 10, 0x71869c, 0.96)
+      .setStrokeStyle(2, hornColor, 0.85).setVisible(isHeavy);
+    const heavyKneeR = this.add.ellipse(10, 20, 16, 10, 0x71869c, 0.96)
+      .setStrokeStyle(2, hornColor, 0.85).setVisible(isHeavy);
     const chestPlate = this.add.ellipse(0, 2, isHeavy ? 43 : 34, 28, isHeavy ? 0x9aa9b8 : 0x64758f, 0.72)
       .setStrokeStyle(3, hornColor, 0.95);
     const chestSigil = this.add.star(0, 2, 5, 4, 8, hornColor, 0.95)
@@ -1347,11 +1364,11 @@ class ZeroGameScene extends Phaser.Scene {
     const bootL = this.add.rectangle(-10, 27, 19, 5, hornColor).setStrokeStyle(1, 0x30263e);
     const bootR = this.add.rectangle(10, 27, 19, 5, hornColor).setStrokeStyle(1, 0x30263e);
     c.add([
-      shadow,
-      legL, legR, bootL, bootR,
+      shadow, backPlate, backSpikes[0], backSpikes[1],
+      legL, legR, bootL, bootR, heavyKneeL, heavyKneeR,
       armL, armR, shoulderL, shoulderR, cuffL, cuffR,
       body, chestPlate, belly, chestSigil, eyeGlintL, eyeGlintR, cheekL, cheekR,
-      headband, hornL, hornR, belt, beltBuckle,
+      headband, hornL, hornR, foreheadGem, waistSash, fastScarf, belt, beltBuckle,
       eyeL, eyeR,
       pupilL, pupilR,
       ...classDetails
@@ -1385,6 +1402,7 @@ class ZeroGameScene extends Phaser.Scene {
       chestPlate,
       chestSigil,
       shoulderL, shoulderR, cuffL, cuffR, eyeGlintL, eyeGlintR, cheekL, cheekR,
+      backPlate, foreheadGem, waistSash, fastScarf, heavyKneeL, heavyKneeR,
       belly,
       headband,
     });
