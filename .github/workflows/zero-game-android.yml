@@ -10,7 +10,7 @@ permissions:
 jobs:
   build-android:
     if: github.event_name == 'workflow_dispatch'
-    name: Build debug APK
+    name: Build signed release APK
     runs-on: ubuntu-latest
     timeout-minutes: 35
     env:
@@ -148,16 +148,52 @@ jobs:
           print(f"Enabled immersive full-screen mode in {activity}")
           PY
 
-      - name: Build debug APK
+      - name: Build release APK
         working-directory: android
         run: |
           chmod +x ./gradlew
-          ./gradlew --no-daemon assembleDebug
+          ./gradlew --no-daemon assembleRelease
 
-      - name: Upload APK artifact
+      - name: Create one-time release signing key
+        shell: bash
+        run: |
+          KEYSTORE_PASSWORD="$(openssl rand -hex 24)"
+          KEY_PASSWORD="$(openssl rand -hex 24)"
+          echo "ZERO_GAME_KEYSTORE_PASSWORD=$KEYSTORE_PASSWORD" >> "$GITHUB_ENV"
+          echo "ZERO_GAME_KEY_PASSWORD=$KEY_PASSWORD" >> "$GITHUB_ENV"
+          keytool -genkeypair -v \
+            -keystore "$RUNNER_TEMP/zero-game-release.keystore" \
+            -storepass "$KEYSTORE_PASSWORD" \
+            -keypass "$KEY_PASSWORD" \
+            -alias zero-game \
+            -keyalg RSA -keysize 2048 -validity 10000 \
+            -dname "CN=ZERO GAME, OU=Mobile, O=ZERO GAME, L=Karachi, ST=Sindh, C=PK"
+
+      - name: Align and sign release APK
+        shell: bash
+        run: |
+          UNSIGNED_APK="$(find android/app/build/outputs/apk/release -maxdepth 1 -name '*-unsigned.apk' -print -quit)"
+          if [ -z "$UNSIGNED_APK" ]; then
+            echo "Gradle did not produce an unsigned release APK"
+            exit 1
+          fi
+          ALIGNED_APK="$RUNNER_TEMP/zero-game-release-aligned.apk"
+          SIGNED_APK="android/app/build/outputs/apk/release/zero-game-release.apk"
+          BUILD_TOOLS="$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -n 1)"
+          "$BUILD_TOOLS/zipalign" -v -p 4 "$UNSIGNED_APK" "$ALIGNED_APK"
+          "$BUILD_TOOLS/apksigner" sign \
+            --ks "$RUNNER_TEMP/zero-game-release.keystore" \
+            --ks-key-alias zero-game \
+            --ks-pass "pass:$ZERO_GAME_KEYSTORE_PASSWORD" \
+            --key-pass "pass:$ZERO_GAME_KEY_PASSWORD" \
+            --out "$SIGNED_APK" "$ALIGNED_APK"
+          "$BUILD_TOOLS/apksigner" verify --verbose --print-certs "$SIGNED_APK"
+          test -s "$SIGNED_APK"
+
+      - name: Upload final release APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: zero-game-debug-apk
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          name: zero-game-release-apk
+          path: android/app/build/outputs/apk/release/zero-game-release.apk
           if-no-files-found: error
           retention-days: 14
