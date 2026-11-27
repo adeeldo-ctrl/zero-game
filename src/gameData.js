@@ -134,10 +134,20 @@ export const STAGES = Array.from({ length: 50 }, (_, index) => {
     },
     stageType: boss ? "boss" : "normal",
     isBossStage: Boolean(boss),
-    platforms: (boss
-      ? [[480, 420, 620], [150 + (number / 10) * 12, 340, 190],
-        [810 - (number / 10) * 12, 340, 190], [480, 255 + (number / 10) * 5, 220]]
-      : STAGE_PLATFORM_LAYOUTS[index]).map(([x, y, width]) => ({ x, y, width, height: 18 })),
+    platforms: [
+      ...(boss
+        ? [[480, 420, 620], [150 + (number / 10) * 12, 340, 190],
+          [810 - (number / 10) * 12, 340, 190], [480, 255 + (number / 10) * 5, 220]]
+        : STAGE_PLATFORM_LAYOUTS[index]),
+      // Add a reachable middle ledge and a high route to every arena. Their
+      // anchors follow each stage's authored layout instead of repeating a grid.
+      boss
+        ? [150 + (number / 10) * 12, 285, 150]
+        : [STAGE_PLATFORM_LAYOUTS[index][0][0], 285, 150],
+      boss
+        ? [480, 175, 170]
+        : [STAGE_PLATFORM_LAYOUTS[index][3][0], 165, 160],
+    ].map(([x, y, width]) => ({ x, y, width, height: 18 })),
     enemyFamily: family.id,
     enemyPowerType: ["fire", "ice", "lightning", "water", "earth", "shadow"][(index + worldIndex) % 6],
     enemyTypes: boss ? [] : Array.from({ length: 6 + Math.floor(index / 10) }, (_, enemyIndex) =>
