@@ -1400,7 +1400,7 @@ class ZeroGameScene extends Phaser.Scene {
     );
 
     const classDetails = [];
-    let classCrest = null;
+    let classCrest;
     let classGuard = null;
     if (isFast) {
       // Agile enemies read as light, aerodynamic runners from a distance.
