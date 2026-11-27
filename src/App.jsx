@@ -2741,7 +2741,8 @@ class ZeroGameScene extends Phaser.Scene {
     this.tweens.add({ targets: orbitA, x: -86, y: -48, duration: bossElement === "ice" ? 620 : 900, yoyo: true, repeat: -1, ease: "Sine.easeInOut" });
     this.tweens.add({ targets: orbitB, x: 86, y: -48, duration: bossElement === "shadow" ? 620 : 900, yoyo: true, repeat: -1, ease: "Sine.easeInOut" });
     c.setData("parts", { shadow, legL, legR, footL, footR, armL, armR,
-      fistL, fistR, body, belly, pupilL, pupilR, aura, chestEmblem,
+      fistL, fistR, body, belly, pupilL, pupilR, aura, chestEmblem, chestInset,
+      cape, armorRidges, crownGem, cheekMarks,
       shoulderL, shoulderR, belt, beltGem, headband, orbitA, orbitB });
     return c;
   }
@@ -2897,6 +2898,22 @@ class ZeroGameScene extends Phaser.Scene {
       if (p.headband?.active) p.headband.rotation = swing * 0.025;
       if (p.orbitA?.active) p.orbitA.setAlpha(0.7 + (Math.sin(t * 0.004) + 1) * 0.13);
       if (p.orbitB?.active) p.orbitB.setAlpha(0.7 + (Math.cos(t * 0.004) + 1) * 0.13);
+      if (p.cape?.active) p.cape.rotation = Math.sin(t * 0.003 + swing) * 0.045;
+      if (p.crownGem?.active) {
+        p.crownGem.rotation = Math.sin(t * 0.004) * 0.12;
+        p.crownGem.setAlpha(0.76 + (Math.sin(t * 0.008) + 1) * 0.12);
+      }
+      if (p.chestInset?.active) p.chestInset.setScale(1 + Math.sin(t * 0.005) * 0.025);
+      if (Array.isArray(p.armorRidges)) {
+        p.armorRidges.forEach((ridge, index) => {
+          if (ridge?.active) ridge.rotation = (index === 0 ? -1 : 1) * (0.04 + swing * 0.035);
+        });
+      }
+      if (Array.isArray(p.cheekMarks)) {
+        p.cheekMarks.forEach((mark) => {
+          if (mark?.active) mark.setAlpha(0.7 + (Math.sin(t * 0.006) + 1) * 0.12);
+        });
+      }
       visual.y = enemy.y + Math.abs(swing) * -2;
 
       // Bosses now use readable, style-specific anticipation and attack poses.
