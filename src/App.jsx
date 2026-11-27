@@ -633,6 +633,33 @@ class ZeroGameScene extends Phaser.Scene {
     } else {
       xs.forEach((x,i)=>{const h=145+((i+variant)%3)*35;g.fillStyle(0x262d61,0.98);g.fillRoundedRect(x-25,base-h,50,h,8);g.fillStyle(0x555a9b,0.95);g.fillTriangle(x-34,base-h,x,base-h-48,x+34,base-h);g.fillStyle(0xffdf88,0.95);g.fillCircle(x,base-h-8,8+(variant%2)*3);glow.fillStyle(0xffdf88,0.13);glow.fillCircle(x,base-h-8,48+variant*3);});
     }
+    // Small, low-count world glints animate the setpiece without covering
+    // platforms or the central combat lane.
+    if ([4, 5, 8, 9].includes(world)) {
+      const glintColor = world === 4 ? 0xc8ff9a
+        : world === 5 ? 0xd8d0ff
+          : world === 8 ? 0xffa05b : 0xffe8a3;
+      for (let i = 0; i < 5; i++) {
+        const x = 105 + i * 185 + (variant % 2) * 24;
+        const y = 250 + (i % 3) * 54;
+        const mote = this.add.circle(x, y, world === 9 ? 3 : 2.5, glintColor, 0.78)
+          .setDepth(-12);
+        if (world === 5 || world === 9) {
+          mote.setStrokeStyle(1, 0xffffff, 0.65);
+        }
+        this.tweens.add({
+          targets: mote,
+          y: y - 12 - (i % 3) * 4,
+          alpha: 0.18,
+          scale: world === 5 ? 1.65 : 1.25,
+          duration: 1250 + i * 170,
+          delay: i * 130,
+          ease: "Sine.easeInOut",
+          yoyo: true,
+          repeat: -1
+        });
+      }
+    }
     // A second, stage-indexed landmark layer gives each of the five stages
     // in every world a different silhouette, not merely a palette variation.
     this.createStageVariantLandmark(variant, accent, far);
