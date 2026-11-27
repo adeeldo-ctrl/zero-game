@@ -1184,4 +1184,5 @@ The first integrated implementation tranche has now been pushed to `main`:
 - Added `src/assets/enemies/reference-art-direction.test.js` to assert that every campaign enemy ID and all five boss IDs are represented exactly once in the mapping.
 - Repeated visual source references are explicitly only art-direction cues; they must be redrawn with distinct final details so the 45 enemies do not become duplicate characters.
 - This is planning/data groundwork, not final artwork integration. The collage crop pack still retains backgrounds, and the runtime continues to use its existing SVG art until transparent raster sheets with real animation frames are ready.
-- The mapping coverage test has been authored but not run. Keep the single consolidated verification and final-only APK rule.
+- Refined the roster to use exactly 40 distinct collage references plus five separately specified original designs (fern-glider, bark-bruiser, frostwing, stardust-ray, and nova-lancer); every mapped collage reference resolves to the 48-entry crop manifest.
+- The coverage test now checks campaign IDs, the 40+5 split, manifest resolution, reference-only crop status, zero supplied animation frames, and all five boss identities. It remains unrun until the single consolidated verification.
