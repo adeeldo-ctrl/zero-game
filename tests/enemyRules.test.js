@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { GROUND_ENEMY_TYPES, getEnemyMovementSpeed, REGULAR_ENEMY_VISUAL_SCALE, getEnemyFacingDirection } from "../src/enemyRules.js";
+import { GROUND_ENEMY_TYPES, getEnemyMovementSpeed, REGULAR_ENEMY_VISUAL_SCALE, getEnemyFacingDirection, getSnowballPowerTier } from "../src/enemyRules.js";
 
 test("all regular enemy archetypes retain their requested ground movement speed", () => {
   for (const type of GROUND_ENEMY_TYPES) {
@@ -24,4 +24,16 @@ test("enemy facing always points toward its target with a stable overlap fallbac
   assert.equal(getEnemyFacingDirection(500, 300), 1);
   assert.equal(getEnemyFacingDirection(100, 300), -1);
   assert.equal(getEnemyFacingDirection(300, 300, -1), -1);
+});
+
+
+test("enemy elemental power, class and campaign progression determine snowball strength", () => {
+  assert.equal(getSnowballPowerTier("fast", "fire", 1), 3);
+  assert.equal(getSnowballPowerTier("fast", "ice", 1), 1);
+  assert.equal(getSnowballPowerTier("special", "wind", 1), 2);
+  assert.equal(getSnowballPowerTier("heavy", "water", 1), 3);
+  assert.equal(getSnowballPowerTier("fast", "nature", 21), 2);
+  assert.equal(getSnowballPowerTier("fast", "plasma", 41), 5);
+  assert.equal(getSnowballPowerTier("heavy", "earth", 50), 5);
+  assert.equal(getSnowballPowerTier("unknown", "unknown", 0), 1);
 });
