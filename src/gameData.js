@@ -91,11 +91,11 @@ const WORLDS = [
 ];
 
 const BOSS_DATA = [
-  { id: "gatekeeper", name: "Arena Gatekeeper", family: "power", element: "earth", hp: 34, attack: "Ground Pulse", color: 0x8a5943, style: "intro grappler" },
-  { id: "iron-comet", name: "Iron Comet", family: "striker", element: "earth", hp: 46, attack: "Iron Comet Combo", color: 0x6259a7, style: "boxing champion" },
-  { id: "gale-talon", name: "Gale Talon", family: "agile", element: "wind", hp: 54, attack: "Gale Talon Rush", color: 0x8d405e, style: "agile claw acrobat" },
-  { id: "suncrest", name: "Suncrest Master", family: "striker", element: "fire", hp: 64, attack: "Sunline Strike", color: 0xa64b3d, style: "disciplined martial arts master" },
-  { id: "void-sovereign", name: "Void Sovereign", family: "power", element: "shadow", hp: 82, attack: "Void Crown Assault", color: 0x493b76, style: "final warlord" }
+  { id: "gatekeeper", name: "Arena Gatekeeper", family: "power", element: "earth", hp: 34, attack: "Ground Pulse", signature: "stonequake", color: 0x8a5943, style: "intro grappler" },
+  { id: "iron-comet", name: "Iron Comet", family: "striker", element: "earth", hp: 46, attack: "Iron Comet Combo", signature: "comet-rush", color: 0x6259a7, style: "boxing champion" },
+  { id: "gale-talon", name: "Gale Talon", family: "agile", element: "wind", hp: 54, attack: "Gale Talon Rush", signature: "cyclone-dive", color: 0x8d405e, style: "agile claw acrobat" },
+  { id: "suncrest", name: "Suncrest Master", family: "striker", element: "fire", hp: 64, attack: "Sunline Strike", signature: "solar-combo", color: 0xa64b3d, style: "disciplined martial arts master" },
+  { id: "void-sovereign", name: "Void Sovereign", family: "power", element: "shadow", hp: 82, attack: "Void Crown Assault", signature: "rift-collapse", color: 0x493b76, style: "final warlord" }
 ];
 
 const stageColor = (color, step, channelShift = 1) => {
