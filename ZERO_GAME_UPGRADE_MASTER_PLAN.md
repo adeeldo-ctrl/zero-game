@@ -73,6 +73,12 @@
 - Source commit: `917c1b8a5bd871a54c377064233787d2afc42c30`.
 - No tests/builds were run; final consolidated verification and Android APK remain deferred until development is complete.
 
+### Boss elemental fist and aura palette (2026-11-27)
+- Boss fists and surrounding aura now inherit the boss's elemental color and edge highlights, while boxer gloves retain their darker glove material with element-colored trim.
+- Boss body identity, style-specific armor, AI, attack patterns, and combat values are unchanged.
+- Source commit: `2db94319a9f5b3a4ffa08a28c1f87bc47ffd71dc`.
+- No tests/builds were run; final consolidated verification and Android APK remain deferred until development is complete.
+
 ## Non-negotiable preservation rules
 - Preserve the currently working joystick/controller movement and touch mapping. Do not regress the approved controls.
 - Keep the game in landscape and make the playable scene fill the complete device viewport.
