@@ -51,7 +51,7 @@ test("boss art direction covers all five existing boss identities", () => {
   assert.ok(artDirection.bosses.every((boss) => boss.direction.length > 30));
   const bossSources = artDirection.bosses.map((boss) => boss.sourceImage);
   assert.equal(new Set(bossSources).size, 5);
-  assert.deepEqual(bossSources.sort(), ["09_pumpkin", "11_ice-golem", "16_blue-dragon", "19_ice-robot", "30_purple-demon"]);
+  assert.deepEqual(bossSources.sort(), ["02_green-ice-monster", "09_pumpkin", "34_blue-ogre-a", "40_armored-lizard", "47_ice-knight"]);
   assert.ok(artDirection.bosses.every((boss) => boss.productionFrameSize === "160x160"));
   assert.ok(bossSources.every((source) => availableCropRefs.has(source)));
 });
