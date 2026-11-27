@@ -1154,3 +1154,9 @@ The first integrated implementation tranche has now been pushed to `main`:
 - Extended tests to require the full five-state animation manifest for all 45 enemy archetypes and unique boss hit/phase/defeat frame sequences in addition to the existing unique idle/strike and signature-attack checks.
 
 **Implementation now covers the approved enemy roster/art/AI/animation states, five distinct boss identities/attack patterns/animation states, attendants, 50 stage soundtrack identities, five boss themes/entrance cues, 50 atmosphere/landmark compositions, and the expanded platform/material/silhouette/special-mechanic design. Next is the one consolidated verification pass and any fixes it reveals; only then create the single final signed Android APK.**
+
+
+### Verification preparation correction — 2026-11-27
+
+- Updated the legacy enemy movement unit test: the flyer is now an intentionally supported premium AI role with authored movement speed, so only unknown roles should use the generic fallback.
+- The previous CI failure was isolated to that stale expectation (and an older boss-profile test snapshot before the four-frame animation-profile update). The current source has corrected both; the next CI run will verify the current main commit.
