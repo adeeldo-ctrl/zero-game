@@ -1392,6 +1392,55 @@ class ZeroGameScene extends Phaser.Scene {
       c.add(mark);
     }
 
+    // Give named enemy families a readable elemental identity without
+    // changing their physics body, AI, hitboxes, or combat values.
+    const themeMatch = inspiration.match(/fire|flame|inferno|ice|frost|glacier|electric|thunder|storm|water|tide|nature|thorn|forest|wind|gale|earth|stone|crystal|light|shadow|plasma/i);
+    if (themeMatch) {
+      const theme = themeMatch[0].toLowerCase();
+      const themeLooks = {
+        fire: ["✦", "#ff9a45"], flame: ["✦", "#ff9a45"], inferno: ["✦", "#ff9a45"],
+        ice: ["❄", "#a8f3ff"], frost: ["❄", "#a8f3ff"], glacier: ["❄", "#a8f3ff"],
+        electric: ["ϟ", "#fff18a"], thunder: ["ϟ", "#fff18a"], storm: ["ϟ", "#fff18a"],
+        water: ["◈", "#83eaff"], tide: ["◈", "#83eaff"],
+        nature: ["❋", "#a8f58a"], thorn: ["❋", "#a8f58a"], forest: ["❋", "#a8f58a"],
+        wind: ["〰", "#d7f4ff"], gale: ["〰", "#d7f4ff"],
+        earth: ["⬟", "#d9b18a"], stone: ["⬟", "#d9b18a"],
+        crystal: ["◇", "#e6c6ff"], light: ["✧", "#fff4b0"],
+        shadow: ["☾", "#c6a5ff"], plasma: ["✺", "#ff9df2"],
+      };
+      const [glyph, themeColor] = themeLooks[theme] || ["✦", "#ffffff"];
+      const themeMark = this.add.text(0, 3, glyph, {
+        fontSize: isHeavy ? "17px" : "19px",
+        color: themeColor,
+        fontStyle: "bold",
+        stroke: "#24233b",
+        strokeThickness: 3,
+      }).setOrigin(0.5).setAlpha(0.96);
+      const themeHalo = this.add.ellipse(0, -3, isHeavy ? 62 : 54, isHeavy ? 58 : 50, Number.parseInt(themeColor.slice(1), 16), 0.08)
+        .setStrokeStyle(2, Number.parseInt(themeColor.slice(1), 16), 0.62);
+      c.addAt(themeHalo, 1);
+      c.add(themeMark);
+      this.tweens.add({
+        targets: themeMark,
+        scaleX: 1.16,
+        scaleY: 1.16,
+        duration: 620 + (inspiration.length % 4) * 90,
+        yoyo: true,
+        repeat: -1,
+        ease: "Sine.easeInOut",
+      });
+      this.tweens.add({
+        targets: themeHalo,
+        alpha: 0.2,
+        scaleX: 1.12,
+        scaleY: 1.12,
+        duration: 900,
+        yoyo: true,
+        repeat: -1,
+        ease: "Sine.easeInOut",
+      });
+    }
+
     c.setData("parts", {
       shadow,
       legL,
