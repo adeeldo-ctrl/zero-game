@@ -5,6 +5,13 @@
 **Baseline:** Current approved APK / latest main build (2026-11-20).  
 **Project rule:** Keep the existing ZERO GAME project and gameplay identity. These are upgrades to the same game, not a replacement or a new game.
 
+### Named enemy identity silhouettes and animation accents (2026-11-27)
+- Added enemy-name-specific visual identities for masked/ninja assassins, tiger-strike rivals, rapid/whirlwind runners, flame-fist scouts, iron/stone sentinels, and psychic guards.
+- New face masks, tiger markings, speed fins, flame crests/wrist wraps, plated chest insignia, and psychic orbit accents are attached to the existing enemy visual container and receive restrained per-frame motion.
+- These are additional procedural Phaser vector details, not newly authored sprite sheets. Enemy physics, AI, movement speeds, hitboxes, collision sizes, damage, and combat timing are unchanged.
+- Source commit: `b38eca94fcaac4ee01f1caf2ca695f44c8490d43`.
+- No tests/builds were run; consolidated verification and Android APK remain on hold until all development scope is complete.
+
 ## Non-negotiable preservation rules
 - Preserve the currently working joystick/controller movement and touch mapping. Do not regress the approved controls.
 - Keep the game in landscape and make the playable scene fill the complete device viewport.
