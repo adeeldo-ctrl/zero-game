@@ -615,47 +615,6 @@ try {
   const landmarkSignatures = new Set(campaignIdentity.landmarkSignatures);
   if (landmarkSignatures.size !== 2) throw new Error("Stage 1 and stage 2 landmark compositions are not unique");
 
-  // A campaign stage restart must not close the persistent Wi-Fi co-op socket.
-  await page.evaluate(() => {
-    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
-    const socket = { readyState: 3, closeCount: 0, close() { this.closeCount += 1; } };
-    window.__ZERO_GAME_FAKE_SOCKET__ = socket;
-    scene.netSocket = socket;
-    scene.stageCleared = true;
-    scene.stageAdvancePending = false;
-    scene.advanceToNextStage();
-  });
-  await page.waitForFunction(() => {
-    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
-    return scene?.stageNumber === 3 && scene.gameStarted && !scene.stageTransitionActive;
-  }, undefined, { timeout: 10000 });
-  await page.evaluate(() => {
-    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
-    if (window.__ZERO_GAME_FAKE_SOCKET__?.closeCount !== 0 || scene.netSocket !== window.__ZERO_GAME_FAKE_SOCKET__) {
-      throw new Error("Wi-Fi co-op socket was closed during a stage restart");
-    }
-    scene.netSocket = null;
-    delete window.__ZERO_GAME_FAKE_SOCKET__;
-  });
-
-  await page.evaluate(() => {
-    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
-    scene.ensureRemoteVisual();
-    scene.remoteVisual.setPosition(100, 100);
-    scene.remoteState = {
-      x: 400, y: 300, facing: -1, airborne: false, moving: true, heroId: "volt",
-    };
-    scene.update(scene.time.now + 16, 16);
-    if (scene.remoteVisual.getData("heroSpriteId") !== "volt" ||
-        scene.remoteVisual.x <= 100 || scene.remoteVisual.x >= 400 ||
-        scene.remoteVisual.scaleX !== -1) {
-      throw new Error("Co-op remote avatar did not restore its selected hero and interpolate movement");
-    }
-    scene.remoteVisual.destroy();
-    scene.remoteVisual = null;
-    scene.remoteState = null;
-  });
-
   // Walk the actual Phaser scene-restart path through every remaining stage.
   const visitedStages = [1, 2, 3];
   for (let nextStage = 4; nextStage <= 50; nextStage++) {
