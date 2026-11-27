@@ -10,7 +10,8 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "android:add": "cap add android",
-    "android:sync": "npm run build && cap sync android"
+    "android:sync": "npm run build && cap sync android",
+    "art:validate": "node scripts/validate-production-enemy-art.mjs"
   },
   "dependencies": {
     "phaser": "^4.2.1",
