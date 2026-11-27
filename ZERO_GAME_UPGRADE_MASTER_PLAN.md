@@ -43,6 +43,12 @@
 - Source commit: `86426731dc1d2f288853b39ac199a2b0ef17dd08`.
 - No tests/builds were run; final consolidated verification and Android APK remain deferred until development is complete.
 
+### Element-matched boss phase transitions (2026-11-27)
+- Boss phase-change flashes now use the boss's elemental fill and edge palette rather than a shared boss-body tint and white outline.
+- Phase thresholds, health, damage, camera shake, and combat timing are unchanged.
+- Source commit: `555b8d360bd09b4656b356bfb71ad4a4ef0556ef`.
+- No tests/builds were run; final consolidated verification and Android APK remain deferred until development is complete.
+
 ## Non-negotiable preservation rules
 - Preserve the currently working joystick/controller movement and touch mapping. Do not regress the approved controls.
 - Keep the game in landscape and make the playable scene fill the complete device viewport.
