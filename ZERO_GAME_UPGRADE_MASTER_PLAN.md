@@ -92,6 +92,12 @@
 - Source commit: `1a2e07754e0c670a462d7454c4ec33ccf6b8752f`.
 - No tests/builds were run; consolidated verification and final Android APK remain deferred until all development is complete.
 
+### Background audio resume completion (2026-11-27)
+- When a player makes the first sound-producing interaction after returning from the background, the audio context now resumes and the currently selected menu/world/boss/victory/defeat music track is scheduled again.
+- Added a regression assertion covering the suspended-to-running context and music scheduler restart after the first resumed interaction.
+- Source commit: `f90a60f72c66c43410b23bddf092804522c66f99`; regression test commit: `e5c708ebd0db59e37bdf7caa45d64c92f3f3e38b`.
+- No tests/builds were run; consolidated verification and Android APK remain deferred until all development is complete.
+
 ## Non-negotiable preservation rules
 - Preserve the currently working joystick/controller movement and touch mapping. Do not regress the approved controls.
 - Keep the game in landscape and make the playable scene fill the complete device viewport.
