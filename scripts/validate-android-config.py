@@ -65,6 +65,9 @@ assert "ZERO_GAME_FINAL_RELEASE_TRIGGER.md" in trigger_block.group(1), (
 assert "github.event_name == 'workflow_dispatch' || github.event_name == 'push'" in content, (
     "The APK job must run only for a manual dispatch or explicit final-release marker"
 )
+assert "FINAL_RELEASE_APPROVED: true" in content, (
+    "The Android workflow must enforce the explicit final-only release approval gate"
+)
 assert "workflow_run" not in content, (
     "The APK workflow must not depend on automatic workflow-run events"
 )
