@@ -627,6 +627,8 @@ try {
           type: enemy.getData("aiType"),
           gravity: enemy.body.allowGravity,
           y: enemy.y,
+          element: enemy.getData("enemyPowerType"),
+          visualElement: enemy.getData("visual")?.getData("elementId"),
         })),
         heroId: scene.selectedHero?.id,
         chances: scene.chances,
@@ -655,6 +657,9 @@ try {
     }
     if (stageState.bossStage && stageState.enemies.length !== 0) {
       throw new Error(`Boss stage ${nextStage} must not spawn regular enemies`);
+    }
+    if (stageState.enemies.some((enemy) => !enemy.element || enemy.visualElement !== enemy.element)) {
+      throw new Error(`Stage ${nextStage} enemy elemental visuals do not match their assigned power`);
     }
     if (stageState.heroId !== campaignIdentity.heroId ||
         stageState.chances !== campaignIdentity.chances ||
