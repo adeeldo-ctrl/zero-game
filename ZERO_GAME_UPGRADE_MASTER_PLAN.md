@@ -546,3 +546,11 @@ The following gameplay requirements are mandatory and supersede any conflicting 
 - **Stage score collection:** Removed the upward hero exit animation. The five-second collection window now leaves the hero in the arena, keeps mobile controls enabled, resumes physics, and allows the player to move/jump through remaining point rewards before the victory screen.
 - **Performance:** Capped per-event particle creation (fire 240 maximum; other elements 120 maximum), reduced trail particle bursts and slowed trail emission cadence to reduce Phaser object/tween churn on mobile.
 - **Automated coverage:** Updated the snowball rules test to assert that the first wall impact ends the kicked ball. The updated source still requires the new CI run and a fresh Android APK before being called release-ready; physical-device frame-rate verification remains pending.
+
+
+## Kicked elemental-ball wall durability correction — 2026-11-27
+
+- The latest user requirement supersedes the earlier first-wall-impact cleanup rule: a kicked elemental ball must remain active through **three** wall collisions, reverse direction with controlled damping after each, and finish on the **fourth** wall impact.
+- The rolling-ball motion rule now uses three completed bounces as its default and only resolves the carrier after the next impact. Element-specific speed, visual motion, impact effects, and score/reward bookkeeping remain unchanged.
+- Added focused regression coverage for all three surviving bounces, direction reversals, damping, and fourth-impact cleanup.
+- This is an implementation update only; the consolidated project verification remains reserved until all approved development is complete. No Android APK build is to be started before that final verification.
