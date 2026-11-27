@@ -268,6 +268,11 @@
 - Commits: App markup `9411447fdc2f5a05313e1002e28bf215ff39f8e8`; styles `d90869e4133dbc06cdb2ffd8246948a78ad0bd6d`; smoke coverage `b496f6845e197c9c7553891af73135d3ed1beb46`; README `0b873afb93b55325db32beb57c30477cdf30a07c`.
 - Full screen-reader menu navigation remains a limitation; no tests/builds were run.
 
+### Final Android workflow runtime allowance (2026-11-27)
+- Increased the final Android workflow timeout to 50 minutes to allow the consolidated browser smoke pass, Android SDK setup, Gradle Release assembly, alignment and signing to finish within one run.
+- Workflow commit: `52da30554c698d332c12b1228f192c3cd880b4f9`.
+- No workflow was dispatched and no APK was created.
+
 ## Non-negotiable preservation rules
 - Preserve the currently working joystick/controller movement and touch mapping. Do not regress the approved controls.
 - Keep the game in landscape and make the playable scene fill the complete device viewport.
