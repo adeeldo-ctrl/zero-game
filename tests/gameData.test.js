@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { STAGES, getStage } from "../src/gameData.js";
-import { PREMIUM_ENEMY_REGIONS, PREMIUM_ENEMY_ARCHETYPES, PREMIUM_BOSSES, PREMIUM_STAGE_MUSIC, getPremiumStageEnemyRoster, getPremiumEnemyFrameIndex } from "../src/premiumCampaignData.js";
+import { PREMIUM_ENEMY_REGIONS, PREMIUM_ENEMY_ARCHETYPES, PREMIUM_BOSSES, PREMIUM_STAGE_MUSIC, PREMIUM_PLATFORM_FAMILIES, PREMIUM_SPECIAL_PLATFORM_TYPES, getPremiumStageEnemyRoster, getPremiumEnemyFrameIndex } from "../src/premiumCampaignData.js";
 import { getStageThemeSequence } from "../src/gameAudio.js";
 
 test("campaign contains exactly 50 deterministic stages", () => {
@@ -210,4 +210,17 @@ test("all 45 enemy archetypes have dedicated four-frame atlas ranges", () => {
   const frameIndexes = PREMIUM_ENEMY_ARCHETYPES.map((enemy) => getPremiumEnemyFrameIndex(enemy.id));
   assert.deepEqual(frameIndexes, Array.from({ length: 45 }, (_, index) => index));
   assert.equal(new Set(frameIndexes).size, 45);
+});
+
+test("campaign platforms use all premium materials and only supported special types", () => {
+  const materials = new Set();
+  for (const stage of STAGES) {
+    for (const platform of stage.platforms) {
+      materials.add(platform.materialId);
+      assert.ok(PREMIUM_PLATFORM_FAMILIES.includes(platform.materialId));
+      assert.ok(platform.specialType === null || PREMIUM_SPECIAL_PLATFORM_TYPES.includes(platform.specialType));
+      assert.ok(platform.specialDirection === 1 || platform.specialDirection === -1);
+    }
+  }
+  assert.equal(materials.size, PREMIUM_PLATFORM_FAMILIES.length);
 });
