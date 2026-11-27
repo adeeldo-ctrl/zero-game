@@ -208,6 +208,12 @@
 - Source commit: `22dc18b3fe89ec4701c17efb07d3c0c5d2d36574`.
 - No tests/builds were run; consolidated verification and Android APK remain deferred until all development is complete.
 
+### Android local Wi-Fi co-op configuration (2026-11-27)
+- The final Android workflow now explicitly ensures the INTERNET permission and configures cleartext access for the existing local Wi-Fi WebSocket relay.
+- The Android configuration validator checks that both settings remain present in the generated release manifest workflow.
+- Workflow commit: `b5ab0159dc663e2f05129ba09dc79013eea62f5f`; validator commit: `e52385a23c1cb2b0cbe550b5f4177891fb094b67`.
+- No Android build or device test was run. Co-op still needs two-device verification on a trusted local network.
+
 ## Non-negotiable preservation rules
 - Preserve the currently working joystick/controller movement and touch mapping. Do not regress the approved controls.
 - Keep the game in landscape and make the playable scene fill the complete device viewport.
