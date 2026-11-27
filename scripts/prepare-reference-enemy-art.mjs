@@ -118,7 +118,8 @@ function removeConnectedBackdrop(image, targetSize = 128) {
   if (maxX < minX || maxY < minY) throw new Error("Background removal erased the entire subject");
   const subjectWidth = maxX - minX + 1, subjectHeight = maxY - minY + 1;
   const inset = targetSize === 160 ? 12 : 8;
-  const scale = Math.min((targetSize - inset * 2) / subjectWidth, (targetSize - inset * 2) / subjectHeight, 1);
+  const fitScale = Math.min((targetSize - inset * 2) / subjectWidth, (targetSize - inset * 2) / subjectHeight);
+  const scale = targetSize === 160 ? fitScale : Math.min(fitScale, 1);
   const outWidth = Math.max(1, Math.round(subjectWidth * scale)), outHeight = Math.max(1, Math.round(subjectHeight * scale));
   const canvas = Buffer.alloc(targetSize * targetSize * 4);
   for (let y = 0; y < outHeight; y += 1) for (let x = 0; x < outWidth; x += 1) {
