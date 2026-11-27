@@ -637,3 +637,9 @@ The following gameplay requirements are mandatory and supersede any conflicting 
 - Added three restrained, layered cloud banks to selected clear, sunset, moonlit, and cloudy weather variants.
 - Cloud tint and opacity adapt for day/night conditions; slow horizontal drift adds sky movement while keeping the playfield readable.
 - Clouds are created once per stage and reuse a small fixed set of shapes; gameplay physics, stage layouts, weather particles, and controls are unchanged. No APK build was triggered.
+
+
+## Aurora sky treatment — 2026-11-27
+
+- Added three soft, layered aurora ribbons to aurora, cosmic-night, and starlight variants, using a restrained teal/violet palette and slow vertical breathing.
+- The ribbons sit behind gameplay and reuse a single Graphics object per stage; no changes to player visibility, stage collision, or game rules. No APK build was triggered.
