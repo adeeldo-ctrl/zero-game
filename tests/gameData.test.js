@@ -1,6 +1,8 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { STAGES, getStage } from "../src/gameData.js";
+import { PREMIUM_ENEMY_REGIONS, PREMIUM_BOSSES, PREMIUM_STAGE_MUSIC, getPremiumStageEnemyRoster } from "../src/premiumCampaignData.js";
+import { getStageThemeSequence } from "../src/gameAudio.js";
 
 test("campaign contains exactly 50 deterministic stages", () => {
   assert.equal(STAGES.length, 50);
@@ -178,4 +180,27 @@ test("campaign enemy powers rotate through all ten elemental identities", () => 
     "fire", "ice", "lightning", "water", "nature",
     "wind", "earth", "light", "shadow", "plasma",
   ]));
+});
+
+
+test("premium campaign defines five unique regional rosters of nine enemies", () => {
+  assert.equal(PREMIUM_ENEMY_REGIONS.length, 5);
+  const ids = PREMIUM_ENEMY_REGIONS.flatMap((region) => region.enemies.map((enemy) => enemy.id));
+  assert.equal(ids.length, 45);
+  assert.equal(new Set(ids).size, 45);
+  for (let stage = 1; stage <= 50; stage++) {
+    const roster = getPremiumStageEnemyRoster(stage);
+    assert.ok(roster.length >= 2 && roster.length <= 9);
+    assert.equal(new Set(roster.map((enemy) => enemy.id)).size, roster.length);
+    assert.equal(getStage(stage).enemyRegionId, PREMIUM_ENEMY_REGIONS[Math.floor((stage - 1) / 10)].id);
+  }
+});
+
+test("all five bosses and all 50 stage music cues have unique identities", () => {
+  assert.equal(PREMIUM_BOSSES.length, 5);
+  assert.equal(new Set(PREMIUM_BOSSES.map((boss) => boss.id)).size, 5);
+  assert.equal(PREMIUM_STAGE_MUSIC.length, 50);
+  assert.equal(new Set(PREMIUM_STAGE_MUSIC.map((track) => track.trackId)).size, 50);
+  const sequences = Array.from({ length: 50 }, (_, index) => getStageThemeSequence(index + 1).join("-"));
+  assert.equal(new Set(sequences).size, 50, "each stage has a distinct authored note sequence");
 });
