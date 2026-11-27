@@ -19,6 +19,13 @@
 - Jump input must work reliably on touch and keyboard/controller. A held jump must not block subsequent jumps. Preserve the intended double-jump and flip/back-flip behavior, with correct landing/reset logic.
 - Keep the existing joystick behavior unchanged unless a verified defect requires a minimal targeted correction.
 
+### Severe-weather sky treatment (2026-11-27)
+- Rain, shimmer-rain, blizzard, sandstorm, ashfall, and starfall variants now use moving overcast cloud banks and hide the clear-weather sun/moon orb.
+- Clear, sunset, moonlit, aurora, and starlight variants retain their existing celestial treatment. Weather particles and the existing brief storm-flash effect remain separate.
+- This is background-only; platform visibility, gameplay layers, collision, and controls are unchanged.
+- Source commit: `dc2b7f96c1958cbcc001d6a8e9badef1f447d363`.
+- No tests/builds were run during this implementation step.
+
 ### Boss armor follow-through animation (2026-11-27)
 - Added restrained movement to the existing boss cape, crown gem, chest inset, armor ridges, and cheek markings, coordinated with the existing idle/breathing loop.
 - The animation reuses registered boss display objects; attack poses, hitboxes, physics, timing, damage, and phase transitions remain unchanged.
