@@ -261,6 +261,13 @@
 - Commits: Android workflow `423d801b81b260aa32aadcd38b4a96827a8b8b0c`; manual verification workflow `80e28897af3913cf76e292b3e1591939348cfb5c`.
 - No dependency install, tests, build or APK assembly was run during this development pass.
 
+### Accessible game and touch-control descriptions (2026-11-27)
+- Added an accessible application label and concise gameplay instructions to the Phaser game container, plus a labelled group description for the mobile touch surface.
+- Added visually hidden instruction styling so the information is available to assistive technology without changing the visible game layout.
+- Chromium smoke coverage now verifies the game role, accessible labels, instructions and touch-control description.
+- Commits: App markup `9411447fdc2f5a05313e1002e28bf215ff39f8e8`; styles `d90869e4133dbc06cdb2ffd8246948a78ad0bd6d`; smoke coverage `b496f6845e197c9c7553891af73135d3ed1beb46`; README `0b873afb93b55325db32beb57c30477cdf30a07c`.
+- Full screen-reader menu navigation remains a limitation; no tests/builds were run.
+
 ## Non-negotiable preservation rules
 - Preserve the currently working joystick/controller movement and touch mapping. Do not regress the approved controls.
 - Keep the game in landscape and make the playable scene fill the complete device viewport.
