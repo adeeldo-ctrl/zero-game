@@ -44,6 +44,23 @@ try {
     throw new Error(`Unexpected game canvas dimensions: ${JSON.stringify(dimensions)}`);
   }
 
+  const reducedMotionPage = await browser.newPage({
+    viewport: { width: 960, height: 540 },
+    reducedMotion: "reduce",
+  });
+  await reducedMotionPage.goto("http://127.0.0.1:4173", { waitUntil: "domcontentloaded" });
+  await reducedMotionPage.waitForFunction(() => {
+    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+    return scene?.reducedMotion === true;
+  }, undefined, { timeout: 15000 });
+  await reducedMotionPage.evaluate(() => {
+    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+    if (scene.addAmbientTween({ repeat: -1 }) !== null) {
+      throw new Error("Reduced-motion mode did not suppress a looping ambient tween");
+    }
+  });
+  await reducedMotionPage.close();
+
   // Verify the four home-screen hero previews are clean and their descriptions do not overlap.
   await page.evaluate(() => {
     const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
