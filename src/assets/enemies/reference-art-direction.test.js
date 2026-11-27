@@ -23,9 +23,17 @@ test("enemy reference art direction covers every campaign archetype exactly once
 
   assert.deepEqual(actualIds, expectedIds);
   assert.equal(new Set(actualIds).size, actualIds.length);
-  assert.ok(mapped.every((entry) => /^\d{2}_[a-z0-9-]+$/.test(entry.cropRef)));
-  assert.ok(new Set(mapped.map((entry) => entry.cropRef)).size >= 40);
-  assert.ok(mapped.every((entry) => availableCropRefs.has(entry.cropRef)));
+  const collageRefs = mapped.filter((entry) => !entry.cropRef.startsWith("custom-"));
+  const customRefs = mapped.filter((entry) => entry.cropRef.startsWith("custom-"));
+  assert.ok(collageRefs.every((entry) => /^\d{2}_[a-z0-9-]+$/.test(entry.cropRef)));
+  assert.equal(new Set(collageRefs.map((entry) => entry.cropRef)).size, 40);
+  assert.equal(customRefs.length, 5);
+  assert.equal(artDirection.additionalOriginalDesigns.length, 5);
+  assert.deepEqual(
+    customRefs.map((entry) => entry.cropRef).sort(),
+    artDirection.additionalOriginalDesigns.map((entry) => entry.id).sort(),
+  );
+  assert.ok(collageRefs.every((entry) => availableCropRefs.has(entry.cropRef)));
 });
 
 test("collage manifest is reference-only and contains 48 named crops", () => {
