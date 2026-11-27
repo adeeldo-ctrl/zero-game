@@ -591,3 +591,11 @@ The following gameplay requirements are mandatory and supersede any conflicting 
 - Corrected platform sprite scaling to use the actual 180-pixel source texture width. Previously the authored width was divided by 100, making visible/colliding platform bodies 1.8× wider than their stage definitions.
 - Platform visual width and static physics body width now match each authored stage width, including the newly added six-platform layouts.
 - Added focused rule coverage for representative widths and invalid input. Verification remains deferred to the final consolidated pass.
+
+
+## Element-matched boss attack telegraphs — 2026-11-27
+
+- Reworked the boss attack warning from a single generic red ellipse into a layered arena marker with a pulsing ground core, bright outer ring, and elemental rune.
+- Telegraph colors now match the active boss element (fire, earth, wind, ice, lightning, shadow, light, water, nature, or plasma), while the existing attack timing, damage, movement, and collision behavior remain unchanged.
+- The warning marker is clamped inside the arena so it remains visible near either screen edge. The effect is one short-lived container per boss attack to keep mobile rendering overhead controlled.
+- No APK build or intermediate release was triggered.
