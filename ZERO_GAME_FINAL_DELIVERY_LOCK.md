@@ -88,3 +88,4 @@ The earlier Release APK result above is a historical artifact from a prior sourc
 - Complete all remaining source work first, run one consolidated final verification, then build and verify a fresh signed Release APK from the verified final source.
 - This instruction supersedes any older wording in this file that described the earlier artifact as final delivery.
 
+FINAL_RELEASE_APPROVED: false
