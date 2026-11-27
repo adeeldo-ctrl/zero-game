@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="540" viewBox="0 0 960 540">
+<defs><linearGradient id="sky" x2="0" y2="1"><stop stop-color="#f9d99b"/><stop offset="1" stop-color="#dc9c6a"/></linearGradient><linearGradient id="dune" x2="0" y2="1"><stop stop-color="#efc47f"/><stop offset="1" stop-color="#a96d48"/></linearGradient></defs>
+<rect width="960" height="540" fill="url(#sky)"/><circle cx="760" cy="120" r="58" fill="#fff1b6" opacity=".7"/><circle cx="760" cy="120" r="84" fill="none" stroke="#ffe7a4" stroke-width="5" opacity=".35"/>
+<path d="M0 355 Q160 245 330 350 T670 330 T960 340 V540 H0Z" fill="#d69a62"/><path d="M0 405 Q190 300 390 410 T760 390 T960 420 V540 H0Z" fill="url(#dune)"/>
+<g fill="#9b6246" opacity=".8"><path d="M140 365 V230 H175 V365Z"/><path d="M120 245 L157 190 L195 245Z"/><path d="M810 380 V240 H850 V380Z"/><path d="M790 255 L830 195 L870 255Z"/></g>
+<g fill="#c98c5a" stroke="#f2d19a" stroke-width="4"><path d="M340 395 V300 L390 255 L440 300 V395Z"/><path d="M390 255 V220 L415 195 L440 220 V300Z"/></g>
+<g fill="none" stroke="#ffe5ae" stroke-width="4" opacity=".65"><path d="M0 445 Q240 380 460 445 T960 435"/><path d="M0 475 Q240 415 460 475 T960 465"/></g><g fill="#fff2c2"><circle cx="250" cy="220" r="4"/><circle cx="600" cy="180" r="3"/><circle cx="900" cy="270" r="4"/></g></svg>
