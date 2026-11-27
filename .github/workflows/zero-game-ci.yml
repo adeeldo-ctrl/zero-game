@@ -1,8 +1,19 @@
 name: ZERO GAME Continuous Checks
 
 on:
-  # Run the consolidated verification manually after development is complete.
+  # Run one consolidated verification when the final source/verification configuration changes.
   workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/zero-game-ci.yml"
+      - "src/**"
+      - "scripts/**"
+      - "package.json"
+      - "package-lock.json"
+      - "ZERO_GAME_UPGRADE_MASTER_PLAN.md"
+      - "ZERO_GAME_FINAL_DELIVERY_LOCK.md"
 
 permissions:
   contents: read
