@@ -499,3 +499,13 @@ The following gameplay requirements are mandatory and supersede any conflicting 
 - Score drops are rendered as recognizable artwork rather than text-only colored orbs: strawberry, apple, cake, chicken, diamond, and gold-star collectibles.
 - Normal-stage completion and boss defeat both enter the same five-second score-collection window before the victory/next-stage screen. Reward drops remain collectible during this window.
 - Implementation is pushed to main. CI run 45959884866 is pending/in progress at the time of this update; do not mark this upgrade verified or release-ready until CI passes and a fresh Android APK is built.
+
+
+## Particle power progression — 2026-11-27
+
+- Particle visuals now have a collectible progression from **Power 1 through Power 20**.
+- Elemental-power treasure rewards advance the particle tier by one level, up to the level-20 cap; the HUD displays the current tier.
+- Each tier increases particle density, size, travel speed and lifetime. Fire retains its existing tenfold baseline particle-count boost and scales further across the 20 tiers; other elemental particle families also grow with the tier.
+- The progression changes visual particle presentation only. Existing gameplay controls and non-particle systems are left unchanged.
+- Source commit: `5ffeb6594ae8c8242be8b3824634894c3b2a19c3`.
+- Consolidated CI has not yet been run for this change; do not claim this update verified until the workflow passes.
