@@ -607,3 +607,11 @@ The following gameplay requirements are mandatory and supersede any conflicting 
 - Movement now adds a restrained body compression/rebound, armor follow-through, and a subtle sigil pulse. Runner and charger families receive a stronger stride response, while guard enemies retain a steadier body profile.
 - Existing enemy AI states, speeds, collision boxes, attack windows, and mobile controls are unchanged. Effects reuse existing enemy parts and add no per-frame display objects.
 - No APK build was triggered.
+
+
+## Boss idle animation and armor response polish — 2026-11-27
+
+- Extended the boss animation registry to include chest emblem, shoulder armor, belt gem, headband, and orbiting elemental accents.
+- Bosses now have a restrained breathing loop, chest-emblem energy pulse, subtle armor follow-through, and alternating orbit accents while moving or waiting between attacks.
+- Existing attack-state poses still override the base arm/leg poses, and the same boss physics, attack timings, hitboxes, damage, and phase transitions are preserved.
+- Animation updates reuse existing display objects; no additional per-frame particles or objects are created. No APK build was triggered.
