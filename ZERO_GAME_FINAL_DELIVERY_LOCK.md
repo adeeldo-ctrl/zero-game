@@ -103,3 +103,10 @@ Wi-Fi co-op is removed from the final product at the user's request. It is not p
 - Automated tests: 39 passed; lint passed; Android configuration validation passed; web build passed; Chromium campaign/mobile smoke test passed, including the 50-stage campaign sweep and native-touch checks.
 - Wi-Fi co-op and relay removed at the user's request. Final product is single-player.
 - Android Release APK workflow may now build from the verified source plus this release-only documentation/trigger update.
+
+
+## Hero identity correction — 2026-11-27
+
+- Fixed the action-state visual swap that hid the selected hero sprite and exposed the shared legacy vector rig during attacks, special moves, and hit reactions.
+- The selected hero's own authored sprite now remains visible across all button-triggered actions; legacy rig parts remain hidden.
+- Consolidated CI must pass on the fix before generating the fresh signed Android Release APK.
