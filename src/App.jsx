@@ -5,6 +5,14 @@ import heroRyoSheet from "./assets/heroes/hero_ryo.png";
 import heroKairoSheet from "./assets/heroes/hero_kairo.png";
 import heroMeiSheet from "./assets/heroes/hero_mei.png";
 import heroVoltSheet from "./assets/heroes/hero_volt.png";
+import enemyFastSheet from "./assets/enemies/enemy-fast-sheet.svg";
+import enemyHeavySheet from "./assets/enemies/enemy-heavy-sheet.svg";
+import enemySpecialSheet from "./assets/enemies/enemy-special-sheet.svg";
+import bossGatekeeperSheet from "./assets/bosses/boss-gatekeeper-sheet.svg";
+import bossIronCometSheet from "./assets/bosses/boss-iron-comet-sheet.svg";
+import bossGaleTalonSheet from "./assets/bosses/boss-gale-talon-sheet.svg";
+import bossSuncrestSheet from "./assets/bosses/boss-suncrest-sheet.svg";
+import bossVoidSovereignSheet from "./assets/bosses/boss-void-sovereign-sheet.svg";
 import worldBackdropEmerald from "./assets/backgrounds/world-emerald.svg";
 import worldBackdropCandy from "./assets/backgrounds/world-candy.svg";
 import worldBackdropFrozen from "./assets/backgrounds/world-frozen.svg";
@@ -45,6 +53,24 @@ class ZeroGameScene extends Phaser.Scene {
       worldBackdropDesert, worldBackdropMoonlit, worldBackdropCrystal,
       worldBackdropCoral, worldBackdropSky, worldBackdropVolcano, worldBackdropCosmic,
     ];
+    const enemySheets = [
+      ["enemy-sheet-fast", enemyFastSheet],
+      ["enemy-sheet-heavy", enemyHeavySheet],
+      ["enemy-sheet-special", enemySpecialSheet],
+    ];
+    enemySheets.forEach(([key, source]) => this.load.spritesheet(key, source, {
+      frameWidth: 128, frameHeight: 128,
+    }));
+    const bossSheets = [
+      ["boss-sheet-gatekeeper", bossGatekeeperSheet],
+      ["boss-sheet-iron-comet", bossIronCometSheet],
+      ["boss-sheet-gale-talon", bossGaleTalonSheet],
+      ["boss-sheet-suncrest", bossSuncrestSheet],
+      ["boss-sheet-void-sovereign", bossVoidSovereignSheet],
+    ];
+    bossSheets.forEach(([key, source]) => this.load.spritesheet(key, source, {
+      frameWidth: 160, frameHeight: 160,
+    }));
     worldBackdrops.forEach((source, index) => {
       this.load.image(`world-backdrop-${index}`, source);
     });
@@ -73,6 +99,29 @@ class ZeroGameScene extends Phaser.Scene {
           frameRate: range.frameRate,
           repeat: range.repeat,
         });
+      });
+    });
+  }
+
+  createCombatantAnimations() {
+    ["fast", "heavy", "special"].forEach((kind) => {
+      const key = `enemy-${kind}-move`;
+      if (this.anims.exists(key)) return;
+      this.anims.create({
+        key,
+        frames: this.anims.generateFrameNumbers(`enemy-sheet-${kind}`, { start: 0, end: 3 }),
+        frameRate: kind === "fast" ? 9 : 6,
+        repeat: -1,
+      });
+    });
+    ["gatekeeper", "iron-comet", "gale-talon", "suncrest", "void-sovereign"].forEach((kind) => {
+      const key = `boss-${kind}-presence`;
+      if (this.anims.exists(key)) return;
+      this.anims.create({
+        key,
+        frames: this.anims.generateFrameNumbers(`boss-sheet-${kind}`, { start: 0, end: 3 }),
+        frameRate: 5,
+        repeat: -1,
       });
     });
   }
@@ -199,6 +248,7 @@ class ZeroGameScene extends Phaser.Scene {
     this.createBackground();
     this.createTextures();
     this.createHeroAnimations();
+    this.createCombatantAnimations();
     this.createPlatforms();
 
     // Invisible physics body for the currently selected hero
@@ -1843,6 +1893,14 @@ class ZeroGameScene extends Phaser.Scene {
   belly
 });
 
+    // Use the dedicated authored sprite sheet as the visible combatant while
+    // retaining the established rig metadata for hit reactions and gameplay.
+    c.list.forEach((part) => part.setVisible(part === shadow));
+    const enemySprite = this.add.sprite(0, -12, `enemy-sheet-${enemyClass}`, 0)
+      .setDisplaySize(isHeavy ? 94 : 86, isHeavy ? 106 : 100);
+    c.add(enemySprite);
+    enemySprite.play(`enemy-${enemyClass}-move`);
+    c.setData("authoredSprite", enemySprite);
     enemy.setData("visual", c);
     c.setData("enemyClass", enemyClass);
     c.setData("classProfile", isFast ? "swift-scarf" : isHeavy ? "armored-bruiser" : "arcane-aura");
@@ -3089,6 +3147,15 @@ class ZeroGameScene extends Phaser.Scene {
       fistL, fistR, body, belly, pupilL, pupilR, aura, chestEmblem, chestInset,
       cape, armorRidges, crownGem, cheekMarks,
       shoulderL, shoulderR, belt, beltGem, headband, orbitA, orbitB });
+    const bossSheetId = isGatekeeper ? "gatekeeper" : isBoxer ? "iron-comet"
+      : isAgile ? "gale-talon" : isMaster ? "suncrest" : "void-sovereign";
+    c.list.forEach((part) => part.setVisible(part === shadow));
+    const bossSprite = this.add.sprite(0, -22, `boss-sheet-${bossSheetId}`, 0)
+      .setDisplaySize(142, 142);
+    c.add(bossSprite);
+    bossSprite.play(`boss-${bossSheetId}-presence`);
+    c.setData("authoredSprite", bossSprite);
+    c.setData("bossSheetId", bossSheetId);
     return c;
   }
 
