@@ -8,6 +8,7 @@ import heroVoltSheet from "./assets/heroes/hero_volt.png";
 import enemyFastSheet from "./assets/enemies/enemy-fast-sheet.svg";
 import enemyHeavySheet from "./assets/enemies/enemy-heavy-sheet.svg";
 import enemySpecialSheet from "./assets/enemies/enemy-special-sheet.svg";
+import premiumEnemyAtlas from "./assets/enemies/premium-enemy-atlas.svg";
 import bossGatekeeperSheet from "./assets/bosses/boss-gatekeeper-sheet.svg";
 import bossIronCometSheet from "./assets/bosses/boss-iron-comet-sheet.svg";
 import bossGaleTalonSheet from "./assets/bosses/boss-gale-talon-sheet.svg";
@@ -25,7 +26,7 @@ import worldBackdropVolcano from "./assets/backgrounds/world-volcano.svg";
 import worldBackdropCosmic from "./assets/backgrounds/world-cosmic.svg";
 import { Capacitor } from "@capacitor/core";
 import { ELEMENTS, HEROES, getElement, getStage, getHero } from "./gameData";
-import { getPremiumStageEnemyRoster, getPremiumEnemyRegion } from "./premiumCampaignData";
+import { getPremiumStageEnemyRoster, getPremiumEnemyRegion, PREMIUM_ENEMY_ARCHETYPES, getPremiumEnemyFrameIndex } from "./premiumCampaignData";
 import { createGameAudio } from "./gameAudio";
 import { createCampaignLives, loseCampaignHeart, getStageTransitionDirection } from "./campaignRules";
 import { shouldHeroCollideWithPlatform, shouldDropThroughPlatform, getPlatformTextureScale } from "./platformRules";
@@ -120,6 +121,31 @@ class ZeroGameScene extends Phaser.Scene {
           key: strikeKey,
           frames: this.anims.generateFrameNumbers(`enemy-sheet-${kind}`, { frames: [1, 2, 3] }),
           frameRate: kind === "fast" ? 13 : 9,
+          repeat: 0,
+        });
+      }
+    });
+    PREMIUM_ENEMY_ARCHETYPES.forEach((archetype) => {
+      const frameStart = getPremiumEnemyFrameIndex(archetype.id) * 4;
+      const moveKey = `enemy-${archetype.id}-move`;
+      const strikeKey = `enemy-${archetype.id}-strike`;
+      if (!this.anims.exists(moveKey)) {
+        this.anims.create({
+          key: moveKey,
+          frames: this.anims.generateFrameNumbers("premium-enemy-atlas", {
+            frames: [frameStart, frameStart + 1, frameStart + 2, frameStart + 3],
+          }),
+          frameRate: archetype.tier === "elite" ? 8 : archetype.tier === "special" ? 10 : 9,
+          repeat: -1,
+        });
+      }
+      if (!this.anims.exists(strikeKey)) {
+        this.anims.create({
+          key: strikeKey,
+          frames: this.anims.generateFrameNumbers("premium-enemy-atlas", {
+            frames: [frameStart + 1, frameStart + 2, frameStart + 3],
+          }),
+          frameRate: archetype.tier === "elite" ? 14 : 12,
           repeat: 0,
         });
       }
@@ -1906,16 +1932,22 @@ class ZeroGameScene extends Phaser.Scene {
     // Use the dedicated authored sprite sheet as the visible combatant while
     // retaining the established rig metadata for hit reactions and gameplay.
     c.list.forEach((part) => part.setVisible(part === shadow));
-    const enemySprite = this.add.sprite(0, -12, `enemy-sheet-${enemyClass}`, 0)
+    const archetypeId = enemy.getData("enemyArchetypeId");
+    const archetypeFrame = getPremiumEnemyFrameIndex(archetypeId);
+    const hasPremiumArtwork = archetypeFrame >= 0;
+    const idleFrame = hasPremiumArtwork ? archetypeFrame * 4 : 0;
+    const enemySprite = this.add.sprite(0, -12,
+      hasPremiumArtwork ? "premium-enemy-atlas" : `enemy-sheet-${enemyClass}`, idleFrame)
       .setDisplaySize(isHeavy ? 94 : 86, isHeavy ? 106 : 100);
     c.add(enemySprite);
-    const enemyMoveKey = `enemy-${enemyClass}-move`;
-    const enemyStrikeKey = `enemy-${enemyClass}-strike`;
+    const enemyMoveKey = hasPremiumArtwork ? `enemy-${archetypeId}-move` : `enemy-${enemyClass}-move`;
+    const enemyStrikeKey = hasPremiumArtwork ? `enemy-${archetypeId}-strike` : `enemy-${enemyClass}-strike`;
+    enemySprite.setData("idleFrame", idleFrame);
     enemySprite.play(enemyMoveKey);
     enemySprite.on(Phaser.Animations.Events.ANIMATION_COMPLETE, (animation) => {
       if (animation.key !== enemyStrikeKey || !enemySprite.active) return;
       if (Math.abs(enemy.body?.velocity?.x || 0) > 18) enemySprite.play(enemyMoveKey);
-      else { enemySprite.anims.stop(); enemySprite.setFrame(0); }
+      else { enemySprite.anims.stop(); enemySprite.setFrame(idleFrame); }
     });
     c.setData("authoredSprite", enemySprite);
     enemy.setData("visual", c);
@@ -5255,7 +5287,7 @@ class ZeroGameScene extends Phaser.Scene {
             }
           } else if (!moving && authoredSprite.anims.currentAnim?.key !== strikeKey && authoredSprite.anims.isPlaying) {
             authoredSprite.anims.stop();
-            authoredSprite.setFrame(0);
+            authoredSprite.setFrame(authoredSprite.getData("idleFrame") || 0);
           }
         }
         const stride = aiType === "runner" || aiType === "charger" ? 1.25 : 1;
