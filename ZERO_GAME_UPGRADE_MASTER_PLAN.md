@@ -744,3 +744,5 @@ The following gameplay requirements are mandatory and supersede any conflicting 
 - Fixed the ESLint `no-useless-assignment` failure in `src/App.jsx` by removing the redundant initial `null` assignment for `classCrest`; every enemy-class branch assigns its visual crest before it is used.
 - Source commit: `5e847bda3ab9a6a86fd333df9e87d53ec99feb62`.
 - The previous CI run's automated tests passed; lint failed on this redundant assignment. No APK was built. Full consolidated verification remains deferred until development scope is complete.
+
+- Continued enemy animation polish: class-specific jaw/rune guard movement, boot rotation synchronized with the stride, and subtle shadow compression while running. Visual-only; enemy AI, movement speed, collision, hitboxes and damage are unchanged. Source commit: `c63fb941004abf8afe77fbd88bb902a5a38f4e84`.
