@@ -1,0 +1,674 @@
+[
+  {
+    "index": 1,
+    "name": "snowman",
+    "row": 1,
+    "column": 1,
+    "source_crop_xyxy": [
+      13,
+      96,
+      170,
+      288
+    ],
+    "file": "01_snowman.png",
+    "note": "Approximate crop from reference collage; surrounding blue/ice background is retained."
+  },
+  {
+    "index": 2,
+    "name": "green-ice-monster",
+    "row": 1,
+    "column": 2,
+    "source_crop_xyxy": [
+      180,
+      96,
+      335,
+      288
+    ],
+    "file": "02_green-ice-monster.png",
+    "note": "Approximate crop from reference collage; surrounding blue/ice background is retained."
+  },
+  {
+    "index": 3,
+    "name": "red-horn-demon",
+    "row": 1,
+    "column": 3,
+    "source_crop_xyxy": [
+      345,
+      96,
+      495,
+      288
+    ],
+    "file": "03_red-horn-demon.png",
+    "note": "Approximate crop from reference collage; surrounding blue/ice background is retained."
+  },
+  {
+    "index": 4,
+    "name": "purple-bat",
+    "row": 1,
+    "column": 4,
+    "source_crop_xyxy": [
+      505,
+      96,
+      660,
+      288
+    ],
+    "file": "04_purple-bat.png",
+    "note": "Approximate crop from reference collage; surrounding blue/ice background is retained."
+  },
+  {
+    "index": 5,
+    "name": "winter-chick",
+    "row": 1,
+    "column": 5,
+    "source_crop_xyxy": [
+      670,
+      96,
+      820,
+      288
+    ],
+    "file": "05_winter-chick.png",
+    "note": "Approximate crop from reference collage; surrounding blue/ice background is retained."
+  },
+  {
+    "index": 6,
+    "name": "yeti",
+    "row": 1,
+    "column": 6,
+    "source_crop_xyxy": [
+      830,
+      96,
+      985,
+      288
+    ],
+    "file": "06_yeti.png",
+    "note": "Approximate crop from reference collage; surrounding blue/ice background is retained."
+  },
+  {
+    "index": 7,
+    "name": "pink-octopus",
+    "row": 1,
+    "column": 7,
+    "source_crop_xyxy": [
+      995,
+      96,
+      1145,
+      288
+    ],
+    "file": "07_pink-octopus.png",
+    "note": "Approximate crop from reference collage; surrounding blue/ice background is retained."
+  },
+  {
+    "index": 8,
+    "name": "snow-skull",
+    "row": 1,
+    "column": 8,
+    "source_crop_xyxy": [
+      1155,
+      96,
+      1315,
+      288
+    ],
+    "file": "08_snow-skull.png",
+    "note": "Approximate crop from reference collage; surrounding blue/ice background is retained."
+  },
+  {
+    "index": 9,
+    "name": "pumpkin",
+    "row": 1,
+    "column": 9,
+    "source_crop_xyxy": [
+      1325,
+      96,
+      1525,
+      288
+    ],
+    "file": "09_pumpkin.png",
+    "note": "Approximate crop from reference collage; surrounding blue/ice background is retained."
+  },
+  {
+    "index": 10,
+    "name": "goggle-brown-creature",
+    "row": 2,
+    "column": 1,
+    "source_crop_xyxy": [
+      40,
+      279,
+      180,
+      466
+    ],
+    "file": "10_goggle-brown-creature.png",
+    "note": "Approximate crop from reference collage; surrounding blue/ice background is retained."
+  },
+  {
+    "index": 11,
+    "name": "ice-golem",
+    "row": 2,
+    "column": 2,
+    "source_crop_xyxy": [
+      190,
+      279,
+      330,
+      466
+    ],
+    "file": "11_ice-golem.png",
+    "note": "Approximate crop from reference collage; surrounding blue/ice background is retained."
+  },
+  {
+    "index": 12,
+    "name": "armored-penguin",
+    "row": 2,
+    "column": 3,
+    "source_crop_xyxy": [
+      340,
+      279,
+      480,
+      466
+    ],
+    "file": "12_armored-penguin.png",
+    "note": "Approximate crop from reference collage; surrounding blue/ice background is retained."
+  },
+  {
+    "index": 13,
+    "name": "chained-ghost",
+    "row": 2,
+    "column": 4,
+    "source_crop_xyxy": [
+      490,
+      279,
+      630,
+      466
+    ],
+    "file": "13_chained-ghost.png",
+    "note": "Approximate crop from reference collage; surrounding blue/ice background is retained."
+  },
+  {
+    "index": 14,
+    "name": "mushroom-crab",
+    "row": 2,
+    "column": 5,
+    "source_crop_xyxy": [
+      640,
+      279,
+      780,
+      466
+    ],
+    "file": "14_mushroom-crab.png",
+    "note": "Approximate crop from reference collage; surrounding blue/ice background is retained."
+  },
+  {
+    "index": 15,
+    "name": "brown-goggle-creature",
+    "row": 2,
+    "column": 6,
+    "source_crop_xyxy": [
+      790,
+      279,
+      930,
+      466
+    ],
+    "file": "15_brown-goggle-creature.png",
+    "note": "Approximate crop from reference collage; surrounding blue/ice background is retained."
+  },
+  {
+    "index": 16,
+    "name": "blue-dragon",
+    "row": 2,
+    "column": 7,
+    "source_crop_xyxy": [
+      940,
+      279,
+      1080,
+      466
+    ],
+    "file": "16_blue-dragon.png",
+    "note": "Approximate crop from reference collage; surrounding blue/ice background is retained."
+  },
+  {
+    "index": 17,
+    "name": "ice-crab",
+    "row": 2,
+    "column": 8,
+    "source_crop_xyxy": [
+      1090,
+      279,
+      1230,
+      466
+    ],
+    "file": "17_ice-crab.png",
+    "note": "Approximate crop from reference collage; surrounding blue/ice background is retained."
+  },
+  {
+    "index": 18,
+    "name": "orange-crab",
+    "row": 2,
+    "column": 9,
+    "source_crop_xyxy": [
+      1240,
+      279,
+      1380,
+      466
+    ],
+    "file": "18_orange-crab.png",
+    "note": "Approximate crop from reference collage; surrounding blue/ice background is retained."
+  },
+  {
+    "index": 19,
+    "name": "ice-robot",
+    "row": 2,
+    "column": 10,
+    "source_crop_xyxy": [
+      1390,
+      279,
+      1525,
+      466
+    ],
+    "file": "19_ice-robot.png",
+    "note": "Approximate crop from reference collage; surrounding blue/ice background is retained."
+  },
+  {
+    "index": 20,
+    "name": "spiky-hedgehog",
+    "row": 3,
+    "column": 1,
+    "source_crop_xyxy": [
+      30,
+      449,
+      170,
+      631
+    ],
+    "file": "20_spiky-hedgehog.png",
+    "note": "Approximate crop from reference collage; surrounding blue/ice background is retained."
+  },
+  {
+    "index": 21,
+    "name": "skeleton",
+    "row": 3,
+    "column": 2,
+    "source_crop_xyxy": [
+      180,
+      449,
+      320,
+      631
+    ],
+    "file": "21_skeleton.png",
+    "note": "Approximate crop from reference collage; surrounding blue/ice background is retained."
+  },
+  {
+    "index": 22,
+    "name": "wolf-guard",
+    "row": 3,
+    "column": 3,
+    "source_crop_xyxy": [
+      330,
+      449,
+      470,
+      631
+    ],
+    "file": "22_wolf-guard.png",
+    "note": "Approximate crop from reference collage; surrounding blue/ice background is retained."
+  },
+  {
+    "index": 23,
+    "name": "green-frog",
+    "row": 3,
+    "column": 4,
+    "source_crop_xyxy": [
+      480,
+      449,
+      620,
+      631
+    ],
+    "file": "23_green-frog.png",
+    "note": "Approximate crop from reference collage; surrounding blue/ice background is retained."
+  },
+  {
+    "index": 24,
+    "name": "spider",
+    "row": 3,
+    "column": 5,
+    "source_crop_xyxy": [
+      630,
+      449,
+      770,
+      631
+    ],
+    "file": "24_spider.png",
+    "note": "Approximate crop from reference collage; surrounding blue/ice background is retained."
+  },
+  {
+    "index": 25,
+    "name": "squirrel",
+    "row": 3,
+    "column": 6,
+    "source_crop_xyxy": [
+      780,
+      449,
+      920,
+      631
+    ],
+    "file": "25_squirrel.png",
+    "note": "Approximate crop from reference collage; surrounding blue/ice background is retained."
+  },
+  {
+    "index": 26,
+    "name": "rock-creature",
+    "row": 3,
+    "column": 7,
+    "source_crop_xyxy": [
+      930,
+      449,
+      1070,
+      631
+    ],
+    "file": "26_rock-creature.png",
+    "note": "Approximate crop from reference collage; surrounding blue/ice background is retained."
+  },
+  {
+    "index": 27,
+    "name": "bee",
+    "row": 3,
+    "column": 8,
+    "source_crop_xyxy": [
+      1080,
+      449,
+      1220,
+      631
+    ],
+    "file": "27_bee.png",
+    "note": "Approximate crop from reference collage; surrounding blue/ice background is retained."
+  },
+  {
+    "index": 28,
+    "name": "ice-fish",
+    "row": 3,
+    "column": 9,
+    "source_crop_xyxy": [
+      1230,
+      449,
+      1370,
+      631
+    ],
+    "file": "28_ice-fish.png",
+    "note": "Approximate crop from reference collage; surrounding blue/ice background is retained."
+  },
+  {
+    "index": 29,
+    "name": "jellyfish",
+    "row": 3,
+    "column": 10,
+    "source_crop_xyxy": [
+      1380,
+      449,
+      1525,
+      631
+    ],
+    "file": "29_jellyfish.png",
+    "note": "Approximate crop from reference collage; surrounding blue/ice background is retained."
+  },
+  {
+    "index": 30,
+    "name": "purple-demon",
+    "row": 4,
+    "column": 1,
+    "source_crop_xyxy": [
+      30,
+      614,
+      170,
+      796
+    ],
+    "file": "30_purple-demon.png",
+    "note": "Approximate crop from reference collage; surrounding blue/ice background is retained."
+  },
+  {
+    "index": 31,
+    "name": "snow-cloud",
+    "row": 4,
+    "column": 2,
+    "source_crop_xyxy": [
+      180,
+      614,
+      320,
+      796
+    ],
+    "file": "31_snow-cloud.png",
+    "note": "Approximate crop from reference collage; surrounding blue/ice background is retained."
+  },
+  {
+    "index": 32,
+    "name": "blue-fish-monster",
+    "row": 4,
+    "column": 3,
+    "source_crop_xyxy": [
+      330,
+      614,
+      470,
+      796
+    ],
+    "file": "32_blue-fish-monster.png",
+    "note": "Approximate crop from reference collage; surrounding blue/ice background is retained."
+  },
+  {
+    "index": 33,
+    "name": "mummy",
+    "row": 4,
+    "column": 4,
+    "source_crop_xyxy": [
+      480,
+      614,
+      620,
+      796
+    ],
+    "file": "33_mummy.png",
+    "note": "Approximate crop from reference collage; surrounding blue/ice background is retained."
+  },
+  {
+    "index": 34,
+    "name": "blue-ogre-a",
+    "row": 4,
+    "column": 5,
+    "source_crop_xyxy": [
+      630,
+      614,
+      770,
+      796
+    ],
+    "file": "34_blue-ogre-a.png",
+    "note": "Approximate crop from reference collage; surrounding blue/ice background is retained."
+  },
+  {
+    "index": 35,
+    "name": "blue-ogre-b",
+    "row": 4,
+    "column": 6,
+    "source_crop_xyxy": [
+      780,
+      614,
+      920,
+      796
+    ],
+    "file": "35_blue-ogre-b.png",
+    "note": "Approximate crop from reference collage; surrounding blue/ice background is retained."
+  },
+  {
+    "index": 36,
+    "name": "ice-cube-monster",
+    "row": 4,
+    "column": 7,
+    "source_crop_xyxy": [
+      930,
+      614,
+      1070,
+      796
+    ],
+    "file": "36_ice-cube-monster.png",
+    "note": "Approximate crop from reference collage; surrounding blue/ice background is retained."
+  },
+  {
+    "index": 37,
+    "name": "green-turtle-a",
+    "row": 4,
+    "column": 8,
+    "source_crop_xyxy": [
+      1080,
+      614,
+      1220,
+      796
+    ],
+    "file": "37_green-turtle-a.png",
+    "note": "Approximate crop from reference collage; surrounding blue/ice background is retained."
+  },
+  {
+    "index": 38,
+    "name": "green-turtle-b",
+    "row": 4,
+    "column": 9,
+    "source_crop_xyxy": [
+      1230,
+      614,
+      1370,
+      796
+    ],
+    "file": "38_green-turtle-b.png",
+    "note": "Approximate crop from reference collage; surrounding blue/ice background is retained."
+  },
+  {
+    "index": 39,
+    "name": "green-lizard",
+    "row": 4,
+    "column": 10,
+    "source_crop_xyxy": [
+      1380,
+      614,
+      1525,
+      796
+    ],
+    "file": "39_green-lizard.png",
+    "note": "Approximate crop from reference collage; surrounding blue/ice background is retained."
+  },
+  {
+    "index": 40,
+    "name": "armored-lizard",
+    "row": 5,
+    "column": 1,
+    "source_crop_xyxy": [
+      20,
+      759,
+      175,
+      951
+    ],
+    "file": "40_armored-lizard.png",
+    "note": "Approximate crop from reference collage; surrounding blue/ice background is retained."
+  },
+  {
+    "index": 41,
+    "name": "pumpkin-variant",
+    "row": 5,
+    "column": 2,
+    "source_crop_xyxy": [
+      185,
+      759,
+      340,
+      951
+    ],
+    "file": "41_pumpkin-variant.png",
+    "note": "Approximate crop from reference collage; surrounding blue/ice background is retained."
+  },
+  {
+    "index": 42,
+    "name": "rat-guard",
+    "row": 5,
+    "column": 3,
+    "source_crop_xyxy": [
+      350,
+      759,
+      505,
+      951
+    ],
+    "file": "42_rat-guard.png",
+    "note": "Approximate crop from reference collage; surrounding blue/ice background is retained."
+  },
+  {
+    "index": 43,
+    "name": "fire-effect",
+    "row": 5,
+    "column": 4,
+    "source_crop_xyxy": [
+      515,
+      759,
+      670,
+      951
+    ],
+    "file": "43_fire-effect.png",
+    "note": "Approximate crop from reference collage; surrounding blue/ice background is retained."
+  },
+  {
+    "index": 44,
+    "name": "owl-a",
+    "row": 5,
+    "column": 5,
+    "source_crop_xyxy": [
+      680,
+      759,
+      835,
+      951
+    ],
+    "file": "44_owl-a.png",
+    "note": "Approximate crop from reference collage; surrounding blue/ice background is retained."
+  },
+  {
+    "index": 45,
+    "name": "owl-b",
+    "row": 5,
+    "column": 6,
+    "source_crop_xyxy": [
+      845,
+      759,
+      1000,
+      951
+    ],
+    "file": "45_owl-b.png",
+    "note": "Approximate crop from reference collage; surrounding blue/ice background is retained."
+  },
+  {
+    "index": 46,
+    "name": "blue-slime",
+    "row": 5,
+    "column": 7,
+    "source_crop_xyxy": [
+      1010,
+      759,
+      1165,
+      951
+    ],
+    "file": "46_blue-slime.png",
+    "note": "Approximate crop from reference collage; surrounding blue/ice background is retained."
+  },
+  {
+    "index": 47,
+    "name": "ice-knight",
+    "row": 5,
+    "column": 8,
+    "source_crop_xyxy": [
+      1175,
+      759,
+      1345,
+      951
+    ],
+    "file": "47_ice-knight.png",
+    "note": "Approximate crop from reference collage; surrounding blue/ice background is retained."
+  },
+  {
+    "index": 48,
+    "name": "skull-cloud",
+    "row": 5,
+    "column": 9,
+    "source_crop_xyxy": [
+      1355,
+      759,
+      1525,
+      951
+    ],
+    "file": "48_skull-cloud.png",
+    "note": "Approximate crop from reference collage; surrounding blue/ice background is retained."
+  }
+]
