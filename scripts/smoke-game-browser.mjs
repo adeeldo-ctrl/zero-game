@@ -607,6 +607,24 @@ try {
     delete window.__ZERO_GAME_FAKE_SOCKET__;
   });
 
+  await page.evaluate(() => {
+    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+    scene.ensureRemoteVisual();
+    scene.remoteVisual.setPosition(100, 100);
+    scene.remoteState = {
+      x: 400, y: 300, facing: -1, airborne: false, moving: true, heroId: "volt",
+    };
+    scene.update(scene.time.now + 16, 16);
+    if (scene.remoteVisual.getData("heroSpriteId") !== "volt" ||
+        scene.remoteVisual.x <= 100 || scene.remoteVisual.x >= 400 ||
+        scene.remoteVisual.scaleX !== -1) {
+      throw new Error("Co-op remote avatar did not restore its selected hero and interpolate movement");
+    }
+    scene.remoteVisual.destroy();
+    scene.remoteVisual = null;
+    scene.remoteState = null;
+  });
+
   // Walk the actual Phaser scene-restart path through every remaining stage.
   const visitedStages = [1, 2, 3];
   for (let nextStage = 4; nextStage <= 50; nextStage++) {
