@@ -271,42 +271,93 @@ class ZeroGameScene extends Phaser.Scene {
     this.add.rectangle(480, 270, W, H, this.stageConfig.background.sky)
       .setDepth(-30);
 
-    // Celestial bodies and cloud banks are created by createStageAtmosphere()
-    // so rain, snow, sandstorm, and night variants do not inherit generic clear skies.
-    const mountains = this.add.graphics().setDepth(-22);
-
-    mountains.fillStyle(this.stageConfig.background.far, 1);
-    mountains.fillPoints([
-      { x: 0, y: 390 },
-      { x: 125, y: 180 },
-      { x: 260, y: 390 },
-      { x: 400, y: 205 },
-      { x: 570, y: 390 },
-      { x: 735, y: 175 },
-      { x: 900, y: 390 },
-      { x: 960, y: 280 },
-      { x: 960, y: 500 },
-      { x: 0, y: 500 }
-    ], true);
-
-    mountains.fillStyle(0xd8f0ec, 0.9);
-    mountains.fillPoints([
-      { x: 90, y: 235 },
-      { x: 125, y: 180 },
-      { x: 160, y: 235 },
-      { x: 400, y: 260 },
-      { x: 400, y: 205 },
-      { x: 445, y: 265 },
-      { x: 695, y: 230 },
-      { x: 735, y: 175 },
-      { x: 780, y: 230 }
-    ], false);
-
-    const hills = this.add.graphics().setDepth(-20);
-    hills.fillStyle(this.stageConfig.background.ground);
-    hills.fillEllipse(150, 390, 390, 180);
-    hills.fillEllipse(500, 390, 430, 190);
-    hills.fillEllipse(860, 390, 380, 170);
+    // Celestial bodies and clouds belong to the weather layer. The distant
+    // silhouette below is authored by world so desert/ocean/cosmic stages do
+    // not inherit the same snow-capped mountain skyline.
+    const farScene = this.add.graphics().setDepth(-22);
+    const farColor = this.stageConfig.background.far;
+    const groundColor = this.stageConfig.background.ground;
+    const world = this.stageConfig.worldIndex || 0;
+    farScene.fillStyle(farColor, 0.96);
+    if (world === 0 || world === 4) {
+      farScene.fillEllipse(150, 365, 420, 150);
+      farScene.fillEllipse(510, 360, 520, 170);
+      farScene.fillEllipse(880, 370, 420, 150);
+      for (let x = 70; x < 960; x += 220) {
+        farScene.fillRoundedRect(x - 12, 190 + (x % 3) * 15, 24, 220, 10);
+        farScene.fillCircle(x, 205 + (x % 3) * 15, 55);
+      }
+    } else if (world === 1) {
+      farScene.fillEllipse(160, 370, 460, 150);
+      farScene.fillEllipse(520, 365, 520, 165);
+      farScene.fillEllipse(870, 375, 430, 150);
+      farScene.fillStyle(0xffe2ef, 0.6);
+      for (let x = 90; x < 960; x += 260) farScene.fillCircle(x, 300 + (x % 3) * 12, 34);
+    } else if (world === 2) {
+      farScene.fillPoints([
+        { x: 0, y: 390 }, { x: 125, y: 180 }, { x: 260, y: 390 },
+        { x: 400, y: 205 }, { x: 570, y: 390 }, { x: 735, y: 175 },
+        { x: 900, y: 390 }, { x: 960, y: 280 }, { x: 960, y: 500 }, { x: 0, y: 500 }
+      ], true);
+      farScene.fillStyle(0xd8f0ec, 0.9);
+      farScene.fillPoints([
+        { x: 90, y: 235 }, { x: 125, y: 180 }, { x: 160, y: 235 },
+        { x: 400, y: 260 }, { x: 400, y: 205 }, { x: 445, y: 265 },
+        { x: 695, y: 230 }, { x: 735, y: 175 }, { x: 780, y: 230 }
+      ], false);
+    } else if (world === 3) {
+      farScene.fillEllipse(180, 385, 520, 170);
+      farScene.fillEllipse(560, 390, 620, 185);
+      farScene.fillEllipse(940, 385, 480, 160);
+      farScene.fillStyle(0xf0c58c, 0.42);
+      farScene.fillEllipse(340, 405, 560, 125);
+      farScene.fillEllipse(820, 410, 540, 130);
+    } else if (world === 5) {
+      for (let x = 40; x < 1000; x += 180) {
+        const height = 125 + (x % 3) * 24;
+        farScene.fillTriangle(x - 68, 440, x, 440 - height, x + 68, 440);
+        farScene.fillStyle(0xb9a7ff, 0.32);
+        farScene.fillTriangle(x - 12, 440, x, 440 - height, x + 18, 440);
+        farScene.fillStyle(farColor, 0.96);
+      }
+    } else if (world === 6) {
+      farScene.fillEllipse(150, 390, 500, 170);
+      farScene.fillEllipse(500, 385, 560, 180);
+      farScene.fillEllipse(880, 395, 500, 165);
+      farScene.lineStyle(18, 0x2b8c91, 0.72);
+      farScene.beginPath(); farScene.moveTo(0, 365); farScene.lineTo(250, 340);
+      farScene.lineTo(480, 370); farScene.lineTo(720, 342); farScene.lineTo(960, 365); farScene.strokePath();
+    } else if (world === 7) {
+      for (let x = 90; x < 980; x += 245) {
+        const y = 300 + (x % 3) * 16;
+        farScene.fillEllipse(x, y, 190, 36);
+        farScene.fillTriangle(x - 55, y + 10, x + 55, y + 10, x, y + 95);
+      }
+      farScene.fillStyle(0xe3f2ff, 0.3);
+      farScene.fillEllipse(210, 390, 360, 80);
+      farScene.fillEllipse(760, 395, 420, 85);
+    } else if (world === 8) {
+      farScene.fillPoints([
+        { x: 0, y: 430 }, { x: 130, y: 280 }, { x: 230, y: 410 },
+        { x: 390, y: 250 }, { x: 540, y: 425 }, { x: 700, y: 270 },
+        { x: 850, y: 410 }, { x: 960, y: 300 }, { x: 960, y: 500 }, { x: 0, y: 500 }
+      ], true);
+      farScene.fillStyle(0xff8b58, 0.34);
+      farScene.fillEllipse(470, 420, 620, 90);
+    } else {
+      for (let x = 80; x < 980; x += 180) {
+        const h = 110 + (x % 3) * 28;
+        farScene.fillRoundedRect(x - 24, 430 - h, 48, h, 8);
+        farScene.fillTriangle(x - 35, 430 - h, x, 390 - h, x + 35, 430 - h);
+      }
+      farScene.lineStyle(8, 0x7773ba, 0.5);
+      farScene.strokeCircle(490, 310, 190);
+    }
+    const nearHills = this.add.graphics().setDepth(-20);
+    nearHills.fillStyle(groundColor, 0.78);
+    nearHills.fillEllipse(150, 405, 390, 150);
+    nearHills.fillEllipse(500, 402, 430, 160);
+    nearHills.fillEllipse(860, 408, 380, 145);
 
     // The old repeated castle/building backdrop is intentionally removed.
     // Each world now receives its own landmark composition below.
