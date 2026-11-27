@@ -1526,6 +1526,8 @@ class ZeroGameScene extends Phaser.Scene {
         enemy.setData("frozen", false);
         enemy.setData("baseTexture", `enemy${i % 3}`);
         enemy.setData("enemyName", this.stageConfig.enemyTypes[i % this.stageConfig.enemyTypes.length]);
+        enemy.setData("enemyPowerType", this.stageConfig.enemyPowerType || "fire");
+        enemy.setData("snowballPowerTier", enemyClass === "heavy" ? 3 : enemyClass === "special" ? 2 : 1);
         const enemyClass = ["fast", "heavy", "special"][i % 3];
         enemy.setData("enemyClass", enemyClass);
         const aiTypes = ["chaser", "runner", "jumper", "guard", "charger", "chaser"];
@@ -1798,7 +1800,9 @@ class ZeroGameScene extends Phaser.Scene {
   hitEnemy(projectile, enemy) {
     if (!projectile.active || !enemy.active || enemy.getData("defeatCounted")) return;
     const projectilePower = projectile.getData("powerType") || this.powerType;
-    const hitPalette = (() => { const e = getElement(projectilePower); return { id: e.id, effect: e.effect, ball: e.ball, edge: e.edge, glow: e.glow, trail: e.trail }; })();
+    const ballElement = getElement(enemy.getData("enemyPowerType") || projectilePower);
+    const hitPalette = { id: ballElement.id, effect: ballElement.effect, ball: ballElement.ball,
+      edge: ballElement.edge, glow: ballElement.glow, trail: ballElement.trail };
     this.audio.play("ballImpact");
     this.spawnElementParticles(enemy.x, enemy.y - 10, projectilePower, 18, 1.1);
     const superHit = !!projectile.getData("superAttack");
@@ -1823,6 +1827,8 @@ class ZeroGameScene extends Phaser.Scene {
       const palette = hitPalette;
       this.spawnSnowballParticles(enemy.x, enemy.y, "freeze", 18, 1.1);
       const ball = this.createElementBall(enemy.x, enemy.y, palette);
+      const powerTier = enemy.getData("snowballPowerTier") || 1;
+      ball.setScale(1 + powerTier * 0.12);
       enemy.setData("elementBall", ball);
       enemy.setData("ballPalette", palette);
       this.tweens.add({ targets: ball, scale: 1.18, duration: 180, yoyo: true });
@@ -2686,8 +2692,8 @@ class ZeroGameScene extends Phaser.Scene {
       direction: enemy.getData("rollDirection") || 1,
       deltaMs: delta,
       grounded: enemy.body.blocked.down,
-      blockedLeft: enemy.body.blocked.left,
-      blockedRight: enemy.body.blocked.right,
+      blockedLeft: enemy.body.blocked.left && this.time.now - (enemy.getData("rollLastWallImpactAt") || 0) > 170,
+      blockedRight: enemy.body.blocked.right && this.time.now - (enemy.getData("rollLastWallImpactAt") || 0) > 170,
       wallBounces: enemy.getData("rollWallBounces") || 0,
     });
     if (motion.finished) {
@@ -2699,6 +2705,7 @@ class ZeroGameScene extends Phaser.Scene {
     enemy.setData("rollDirection", motion.direction);
     enemy.setData("rollWallBounces", motion.wallBounces || 0);
     if (motion.hitWall) {
+      enemy.setData("rollLastWallImpactAt", this.time.now);
       this.cameras.main.shake(100, 0.003);
       this.spawnSnowballParticles(enemy.x, enemy.y, "impact", 8, 0.65);
       enemy.setX(Phaser.Math.Clamp(enemy.x + motion.direction * 8, 32, 928));
@@ -2721,7 +2728,7 @@ class ZeroGameScene extends Phaser.Scene {
       this.audio.play("ballImpact");
       this.spawnSnowballParticles(target.x, target.y, "impact", 18, 1.05);
       if (target.getData("isBoss")) {
-        this.hitBoss(target, 5);
+        this.hitBoss(target, 3 + (enemy.getData("snowballPowerTier") || 1) * 2);
         this.statusLabel.setText("BOSS HIT BY ELEMENTAL BALL!").setColor("#ffe17a");
       } else {
         const visual = target.getData("visual");
@@ -3570,7 +3577,7 @@ class ZeroGameScene extends Phaser.Scene {
         if (enemy.body.blocked.down && elapsed >= (enemy.getData("nextHop") || elapsed + 700)) {
           enemy.setVelocityY(-360);
           enemy.setData("nextHop", elapsed + 1450);
-          enemy.setVelocityX(direction * 95);
+          speed = 95;
         }
         visualBob = Math.sin(elapsed * 0.012) * 3;
       }
