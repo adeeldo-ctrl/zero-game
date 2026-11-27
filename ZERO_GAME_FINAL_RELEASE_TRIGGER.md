@@ -31,3 +31,6 @@ Final single-player Android Release APK request — 2026-11-27. Build from verif
 
 
 Re-run release request — 2026-11-27: use the Ubuntu 24.04 runner pinned in `.github/workflows/zero-game-android.yml`; the previous ubuntu-latest image resolved to unsupported Ubuntu 26.04 for Playwright 1.56.1. Final approval remains true; all source verification already passed.
+
+
+Selected-hero action identity correction release request — 2026-11-27. Build the signed Android Release APK from source commit b6107a29fa7fb4b047f9d0c2b3f59c768df8fbdc plus the release-trigger commit. Consolidated CI run 46017936491 passed (39 automated tests, lint, Android configuration validation, web build, and Chromium campaign/mobile smoke test). The action-state renderer now keeps the selected hero's own sprite visible instead of exposing the shared legacy rig.
