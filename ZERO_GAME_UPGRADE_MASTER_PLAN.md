@@ -491,3 +491,11 @@ The following gameplay requirements are mandatory and supersede any conflicting 
 - A top-down hero jump-stomp stops the enemy briefly and causes no heart/chance loss; ordinary side contact remains unchanged.
 - Automated tests cover bounce counts, projectile immunity, dedicated boss-stage routing, enemy scale/movement rules and jump-stomp damage immunity.
 - Build a fresh Android APK only after all requested implementation and verification work is complete, following the repository's manual APK workflow policy. Report physical-device verification separately and honestly.
+
+
+## 12. Fire, treasure, collectibles, and score-collection upgrade (2026-11-27)
+- Fire particle effects now use a tenfold particle-count multiplier (capped per burst) to create denser flame tongues, embers, sparks, and impact bursts while retaining the existing elemental attack behavior.
+- Treasure chest presentation has a more detailed layered chest, opening animation, elemental reward glow, and a visible elemental symbol for fire, ice, lightning, water, and other powers.
+- Score drops are rendered as recognizable artwork rather than text-only colored orbs: strawberry, apple, cake, chicken, diamond, and gold-star collectibles.
+- Normal-stage completion and boss defeat both enter the same five-second score-collection window before the victory/next-stage screen. Reward drops remain collectible during this window.
+- Implementation is pushed to main. CI run 45959884866 is pending/in progress at the time of this update; do not mark this upgrade verified or release-ready until CI passes and a fresh Android APK is built.
