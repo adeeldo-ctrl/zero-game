@@ -9,7 +9,6 @@
     "test": "node --test",
     "lint": "eslint .",
     "preview": "vite preview",
-    "multiplayer": "node server/multiplayer.js",
     "android:add": "cap add android",
     "android:sync": "npm run build && cap sync android"
   },
@@ -18,8 +17,7 @@
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "@capacitor/android": "^7.4.3",
-    "@capacitor/core": "^7.4.3",
-    "ws": "^8.18.3"
+    "@capacitor/core": "^7.4.3"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
