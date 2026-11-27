@@ -158,13 +158,21 @@ export function createGameAudio() {
       const wave = bossTrack ? "sawtooth" : activeTrack === "defeat" ? "sine"
         : activeTrack === "menu" || activeTrack === "victory" ? "triangle" : "sine";
       const leadVolume = bossTrack ? 0.04 : activeTrack === "victory" ? 0.044 : activeTrack === "defeat" ? 0.026 : 0.032;
-      tone(frequency, bossTrack ? 0.29 : 0.22, wave, leadVolume * musicVolume);
+      tone(frequency, bossTrack ? 0.29 : 0.24, wave, leadVolume * musicVolume);
       if (beat === 0 || beat === 2) {
-        tone(frequency * (bossTrack ? 1.5 : 1.25), bossTrack ? 0.18 : 0.14,
+        tone(frequency * (bossTrack ? 1.5 : 1.25), bossTrack ? 0.18 : 0.16,
           bossTrack ? "square" : "triangle", 0.014 * musicVolume);
+        tone(frequency * (bossTrack ? 2 : 1.5), 0.24, "sine", 0.009 * musicVolume);
       }
-      if (beat === 0) tone(lowRoot / 2, 0.3, "sine", 0.022 * musicVolume);
-      if (beat === 2) tone(lowRoot * 0.75, 0.22, "sine", 0.014 * musicVolume);
+      if (beat === 0) {
+        tone(lowRoot / 2, 0.34, "sine", 0.024 * musicVolume);
+        tone(58, 0.12, "sine", 0.016 * musicVolume);
+      }
+      if (beat === 2) {
+        tone(lowRoot * 0.75, 0.24, "sine", 0.016 * musicVolume);
+        tone(76, 0.09, "sine", 0.011 * musicVolume);
+      }
+      if (beat === 1 || beat === 3) tone(1480, 0.035, "square", 0.0035 * musicVolume);
       musicIndex++;
       musicTimer = schedule(step, bossTrack ? 300 : activeTrack === "menu" ? 320 : 255);
     };
