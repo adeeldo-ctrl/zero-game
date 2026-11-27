@@ -655,6 +655,7 @@ try {
         world: scene.stageConfig.world,
         worldIndex: scene.stageConfig.worldIndex,
         variant: scene.stageConfig.background.stageVariant,
+        backdropKey: scene.worldBackdrop?.texture?.key,
         landmarkSignature: scene.stageVariantLandmark?.getData("stageLandmarkSignature"),
         landmarkActive: !!scene.stageVariantLandmark?.active,
         platforms: scene.platforms.getChildren().length,
@@ -682,8 +683,9 @@ try {
       throw new Error(`Stage ${nextStage} did not create its fixed arena, continuous floor, and six elevated platforms`);
     }
     if (stageState.variant !== (nextStage - 1) % 5 ||
-        stageState.worldIndex !== Math.floor((nextStage - 1) / 5)) {
-      throw new Error(`Stage ${nextStage} theme/atmosphere identity is incorrect`);
+        stageState.worldIndex !== Math.floor((nextStage - 1) / 5) ||
+        stageState.backdropKey !== `world-backdrop-${stageState.worldIndex}`) {
+      throw new Error(`Stage ${nextStage} theme, atmosphere, or original world backdrop identity is incorrect`);
     }
     const expectedLandmark = `world-${stageState.worldIndex}-stage-variant-${stageState.variant}`;
     if (!stageState.landmarkActive || stageState.landmarkSignature !== expectedLandmark) {
