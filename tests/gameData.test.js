@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { STAGES, getStage } from "../src/gameData.js";
-import { PREMIUM_ENEMY_REGIONS, PREMIUM_BOSSES, PREMIUM_STAGE_MUSIC, getPremiumStageEnemyRoster } from "../src/premiumCampaignData.js";
+import { PREMIUM_ENEMY_REGIONS, PREMIUM_ENEMY_ARCHETYPES, PREMIUM_BOSSES, PREMIUM_STAGE_MUSIC, getPremiumStageEnemyRoster, getPremiumEnemyFrameIndex } from "../src/premiumCampaignData.js";
 import { getStageThemeSequence } from "../src/gameAudio.js";
 
 test("campaign contains exactly 50 deterministic stages", () => {
@@ -203,4 +203,11 @@ test("all five bosses and all 50 stage music cues have unique identities", () =>
   assert.equal(new Set(PREMIUM_STAGE_MUSIC.map((track) => track.trackId)).size, 50);
   const sequences = Array.from({ length: 50 }, (_, index) => getStageThemeSequence(index + 1).join("-"));
   assert.equal(new Set(sequences).size, 50, "each stage has a distinct authored note sequence");
+});
+
+test("all 45 enemy archetypes have dedicated four-frame atlas ranges", () => {
+  assert.equal(PREMIUM_ENEMY_ARCHETYPES.length, 45);
+  const frameIndexes = PREMIUM_ENEMY_ARCHETYPES.map((enemy) => getPremiumEnemyFrameIndex(enemy.id));
+  assert.deepEqual(frameIndexes, Array.from({ length: 45 }, (_, index) => index));
+  assert.equal(new Set(frameIndexes).size, 45);
 });
