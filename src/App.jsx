@@ -4990,7 +4990,7 @@ class ZeroGameScene extends Phaser.Scene {
         if (state === "tell" && enemyVisual) enemyVisual.setAlpha(0.65 + Math.sin(elapsed * 0.025) * 0.3);
         else if (enemyVisual) enemyVisual.setAlpha(1);
       } else if (aiType === "guard") {
-        const distance = Math.abs(targetX - enemy.x);
+        const distance = Math.abs(this.hero.x - enemy.x);
         const guarding = distance > 175;
         speed = guarding ? 0 : 138;
         facing = direction;
