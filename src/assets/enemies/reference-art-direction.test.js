@@ -16,7 +16,7 @@ test("enemy reference art direction covers every campaign archetype exactly once
 
   assert.deepEqual(actualIds, expectedIds);
   assert.equal(new Set(actualIds).size, actualIds.length);
-  assert.ok(mapped.every((entry) => /^\d{2}_[a-z0-9-]+\.png$/.test(entry.cropRef)));
+  assert.ok(mapped.every((entry) => /^\d{2}_[a-z0-9-]+$/.test(entry.cropRef)));
 });
 
 test("boss art direction covers all five existing boss identities", () => {
