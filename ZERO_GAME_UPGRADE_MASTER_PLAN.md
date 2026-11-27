@@ -244,6 +244,13 @@
 - Commits: lock `<see current delivery-lock revision>`; Android release gate `<see workflow revision>`; manual-only CI `d408b5858051c18e90869fbe3f1be73e44c36401`; CI validator `5815bc21f35567cb68729d6e0be8c52ed6d8a5c9`; consolidated release verification `6ca637711ecd702dca288a7b1a2d69ead7efdeb6`; README `246f93b00815d246c20f49f75c24f2bea88958e8`; release validator `d25c62c2ae18e133daf5ccb098ada7498713a244`.
 - No verification or APK build was run. The release flag remains false until all development is complete.
 
+### Reduced-motion accessibility support (2026-11-27)
+- The game now reads the device's `prefers-reduced-motion` setting and suppresses looping decorative stage/weather/landmark tweens when reduction is requested.
+- One-shot gameplay cues, input, and stage transitions remain available; only ambient loops are skipped.
+- README accessibility notes updated.
+- Source commit: `241abfe9cb1d68bd11cd43c2f3cc87b9e6d9c05c`; README commit: `e2eed3d4ecd151798c66e979a214648d5e5cb5fb`.
+- No tests/builds were run; final consolidated verification remains deferred until development is complete.
+
 ## Non-negotiable preservation rules
 - Preserve the currently working joystick/controller movement and touch mapping. Do not regress the approved controls.
 - Keep the game in landscape and make the playable scene fill the complete device viewport.
