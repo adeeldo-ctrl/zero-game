@@ -236,6 +236,14 @@
 - Asset commits: `048511d7151bcc0d059981914c12fd23120b400f`, `d2ee972a88411ee6b95f7c2a2b172e1bd324edc4`, `376c96c7863af66a60e501a0a4bba49c47ddcac3`, `f51eee4fe7275ecaefbb94a4690b10eeb291d6c6`, `63c84528174d967f59a8275dc275a528b0ac9f77`, `728661888634db9e6717fb1e8c34ea8d32e4916c`, `8e224db6c2c2d7b29d853250c1d31bd9a53718a1`, `841a3f1afdd340c9186e1cb71eda11c62ecdd700`, `0e4040b6c28560ab6e73cd2b6b38d49be22c9f21`, `cf2494b302897123f74321ccbdaeb6274861ee9c`; integration `e87f5654fdb35af405128cd641d1123278647baa`, backdrop reference `6678131470d75a4dab79a9ae904e8f2c1e1f2d60`, smoke coverage `e3e229b697769d3737c7abfcc6942afc57658345`.
 - No build or tests were run; final consolidated verification and Android Release APK remain deferred until all development is complete.
 
+### Final-only release gate and single consolidated verification (2026-11-27)
+- Added an explicit `FINAL_RELEASE_APPROVED: false` lock to the delivery record. The Android Release workflow now exits before installing/building anything unless that exact flag is changed to `true` after development is complete.
+- Continuous Checks no longer run automatically on every development push; they are manually dispatchable.
+- The final Android workflow now performs the consolidated test, lint, Android configuration validation, web build and Chromium campaign/mobile smoke pass before Android project sync and Release APK assembly.
+- Updated the Android configuration validator and README to enforce/document the single final verification path.
+- Commits: lock `<see current delivery-lock revision>`; Android release gate `<see workflow revision>`; manual-only CI `d408b5858051c18e90869fbe3f1be73e44c36401`; CI validator `5815bc21f35567cb68729d6e0be8c52ed6d8a5c9`; consolidated release verification `6ca637711ecd702dca288a7b1a2d69ead7efdeb6`; README `246f93b00815d246c20f49f75c24f2bea88958e8`; release validator `d25c62c2ae18e133daf5ccb098ada7498713a244`.
+- No verification or APK build was run. The release flag remains false until all development is complete.
+
 ## Non-negotiable preservation rules
 - Preserve the currently working joystick/controller movement and touch mapping. Do not regress the approved controls.
 - Keep the game in landscape and make the playable scene fill the complete device viewport.
