@@ -19,6 +19,12 @@
 - Jump input must work reliably on touch and keyboard/controller. A held jump must not block subsequent jumps. Preserve the intended double-jump and flip/back-flip behavior, with correct landing/reset logic.
 - Keep the existing joystick behavior unchanged unless a verified defect requires a minimal targeted correction.
 
+### Enemy class silhouette follow-up (2026-11-27)
+- Agile/fast enemies now use a lighter aerodynamic crest/fin silhouette; heavy enemies use a broader plated profile with a jaw guard; special enemies receive a floating rune crown and arcane guard arc.
+- Crest and guard details receive subtle motion in the existing visual animation loop. Enemy physics, AI, movement speeds, collision sizes, damage, and combat logic are unchanged.
+- Source commit: `afc3f47a47c4f9c8455a8c5b423b58acb0b767c0`.
+- These remain Phaser procedural/vector visuals, not dedicated authored sprite sheets. No tests/builds were run during this implementation step.
+
 ### Gatekeeper boss pose follow-up (2026-11-27)
 - Added a dedicated low, braced anticipation pose and compact ground-pulse slam pose for the Gatekeeper/grappler boss style; it no longer falls through to generic boss posing for these states.
 - Boss timing, movement, attack selection, damage, hitboxes, and phase progression are unchanged.
