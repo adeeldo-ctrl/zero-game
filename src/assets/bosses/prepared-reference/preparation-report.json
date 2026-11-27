@@ -1,0 +1,47 @@
+{
+  "source": "user-uploaded enemy references",
+  "count": 5,
+  "note": "Five distinct references enlarged into dedicated 160x160 transparent boss base cutouts. These are static; boss-specific animation frames and visual review remain required.",
+  "assets": [
+    {
+      "id": "gatekeeper",
+      "source": "11_ice-golem.png",
+      "output": "gatekeeper.png",
+      "size": "160x160",
+      "removedBackdropRatio": 0.972,
+      "status": "enlarged-static-boss-base-review-required"
+    },
+    {
+      "id": "iron-comet",
+      "source": "19_ice-robot.png",
+      "output": "iron-comet.png",
+      "size": "160x160",
+      "removedBackdropRatio": 0.91,
+      "status": "enlarged-static-boss-base-review-required"
+    },
+    {
+      "id": "gale-talon",
+      "source": "16_blue-dragon.png",
+      "output": "gale-talon.png",
+      "size": "160x160",
+      "removedBackdropRatio": 0.78,
+      "status": "enlarged-static-boss-base-review-required"
+    },
+    {
+      "id": "suncrest",
+      "source": "09_pumpkin.png",
+      "output": "suncrest.png",
+      "size": "160x160",
+      "removedBackdropRatio": 0.684,
+      "status": "enlarged-static-boss-base-review-required"
+    },
+    {
+      "id": "void-sovereign",
+      "source": "30_purple-demon.png",
+      "output": "void-sovereign.png",
+      "size": "160x160",
+      "removedBackdropRatio": 0.937,
+      "status": "enlarged-static-boss-base-review-required"
+    }
+  ]
+}
