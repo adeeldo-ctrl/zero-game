@@ -79,3 +79,12 @@ The Android Release workflow may be started manually, or by adding `ZERO_GAME_FI
 - APK signature verification and upload succeeded. SHA-256: `513c83f7d817b4bb63b328cd226ba76a2a71eb1f750f017520b10b9b6d64d811`.
 - Automated Chromium gameplay checks passed on commit `f98f76d2`; release pipeline game-data tests, lint and web build passed on the release commit.
 - No physical Android handset test is claimed.
+
+## Superseding user instruction — final-only delivery hold (2026-11-27)
+
+The earlier Release APK result above is a historical artifact from a prior source snapshot. The user subsequently clarified that development must reach 100% completion before any new APK is built. Therefore:
+- Do not deliver the historical artifact as the final game.
+- Do not run the Android workflow, create debug/release APKs, or generate interim APK artifacts during development.
+- Complete all remaining source work first, run one consolidated final verification, then build and verify a fresh signed Release APK from the verified final source.
+- This instruction supersedes any older wording in this file that described the earlier artifact as final delivery.
+
