@@ -1839,9 +1839,27 @@ class ZeroGameScene extends Phaser.Scene {
           break;
       }
     }
+    // A restrained elemental signature makes impacts and kicks readable
+    // without spawning separate sprites or a large particle cloud.
+    if (attackVariant === "impact" || attackVariant === "kick") {
+      const edge = element.edge || 0xffffff;
+      const glow = element.glow || palette[0];
+      graphic.lineStyle(2.5 * scale, edge, 0.9);
+      graphic.strokeCircle(0, 0, (attackVariant === "kick" ? 13 : 10) * scale);
+      graphic.lineStyle(1.5 * scale, glow, 0.85);
+      for (let ray = 0; ray < 4; ray++) {
+        const a = ray * Math.PI / 2 + 0.35;
+        const r1 = 12 * scale, r2 = (attackVariant === "kick" ? 23 : 19) * scale;
+        graphic.lineBetween(Math.cos(a) * r1, Math.sin(a) * r1, Math.cos(a) * r2, Math.sin(a) * r2);
+      }
+    } else if (attackVariant === "trail" || attackVariant === "roll") {
+      graphic.lineStyle(2 * scale, element.trail || palette[0], 0.72);
+      graphic.lineBetween(-13 * scale, -4 * scale, 7 * scale, -4 * scale);
+      graphic.lineBetween(-10 * scale, 3 * scale, 5 * scale, 3 * scale);
+    }
     const angle = Phaser.Math.FloatBetween(-Math.PI, Math.PI);
     const travel = Phaser.Math.Between(18, 42) * scale;
-    const duration = attackVariant === "kick" ? 240 : 300;
+    const duration = attackVariant === "kick" ? 240 : attackVariant === "impact" ? 330 : 300;
     this.tweens.add({
       targets: graphic,
       x: x + Math.cos(angle) * travel,
@@ -2933,11 +2951,20 @@ class ZeroGameScene extends Phaser.Scene {
       enemy.setData("nextSnowTrailAt", this.time.now + (elementId === "wind" ? 360 : 420));
       this.spawnElementBallEffects(enemy.x - (enemy.getData("rollDirection") || 1) * 18, enemy.y + 5, elementId, "trail", 0.7);
     }
-    const spin = elementId === "wind" ? 1.8 : elementId === "water" ? 0.65 : elementId === "lightning" ? 2.1 : 1;
-    ball.angle += motion.rotationDelta * spin;
-    if (elementId === "wind") ball.setScale(1.45 + Math.sin(this.time.now * 0.02) * 0.08, 1.55 + Math.cos(this.time.now * 0.02) * 0.12);
-    else if (elementId === "water") ball.setScale(1.48 + Math.sin(this.time.now * 0.015) * 0.06, 1.38 + Math.cos(this.time.now * 0.015) * 0.08);
-    else if (elementId === "fire") ball.setScale(1.48 + Math.sin(this.time.now * 0.025) * 0.08);
+    const pulse = this.time.now;
+    const spinRates = { wind: 1.8, water: 0.65, lightning: 2.1, ice: 0.72, nature: 0.82, earth: 0.9, light: 1.35, shadow: 0.78, plasma: 1.55, fire: 1.15 };
+    ball.angle += motion.rotationDelta * (spinRates[elementId] || 1);
+    const pulseRate = { fire: 0.025, ice: 0.009, lightning: 0.032, water: 0.015, nature: 0.012, wind: 0.02, earth: 0.007, light: 0.018, shadow: 0.011, plasma: 0.024 }[elementId] || 0.015;
+    const pulseAmount = Math.sin(pulse * pulseRate);
+    if (elementId === "wind") ball.setScale(1.45 + pulseAmount * 0.08, 1.55 + Math.cos(pulse * 0.02) * 0.12);
+    else if (elementId === "water") ball.setScale(1.48 + pulseAmount * 0.06, 1.38 + Math.cos(pulse * 0.015) * 0.08);
+    else if (elementId === "fire" || elementId === "plasma") ball.setScale(1.45 + pulseAmount * 0.075, 1.45 - pulseAmount * 0.035);
+    else if (elementId === "lightning") ball.setScale(1.42 + pulseAmount * 0.09, 1.42 - pulseAmount * 0.07);
+    else if (elementId === "light") ball.setScale(1.46 + pulseAmount * 0.045);
+    else if (elementId === "ice") ball.setScale(1.43 + pulseAmount * 0.025, 1.48 - pulseAmount * 0.025);
+    else if (elementId === "nature") ball.setScale(1.48 + pulseAmount * 0.04, 1.4 - pulseAmount * 0.05);
+    else if (elementId === "shadow") ball.setScale(1.48 + pulseAmount * 0.035, 1.5 - pulseAmount * 0.045);
+    else ball.setScale(1.45 + pulseAmount * 0.025);
     const hits = enemy.getData("rollHits") || [];
     for (const target of this.enemies.getChildren()) {
       if (!target.active || target === enemy || hits.includes(target)) continue;
