@@ -1452,6 +1452,7 @@ class ZeroGameScene extends Phaser.Scene {
       chestSigil,
       shoulderL, shoulderR, cuffL, cuffR, eyeGlintL, eyeGlintR, cheekL, cheekR,
       backPlate, foreheadGem, waistSash, fastScarf, heavyKneeL, heavyKneeR,
+      backSpikes,
       belly,
       headband,
     });
@@ -4479,6 +4480,22 @@ class ZeroGameScene extends Phaser.Scene {
         if (parts.eyeGlintL?.active) parts.eyeGlintL.setAlpha(0.7 + (Math.sin(et * 0.005) + 1) * 0.12);
         if (parts.eyeGlintR?.active) parts.eyeGlintR.setAlpha(0.7 + (Math.cos(et * 0.005) + 1) * 0.12);
         if (parts.headband?.active) parts.headband.rotation = swing * 0.035;
+        if (parts.foreheadGem?.active) {
+          parts.foreheadGem.rotation = Math.sin(et * 0.0035) * 0.16;
+          parts.foreheadGem.setAlpha(0.78 + (Math.sin(et * 0.007) + 1) * 0.1);
+        }
+        if (parts.waistSash?.active) parts.waistSash.rotation = -swing * 0.12;
+        if (parts.fastScarf?.active && parts.fastScarf.visible) {
+          parts.fastScarf.rotation = -0.12 + Math.sin(et * 0.02) * 0.16;
+          parts.fastScarf.setScale(1 + Math.abs(swing) * 0.08, 1);
+        }
+        if (Array.isArray(parts.backSpikes)) {
+          parts.backSpikes.forEach((spike, index) => {
+            if (spike?.active) spike.rotation = (index === 0 ? -1 : 1) * (0.04 + swing * 0.035);
+          });
+        }
+        if (parts.heavyKneeL?.active) parts.heavyKneeL.rotation = swing * 0.12;
+        if (parts.heavyKneeR?.active) parts.heavyKneeR.rotation = -swing * 0.12;
         enemyVisual.y = enemy.y + Math.abs(swing) * -2 + visualBob;
         enemyVisual.angle = 0;
       }
