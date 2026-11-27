@@ -11,8 +11,8 @@ test("all regular enemy archetypes retain their requested ground movement speed"
   assert.equal(getEnemyMovementSpeed("runner", 245), 245);
 });
 
-test("unknown or removed airborne archetypes cannot override the grounded fallback", () => {
-  assert.equal(getEnemyMovementSpeed("flyer", 112), 55);
+test("the premium flying archetype keeps its authored speed while unknown roles use the fallback", () => {
+  assert.equal(getEnemyMovementSpeed("flyer", 112), 112);
   assert.equal(getEnemyMovementSpeed("unknown", 900), 55);
 });
 
