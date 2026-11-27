@@ -731,16 +731,16 @@ class ZeroGameScene extends Phaser.Scene {
     if (hero.id === "ryo") {
       // White martial-arts gi with a red headband: original hero design.
       const band = this.add.rectangle(0, -44, 44, 7, 0xd94a42).setStrokeStyle(2, 0x792d2d);
-      const tail = this.add.triangle(-25, -39, 0, 0, 18, 5, 0, 22, 0xd94a42);
+      const tail = this.add.ellipse(-29, -39, 22, 7, 0xd94a42).setAngle(-12);
       const belt = this.add.rectangle(0, 15, 34, 6, 0xd94a42);
       const gloveL = this.add.ellipse(-25, 18, 16, 13, 0xf2f2ed).setStrokeStyle(2, 0x9da7b4);
       const gloveR = this.add.ellipse(25, 18, 16, 13, 0xf2f2ed).setStrokeStyle(2, 0x9da7b4);
       items.push(band, tail, belt, gloveL, gloveR);
     } else if (hero.id === "kairo") {
       // Blond hair, red gi and gold trim: original hero design.
-      const spike1 = this.add.triangle(-13, -57, -12, 15, 0, -17, 12, 12, 0xf2c34e).setStrokeStyle(1, 0x9b6b22);
-      const spike2 = this.add.triangle(2, -60, -11, 14, 0, -19, 12, 14, 0xf2c34e).setStrokeStyle(1, 0x9b6b22);
-      const spike3 = this.add.triangle(17, -54, -12, 12, 0, -16, 13, 14, 0xf2c34e).setStrokeStyle(1, 0x9b6b22);
+      const spike1 = this.add.ellipse(-13, -55, 15, 12, 0xf2c34e).setAngle(-28).setStrokeStyle(1, 0x9b6b22);
+      const spike2 = this.add.ellipse(2, -59, 16, 13, 0xf2c34e).setAngle(4).setStrokeStyle(1, 0x9b6b22);
+      const spike3 = this.add.ellipse(17, -55, 15, 12, 0xf2c34e).setAngle(28).setStrokeStyle(1, 0x9b6b22);
       const headband = this.add.rectangle(0, -43, 44, 6, 0xd83b32).setStrokeStyle(2, 0xffd16b);
       const belt = this.add.rectangle(0, 15, 34, 6, 0xffd16b);
       // Keep the hero's hair silhouette and outfit; remove the floating flame marker.
@@ -755,9 +755,9 @@ class ZeroGameScene extends Phaser.Scene {
       items.push(bunL, bunR, cuffL, cuffR);
     } else {
       // Green skin, orange crest and electric markings: original wild fighter design.
-      const spike1 = this.add.triangle(-17, -54, -11, 15, 0, -19, 12, 14, 0xf28a32).setStrokeStyle(2, 0x8b4b24);
-      const spike2 = this.add.triangle(0, -60, -12, 16, 0, -22, 12, 16, 0xf28a32).setStrokeStyle(2, 0x8b4b24);
-      const spike3 = this.add.triangle(17, -54, -12, 14, 0, -18, 12, 15, 0xf28a32).setStrokeStyle(2, 0x8b4b24);
+      const spike1 = this.add.ellipse(-17, -53, 18, 13, 0xf28a32).setAngle(-25).setStrokeStyle(2, 0x8b4b24);
+      const spike2 = this.add.ellipse(0, -59, 20, 15, 0xf28a32).setStrokeStyle(2, 0x8b4b24);
+      const spike3 = this.add.ellipse(17, -53, 18, 13, 0xf28a32).setAngle(25).setStrokeStyle(2, 0x8b4b24);
       const stripeL = this.add.rectangle(-18, 4, 7, 27, 0xffe16a).setAngle(-18);
       const stripeR = this.add.rectangle(18, 4, 7, 27, 0xffe16a).setAngle(18);
       // Keep Volt's crest and suit markings; remove the floating lightning glyph.
@@ -1333,25 +1333,25 @@ class ZeroGameScene extends Phaser.Scene {
     const subtitle = this.add.text(480, 137, "50 STAGES  •  FOUR HEROES  •  FIVE BOSS BATTLES", { fontSize: "14px", color: "#8feaff", fontStyle: "bold", letterSpacing: 2 }).setOrigin(0.5).setDepth(63);
     const tagline = this.add.text(480, 184, "ONE HERO. THREE CHANCES. NINE HEARTS. FIFTY STAGES.", { fontSize: "14px", color: "#e8f6ff", fontStyle: "bold", letterSpacing: 1 }).setOrigin(0.5).setDepth(63);
     this.menuObjects.push(shade, panel, topLine, title, subtitle, tagline);
-    const previewXs = [315, 425, 535, 645];
+    const previewXs = [210, 390, 570, 750];
     HEROES.forEach((hero, i) => {
-      const visual = this.createHeroVisual(previewXs[i], 328);
+      const visual = this.createHeroVisual(previewXs[i], 312);
       const palette = visual.getData("heroPalette");
       palette.kurta.setFillStyle(hero.color); palette.waistcoat.setFillStyle(hero.accent); palette.capLine.setFillStyle(hero.accent);
       this.applyHeroLook(visual, hero);
       visual.setDepth(64).setScale(0.82).setAlpha(0);
       this.menuObjects.push(visual);
-      this.tweens.add({ targets: visual, y: 321 - (i % 2) * 5, alpha: 1, duration: 850, delay: 180 + i * 130, ease: "Back.easeOut" });
-      this.tweens.add({ targets: visual, y: 315 - (i % 2) * 5, duration: 800 + i * 100, delay: 1100 + i * 100, yoyo: true, repeat: -1, ease: "Sine.easeInOut" });
-      const label = this.add.text(previewXs[i], 382, hero.name.toUpperCase(), { fontSize: "16px", color: "#ffffff", fontStyle: "bold", stroke: "#10243a", strokeThickness: 3 }).setOrigin(0.5).setDepth(65);
-      const style = this.add.text(previewXs[i], 402, hero.style.toUpperCase(), { fontSize: "9px", color: "#9feaff", fontStyle: "bold", align: "center" }).setOrigin(0.5).setDepth(65);
+      this.tweens.add({ targets: visual, y: 307 - (i % 2) * 4, alpha: 1, duration: 850, delay: 180 + i * 130, ease: "Back.easeOut" });
+      this.tweens.add({ targets: visual, y: 301 - (i % 2) * 4, duration: 800 + i * 100, delay: 1100 + i * 100, yoyo: true, repeat: -1, ease: "Sine.easeInOut" });
+      const label = this.add.text(previewXs[i], 360, hero.name.toUpperCase(), { fontSize: "17px", color: "#ffffff", fontStyle: "bold", stroke: "#10243a", strokeThickness: 3 }).setOrigin(0.5).setDepth(65);
+      const style = this.add.text(previewXs[i], 385, hero.style.toUpperCase(), { fontSize: "10px", color: "#9feaff", fontStyle: "bold", align: "center", wordWrap: { width: 154, useAdvancedWrap: true }, lineSpacing: 2, fixedWidth: 154, fixedHeight: 34 }).setOrigin(0.5, 0).setDepth(65);
       this.menuObjects.push(label, style);
     });
     this.tweens.add({ targets: title, scale: 1, y: 88, duration: 850, ease: "Back.easeOut" });
-    const start = this.add.text(480, 474, "START CAMPAIGN", { fontSize: "22px", color: "#ffffff", backgroundColor: "#087e83", padding: { x: 38, y: 13 }, fontStyle: "bold", stroke: "#062b3a", strokeThickness: 2 }).setOrigin(0.5).setDepth(70).setInteractive({ useHandCursor: true });
-    const host = this.add.text(365, 430, "HOST WI-FI", { fontSize: "12px", color: "#ffffff", backgroundColor: "#235a80", padding: { x: 13, y: 7 }, fontStyle: "bold" }).setOrigin(0.5).setDepth(70).setInteractive({ useHandCursor: true });
-    const join = this.add.text(595, 430, "JOIN WI-FI", { fontSize: "12px", color: "#ffffff", backgroundColor: "#235a80", padding: { x: 13, y: 7 }, fontStyle: "bold" }).setOrigin(0.5).setDepth(70).setInteractive({ useHandCursor: true });
-    this.netStatusText = this.add.text(480, 405, "2-PLAYER WI-FI CO-OP", { fontSize: "10px", color: "#9feaff", fontStyle: "bold" }).setOrigin(0.5).setDepth(70);
+    const start = this.add.text(480, 502, "START CAMPAIGN", { fontSize: "20px", color: "#ffffff", backgroundColor: "#087e83", padding: { x: 34, y: 10 }, fontStyle: "bold", stroke: "#062b3a", strokeThickness: 2 }).setOrigin(0.5).setDepth(70).setInteractive({ useHandCursor: true });
+    const host = this.add.text(365, 463, "HOST WI-FI", { fontSize: "11px", color: "#ffffff", backgroundColor: "#235a80", padding: { x: 12, y: 6 }, fontStyle: "bold" }).setOrigin(0.5).setDepth(70).setInteractive({ useHandCursor: true });
+    const join = this.add.text(595, 463, "JOIN WI-FI", { fontSize: "11px", color: "#ffffff", backgroundColor: "#235a80", padding: { x: 12, y: 6 }, fontStyle: "bold" }).setOrigin(0.5).setDepth(70).setInteractive({ useHandCursor: true });
+    this.netStatusText = this.add.text(480, 438, "2-PLAYER WI-FI CO-OP", { fontSize: "10px", color: "#9feaff", fontStyle: "bold" }).setOrigin(0.5).setDepth(70);
     this.menuObjects.push(start, host, join, this.netStatusText);
     host.on("pointerdown", () => this.connectMultiplayer("HOST"));
     join.on("pointerdown", () => this.connectMultiplayer("JOIN"));
@@ -1369,20 +1369,20 @@ class ZeroGameScene extends Phaser.Scene {
     const sub = this.add.text(480, 83, "YOUR HERO WILL STAY WITH YOU THROUGH ALL 50 STAGES", { fontSize: "12px", color: "#9feaff", fontStyle: "bold", letterSpacing: 1 }).setOrigin(0.5).setDepth(61);
     this.menuObjects.push(shade, heading, sub);
     HEROES.forEach((hero, index) => {
-      const x = 120 + index * 240;
-      const card = this.add.rectangle(x, 292, 214, 365, 0x142b49, 0.98).setStrokeStyle(3, hero.accent).setDepth(61).setInteractive({ useHandCursor: true });
-      const glow = this.add.circle(x, 205, 77, hero.accent, 0.12).setStrokeStyle(3, hero.accent, 0.75).setDepth(62);
-      const visual = this.createHeroVisual(x, 230);
+      const x = 132 + index * 232;
+      const card = this.add.rectangle(x, 286, 216, 414, 0x142b49, 0.98).setStrokeStyle(3, hero.accent).setDepth(61).setInteractive({ useHandCursor: true });
+      const glow = this.add.circle(x, 196, 70, hero.accent, 0.12).setStrokeStyle(3, hero.accent, 0.75).setDepth(62);
+      const visual = this.createHeroVisual(x, 218);
       const palette = visual.getData("heroPalette");
       palette.kurta.setFillStyle(hero.color); palette.waistcoat.setFillStyle(hero.accent); palette.capLine.setFillStyle(hero.accent);
       this.applyHeroLook(visual, hero); visual.setDepth(63).setScale(1.03);
-      const name = this.add.text(x, 319, hero.name.toUpperCase(), { fontSize: "22px", color: "#ffffff", fontStyle: "bold" }).setOrigin(0.5).setDepth(64);
-      const title = this.add.text(x, 348, hero.title, { fontSize: "12px", color: "#9feaff", fontStyle: "bold", align: "center" }).setOrigin(0.5).setDepth(64);
-      const power = this.add.text(x, 382, hero.superPower.toUpperCase(), { fontSize: "14px", color: "#ffe17a", fontStyle: "bold" }).setOrigin(0.5).setDepth(64);
-      const moves = this.add.text(x, 421, hero.specialMoves.map(move => move.name).join("\n"), { fontSize: "11px", color: "#d7eaff", align: "center", lineSpacing: 5 }).setOrigin(0.5).setDepth(64);
-      const choose = this.add.text(x, 486, "SELECT HERO", { fontSize: "13px", color: "#ffffff", backgroundColor: "#126d7b", padding: { x: 16, y: 8 }, fontStyle: "bold" }).setOrigin(0.5).setDepth(64).setInteractive({ useHandCursor: true });
+      const name = this.add.text(x, 300, hero.name.toUpperCase(), { fontSize: "20px", color: "#ffffff", fontStyle: "bold" }).setOrigin(0.5).setDepth(64);
+      const title = this.add.text(x, 328, hero.title, { fontSize: "11px", color: "#9feaff", fontStyle: "bold", align: "center", wordWrap: { width: 188 }, fixedWidth: 188 }).setOrigin(0.5).setDepth(64);
+      const power = this.add.text(x, 365, hero.superPower.toUpperCase(), { fontSize: "13px", color: "#ffe17a", fontStyle: "bold", align: "center", wordWrap: { width: 188 }, fixedWidth: 188 }).setOrigin(0.5).setDepth(64);
+      const moves = this.add.text(x, 405, hero.specialMoves.map(move => move.name).join("\n"), { fontSize: "10px", color: "#d7eaff", align: "center", lineSpacing: 4, wordWrap: { width: 188 }, fixedWidth: 188, fixedHeight: 62 }).setOrigin(0.5, 0).setDepth(64);
+      const choose = this.add.text(x, 468, "SELECT HERO", { fontSize: "12px", color: "#ffffff", backgroundColor: "#126d7b", padding: { x: 14, y: 7 }, fontStyle: "bold" }).setOrigin(0.5).setDepth(64).setInteractive({ useHandCursor: true });
       this.menuObjects.push(card, glow, visual, name, title, power, moves, choose);
-      this.tweens.add({ targets: visual, y: 222, angle: index % 2 ? 3 : -3, duration: 760 + index * 120, yoyo: true, repeat: -1, ease: "Sine.easeInOut" });
+      this.tweens.add({ targets: visual, y: 210, angle: index % 2 ? 1.5 : -1.5, duration: 760 + index * 120, yoyo: true, repeat: -1, ease: "Sine.easeInOut" });
       this.tweens.add({ targets: glow, scale: 1.16, alpha: 0.2, duration: 900 + index * 100, yoyo: true, repeat: -1 });
       const select = () => {
         if (this.heroSelectionLocked) return;
