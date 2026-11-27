@@ -731,24 +731,33 @@ class ZeroGameScene extends Phaser.Scene {
         g.lineBetween(x, 470, x + ((i % 2) ? 10 : -10), 450 - (i % 3) * 7);
       }
     } else if (world === 1) {
-      // Candy/desert: layered dunes, sculpted cacti and jewel-like stones.
-      g.fillStyle(0xf3c17c, 0.22);
+      // Candy orchard: pastel sugar hills, striped candy canes and lollipop blooms.
+      g.fillStyle(0xffb8d3, 0.2);
       g.fillEllipse(210 + variant * 35, 470, 370, 52);
       g.fillEllipse(760 - variant * 25, 478, 420, 46);
       [left + 22, right - 22].forEach((x, i) => {
-        g.fillStyle(0x438b72, 0.94);
-        g.fillRoundedRect(x - 6, 407, 12, 67, 6);
-        g.fillRoundedRect(x + (i ? -22 : 10), 432, 31, 9, 5);
-        g.fillRoundedRect(x + (i ? -22 : 10), 416, 9, 25, 5);
-        g.lineStyle(2, 0xb9f0c7, 0.65);
-        g.lineBetween(x, 414, x, 465);
+        g.fillStyle(i ? 0xffe7f1 : 0xffffff, 0.96);
+        g.fillRoundedRect(x - 7, 405, 14, 70, 7);
+        g.lineStyle(4, i ? 0xf28ab5 : 0x83cfe0, 0.95);
+        for (let stripe = 0; stripe < 4; stripe++) {
+          const y = 414 + stripe * 15;
+          g.lineBetween(x - 6, y, x + 6, y + 7);
+        }
+        g.fillStyle(i ? 0xffd36b : 0xff8fbd, 0.96);
+        g.fillCircle(x, 398, 17);
+        g.fillStyle(0xffffff, 0.78);
+        g.fillCircle(x - 5, 393, 4);
+        g.fillCircle(x + 6, 403, 3);
       });
-      for (let i = 0; i < 7; i++) {
-        const x = 150 + i * 108;
-        g.fillStyle(i % 2 ? 0xffe0a3 : 0xf5a7ad, 0.78);
-        g.fillTriangle(x - 8, 466, x, 448 - (i % 3) * 4, x + 9, 466);
-        g.fillStyle(0xffffff, 0.55);
-        g.fillCircle(x, 459, 2);
+      for (let i = 0; i < 8; i++) {
+        const x = 112 + i * 104;
+        const candyColor = [0xff8fbd, 0x8bd8e8, 0xffd36b, 0xb9a0f4][i % 4];
+        g.fillStyle(candyColor, 0.9);
+        g.fillCircle(x, 458 - (i % 3) * 5, 8 + (i % 2) * 2);
+        g.lineStyle(2, 0xffffff, 0.72);
+        g.strokeCircle(x, 458 - (i % 3) * 5, 5);
+        g.fillStyle(0xfff5fb, 0.82);
+        g.fillCircle(x - 3, 455 - (i % 3) * 5, 2);
       }
     } else if (world === 2) {
       // Ice kingdom: translucent ice shelves, icicles and frosted crystals.
