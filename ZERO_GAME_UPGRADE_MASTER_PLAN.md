@@ -1132,3 +1132,15 @@ The first integrated implementation tranche has now been pushed to `main`:
 - Confirmed by source inspection that the ten world backgrounds each have five atmosphere variants, producing 50 stage-specific world/landmark compositions; all 50 stage music sequences have distinct note orderings, and the five boss tracks remain separately routed.
 
 **Remaining before the single consolidated verification:** inspect/fix any integration issues found by static review; verify boss attendant replenishment under real encounter flow; verify platform special effects, collisions and all 50 route layouts in the browser smoke; confirm every 45 atlas frame/animation resolves; then run the complete CI suite once and fix any failures. Only after that should the single final signed Android APK be built. No interim APK is to be produced.
+
+
+### Follow-up implementation tranche — platform silhouettes and boss audio/animation data (2026-11-27)
+
+- Added eight ornamental platform silhouette families across the 50-stage campaign: cloud-island, crystal-bridge, gear-rail, vine-branch, rune-arch, candy-bubble, lava-crack, and star-bridge. These are separate from the ten material finishes and seven gameplay-effect types, so line appearance is not limited to recoloring the same rectangle.
+- Each of the six elevated platforms per stage now receives a deterministic material, silhouette family, and optional special mechanic. All eight silhouette families and all seven special platform types are assigned somewhere in the campaign.
+- Moved boss signature attack profiles into a reusable rules module and connected the live volley system to those profiles. Tests assert unique projectile shape, speed, spread/pattern identity, and phase escalation for all five bosses.
+- Moved the five boss sprite animation profiles into the same rules module. Each boss has a distinct idle frame order, strike frame order, and strike rate; the live sprite switches to its strike clip during tell, dash, volley and slam states.
+- Exposed the five boss soundtrack sequences as a testable audio-data function and verified they are distinct. The existing 50-stage music sequence function remains unique per stage.
+- Added data checks for six platforms per arena, no close-height horizontal line overlap, full route reachability from the floor, all ten materials, all eight silhouette families, and all seven special platform effects. A source-level calculation across the 50 generated layouts found no route or close-line-overlap failures; the consolidated browser/CI verification is still pending.
+
+**Next:** complete the remaining integration review, then perform the single consolidated verification and final signed Android APK build. Do not create an interim APK.
