@@ -622,3 +622,11 @@ The following gameplay requirements are mandatory and supersede any conflicting 
 - Replaced the generic yellow boss-hit circle with a compact three-layer impact burst: an element-coloured star core, an expanding energy ring, and a brief white contact flash.
 - Impact palette follows each boss's assigned element across all ten element types, while boss damage, hit timing, score awards, knockback, and phase logic remain unchanged.
 - The effect uses one short-lived container per confirmed boss hit and does not add persistent emitters. No APK build was triggered.
+
+
+## Enemy armour and face-detail animation pass — 2026-11-27
+
+- Added layered shoulder guards, forearm cuffs, cheek markings, and small eye highlights to the existing fast, heavy, and special enemy designs.
+- Shoulder guards and cuffs now respond subtly to stride; eye highlights have a restrained alternating shimmer.
+- All added pieces are registered with the existing enemy visual container and animation parts; no AI, collision, damage, movement speed, or input behavior was changed.
+- The additions reuse the existing per-enemy visual update and create no per-frame display objects. No APK build was triggered.
