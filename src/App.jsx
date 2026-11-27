@@ -197,6 +197,7 @@ class ZeroGameScene extends Phaser.Scene {
     this.events.once("shutdown", () => { this.audio.stop(); if (this.netSocket) this.netSocket.close(); });
     this.defeated = 0;
     this.stageCleared = false;
+    this.stageCollectionActive = false;
     this.gameOver = false;
     if (this.openHeroSelectAfterRestart) {
       this.openHeroSelectAfterRestart = false;
@@ -1700,7 +1701,7 @@ class ZeroGameScene extends Phaser.Scene {
     const powerLevel = Phaser.Math.Clamp(this.particlePowerLevel || 1, 1, this.particlePowerMaxLevel || 20);
     const upgrade = (powerLevel - 1) / 19;
     const densityMultiplier = 1 + upgrade * 9;
-    const particleCount = element.id === "fire" ? Math.min(1200, Math.ceil(count * 10 * densityMultiplier)) : Math.min(600, Math.ceil(count * densityMultiplier));
+    const particleCount = element.id === "fire" ? Math.min(240, Math.ceil(count * 10 * (1 + upgrade * 0.35))) : Math.min(120, Math.ceil(count * (1 + upgrade * 2.5)));
     const particleScale = scale * (1 + upgrade * 1.8);
     const particleSpeed = 1 + upgrade * 1.5;
     const particleLifetime = 1 + upgrade * 0.75;
@@ -1771,81 +1772,87 @@ class ZeroGameScene extends Phaser.Scene {
   }
 
   createElementBall(x, y, palette) {
+    // Each power uses a strong, non-spherical silhouette so it cannot read as
+    // the same blue snowball with a different tint.
     const ball = this.add.container(x, y).setDepth(16);
     ball.setData("elementId", palette.id);
     const details = [];
     const ring = (radius, color, width = 4, start = 20, end = 340) =>
       this.add.arc(0, 0, radius, start, end, false, color, 0.95).setStrokeStyle(width, color, 0.95);
+    const poly = (points, color = palette.ball, stroke = palette.edge, width = 4) =>
+      this.add.polygon(0, 0, points, color, 0.98).setStrokeStyle(width, stroke, 1);
     switch (palette.id) {
       case "wind": {
-        const cyclone = this.add.graphics();
-        cyclone.lineStyle(6, palette.edge, 0.95); cyclone.beginPath();
-        cyclone.moveTo(-17, 16); cyclone.lineTo(-9, 5); cyclone.lineTo(8, -2); cyclone.lineTo(15, -17);
-        cyclone.moveTo(-12, 20); cyclone.lineTo(12, 20); cyclone.moveTo(-20, -8); cyclone.lineTo(-9, -14);
-        cyclone.strokePath();
-        details.push(ring(23, 0xffffff, 3, 15, 165), ring(16, palette.edge, 4, 190, 350), ring(9, 0xffffff, 2, 35, 300), cyclone);
+        const funnel = this.add.graphics();
+        funnel.fillStyle(palette.ball, 0.28);
+        funnel.fillTriangle(-20, -19, 20, -19, 5, 22);
+        funnel.lineStyle(5, palette.edge, 1);
+        funnel.beginPath(); funnel.moveTo(-22, -18); funnel.lineTo(22, -18);
+        funnel.moveTo(-17, -2); funnel.lineTo(17, -2);
+        funnel.moveTo(-10, 13); funnel.lineTo(10, 13); funnel.strokePath();
+        details.push(funnel, ring(25, 0xffffff, 3, 20, 165), ring(17, palette.edge, 4, 190, 350));
         ball.setData("motionStyle", "twister"); break;
       }
-      case "water":
-        details.push(this.add.ellipse(0, 1, 43, 51, palette.ball, 0.84).setStrokeStyle(4, palette.edge),
-          this.add.ellipse(-7, -7, 15, 26, 0xe8fcff, 0.92).setAngle(22),
-          this.add.circle(13, 10, 7, 0x8be5ff, 0.9), this.add.circle(-18, -20, 4, 0xffffff, 1));
+      case "water": {
+        details.push(poly([0,-29, 17,-8, 23,8, 17,23, 0,29, -17,23, -23,8, -17,-8], palette.ball, palette.edge, 4),
+          this.add.ellipse(-7,-8,9,22,0xeaffff,0.95).setAngle(24),
+          this.add.arc(0,5,18,205,335,false,0xffffff,0.9).setStrokeStyle(3,0xffffff,0.9),
+          this.add.circle(19,-18,4,0xffffff,0.95));
         ball.setData("motionStyle", "flow"); break;
-      case "fire":
-        details.push(this.add.circle(0, 0, 24, palette.ball).setStrokeStyle(4, palette.edge),
-          this.add.ellipse(-8, 3, 13, 29, 0xffe17a).setAngle(-28),
-          this.add.ellipse(8, 1, 12, 24, 0xff6a27).setAngle(24), this.add.circle(0, 3, 8, 0xfff0a1));
+      }
+      case "fire": {
+        details.push(poly([-22,17,-17,-4,-7,-25,1,-10,12,-29,17,-7,25,17,12,25,-12,25], palette.ball, palette.edge, 4),
+          poly([-9,15,-4,-4,3,7,10,-8,12,16], 0xffe17a, 0xffffcf, 2),
+          this.add.ellipse(0,16,15,7,0xfff3a0,0.95));
         ball.setData("motionStyle", "flame"); break;
+      }
       case "ice": {
-        details.push(this.add.circle(0, 0, 25, palette.ball, 0.82).setStrokeStyle(4, palette.edge));
+        details.push(poly([0,-29,9,-13,25,-17,17,-1,29,8,12,13,15,29,0,19,-15,29,-12,12,-29,8,-14,-2,-25,-18,-8,-13], palette.ball, palette.edge, 4));
         const snowflake = this.add.graphics(); snowflake.lineStyle(3, 0xffffff, 1);
         for (let i = 0; i < 6; i++) {
-          const a = i * Math.PI / 3, ex = Math.cos(a) * 20, ey = Math.sin(a) * 20;
-          snowflake.lineBetween(0, 0, ex, ey);
-          snowflake.lineBetween(ex, ey, ex - Math.cos(a - 0.5) * 7, ey - Math.sin(a - 0.5) * 7);
-          snowflake.lineBetween(ex, ey, ex - Math.cos(a + 0.5) * 7, ey - Math.sin(a + 0.5) * 7);
+          const a = i * Math.PI / 3, ex = Math.cos(a) * 19, ey = Math.sin(a) * 19;
+          snowflake.lineBetween(0,0,ex,ey);
+          snowflake.lineBetween(ex,ey,ex-Math.cos(a-0.5)*6,ey-Math.sin(a-0.5)*6);
+          snowflake.lineBetween(ex,ey,ex-Math.cos(a+0.5)*6,ey-Math.sin(a+0.5)*6);
         }
         details.push(snowflake); ball.setData("motionStyle", "ice-roll"); break;
       }
-      case "lightning": {
-        const bolt = this.add.graphics(); bolt.lineStyle(7, 0xffffff, 1); bolt.beginPath();
-        bolt.moveTo(-5, -22); bolt.lineTo(7, -5); bolt.lineTo(-3, 1); bolt.lineTo(7, 22); bolt.strokePath();
-        details.push(this.add.circle(0, 0, 24, palette.ball, 0.8).setStrokeStyle(3, palette.edge), bolt, ring(29, palette.edge, 3, 25, 310));
+      case "lightning":
+        details.push(poly([-5,-29,17,-5,4,1,15,27,-17,3,-3,-4], palette.ball, palette.edge, 4),
+          this.add.graphics().lineStyle(3,0xffffff,1).lineBetween(-3,-18,8,-4));
         ball.setData("motionStyle", "spark-dash"); break;
-      }
       case "nature":
-        details.push(this.add.ellipse(0, 0, 40, 48, palette.ball).setStrokeStyle(4, palette.edge),
-          this.add.ellipse(-9, 0, 12, 27, 0xbaff83).setAngle(-30), this.add.ellipse(9, 0, 12, 27, 0x5de078).setAngle(30));
+        details.push(poly([0,-29,15,-17,22,-2,15,17,0,29,-15,17,-22,-2,-15,-17], palette.ball, palette.edge, 4),
+          this.add.graphics().lineStyle(3,0xeaffb0,1).lineBetween(0,-22,0,23).lineBetween(0,0,-12,-9).lineBetween(0,7,12,-3));
         ball.setData("motionStyle", "leaf-roll"); break;
       case "earth":
-        details.push(this.add.polygon(0, 0, [-22,-9,-8,-25,16,-17,24,5,7,24,-17,16], palette.ball).setStrokeStyle(5, palette.edge),
-          this.add.polygon(-8, -5, [-8,-8,2,-17,11,-6,1,6], 0xffd59a));
+        details.push(poly([-25,-10,-10,-27,9,-20,26,-5,19,18,3,27,-21,15], palette.ball, palette.edge, 5),
+          poly([-7,-8,3,-18,13,-5,2,8], 0xffd59a, 0xffedc7, 2));
         ball.setData("motionStyle", "rock-roll"); break;
       case "light":
-        details.push(this.add.star(0, 0, 8, 13, 26, palette.ball).setStrokeStyle(4, palette.edge),
-          this.add.star(0, 0, 8, 5, 13, 0xffffff), this.add.circle(0, 0, 5, 0xfff4a6));
+        details.push(this.add.star(0,0,8,12,29,palette.ball).setStrokeStyle(4,palette.edge),
+          this.add.star(0,0,8,4,13,0xffffff), this.add.circle(0,0,4,0xfff4a6));
         ball.setData("motionStyle", "radiant"); break;
       case "shadow":
-        details.push(this.add.circle(0, 0, 25, 0x25163f).setStrokeStyle(4, palette.edge),
-          this.add.circle(10, -7, 18, palette.ball), this.add.circle(-9, 7, 7, 0x24143d, 0.95),
-          ring(30, 0xbda0ff, 3, 40, 300));
+        details.push(this.add.arc(-2,0,27,35,325,false,0x25163f,1).setStrokeStyle(9,palette.edge,1),
+          this.add.arc(8,-1,19,45,315,false,palette.ball,1).setStrokeStyle(7,palette.ball,1),
+          this.add.arc(-7,0,13,75,285,false,0x25163f,1).setStrokeStyle(5,0x25163f,1),
+          this.add.circle(16,-13,4,0xffffff,0.9));
         ball.setData("motionStyle", "shade"); break;
-      default: {
-        details.push(this.add.circle(0, 0, 24, palette.ball).setStrokeStyle(4, palette.edge),
-          this.add.circle(-8, -7, 6, 0xffffff), this.add.circle(9, 8, 6, 0xffb1dd),
-          ring(30, palette.edge, 4, 30, 325), this.add.star(0, 0, 6, 3, 13, 0xffffff));
+      default:
+        details.push(poly([-22,-12,-9,-27,9,-21,25,-5,17,17,0,27,-18,15], palette.ball, palette.edge, 4),
+          this.add.star(0,0,6,4,15,0xffffff), ring(31,palette.edge,3,35,315));
         ball.setData("motionStyle", "plasma"); break;
-      }
     }
     ball.add(details);
-    this.tweens.add({ targets: details, alpha: 0.76, duration: palette.id === "wind" ? 260 : 420, yoyo: true, repeat: -1 });
-    this.spawnElementParticles(x, y, palette.id, 14, 0.8);
+    this.tweens.add({ targets: details, alpha: 0.82, duration: palette.id === "wind" ? 260 : 420, yoyo: true, repeat: -1 });
+    this.spawnElementParticles(x, y, palette.id, 8, 0.65);
     return ball;
   }
 
   spawnElementBallEffects(x, y, elementId, kind = "trail", scale = 1) {
     const palette = getElement(elementId || "fire");
-    const count = kind === "kick" ? 24 : kind === "impact" ? 18 : 8;
+    const count = kind === "kick" ? 14 : kind === "impact" ? 10 : 3;
     if (palette.id === "ice") {
       this.spawnElementParticles(x, y, "ice", count, scale, kind);
     } else if (palette.id === "wind") {
@@ -1882,6 +1889,14 @@ class ZeroGameScene extends Phaser.Scene {
 
   hitEnemy(projectile, enemy) {
     if (!projectile.active || !enemy.active || enemy.getData("defeatCounted")) return;
+    if (enemy.getData("frozen") || enemy.getData("rolling")) {
+      const blockedGlow = projectile.getData("glow");
+      const blockedTrail = projectile.getData("trail");
+      if (blockedGlow?.active) blockedGlow.destroy();
+      if (blockedTrail?.active) blockedTrail.destroy();
+      projectile.destroy();
+      return;
+    }
     const projectilePower = projectile.getData("powerType") || this.powerType;
     const ballElement = getElement(enemy.getData("enemyPowerType") || projectilePower);
     const hitPalette = { id: ballElement.id, effect: ballElement.effect, ball: ballElement.ball,
@@ -2592,12 +2607,18 @@ class ZeroGameScene extends Phaser.Scene {
     this.audio.play("stageClear");
     this.audio.playVictoryTheme?.();
     this.stageCleared = true;
+    this.stageCollectionActive = false;
     this.hero.setVelocity(0, 0);
     this.physics.world.pause();
     this.statusLabel.setText(`STAGE ${String(this.stageNumber).padStart(2,"0")} COMPLETE! COLLECT YOUR POINTS!`).setColor("#ffe17a");
-    const beginCollection = () => {
+    // Keep the hero on the arena floor. The five-second bonus is playable so
+    // the player can run/jump through the remaining reward drops.
+    this.time.delayedCall(180, () => {
+      if (!this.hero?.active || this.gameOver) return;
       this.physics.world.resume();
-      this.hero?.setVelocity(0, 0);
+      this.stageCollectionActive = true;
+      this.setMobileControlsVisible(true);
+      this.hero.setVelocity(0, 0);
       const countdown = this.add.text(480, 112, "COLLECT POINTS: 5", {
         fontSize: "25px", color: "#ffe17a", fontStyle: "bold", stroke: "#402b4e", strokeThickness: 6
       }).setOrigin(0.5).setDepth(48);
@@ -2606,20 +2627,16 @@ class ZeroGameScene extends Phaser.Scene {
         remaining -= 1;
         if (countdown.active) countdown.setText(remaining > 0 ? `COLLECT POINTS: ${remaining}` : "SCORE LOCKED!");
         if (remaining === 0) {
+          this.stageCollectionActive = false;
           this.physics.world.pause();
+          this.setMobileControlsVisible(false);
           this.time.delayedCall(250, () => {
             if (countdown.active) countdown.destroy();
             this.showVictory();
           });
         }
       }});
-    };
-    if (this.heroVisual?.active) {
-      this.tweens.add({ targets: this.heroVisual, y: -120, alpha: 0.35, scale: 0.72, duration: 720, ease: "Cubic.easeIn",
-        onComplete: beginCollection });
-    } else {
-      beginCollection();
-    }
+    });
   }
 
   advanceToNextStage() {
@@ -2829,9 +2846,6 @@ class ZeroGameScene extends Phaser.Scene {
     if (!ball?.active) { this.finishRollingBallCarrier(enemy, null, false); return; }
     const elementId = enemy.getData("rollElementId") || ball.getData("elementId") || "fire";
     const rollAge = this.time.now - (enemy.getData("rollStartedAt") || this.time.now);
-    if (rollAge >= 4200 || Math.abs(enemy.x - (enemy.getData("rollDistanceOrigin") ?? enemy.x)) >= 2600) {
-      enemy.setVelocity(0, 0); enemy.body.enable = false; this.finishRollingBallCarrier(enemy, ball, true); return;
-    }
     const motion = calculateRollingBallMotion({
       velocityX: enemy.body.velocity.x, direction: enemy.getData("rollDirection") || 1, deltaMs: delta,
       grounded: enemy.body.blocked.down,
@@ -2856,7 +2870,7 @@ class ZeroGameScene extends Phaser.Scene {
     ball.setPosition(enemy.x, enemy.y + bob);
     const nextTrailAt = enemy.getData("nextSnowTrailAt") || 0;
     if (this.time.now >= nextTrailAt) {
-      enemy.setData("nextSnowTrailAt", this.time.now + (elementId === "wind" ? 55 : 85));
+      enemy.setData("nextSnowTrailAt", this.time.now + (elementId === "wind" ? 115 : 145));
       this.spawnElementBallEffects(enemy.x - (enemy.getData("rollDirection") || 1) * 18, enemy.y + 5, elementId, "trail", 0.7);
     }
     const spin = elementId === "wind" ? 1.8 : elementId === "water" ? 0.65 : elementId === "lightning" ? 2.1 : 1;
@@ -3162,20 +3176,28 @@ class ZeroGameScene extends Phaser.Scene {
 
     if (this.stageTransitionActive) return;
     if (this.defeated >= this.stageEnemyCount && !this.stageConfig.boss && !this.stageCleared) this.completeStage();
-    if (this.stageCleared || this.gameOver) this.setMobileControlsVisible(false);
-    if (!this.hero || !this.gameStarted || this.gameOver || this.stageCleared) return;
-    const elapsedSeconds = Math.floor((time - this.stageStartedAt - (this.bonusMode ? time - this.bonusStartedAt : 0)) / 1000);
-    this.stageTimeLeft = Math.max(0, (this.stageConfig.timeLimit || 120) - elapsedSeconds);
-    if (this.timerLabel?.active) {
-      const mm = Math.floor(this.stageTimeLeft / 60).toString().padStart(2, "0");
-      const ss = (this.stageTimeLeft % 60).toString().padStart(2, "0");
-      this.timerLabel.setText(`${mm}:${ss}`).setColor(this.stageTimeLeft <= 15 ? "#ff7777" : "#ffffff");
+    const collectingStagePoints = this.stageCleared && this.stageCollectionActive;
+    if ((this.stageCleared && !collectingStagePoints) || this.gameOver) {
+      this.setMobileControlsVisible(false);
+      return;
     }
-    if (this.stageTimeLeft <= 0 && !this.timeHunterSpawned && !this.stageConfig.isBossStage) this.spawnTimeHunter();
-    if (this.bonusMode) {
-      const remaining = Math.max(0, Math.ceil((this.bonusUntil - time) / 1000));
-      if (this.statusLabel?.active) this.statusLabel.setText(`BONUS ROUND: ${remaining}s`).setColor("#ff8cda");
-      if (time >= this.bonusUntil) this.finishBonusStage();
+    if (!this.hero || !this.gameStarted) return;
+    if (!collectingStagePoints) {
+      const elapsedSeconds = Math.floor((time - this.stageStartedAt - (this.bonusMode ? time - this.bonusStartedAt : 0)) / 1000);
+      this.stageTimeLeft = Math.max(0, (this.stageConfig.timeLimit || 120) - elapsedSeconds);
+      if (this.timerLabel?.active) {
+        const mm = Math.floor(this.stageTimeLeft / 60).toString().padStart(2, "0");
+        const ss = (this.stageTimeLeft % 60).toString().padStart(2, "0");
+        this.timerLabel.setText(`${mm}:${ss}`).setColor(this.stageTimeLeft <= 15 ? "#ff7777" : "#ffffff");
+      }
+      if (this.stageTimeLeft <= 0 && !this.timeHunterSpawned && !this.stageConfig.isBossStage) this.spawnTimeHunter();
+      if (this.bonusMode) {
+        const remaining = Math.max(0, Math.ceil((this.bonusUntil - time) / 1000));
+        if (this.statusLabel?.active) this.statusLabel.setText(`BONUS ROUND: ${remaining}s`).setColor("#ff8cda");
+        if (time >= this.bonusUntil) this.finishBonusStage();
+      }
+    } else {
+      this.setMobileControlsVisible(true);
     }
     if (this.treasureChest?.active && !this.treasureChest.getData("opened") &&
         Phaser.Math.Distance.Between(this.hero.x, this.hero.y, this.treasureChest.x, this.treasureChest.y) < 58) {
