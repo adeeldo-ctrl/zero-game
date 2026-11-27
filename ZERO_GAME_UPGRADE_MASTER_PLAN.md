@@ -176,6 +176,12 @@
 - Source commit: `7fa41f91dbfaf15073b4c9c84597c81878309c6c`.
 - No tests/builds were run; consolidated verification and Android Release APK remain deferred until development is complete.
 
+### Keyboard and touch release on background/overlay transitions (2026-11-27)
+- The app now resets held Phaser keyboard keys as well as touch flags when the WebView backgrounds or loses focus.
+- The Chromium smoke harness now simulates a held keyboard direction during backgrounding and asserts it is released together with joystick and action-button state.
+- Source commit: `20e795f38af66d1e4a76041d5e46f6dc0a837548`; smoke test commit: `9ca5ea989f294cad530aadf417ed5375ec3e51f8`.
+- No tests/builds were run; final consolidated verification and Android Release APK remain deferred until all development is complete.
+
 ## Non-negotiable preservation rules
 - Preserve the currently working joystick/controller movement and touch mapping. Do not regress the approved controls.
 - Keep the game in landscape and make the playable scene fill the complete device viewport.
