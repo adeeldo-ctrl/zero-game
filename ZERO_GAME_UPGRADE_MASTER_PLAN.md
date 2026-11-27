@@ -630,3 +630,10 @@ The following gameplay requirements are mandatory and supersede any conflicting 
 - Shoulder guards and cuffs now respond subtly to stride; eye highlights have a restrained alternating shimmer.
 - All added pieces are registered with the existing enemy visual container and animation parts; no AI, collision, damage, movement speed, or input behavior was changed.
 - The additions reuse the existing per-enemy visual update and create no per-frame display objects. No APK build was triggered.
+
+
+## Animated distant sky layers — 2026-11-27
+
+- Added three restrained, layered cloud banks to selected clear, sunset, moonlit, and cloudy weather variants.
+- Cloud tint and opacity adapt for day/night conditions; slow horizontal drift adds sky movement while keeping the playfield readable.
+- Clouds are created once per stage and reuse a small fixed set of shapes; gameplay physics, stage layouts, weather particles, and controls are unchanged. No APK build was triggered.
