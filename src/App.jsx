@@ -2848,8 +2848,9 @@ class ZeroGameScene extends Phaser.Scene {
       this.spawnElementBallEffects(enemy.x, enemy.y, elementId, "impact", 0.85);
       enemy.setX(Phaser.Math.Clamp(enemy.x + motion.direction * 8, 32, 928));
     }
-    const velocityFactor = elementId === "wind" ? 1.12 : elementId === "water" ? 0.94 : elementId === "earth" ? 0.82 : 1;
-    enemy.setVelocityX(motion.velocityX * velocityFactor);
+    // Keep physics speed stable; elemental feel comes from launch speed, shape,
+    // bobbing, spin, trail and impact presentation rather than per-frame multipliers.
+    enemy.setVelocityX(motion.velocityX);
     const bob = elementId === "wind" ? Math.sin(this.time.now * 0.018) * 5
       : elementId === "water" ? Math.sin(this.time.now * 0.012) * 2 : 0;
     ball.setPosition(enemy.x, enemy.y + bob);
