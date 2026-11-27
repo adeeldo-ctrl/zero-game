@@ -32,6 +32,8 @@ const SOUND_NOTES = {
 
 export function createGameAudio() {
   let context = null;
+  let masterOutput = null;
+  let masterCompressor = null;
   let musicTimer = null;
   let musicGeneration = 0;
   let musicIndex = 0;
@@ -61,6 +63,22 @@ export function createGameAudio() {
       if (!AudioContextClass) return null;
       context = new AudioContextClass();
     }
+    if (!masterOutput && context.createGain) {
+      masterOutput = context.createGain();
+      masterOutput.gain.setValueAtTime(0.82, context.currentTime);
+      if (context.createDynamicsCompressor) {
+        masterCompressor = context.createDynamicsCompressor();
+        masterCompressor.threshold.setValueAtTime(-18, context.currentTime);
+        masterCompressor.knee.setValueAtTime(16, context.currentTime);
+        masterCompressor.ratio.setValueAtTime(3, context.currentTime);
+        masterCompressor.attack.setValueAtTime(0.008, context.currentTime);
+        masterCompressor.release.setValueAtTime(0.18, context.currentTime);
+        masterOutput.connect(masterCompressor);
+        masterCompressor.connect(context.destination);
+      } else {
+        masterOutput.connect(context.destination);
+      }
+    }
     if (context.state === "suspended") context.resume().catch(() => {});
     return context;
   };
@@ -76,7 +94,7 @@ export function createGameAudio() {
     gain.gain.exponentialRampToValueAtTime(Math.max(0.0002, volume), now + 0.012);
     gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
     oscillator.connect(gain);
-    gain.connect(destination || context.destination);
+    gain.connect(destination || masterOutput || context.destination);
     activeOscillators.add(oscillator);
     oscillator.onended = () => {
       activeOscillators.delete(oscillator);
