@@ -5566,10 +5566,23 @@ export default function App() {
   return (
     <main className="game-page">
       <section className="game-frame">
-        <div id="game-container"></div>
+        <div
+          id="game-container"
+          role="application"
+          aria-roledescription="game"
+          aria-label="ZERO GAME interactive 50-stage arcade campaign"
+          aria-describedby="game-instructions"
+        />
+        <p id="game-instructions" className="sr-only">
+          Use A and D or the arrow keys to move, Space or Up to jump, and the on-screen controls on touch devices.
+          The campaign has fifty stages across ten worlds, four selectable heroes, and five boss encounters.
+        </p>
         <div
           id="mobile-controls-overlay"
           className="mobile-controls-overlay"
+          role="group"
+          aria-label="Touch control surface: left side movement joystick; right side jump, fire, super, power and three extra actions."
+          aria-describedby="game-instructions"
           onPointerDown={isNativeAndroid ? undefined : startDomPointer}
           onPointerMove={isNativeAndroid ? undefined : updateDomJoystick}
           onPointerUp={isNativeAndroid ? undefined : endDomPointer}
