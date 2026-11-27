@@ -2231,6 +2231,7 @@ class ZeroGameScene extends Phaser.Scene {
           facing: msg.facing < 0 ? -1 : 1,
           airborne: Boolean(msg.airborne),
           moving: Boolean(msg.moving),
+          heroId: msg.heroId,
         };
         this.remoteVisual.setAlpha(0.92);
       } else if (msg.type === "hero") {
@@ -4907,6 +4908,9 @@ class ZeroGameScene extends Phaser.Scene {
     this.heroWasAirborne = airborne;
 
     if (this.remoteVisual?.active && this.remoteState) {
+      if (this.remoteState.heroId && this.remoteVisual.getData("remoteHeroId") !== this.remoteState.heroId) {
+        this.applyRemoteHero(this.remoteState.heroId);
+      }
       const blend = 1 - Math.exp(-Math.max(0, delta) / 48);
       this.remoteVisual.x += (this.remoteState.x - this.remoteVisual.x) * blend;
       this.remoteVisual.y += (this.remoteState.y - this.remoteVisual.y) * blend;
