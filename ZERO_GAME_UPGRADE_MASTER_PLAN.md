@@ -562,3 +562,11 @@ The following gameplay requirements are mandatory and supersede any conflicting 
 - Each normal stage's added middle ledge is anchored to its authored lower platform, while the upper route follows that stage's authored high platform. Boss arenas receive matching side and upper routes without losing their broad central fighting floor.
 - The new ledges remain within the arena bounds and within the existing reachable vertical-step envelope. The campaign data test now checks six platforms per stage and the expanded vertical range, while retaining all 50 unique authored base layouts.
 - This development change does not trigger an Android APK build. The one consolidated verification and Release APK remain reserved for the end of all approved work.
+
+
+## Authored four-hero sprite animation integration — 2026-11-27
+
+- Integrated the repository's four authored transparent pixel-art hero sprite sheets (Ryo, Kairo, Mei, Volt) into the Phaser scene instead of showing the procedural vector mannequin as the visible player character.
+- Added cached sprite-sheet loading and per-hero idle, walk, jump, landing, turn, and signature-power-up animation definitions from the existing 210×212 frame layout.
+- Main gameplay, home-screen previews, hero selection, and remote co-op hero visuals now select the matching authored character artwork. Existing physics bodies, touch controls, movement logic, special-effect timing, and the legacy pose rig remain unchanged.
+- This development change does not trigger an Android APK build. Consolidated verification remains deferred until all approved development is complete.
