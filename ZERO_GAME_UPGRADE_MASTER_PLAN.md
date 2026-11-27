@@ -536,3 +536,13 @@ The following gameplay requirements are mandatory and supersede any conflicting 
 - Existing freeze/kick targeting and rolling-ball collision rules remain in place; these changes are visual/movement presentation for fictional arcade gameplay, not real-world weapon mechanics.
 - Source commit: `66ae063a7390075fd23b4454c18a2f8e9b1fac4e`.
 - Consolidated CI must pass before this upgrade is marked verified. A fresh signed Release APK is a separate final delivery step; physical Android testing must be reported separately.
+
+
+## User-reported gameplay corrections — 2026-11-27
+
+- **Element selection:** The frozen enemy's elemental ball now derives from the projectile's actual selected power, rather than the enemy's independent/random tint. This corrects the case where selecting Wind or another power still produced a blue-looking ball.
+- **Distinct ball silhouettes:** Reworked all ten ball designs to use recognizable non-spherical silhouettes (twister funnel, water drop/crystal, flame, ice crystal, lightning bolt, leaf, rock shard, star, shadow crescent, and plasma shard). Ball scale is bounded so high particle-power tiers do not inflate every form into a large orb.
+- **Ball lifecycle:** Further projectiles cannot pop or destroy an already frozen/rolling elemental ball. A kicked ball now ends on its first wall impact, with an impact burst and the carrier's score/reward/defeat bookkeeping. The previous time-based expiry was removed.
+- **Stage score collection:** Removed the upward hero exit animation. The five-second collection window now leaves the hero in the arena, keeps mobile controls enabled, resumes physics, and allows the player to move/jump through remaining point rewards before the victory screen.
+- **Performance:** Capped per-event particle creation (fire 240 maximum; other elements 120 maximum), reduced trail particle bursts and slowed trail emission cadence to reduce Phaser object/tween churn on mobile.
+- **Automated coverage:** Updated the snowball rules test to assert that the first wall impact ends the kicked ball. The updated source still requires the new CI run and a fresh Android APK before being called release-ready; physical-device frame-rate verification remains pending.
