@@ -5464,6 +5464,7 @@ class ZeroGameScene extends Phaser.Scene {
         enemy.setY(225 + Math.sin(elapsed * 0.0025 + (enemy.getData("animTime") || 0)) * 28);
         if (Math.abs(this.hero.x - enemy.x) < 250 && elapsed >= (enemy.getData("nextRangedAt") || 0)) {
           enemy.setData("nextRangedAt", elapsed + 2600);
+          this.playEnemyReactionAnimation(enemy, "attack");
           this.spawnEnemyProjectile(enemy, "single");
           if (enemyVisual) enemyVisual.setAlpha(0.5);
           this.time.delayedCall(260, () => { if (enemyVisual?.active) enemyVisual.setAlpha(1); });
@@ -5474,6 +5475,7 @@ class ZeroGameScene extends Phaser.Scene {
         facing = direction;
         if (elapsed >= (enemy.getData("nextRangedAt") || 0)) {
           enemy.setData("nextRangedAt", elapsed + (aiType === "summoner" ? 3200 : 2500));
+          this.playEnemyReactionAnimation(enemy, "attack");
           if (enemyVisual) this.tweens.add({ targets: enemyVisual, scaleY: 1.18, duration: 140, yoyo: true });
           this.spawnEnemyProjectile(enemy, aiType === "summoner" ? "triple" : "single");
         }
@@ -5492,6 +5494,7 @@ class ZeroGameScene extends Phaser.Scene {
           enemy.setData("aiState", state);
           enemy.setData("aiStateUntil", elapsed + 420);
           enemy.setData("dashDirection", direction);
+          this.playEnemyReactionAnimation(enemy, "attack");
           if (enemyVisual) enemyVisual.setAlpha(1);
           this.audio.play("enemyAttack");
         } else if (state === "pounce" && elapsed >= enemy.getData("aiStateUntil")) {
@@ -5511,6 +5514,7 @@ class ZeroGameScene extends Phaser.Scene {
         facing = direction;
         if (distance < 118 && elapsed >= (enemy.getData("nextBlastAt") || 0)) {
           enemy.setData("nextBlastAt", elapsed + 3000);
+          this.playEnemyReactionAnimation(enemy, "attack");
           this.audio.play("enemyAttack");
           const blast = this.add.circle(enemy.x, enemy.y, 28, 0xff9b55, 0.42)
             .setStrokeStyle(4, 0xffe17a, 0.95).setDepth(24);
