@@ -31,6 +31,12 @@
 - Source commit: `213a3c8c97dcfbf7ee7c3a19e7efa34b029e5784`.
 - No tests/builds were run; final consolidated verification and Android APK remain deferred until development is complete.
 
+### Weather-specific stage color grading (2026-11-27)
+- Added a subtle, slowly breathing color wash for rain, snow/blizzard, sand/sandstorm, ashfall, embers/eruption, aurora, starfall/cosmic night, crystal, ocean bubbles, wind/clouds, sunset, petals, and moonlit variants.
+- The wash sits behind the gameplay layer and above distant scenery, complementing each stage's existing weather particles and sky treatment without changing platform visibility or gameplay.
+- Source commit: `6325be309dc3a458569694f96e08c7c5662870d3`.
+- No tests/builds were run; final consolidated verification and Android APK remain deferred until development is complete.
+
 ## Non-negotiable preservation rules
 - Preserve the currently working joystick/controller movement and touch mapping. Do not regress the approved controls.
 - Keep the game in landscape and make the playable scene fill the complete device viewport.
