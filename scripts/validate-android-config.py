@@ -13,6 +13,20 @@ assert config.get("appId") == "com.zerogame.arcade", "Android package id changed
 assert config.get("appName") == "ZERO GAME", "Android app name changed"
 assert config.get("webDir") == "dist", "Capacitor webDir must remain dist"
 
+# Guard every legacy local path against accidentally producing an interim APK.
+package = json.loads((root / "package.json").read_text(encoding="utf-8"))
+assert "android:apk" not in package.get("scripts", {}), "Remove the legacy debug APK npm shortcut"
+for legacy_script in ("build-android.bat", "set-java-and-build.ps1"):
+    legacy_content = (root / legacy_script).read_text(encoding="utf-8")
+    assert "assembleDebug" not in legacy_content, f"{legacy_script} must not build a debug APK"
+    assert "final-only" in legacy_content.lower(), f"{legacy_script} must explain the final-only APK policy"
+
+readme = (root / "README.md").read_text(encoding="utf-8")
+assert "zero-game-release-apk" in readme and "zero-game-release.apk" in readme
+assert "zero-game-debug-apk" not in readme and "app-debug.apk" not in readme, (
+    "README must document only the final signed Release APK"
+)
+
 foreground = root / "android-res/drawable/zero_game_foreground.xml"
 adaptive = root / "android-res/mipmap-anydpi-v26/ic_launcher.xml"
 legacy = root / "android-res/mipmap-anydpi/ic_launcher.xml"
