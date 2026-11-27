@@ -2061,16 +2061,8 @@ class ZeroGameScene extends Phaser.Scene {
       this.time.delayedCall(1000, () => {
         boss.destroy();
         this.boss = null;
-        this.stageCleared = true;
-        this.hero.setVelocity(0, 0);
-        this.statusLabel.setText(`STAGE ${String(this.stageNumber).padStart(2,"0")} COMPLETE!`);
-        this.statusLabel.setColor("#ffe35b");
-        if (this.heroVisual?.active) {
-          this.tweens.add({ targets: this.heroVisual, y: -120, alpha: 0, scale: 0.72, duration: 720, ease: "Cubic.easeIn",
-            onComplete: () => this.showVictory() });
-        } else {
-          this.showVictory();
-        }
+        this.stageCleared = false;
+        this.completeStage();
       });
     }
   }
