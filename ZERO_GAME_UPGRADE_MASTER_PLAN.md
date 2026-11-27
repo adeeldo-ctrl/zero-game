@@ -12,6 +12,13 @@
 - Source commit: `b38eca94fcaac4ee01f1caf2ca695f44c8490d43`.
 - No tests/builds were run; consolidated verification and Android APK remain on hold until all development scope is complete.
 
+### Element-matched boss volley and landing effects (2026-11-27)
+- Boss projectile fills and outlines now use the boss's selected elemental palette instead of the boss body tint/white outline, while retaining each boss style's projectile silhouette, spread, speed, and phase count.
+- Boss landing shockwaves now use a matching elemental core and expanding outline ring.
+- No boss attack timing, projectile physics, damage, collision, or phase behavior was changed.
+- Source commit: `3d950a5d189941f1857bde1f6f79d435e10582ce`.
+- No tests/builds were run; final consolidated verification and APK remain deferred until development is complete.
+
 ## Non-negotiable preservation rules
 - Preserve the currently working joystick/controller movement and touch mapping. Do not regress the approved controls.
 - Keep the game in landscape and make the playable scene fill the complete device viewport.
