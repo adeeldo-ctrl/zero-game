@@ -576,3 +576,11 @@ The following gameplay requirements are mandatory and supersede any conflicting 
 
 - Added a short authored turn-frame transition when a grounded hero changes movement direction, then returns smoothly to the appropriate idle or walk loop.
 - The landing, jump, movement, and signature-power-up animation states retain priority and continue using the existing game physics and input path.
+
+
+## Strict APK hold reaffirmed by user — 2026-11-27
+
+- The user explicitly requires **100% completion of the approved game scope before any APK build**. Do not trigger the Android workflow, create a debug/release APK, or deliver an earlier artifact during development.
+- A release workflow had already been triggered before this clarification and completed; that artifact is an interim build from an earlier source snapshot and must not be represented or delivered as the final game.
+- Continue implementation in the repository, preserve the existing gameplay and mobile controls, and defer the one consolidated verification until all development is complete. Only after that verification passes may the final signed Android Release APK be built.
+- Keep chat free of incremental work logs and unnecessary test reports. Deliver the final APK and complete report, or state a genuine blocker.
