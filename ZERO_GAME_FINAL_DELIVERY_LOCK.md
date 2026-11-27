@@ -50,7 +50,7 @@ Finish the music and sound system rather than treating synthesized placeholder b
 Use the full master plan and latest main branch as the source of truth, including:
 - Existing ZERO GAME identity, landscape/fullscreen presentation, 50 fixed authored stages, four heroes, one-time hero selection and hero persistence.
 - Three chances with three hearts each, stage transitions, fixed arena/platform rules and Snow Bros.-inspired freeze/roll/kick gameplay.
-- Existing joystick, jump/double-jump, fire, super, all three EXTRA buttons, multitouch and Wi-Fi co-op. Fix the reported joystick/EXTRA freezes without regressing other controls.
+- Existing joystick, jump/double-jump, fire, super, all three EXTRA buttons, and multitouch. Wi-Fi co-op is explicitly removed per the user's 2026-11-27 instruction.
 - EXTRA 1/2/3 remain immediately reusable with no cooldown, meter, counter or animation lock.
 - Distinct hero locomotion, attack, hit, jump, landing and special-move animations; grounded enemy behavior; all boss patterns/phases; premium differentiated stages; icon and mobile layout.
 
@@ -89,3 +89,8 @@ The earlier Release APK result above is a historical artifact from a prior sourc
 - This instruction supersedes any older wording in this file that described the earlier artifact as final delivery.
 
 FINAL_RELEASE_APPROVED: false
+
+
+## User scope change — 2026-11-27
+
+Wi-Fi co-op is removed from the final product at the user's request. It is not part of final acceptance. Keep the single-player 50-stage campaign and all existing hero, enemy, boss, combat, effects, sound, and mobile-control work. Build the signed Android Release APK after the consolidated verification passes.
