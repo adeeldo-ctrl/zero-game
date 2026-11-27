@@ -1105,3 +1105,12 @@ The first integrated implementation tranche has now been pushed to `main`:
 - Added focused tests for 45 unique enemy IDs/frame ranges, five unique bosses, 50 stage music sequences, and paired attendant wave sizing.
 
 **Not yet complete or verified:** stage-specific background composition still needs a deeper art pass; enemy archetype AI and signature attacks need to be differentiated beyond their current role-based AI mapping; boss-specific signature attack behavior/animation timing still needs its dedicated pass; platform layouts need their expanded shape/route pass and consolidated reachability/collision verification. The new implementation has not yet been run through the consolidated CI suite. No APK has been built, in line with the user's hold-until-complete instruction.
+
+
+### Follow-up implementation tranche — enemy role behavior and platform hooks (2026-11-27)
+
+- Integrated the 45-character atlas into the runtime preload and animation registry. Each normal enemy now selects its own four-frame move/strike clips by archetype ID; the legacy three-sheet path remains only as a compatibility fallback for non-campaign utility enemies.
+- Expanded role AI beyond the former five shared movement types: flying enemies hover and fire, ambushers vanish/reposition/pounce, ranged enemies keep distance and fire, summoners fire a spread volley, and bombers telegraph a delayed area blast. Shield/heavy/runner/leaper/charger roles retain their corresponding guard/chase/dash/jump behaviors.
+- Added real arcade-physics enemy projectiles and connected all special-platform overlap hooks. Accelerator, spring, fading, moving, slippery and elemental-energy platform behaviors are now routed through the runtime; drop-through keeps the existing one-way platform behavior.
+- Added tests for the additional AI roles and platform family/special-type assignments. These tests are authored but intentionally not run yet because the user's requested single consolidated verification is reserved until the full premium rebuild is implemented.
+- **Remaining work:** deeper stage-specific background compositions, richer original audio beyond the current generated note-sequence identities, boss-specific signature attack execution and animation synchronization, richer attendant visual identities, and a full authored platform route/layout pass. No CI verification or APK build has been started.
