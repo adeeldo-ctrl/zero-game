@@ -149,6 +149,13 @@
 - Source commit: `7dd9edc4f8f18a9f1da7efdc6359ade04538eb85`.
 - No tests/builds were run; final integrated verification and APK remain deferred until development is complete.
 
+### Hidden-control pointer ownership cleanup (2026-11-27)
+- Hiding the mobile controls overlay now notifies the React touch bridge to clear its captured pointer identifiers, in addition to resetting the Phaser-side joystick/action state.
+- This covers stage/menu transitions where the browser may not deliver a final pointerup/touchend after the overlay is hidden.
+- Added Chromium smoke coverage that hides the overlay while joystick and EXTRA are held, restores it, and confirms a fresh joystick pointer works.
+- Source commit: `1abf17c11ce227495e15c29d4907b9e26f2673c2`; smoke test commit: `0408b2a77b5714047d967b197d8e90eaab54f005`.
+- No tests/builds were run; consolidated verification and Android Release APK remain deferred until development is complete.
+
 ## Non-negotiable preservation rules
 - Preserve the currently working joystick/controller movement and touch mapping. Do not regress the approved controls.
 - Keep the game in landscape and make the playable scene fill the complete device viewport.
