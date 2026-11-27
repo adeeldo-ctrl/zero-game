@@ -256,6 +256,11 @@
 - Smoke test commit: `032d87dd6baa4d072b844eef9fd6f805d405e82e`.
 - No tests/builds were run; the new check is reserved for the single consolidated final verification.
 
+### Reproducible dependency installation in delivery workflows (2026-11-27)
+- Both manual verification and final Android workflows now use `npm ci` against the committed lockfile rather than mutating dependency resolution with `npm install`.
+- Commits: Android workflow `423d801b81b260aa32aadcd38b4a96827a8b8b0c`; manual verification workflow `80e28897af3913cf76e292b3e1591939348cfb5c`.
+- No dependency install, tests, build or APK assembly was run during this development pass.
+
 ## Non-negotiable preservation rules
 - Preserve the currently working joystick/controller movement and touch mapping. Do not regress the approved controls.
 - Keep the game in landscape and make the playable scene fill the complete device viewport.
