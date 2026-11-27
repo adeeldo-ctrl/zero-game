@@ -42,7 +42,7 @@ The three on-screen EXTRA buttons are independent and always map to the selected
 
 All twelve signature moves are implemented through distinct wave, uppercut, spin, rapid-strike, electric-burst, rolling-charge or throw effects. All three special buttons have unlimited use: no cooldown, countdown, power meter or limited-use counter. Existing movement, jump, double-jump, charged Fire attack, Super attack, elemental selection, stage progression and co-op systems remain in place.
 
-Enemies use original arcade-fighter archetypes, including masked claw acrobats, boxing bruisers, military chargers, heavy grapplers and electric wild fighters. Their grounded AI includes chaser, runner, jumper, guard and charger behaviors. The five dedicated boss encounters are Arena Gatekeeper, Iron Comet, Gale Talon, Suncrest Master and Void Sovereign.
+Enemies use distinct original visual families, including masked acrobats, armored bruisers, elemental sentinels and arcane guards. Their grounded AI includes chaser, runner, jumper, guard and charger behaviors, with deterministic spawn lanes authored for every normal stage. The five campaign bosses are Arena Gatekeeper, Iron Comet, Gale Talon, Suncrest Master and Void Sovereign; each has its own movement profile, telegraph sequence, elemental presentation, intro and defeat finale.
 
 ## Controls
 
