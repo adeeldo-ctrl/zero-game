@@ -98,6 +98,13 @@
 - Source commit: `f90a60f72c66c43410b23bddf092804522c66f99`; regression test commit: `e5c708ebd0db59e37bdf7caa45d64c92f3f3e38b`.
 - No tests/builds were run; consolidated verification and Android APK remain deferred until all development is complete.
 
+### Hero selection card readability and preview cleanup (2026-11-27)
+- Reworked all four selection cards into a clearer vertical hierarchy with separate hero title, readable character description, super-power label, three special-move names, and a dedicated selection action.
+- The selection preview now uses the articulated costume rig instead of the animation sheet, avoiding stray sheet-frame marker artifacts above the characters; in-game movement continues to use the authored hero spritesheets.
+- Card spacing and fixed text regions were adjusted to prevent the previous title/description/move overlap.
+- Source commit: `fb17af0c2bd00aa2f99e3079c4762f4e21eddaa1`.
+- No tests/builds were run; final consolidated verification and APK remain deferred until all development is complete.
+
 ## Non-negotiable preservation rules
 - Preserve the currently working joystick/controller movement and touch mapping. Do not regress the approved controls.
 - Keep the game in landscape and make the playable scene fill the complete device viewport.
