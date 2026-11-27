@@ -53,6 +53,9 @@ const SOUND_NOTES = {
   powerSwitch: [660, 880, 1046], ballKick: [105, 165, 260, 390], ballRoll: [95, 125, 155], ballImpact: [130, 210, 330, 490], ballEnd: [520, 390, 260],
   special: [260, 390, 580, 780], hit: [170, 120], defeat: [420, 620, 880],
   boss: [110, 165, 220], bossHit: [130, 260], bossPhase: [110, 220, 330, 440, 660],
+  bossEntrance0: [82, 110, 164, 220], bossEntrance1: [98, 147, 196, 294],
+  bossEntrance2: [146, 220, 330, 440], bossEntrance3: [164, 247, 330, 494],
+  bossEntrance4: [55, 82, 123, 185, 247],
   kick: [95, 180, 360], step: [92, 138], land: [150, 190], collect: [660, 880, 1046],
   stageClear: [392, 523, 659, 784, 988], gameOver: [330, 247, 196, 147],
   ui: [520, 660], stage: [392, 523, 659], punch: [190, 280], enemyAttack: [125, 190, 265], bossAttack: [82, 123, 186],
@@ -307,6 +310,7 @@ export function createGameAudio() {
     playDefeatTheme: () => setTrack("defeat"),
     playWorldTheme: (worldIndex) => setTrack(`world-${Math.max(0, Math.floor(Number(worldIndex) || 0) % 10)}`),
     playStageTheme: (stageNumber) => setTrack(`stage-${Math.max(1, Math.min(50, Math.floor(Number(stageNumber) || 1)))}`),
-    playBossTheme: (bossIndex) => setTrack(`boss-${Math.max(0, Math.floor(Number(bossIndex) || 0) % 5)}`)
+    playBossTheme: (bossIndex) => setTrack(`boss-${Math.max(0, Math.floor(Number(bossIndex) || 0) % 5)}`),
+    playBossEntrance: (bossIndex) => play(`bossEntrance${Math.max(0, Math.floor(Number(bossIndex) || 0) % 5)}`)
   };
 }
