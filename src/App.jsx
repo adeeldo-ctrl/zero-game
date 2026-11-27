@@ -2846,6 +2846,15 @@ class ZeroGameScene extends Phaser.Scene {
           p.fistL.y = 8;
           p.fistR.y = 30;
           visual.setAngle(direction * -0.025);
+        } else if (bossStyle.includes("grappler")) {
+          // Gatekeeper braces low with both fists forward before a ground pulse.
+          p.armL.rotation = -0.82;
+          p.armR.rotation = 0.82;
+          p.fistL.y = 16;
+          p.fistR.y = 16;
+          p.legL.rotation = -0.52;
+          p.legR.rotation = 0.52;
+          visual.setAngle(direction * 0.018);
         } else if (bossStyle.includes("final")) {
           p.armL.rotation = -2.25;
           p.armR.rotation = 2.25;
@@ -2862,12 +2871,15 @@ class ZeroGameScene extends Phaser.Scene {
         visual.setAngle(direction * -0.16);
         visual.setScale(direction * 1.28, 0.88);
       } else if (attackState === "slam") {
-        p.armL.rotation = -2.15;
-        p.armR.rotation = 2.15;
-        p.legL.rotation = -0.95;
-        p.legR.rotation = 0.95;
-        visual.setAngle(direction * 0.08);
-        visual.setScale(direction * 1.2, 1.12);
+        const gatekeeperSlam = bossStyle.includes("grappler");
+        p.armL.rotation = gatekeeperSlam ? -1.65 : -2.15;
+        p.armR.rotation = gatekeeperSlam ? 1.65 : 2.15;
+        p.legL.rotation = gatekeeperSlam ? -0.58 : -0.95;
+        p.legR.rotation = gatekeeperSlam ? 0.58 : 0.95;
+        p.fistL.y = gatekeeperSlam ? 10 : 4;
+        p.fistR.y = gatekeeperSlam ? 10 : 4;
+        visual.setAngle(direction * (gatekeeperSlam ? 0.025 : 0.08));
+        visual.setScale(direction * (gatekeeperSlam ? 1.16 : 1.2), gatekeeperSlam ? 1.08 : 1.12);
       } else if (attackState === "volley") {
         p.armL.rotation = -2.05;
         p.armR.rotation = 2.05;
