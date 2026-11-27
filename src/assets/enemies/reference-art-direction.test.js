@@ -7,6 +7,13 @@ const artDirection = JSON.parse(
   readFileSync(new URL("./reference-art-direction.json", import.meta.url), "utf8"),
 );
 
+const cropManifest = JSON.parse(
+  readFileSync(new URL("./reference-crop-manifest.json", import.meta.url), "utf8"),
+);
+const availableCropRefs = new Set(
+  cropManifest.crops.map((crop) => crop.file.replace(/\\.png$/i, "")),
+);
+
 test("enemy reference art direction covers every campaign archetype exactly once", () => {
   const mapped = artDirection.regions.flatMap((region) =>
     region.enemies.map(([enemyId, cropRef]) => ({ regionId: region.id, enemyId, cropRef })),
@@ -18,6 +25,14 @@ test("enemy reference art direction covers every campaign archetype exactly once
   assert.equal(new Set(actualIds).size, actualIds.length);
   assert.ok(mapped.every((entry) => /^\d{2}_[a-z0-9-]+$/.test(entry.cropRef)));
   assert.ok(new Set(mapped.map((entry) => entry.cropRef)).size >= 40);
+  assert.ok(mapped.every((entry) => availableCropRefs.has(entry.cropRef)));
+});
+
+test("collage manifest is reference-only and contains 48 named crops", () => {
+  assert.equal(cropManifest.cropCount, 48);
+  assert.equal(cropManifest.crops.length, 48);
+  assert.ok(cropManifest.crops.every((crop) => crop.status === "reference-crop-only"));
+  assert.ok(cropManifest.crops.every((crop) => crop.animationFrames === 0));
 });
 
 test("boss art direction covers all five existing boss identities", () => {
