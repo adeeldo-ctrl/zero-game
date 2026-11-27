@@ -34,3 +34,6 @@ Re-run release request — 2026-11-27: use the Ubuntu 24.04 runner pinned in `.g
 
 
 Selected-hero action identity correction release request — 2026-11-27. Build the signed Android Release APK from source commit b6107a29fa7fb4b047f9d0c2b3f59c768df8fbdc plus the release-trigger commit. Consolidated CI run 46017936491 passed (39 automated tests, lint, Android configuration validation, web build, and Chromium campaign/mobile smoke test). The action-state renderer now keeps the selected hero's own sprite visible instead of exposing the shared legacy rig.
+
+
+2026-11-27 — Final release request for latest verified gameplay corrections. Build the signed Android Release APK from source commit `55cb8c65a9d811f93f413f058190990228b1ba4a`. Consolidated CI run `46031502743` completed successfully: automated tests, lint, Android configuration validation, web build, and Chromium campaign smoke test all passed. This version includes corrected hero-selection artwork, five unique boss IDs/sprite-sheet mappings at stages 10/20/30/40/50, upward stage transitions, separated platforms, and reduced hero ground-dust effect.
