@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { STAGES, getStage } from "../src/gameData.js";
 import { PREMIUM_ENEMY_REGIONS, PREMIUM_ENEMY_ARCHETYPES, PREMIUM_BOSSES, PREMIUM_STAGE_MUSIC, PREMIUM_PLATFORM_FAMILIES, PREMIUM_PLATFORM_SHAPES, PREMIUM_SPECIAL_PLATFORM_TYPES, getPremiumStageEnemyRoster, getPremiumEnemyFrameIndex } from "../src/premiumCampaignData.js";
-import { getStageThemeSequence } from "../src/gameAudio.js";
+import { getStageThemeSequence, getBossThemeSequence } from "../src/gameAudio.js";
 
 test("campaign contains exactly 50 deterministic stages", () => {
   assert.equal(STAGES.length, 50);
@@ -249,4 +249,10 @@ test("campaign platforms use all premium materials and only supported special ty
     .map((platform) => platform.specialType).filter(Boolean)));
   assert.equal(specialTypes.size, PREMIUM_SPECIAL_PLATFORM_TYPES.length,
     "all seven special platform effects must appear in the 50-stage campaign");
+});
+
+test("all five milestone bosses have distinct dedicated music sequences", () => {
+  const themes = Array.from({ length: 5 }, (_, index) => getBossThemeSequence(index).join("-"));
+  assert.equal(new Set(themes).size, 5);
+  assert.deepEqual(getBossThemeSequence(5), getBossThemeSequence(0));
 });
