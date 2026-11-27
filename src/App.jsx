@@ -2361,10 +2361,21 @@ class ZeroGameScene extends Phaser.Scene {
         duration: 65, yoyo: true, repeat: 1,
         onComplete: () => { if (v.active) { v.setAngle(0); v.setScale(1.15); } } });
     }
-    const burst = this.add.circle(boss.x, boss.y - 12, 27, 0xffe17a, 0.95)
-      .setStrokeStyle(4, 0xffffff).setDepth(25);
-    this.tweens.add({ targets: burst, scale: 2.7, alpha: 0, duration: 260,
-      onComplete: () => burst.destroy() });
+    const impactColors = {
+      fire: 0xff794d, earth: 0xc58a55, wind: 0x8debdc,
+      ice: 0x8deaff, lightning: 0xb18aff, shadow: 0x9b78e8,
+      light: 0xffe36a, water: 0x319cff, nature: 0x65d878, plasma: 0xff5ca8,
+    };
+    const impactColor = impactColors[this.stageConfig.boss?.element] || 0xffe17a;
+    const burst = this.add.container(boss.x, boss.y - 12).setDepth(25);
+    const impactCore = this.add.star(0, 0, 8, 7, 23, impactColor, 0.94)
+      .setStrokeStyle(3, 0xffffff, 0.96);
+    const impactRing = this.add.circle(0, 0, 29, impactColor, 0)
+      .setStrokeStyle(4, impactColor, 0.95);
+    const impactFlash = this.add.circle(0, 0, 10, 0xffffff, 0.88);
+    burst.add([impactRing, impactCore, impactFlash]);
+    this.tweens.add({ targets: burst, scale: 2.25, alpha: 0, angle: 22, duration: 270,
+      ease: "Cubic.easeOut", onComplete: () => burst.destroy() });
     const previousBossPhase = this.bossPhase;
     this.bossPhase = getBossPhase(this.bossHealth, this.bossMaxHealth);
     if (this.bossPhase > previousBossPhase && v?.active) {
