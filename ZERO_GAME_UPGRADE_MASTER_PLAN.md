@@ -652,3 +652,12 @@ The following gameplay requirements are mandatory and supersede any conflicting 
 - Stage-variant landmark composition remains layered with the new world-specific foreground art.
 - Commits: `f625934a885a5e08fa531409234dd6d80bfbbff5` (initial scenery layer), `97ca54b24e3e3b05ab0203712e932b212d4a475d` (drawing-call correction).
 - **Verification:** Not run; development remains in progress. No APK was built.
+
+
+## Elemental boss visual upgrade — 2026-11-27
+
+- Expanded the in-game boss composite with a layered back cape, shaped chest plate and inset, shoulder armor ridges, cheek markings, and a crown gem.
+- Added a dedicated trim/dark/glow palette for all ten elements (fire, ice, lightning, water, nature, wind, earth, light, shadow, plasma), so boss armor accents coordinate with its elemental identity.
+- Kept boss movement, attack patterns, health, hitboxes, damage, and phase logic unchanged. Existing idle/attack animation and elemental telegraphs remain in place.
+- Commits: `c40098c76923187953e7b1a0466b8aa47b9a74e8` and `f7a5e02c2cf870e360c1fba3afc88505df62e50c`.
+- **Verification:** Not run; development remains in progress. No APK was built.
