@@ -661,3 +661,13 @@ The following gameplay requirements are mandatory and supersede any conflicting 
 - Kept boss movement, attack patterns, health, hitboxes, damage, and phase logic unchanged. Existing idle/attack animation and elemental telegraphs remain in place.
 - Commits: `c40098c76923187953e7b1a0466b8aa47b9a74e8` and `f7a5e02c2cf870e360c1fba3afc88505df62e50c`.
 - **Verification:** Not run; development remains in progress. No APK was built.
+
+
+## Enemy class costume detail pass — 2026-11-27
+
+- Added layered back armor, twin back spikes, a forehead crest gem, and a waist sash to the shared enemy visual rig.
+- Fast enemies receive a trailing scarf accent; heavy enemies receive reinforced knee guards. The additions are class-gated so the silhouettes communicate enemy roles at a glance.
+- Registered the new parts with the existing visual parts data so animation updates can address them without adding new per-frame display objects.
+- Existing enemy AI, physics, collision, health, damage, and movement values were not changed.
+- Commit: `9502c149394d53aa0418b15552ce0f2e471bfc7c`.
+- **Verification:** Not run; development remains in progress. No APK was built.
