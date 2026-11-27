@@ -1011,7 +1011,7 @@ class ZeroGameScene extends Phaser.Scene {
       .setStrokeStyle(3, hornColor, 0.95);
     const chestSigil = this.add.star(0, 2, 5, 4, 8, hornColor, 0.95)
       .setStrokeStyle(1, 0xffffff, 0.85);
-    const beltBuckle = this.add.diamond(0, 14, 10, 10, 0xffd36b).setStrokeStyle(1, 0xffffff, 0.8);
+    const beltBuckle = this.add.star(0, 14, 4, 3, 7, 0xffd36b).setStrokeStyle(1, 0xffffff, 0.8);
     const bootL = this.add.rectangle(-10, 27, 19, 5, hornColor).setStrokeStyle(1, 0x30263e);
     const bootR = this.add.rectangle(10, 27, 19, 5, hornColor).setStrokeStyle(1, 0x30263e);
     c.add([
@@ -2218,7 +2218,7 @@ class ZeroGameScene extends Phaser.Scene {
       .setStrokeStyle(3, 0xffd36b, 0.9);
     const belt = this.add.rectangle(0, 39, 91, 10, isFinal ? 0x332b58 : 0x4c3347)
       .setStrokeStyle(2, 0xffd36b, 0.95);
-    const beltGem = this.add.diamond(0, 39, 16, 16, bossElement === "shadow" ? 0xc5a8ff : 0xffe17a)
+    const beltGem = this.add.star(0, 39, 5, 4, 10, bossElement === "shadow" ? 0xc5a8ff : 0xffe17a)
       .setStrokeStyle(2, 0xffffff, 0.9);
     c.add([aura, shadow, orbitA, orbitB, legL, legR, footL, footR, armL, armR,
       shoulderL, shoulderR, fistL, fistR, body, belly, bellyMark, chestEmblem,
