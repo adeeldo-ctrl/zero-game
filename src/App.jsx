@@ -77,6 +77,13 @@ class ZeroGameScene extends Phaser.Scene {
     });
   }
 
+  addAmbientTween(config) {
+    // Keep gameplay cues and one-shot transitions intact, but suppress looping
+    // decorative motion when the operating system requests reduced motion.
+    if (this.reducedMotion && config?.repeat === -1) return null;
+    return this.tweens.add(config);
+  }
+
   setHeroSpriteAnimation(visual, state) {
     const sprite = visual?.getData("heroSprite");
     const heroId = visual?.getData("heroSpriteId") || "ryo";
@@ -157,6 +164,8 @@ class ZeroGameScene extends Phaser.Scene {
     this.mobileJumpHeld = false;
     this.mobileJumpPressedAt = 0;
     this.audio = createGameAudio();
+    this.reducedMotion = typeof window !== "undefined" &&
+      Boolean(window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches);
     this.netSocket = null;
     this.netConnected = false;
     this.netRole = null;
@@ -524,7 +533,7 @@ class ZeroGameScene extends Phaser.Scene {
     const tint = atmosphereTints[weather];
     if (tint) {
       const wash = this.add.rectangle(480, 270, 960, 540, tint[0], tint[1]).setDepth(-11);
-      this.tweens.add({
+      this.addAmbientTween({
         targets: wash,
         alpha: tint[1] * 1.18,
         duration: 3200 + variant * 240,
@@ -540,7 +549,7 @@ class ZeroGameScene extends Phaser.Scene {
           .setDepth(-4);
         const reflection = this.add.ellipse(x - 8, 491, 19, 2, 0xe8fbff, 0.28)
           .setDepth(-4);
-        this.tweens.add({
+        this.addAmbientTween({
           targets: [puddle, reflection],
           alpha: 0.07,
           scaleX: 1.22,
@@ -558,7 +567,7 @@ class ZeroGameScene extends Phaser.Scene {
           .setDepth(-4);
         const crystal = this.add.triangle(x + 13, 488, -5, 5, 0, -9, 5, 5, 0xc8f4ff, 0.72)
           .setDepth(-4);
-        this.tweens.add({
+        this.addAmbientTween({
           targets: [drift, crystal],
           alpha: 0.12,
           y: "-=2",
@@ -573,7 +582,7 @@ class ZeroGameScene extends Phaser.Scene {
       for (let i = 0; i < 5; i++) {
         const dust = this.add.ellipse(90 + i * 190, 492, 82, 9, 0xe3b77d, 0.14)
           .setDepth(-4);
-        this.tweens.add({
+        this.addAmbientTween({
           targets: dust,
           x: dust.x + (i % 2 ? -18 : 18),
           alpha: 0.04,
@@ -588,7 +597,7 @@ class ZeroGameScene extends Phaser.Scene {
       for (let i = 0; i < 7; i++) {
         const ember = this.add.circle(58 + i * 140, 491 - (i % 3) * 3, 2 + (i % 2), 0xffa05b, 0.48)
           .setDepth(-4);
-        this.tweens.add({
+        this.addAmbientTween({
           targets: ember,
           y: ember.y - 9 - (i % 3) * 3,
           alpha: 0.06,
@@ -619,9 +628,9 @@ class ZeroGameScene extends Phaser.Scene {
           790 + Math.cos(a) * 62, 128 + Math.sin(a) * 62);
       }
       celestial.add(rays);
-      this.tweens.add({ targets: rays, angle: 30, alpha: 0.45, duration: 9000, yoyo: true, repeat: -1 });
+      this.addAmbientTween({ targets: rays, angle: 30, alpha: 0.45, duration: 9000, yoyo: true, repeat: -1 });
     }
-    this.tweens.add({ targets: halo, scale: 1.12, alpha: 0.07, duration: 2600, yoyo: true, repeat: -1 });
+    this.addAmbientTween({ targets: halo, scale: 1.12, alpha: 0.07, duration: 2600, yoyo: true, repeat: -1 });
 
     // Soft distant cloud banks add slow sky movement without obscuring play.
     const cloudWeather = ["sunny", "petals", "golden", "sunset", "moonlight", "moon-mist", "clouds"];
@@ -642,7 +651,7 @@ class ZeroGameScene extends Phaser.Scene {
         if (stormWeather) {
           cloud.add(this.add.ellipse(0, 14, 106, 13, cloudTint, 0.7));
         }
-        this.tweens.add({
+        this.addAmbientTween({
           targets: cloud, x: cloudX + (i % 2 ? -42 : 42),
           duration: stormWeather ? 6200 + i * 900 : 9000 + i * 1700,
           ease: "Sine.easeInOut", yoyo: true, repeat: -1
@@ -663,7 +672,7 @@ class ZeroGameScene extends Phaser.Scene {
           previous = { x, y };
         }
       });
-      this.tweens.add({
+      this.addAmbientTween({
         targets: aurora, alpha: 0.72, y: 12, duration: 5200,
         ease: "Sine.easeInOut", yoyo: true, repeat: -1
       });
@@ -708,7 +717,7 @@ class ZeroGameScene extends Phaser.Scene {
         target = { x: x + (i % 2 ? 12 : -12), y: y + (i % 3) * 12 - 10, alpha: 0.12, scale: 0.55, angle: 35 };
         duration = 1500 + (i % 6) * 220;
       }
-      this.tweens.add({
+      this.addAmbientTween({
         targets: particle,
         ...target,
         duration,
@@ -727,7 +736,7 @@ class ZeroGameScene extends Phaser.Scene {
         loop: true,
         callback: () => {
           if (!flash.active) return;
-          this.tweens.add({ targets: flash, alpha: 0.12, duration: 90, yoyo: true, hold: 55 });
+          this.addAmbientTween({ targets: flash, alpha: 0.12, duration: 90, yoyo: true, hold: 55 });
         }
       });
     }
@@ -777,7 +786,7 @@ class ZeroGameScene extends Phaser.Scene {
         if (world === 5 || world === 9) {
           mote.setStrokeStyle(1, 0xffffff, 0.65);
         }
-        this.tweens.add({
+        this.addAmbientTween({
           targets: mote,
           y: y - 12 - (i % 3) * 4,
           alpha: 0.18,
@@ -795,7 +804,7 @@ class ZeroGameScene extends Phaser.Scene {
     this.createStageVariantLandmark(variant, accent, far);
     this.createStageForegroundDetails(world, variant, accent, far);
     glow.fillStyle(accent,0.07);glow.fillEllipse(480,365,780+variant*22,170);
-    this.tweens.add({targets:glow,alpha:0.72,duration:1800+variant*120,yoyo:true,repeat:-1});
+    this.addAmbientTween({targets:glow,alpha:0.72,duration:1800+variant*120,yoyo:true,repeat:-1});
     this.add.rectangle(480,455,960,2,accent,0.18).setDepth(-1);
   }
 
@@ -1102,7 +1111,7 @@ class ZeroGameScene extends Phaser.Scene {
       });
     }
     g.setAlpha(0.78);
-    this.tweens.add({
+    this.addAmbientTween({
       targets: g,
       alpha: 0.86,
       duration: 2400 + variant * 260,
@@ -1113,7 +1122,7 @@ class ZeroGameScene extends Phaser.Scene {
     if (variant === 4) {
       const landmarkStar = this.add.star(480, 158, 4, 4, 11, gold, 0.82)
         .setStrokeStyle(2, pale, 0.8).setDepth(-13);
-      this.tweens.add({
+      this.addAmbientTween({
         targets: landmarkStar,
         angle: 90,
         scale: 1.55,
