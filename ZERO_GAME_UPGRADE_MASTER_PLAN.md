@@ -143,6 +143,12 @@
 - Source commit: `aff7b7e2bdde4dc9b4741d8f683c3c24a50dbe24`; smoke coverage commit: `27602e14acbfc774a033fc879f4d60e84594347f`.
 - No tests/builds were run; consolidated verification and Android Release APK remain deferred until development is complete.
 
+### Hero-specific costume accessories in articulated action poses (2026-11-27)
+- The articulated rig now carries each hero's own visible costume accents during normal attacks, hit reactions, and all three EXTRA moves; accessories are created once with the visual and switched with the rig rather than being left floating over the authored sprite.
+- The authored hero spritesheet remains the normal idle/walk/jump/turn/land presentation. The rig and its costume details are hidden again when the action ends.
+- Source commit: `7dd9edc4f8f18a9f1da7efdc6359ade04538eb85`.
+- No tests/builds were run; final integrated verification and APK remain deferred until development is complete.
+
 ## Non-negotiable preservation rules
 - Preserve the currently working joystick/controller movement and touch mapping. Do not regress the approved controls.
 - Keep the game in landscape and make the playable scene fill the complete device viewport.
