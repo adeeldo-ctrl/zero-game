@@ -2044,6 +2044,7 @@ class ZeroGameScene extends Phaser.Scene {
     this.addScore(250);
     if (this.bossHealth <= 0) {
       this.audio.play("stageClear");
+      this.audio.playVictoryTheme?.();
       this.addScore(5000);
       this.dropBossRewardShower(boss.x, boss.y);
       this.bossDefeated = true;
