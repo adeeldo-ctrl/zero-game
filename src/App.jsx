@@ -1547,7 +1547,100 @@ class ZeroGameScene extends Phaser.Scene {
     });
   }
 
-  spawnElementParticles(x, y, elementId = this.powerType, count = 12, scale = 1) {
+  spawnSignatureParticles(x, y, heroId, moveId, scale = 1) {
+    const palettes = {
+      ryo: [0xffef9a, 0xffa52e, 0xff5428],
+      kairo: [0xfff0a0, 0xffcf42, 0xe94a22],
+      mei: [0xf4fdff, 0x8deaff, 0x4d8dff],
+      volt: [0xf4ffb0, 0xffe34d, 0x75e65b],
+    };
+    const colors = palettes[heroId] || palettes.ryo;
+    const addArc = (radius, start, end, color, width, rotation = 0) => {
+      const arc = this.add.arc(x, y, radius, start, end, false, color, 0.92)
+        .setStrokeStyle(width, 0xffffff, 0.8).setDepth(27).setAngle(rotation);
+      this.tweens.add({ targets: arc, angle: rotation + 145, scale: 1.28, alpha: 0,
+        duration: 360 + Math.round(scale * 90), onComplete: () => arc.destroy() });
+    };
+    const addBolt = (offsetX, offsetY, color, length = 34) => {
+      const bolt = this.add.graphics().setPosition(x + offsetX, y + offsetY).setDepth(28);
+      bolt.lineStyle(4, color, 1);
+      bolt.beginPath();
+      bolt.moveTo(-7, -length * 0.5);
+      bolt.lineTo(5, -length * 0.12);
+      bolt.lineTo(-4, length * 0.04);
+      bolt.lineTo(8, length * 0.5);
+      bolt.strokePath();
+      this.tweens.add({ targets: bolt, x: bolt.x + Phaser.Math.Between(-18, 18),
+        y: bolt.y + Phaser.Math.Between(-20, 20), alpha: 0, duration: 260,
+        onComplete: () => bolt.destroy() });
+    };
+    const addFlame = (offsetX, offsetY, color, width, height, angle = 0) => {
+      const flame = this.add.ellipse(x + offsetX, y + offsetY, width, height, color, 0.96)
+        .setDepth(27).setAngle(angle);
+      this.tweens.add({ targets: flame, y: flame.y - Phaser.Math.Between(18, 42),
+        x: flame.x + Phaser.Math.Between(-20, 20), scaleX: 0.12, scaleY: 0.35,
+        alpha: 0, angle: angle + Phaser.Math.Between(-75, 75), duration: 300 + Math.round(scale * 80),
+        onComplete: () => flame.destroy() });
+    };
+
+    switch (moveId) {
+      case "ember-wave":
+        addArc(42, 205, 335, colors[1], 12);
+        for (let i = 0; i < 7; i++) addFlame(Phaser.Math.Between(-24, 24), Phaser.Math.Between(-12, 12), colors[i % 3], 7, 19, -25);
+        break;
+      case "guardian-rise":
+        for (let i = 0; i < 10; i++) addFlame(Phaser.Math.Between(-25, 25), 18 + i * 2, colors[i % 3], 6, 25, -10);
+        addArc(28, 200, 340, colors[0], 7, -90);
+        break;
+      case "ember-cyclone":
+      case "inferno-spin":
+        addArc(38, 15, 160, colors[1], 10);
+        addArc(55, 195, 340, colors[0], 7, 28);
+        for (let i = 0; i < 8; i++) addFlame(Math.cos(i) * 25, Math.sin(i) * 18, colors[i % 3], 6, 16, i * 45);
+        break;
+      case "flare-wave":
+        addArc(54, 205, 335, colors[0], 16);
+        addArc(38, 205, 335, colors[1], 8, 0);
+        for (let i = 0; i < 9; i++) addFlame(Phaser.Math.Between(-34, 34), Phaser.Math.Between(-15, 15), colors[i % 3], 9, 22, 0);
+        break;
+      case "flare-uppercut":
+        addArc(35, 205, 335, colors[0], 10, -90);
+        for (let i = 0; i < 12; i++) addFlame(Phaser.Math.Between(-28, 28), 20 + i * 2, colors[i % 3], 8, 28, -18);
+        break;
+      case "flash-barrage":
+        for (let i = 0; i < 5; i++) addBolt(Phaser.Math.Between(-42, 42), Phaser.Math.Between(-34, 34), colors[i % 3], 30 + i * 3);
+        break;
+      case "skywheel":
+        addArc(42, 25, 155, colors[1], 9, -35);
+        addArc(58, 205, 330, colors[0], 6, 55);
+        break;
+      case "thunder-orb": {
+        const orb = this.add.circle(x, y, 19, colors[1], 0.42).setStrokeStyle(5, colors[0], 1).setDepth(27);
+        this.tweens.add({ targets: orb, scale: 2.6, alpha: 0, duration: 420, onComplete: () => orb.destroy() });
+        for (let i = 0; i < 6; i++) addBolt(Math.cos(i * Math.PI / 3) * 28, Math.sin(i * Math.PI / 3) * 28, colors[i % 3], 22);
+        break;
+      }
+      case "storm-burst":
+        for (let i = 0; i < 10; i++) addBolt(Math.cos(i * Math.PI / 5) * 32, Math.sin(i * Math.PI / 5) * 26, colors[i % 3], 38);
+        break;
+      case "thunder-roll":
+        for (let i = 0; i < 7; i++) {
+          const streak = this.add.ellipse(x - i * 8, y + Phaser.Math.Between(-18, 18), 34, 5, colors[i % 3], 0.95)
+            .setDepth(27).setAngle(Phaser.Math.Between(-10, 10));
+          this.tweens.add({ targets: streak, x: streak.x - 62, scaleX: 0.1, alpha: 0, duration: 310,
+            onComplete: () => streak.destroy() });
+        }
+        break;
+      case "wild-fang":
+        [-1, 0, 1].forEach((side, i) => addArc(28 + i * 12, 210, 330, colors[i % 3], 7, side * 18));
+        break;
+      default:
+        addArc(38, 205, 335, colors[1], 9);
+        break;
+    }
+  }
+
+  spawnElementParticles(x, y, elementId = this.powerType, count = 12, scale = 1, attackVariant = "default") {
     const element = getElement(elementId || "fire");
     const colors = {
       fire: [0xfff3a1, 0xffb02e, 0xff5428],
@@ -1569,7 +1662,17 @@ class ZeroGameScene extends Phaser.Scene {
       let particle;
       switch (element.id) {
         case "fire":
-          particle = this.add.ellipse(x, y, Phaser.Math.Between(5, 10), Phaser.Math.Between(11, 19), color, 0.98).setAngle(Phaser.Math.Between(-35, 35));
+          if (attackVariant === "fan") {
+            particle = this.add.ellipse(x, y, Phaser.Math.Between(4, 7), Phaser.Math.Between(20, 30), color, 0.98).setAngle(Phaser.Math.Between(-72, 72));
+          } else if (attackVariant === "dragon-wave" || attackVariant.includes("wave")) {
+            particle = this.add.ellipse(x, y, Phaser.Math.Between(13, 23), Phaser.Math.Between(5, 9), color, 0.98).setAngle(Phaser.Math.Between(-18, 18));
+          } else if (attackVariant.includes("uppercut") || attackVariant.includes("rise")) {
+            particle = this.add.ellipse(x, y, Phaser.Math.Between(4, 8), Phaser.Math.Between(23, 34), color, 0.98).setAngle(Phaser.Math.Between(-18, 18));
+          } else if (attackVariant.includes("spin") || attackVariant.includes("cyclone")) {
+            particle = this.add.arc(x, y, Phaser.Math.Between(8, 15), 205, 335, false, color, 0.98).setStrokeStyle(4, 0xfff0b0, 0.85);
+          } else {
+            particle = this.add.ellipse(x, y, Phaser.Math.Between(5, 10), Phaser.Math.Between(11, 19), color, 0.98).setAngle(Phaser.Math.Between(-35, 35));
+          }
           break;
         case "ice":
           particle = this.add.star(x, y, 4, 2, Phaser.Math.Between(7, 12), color, 0.98);
@@ -2556,6 +2659,7 @@ class ZeroGameScene extends Phaser.Scene {
     const accent = this.selectedHero.accent || 0x7deaff;
     const title = move.name.toUpperCase();
     this.statusLabel.setText(title + "!").setColor("#ffe17a");
+    this.spawnSignatureParticles(this.hero.x + this.facing * 24, this.hero.y - 18, this.selectedHero.id, move.id, 1);
     const ring = this.add.circle(this.hero.x, this.hero.y - 12, 34, accent, 0.16)
       .setStrokeStyle(7, accent, 0.95).setDepth(19);
     this.tweens.add({ targets: ring, scale: move.type === "spin" || move.type === "electric" ? 5.5 : 3.6, alpha: 0, duration: 420, onComplete: () => ring.destroy() });
@@ -2597,6 +2701,7 @@ class ZeroGameScene extends Phaser.Scene {
       const spark = this.add.star(enemy.x, enemy.y - 10, 7, 5, 12, accent, 0.95)
         .setStrokeStyle(2, 0xffffff).setDepth(24);
       this.tweens.add({ targets: spark, angle: 180, scale: 2.2, alpha: 0, duration: 320, onComplete: () => spark.destroy() });
+      this.spawnSignatureParticles(enemy.x, enemy.y - 12, this.selectedHero.id, move.id, 0.8);
       this.addScore(75);
     };
 
@@ -2782,7 +2887,7 @@ class ZeroGameScene extends Phaser.Scene {
       projectile.body.setOffset(0, 0); projectile.setData("glow", glow);
       projectile.setData("powerType", this.powerType); projectile.setData("charge", strength);
       projectile.setData("fireAttackType", fireKind);
-      this.spawnElementParticles(shotX, shotY, this.powerType, wide ? 18 : 8, wide ? 1.15 : 0.75);
+      this.spawnElementParticles(shotX, shotY, this.powerType, wide ? 18 : 8, wide ? 1.15 : 0.75, fireKind);
       const trail = this.add.circle(shotX - this.facing * (wide ? 24 : 12), shotY, wide ? 17 : 9 + strength * 8, power.trail, 0.9).setDepth(13);
       projectile.setData("trail", trail);
       this.tweens.add({ targets: projectile, angle: this.facing * (wide ? 18 : 360), duration: wide ? 260 : 240, repeat: -1 });
@@ -3401,7 +3506,7 @@ class ZeroGameScene extends Phaser.Scene {
       if (time >= particleClock) {
         projectile.setData("nextElementParticleAt", time + 52);
         this.spawnElementParticles(projectile.x - Math.sign(projectile.body.velocity.x || this.facing) * 13, projectile.y,
-          projectile.getData("powerType") || this.powerType, 2, 0.55);
+          projectile.getData("powerType") || this.powerType, 2, 0.55, projectile.getData("fireAttackType") || "default");
       }
     });
 
