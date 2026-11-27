@@ -22,3 +22,6 @@ Latest lightweight elemental particle redesign release request: 2026-11-27. Incl
 
 
 2026-11-27 — Final premium elemental visual release request. Build the signed Android APK from verified source commit `4dadf1f18a84e92d700848f58df0564c557d4245`. Integrated CI run `45988716523` completed successfully, including automated tests, lint, Android configuration validation, web build, and Chromium campaign smoke test. This commit includes distinct elemental rolling motion profiles for all ten powers alongside the preceding premium projectile, ball, trail, and impact artwork updates.
+
+
+2026-11-27 — Premium world, weather, hero, enemy and boss visual pass. Build signed Android APK from verified source commit 41b12e8884f44e549efe26b6df7dd8ea8e3fdaaf after CI run 45993784330 passed. This is a fresh release candidate; previous APK does not contain these updates.
