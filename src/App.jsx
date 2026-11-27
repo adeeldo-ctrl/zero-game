@@ -5386,8 +5386,10 @@ class ZeroGameScene extends Phaser.Scene {
         const authoredSprite = enemyVisual.getData("authoredSprite");
         if (authoredSprite?.active) {
           const enemyKind = enemy.getData("enemyClass") || "special";
-          const animationKey = `enemy-${enemyKind}-move`;
-          const strikeKey = `enemy-${enemyKind}-strike`;
+          const archetypeId = enemy.getData("enemyArchetypeId");
+          const hasPremiumArtwork = getPremiumEnemyFrameIndex(archetypeId) >= 0;
+          const animationKey = hasPremiumArtwork ? `enemy-${archetypeId}-move` : `enemy-${enemyKind}-move`;
+          const strikeKey = hasPremiumArtwork ? `enemy-${archetypeId}-strike` : `enemy-${enemyKind}-strike`;
           const moving = Math.abs(enemy.body.velocity.x) > 18;
           const charging = Math.abs(enemy.body.velocity.x) > 180;
           const wasCharging = Boolean(authoredSprite.getData("attackPose"));
