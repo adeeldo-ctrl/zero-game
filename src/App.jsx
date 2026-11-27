@@ -3043,7 +3043,47 @@ class ZeroGameScene extends Phaser.Scene {
       .setStrokeStyle(5, entrancePalette.edge, 0.92);
     const entranceRune = this.add.star(0, 0, 8, 8, 23, entrancePalette.edge, 0.9)
       .setStrokeStyle(2, 0xffffff, 0.95);
-    entrance.add([entranceRing, entranceCore, entranceRune]);
+    const bossStyle = this.stageConfig.boss?.style || "";
+    const entranceDetails = [];
+    if (bossStyle.includes("boxing")) {
+      [-1, 1].forEach((side) => {
+        const glove = this.add.circle(side * 82, 2, 18, entrancePalette.color, 0.94)
+          .setStrokeStyle(4, entrancePalette.edge, 0.98);
+        entranceDetails.push(glove);
+        this.tweens.add({ targets: glove, x: side * 42, scale: 0.55, alpha: 0, duration: 520, ease: "Cubic.easeIn" });
+      });
+    } else if (bossStyle.includes("agile")) {
+      [-1, 0, 1].forEach((side) => {
+        const talon = this.add.star(side * 54, -12 - Math.abs(side) * 15, 5, 5, 16, entrancePalette.color, 0.92)
+          .setStrokeStyle(2, entrancePalette.edge, 0.98);
+        entranceDetails.push(talon);
+        this.tweens.add({ targets: talon, angle: side * 145 + 180, x: side * 22, y: -42, alpha: 0, duration: 620, ease: "Cubic.easeOut" });
+      });
+    } else if (bossStyle.includes("master")) {
+      const sunArc = this.add.arc(0, 0, 91, 205, 335, false, entrancePalette.edge, 0.9)
+        .setStrokeStyle(5, entrancePalette.edge, 0.95);
+      const sunCore = this.add.star(0, -4, 8, 8, 35, entrancePalette.color, 0.92)
+        .setStrokeStyle(2, 0xffffff, 0.95);
+      entranceDetails.push(sunArc, sunCore);
+      this.tweens.add({ targets: sunArc, angle: 180, alpha: 0, duration: 650, ease: "Cubic.easeOut" });
+      this.tweens.add({ targets: sunCore, scale: 1.6, alpha: 0, duration: 620, ease: "Cubic.easeOut" });
+    } else if (bossStyle.includes("final")) {
+      const eclipse = this.add.circle(0, 0, 86, 0x17152f, 0.92)
+        .setStrokeStyle(5, entrancePalette.edge, 0.95);
+      const orbit = this.add.ellipse(0, 0, 174, 54, entrancePalette.glow, 0)
+        .setStrokeStyle(4, entrancePalette.color, 0.95);
+      entranceDetails.push(eclipse, orbit);
+      this.tweens.add({ targets: orbit, angle: 220, scaleY: 1.8, alpha: 0, duration: 700, ease: "Cubic.easeOut" });
+      this.tweens.add({ targets: eclipse, scale: 0.45, alpha: 0, duration: 680, ease: "Cubic.easeIn" });
+    } else {
+      [0, 1, 2].forEach((index) => {
+        const groundRing = this.add.ellipse(0, 48, 68 + index * 22, 12 + index * 3, entrancePalette.glow, 0)
+          .setStrokeStyle(3, entrancePalette.edge, 0.9);
+        entranceDetails.push(groundRing);
+        this.tweens.add({ targets: groundRing, scaleX: 1.8 + index * 0.35, alpha: 0, duration: 620 + index * 55, delay: index * 45 });
+      });
+    }
+    entrance.add([entranceRing, entranceCore, entranceRune, ...entranceDetails]);
     this.tweens.add({ targets: entrance, scale: 3.2, alpha: 0, angle: 55, duration: 700,
       ease: "Cubic.easeOut", onComplete: () => entrance.destroy() });
     this.cameras.main.shake(500, 0.012);
@@ -3106,7 +3146,36 @@ class ZeroGameScene extends Phaser.Scene {
         .setStrokeStyle(4, defeatPalette.edge, 0.98);
       const defeatRing = this.add.circle(0, 0, 54, defeatPalette.glow, 0)
         .setStrokeStyle(5, defeatPalette.edge, 0.95);
-      defeatBurst.add([defeatRing, defeatStar]);
+      const defeatStyle = this.stageConfig.boss?.style || "";
+      const finaleDetails = [];
+      if (defeatStyle.includes("boxing")) {
+        [-1, 1].forEach((side) => {
+          finaleDetails.push(this.add.circle(side * 38, 8, 13, defeatPalette.color, 0.9)
+            .setStrokeStyle(3, defeatPalette.edge, 0.98));
+        });
+      } else if (defeatStyle.includes("agile")) {
+        [-1, 0, 1].forEach((side) => {
+          finaleDetails.push(this.add.star(side * 35, -25, 5, 3, 10, defeatPalette.edge, 0.96));
+        });
+      } else if (defeatStyle.includes("master")) {
+        for (let ray = 0; ray < 8; ray++) {
+          const angle = (Math.PI * 2 * ray) / 8;
+          const rayShape = this.add.rectangle(Math.cos(angle) * 47, Math.sin(angle) * 47, 5, 28, defeatPalette.edge, 0.9)
+            .setAngle(angle * 180 / Math.PI + 90);
+          finaleDetails.push(rayShape);
+        }
+      } else if (defeatStyle.includes("final")) {
+        const eclipseRing = this.add.ellipse(0, 0, 104, 42, defeatPalette.glow, 0)
+          .setStrokeStyle(5, defeatPalette.edge, 0.98);
+        finaleDetails.push(eclipseRing);
+        this.tweens.add({ targets: eclipseRing, angle: 240, scaleY: 1.8, alpha: 0, duration: 690 });
+      } else {
+        [0, 1, 2].forEach((index) => {
+          finaleDetails.push(this.add.ellipse(0, 0, 72 + index * 24, 18 + index * 5, defeatPalette.glow, 0)
+            .setStrokeStyle(3, defeatPalette.edge, 0.92));
+        });
+      }
+      defeatBurst.add([defeatRing, defeatStar, ...finaleDetails]);
       this.tweens.add({
         targets: defeatBurst,
         scale: 3.1,
