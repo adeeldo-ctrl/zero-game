@@ -584,3 +584,10 @@ The following gameplay requirements are mandatory and supersede any conflicting 
 - A release workflow had already been triggered before this clarification and completed; that artifact is an interim build from an earlier source snapshot and must not be represented or delivered as the final game.
 - Continue implementation in the repository, preserve the existing gameplay and mobile controls, and defer the one consolidated verification until all development is complete. Only after that verification passes may the final signed Android Release APK be built.
 - Keep chat free of incremental work logs and unnecessary test reports. Deliver the final APK and complete report, or state a genuine blocker.
+
+
+## Platform collision-width alignment correction — 2026-11-27
+
+- Corrected platform sprite scaling to use the actual 180-pixel source texture width. Previously the authored width was divided by 100, making visible/colliding platform bodies 1.8× wider than their stage definitions.
+- Platform visual width and static physics body width now match each authored stage width, including the newly added six-platform layouts.
+- Added focused rule coverage for representative widths and invalid input. Verification remains deferred to the final consolidated pass.
