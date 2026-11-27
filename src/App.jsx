@@ -5579,10 +5579,16 @@ class ZeroGameScene extends Phaser.Scene {
         const approvedArtSprite = enemyVisual.getData("approvedArtSprite");
         if (approvedArtSprite?.active) {
           const vx = enemy.body?.velocity?.x || 0;
+          const moving = Math.abs(vx) > 18;
+          const charging = Math.abs(vx) > 180;
           if (Math.abs(vx) > 2) approvedArtSprite.setFlipX(vx < 0);
-          const charging = Boolean(enemyVisual.getData("charging"));
-          approvedArtSprite.setScale(charging ? 1.08 : 1, charging ? 0.96 : 1);
-          approvedArtSprite.setAngle(charging ? (vx < 0 ? -5 : 5) : 0);
+          const motionPhase = et * (moving ? 0.026 : 0.009);
+          const bob = Math.sin(motionPhase) * (moving ? 2.8 : 1.4);
+          const stridePulse = Math.sin(et * 0.042);
+          const squash = charging ? 0.94 : moving ? 1 + Math.abs(stridePulse) * 0.035 : 1;
+          approvedArtSprite.setPosition(0, -12 + bob);
+          approvedArtSprite.setScale(charging ? 1.08 : squash, charging ? 0.92 : moving ? 1 - Math.abs(stridePulse) * 0.025 : 1);
+          approvedArtSprite.setAngle(charging ? (vx < 0 ? -9 : 9) : moving ? Math.sin(et * 0.024) * 2.4 : Math.sin(et * 0.008) * 1.1);
         }
         if (authoredSprite?.active) {
           const enemyKind = enemy.getData("enemyClass") || "special";
