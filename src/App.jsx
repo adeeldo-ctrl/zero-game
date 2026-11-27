@@ -3443,7 +3443,9 @@ class ZeroGameScene extends Phaser.Scene {
 
   spawnBoss() {
     if (this.gameOver || this.boss) return;
-    this.audio.play("boss");
+    const bossIndex = Math.floor(this.stageNumber / 10) - 1;
+    if (this.audio.playBossEntrance) this.audio.playBossEntrance(bossIndex);
+    else this.audio.play("boss");
     this.bossTitle.setText(this.stageConfig.boss?.name?.toUpperCase() || "BOSS");
     this.statusLabel.setText(`${this.stageConfig.boss?.name || "BOSS"} BATTLE!`);
     this.statusLabel.setColor("#ff6d69");
