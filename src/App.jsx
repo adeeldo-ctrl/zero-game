@@ -312,27 +312,108 @@ class ZeroGameScene extends Phaser.Scene {
   }
 
   createStageAtmosphere() {
+    // Five deterministic atmosphere variants per world. Keep particle counts
+    // deliberately small for smooth performance on Android devices.
+    const world = this.stageConfig.worldIndex || 0;
     const variant = this.stageConfig.background.stageVariant || 0;
     const accent = this.stageConfig.background.accent;
-    for (let i = 0; i < 26; i++) {
-      const x = 24 + (i * 71) % 910;
-      const y = 95 + (i * 47) % 315;
-      if (variant === 0) {
-        const mote = this.add.circle(x, y, 3 + (i % 3), accent, 0.7).setDepth(-18);
-        this.tweens.add({ targets: mote, y: y - 18, alpha: 0.15, duration: 1100 + i * 35, yoyo: true, repeat: -1 });
-      } else if (variant === 1) {
-        const bubble = this.add.circle(x, y, 5 + (i % 4), accent, 0.24).setStrokeStyle(2, 0xffffff, 0.45).setDepth(-18);
-        this.tweens.add({ targets: bubble, scale: 1.45, y: y - 22, duration: 1300 + i * 25, yoyo: true, repeat: -1 });
-      } else if (variant === 2) {
-        const flake = this.add.star(x, y, 4, 3, 8, 0xe9fbff, 0.8).setDepth(-18);
-        this.tweens.add({ targets: flake, angle: 90, y: y + 25, duration: 1900 + i * 30, yoyo: true, repeat: -1 });
-      } else if (variant === 3) {
-        const duneSpark = this.add.ellipse(x, y, 16 + (i % 4) * 5, 4, accent, 0.45).setDepth(-18);
-        this.tweens.add({ targets: duneSpark, x: x + 18, alpha: 0.08, duration: 1500 + i * 20, yoyo: true, repeat: -1 });
-      } else {
-        const star = this.add.star(x, y, 5, 2, 6, accent, 0.8).setDepth(-18);
-        this.tweens.add({ targets: star, alpha: 0.18, scale: 0.5, duration: 800 + i * 25, yoyo: true, repeat: -1 });
+    const atmosphere = this.stageConfig.background.atmosphere || "Daylight";
+    const weatherByWorld = [
+      ["sunny", "petals", "rain", "golden", "fireflies"],
+      ["sunny", "candy-drift", "petals", "sunset", "starlight"],
+      ["snow", "snow", "blizzard", "aurora", "moon-snow"],
+      ["sunny", "sand", "sandstorm", "sunset", "desert-night"],
+      ["fireflies", "moon-mist", "rain", "moonlight", "fireflies"],
+      ["crystal", "crystal", "shimmer-rain", "aurora", "starlight"],
+      ["bubbles", "bubbles", "rain", "sunset", "moon-bubbles"],
+      ["wind", "clouds", "rain", "aurora", "starlight"],
+      ["embers", "ash", "ashfall", "eruption-glow", "embers"],
+      ["starlight", "meteor-dust", "starfall", "aurora", "cosmic-night"]
+    ];
+    const weather = (weatherByWorld[world] || weatherByWorld[0])[variant];
+    const night = /night|moon|fireflies|starlight|aurora|cosmic/.test(weather) || [4, 5, 9].includes(world) && variant === 4;
+    const celestial = this.add.container(0, 0).setDepth(-27);
+    const halo = this.add.circle(790, 128, 76, night ? 0xb9d7ff : 0xffd36b, 0.11);
+    const orb = this.add.circle(790, 128, 35, night ? 0xe4efff : 0xffe69b, 0.96);
+    celestial.add([halo, orb]);
+    if (night) {
+      for (let i = 0; i < 3; i++) {
+        celestial.add(this.add.circle(778 + i * 9, 118 + (i % 2) * 12, 5, 0x9aaed1, 0.24));
       }
+    } else {
+      const rays = this.add.graphics();
+      rays.lineStyle(3, 0xffedaa, 0.34);
+      for (let i = 0; i < 12; i++) {
+        const a = i * Math.PI / 6;
+        rays.lineBetween(790 + Math.cos(a) * 46, 128 + Math.sin(a) * 46,
+          790 + Math.cos(a) * 62, 128 + Math.sin(a) * 62);
+      }
+      celestial.add(rays);
+      this.tweens.add({ targets: rays, angle: 30, alpha: 0.45, duration: 9000, yoyo: true, repeat: -1 });
+    }
+    this.tweens.add({ targets: halo, scale: 1.12, alpha: 0.07, duration: 2600, yoyo: true, repeat: -1 });
+
+    const count = weather === "rain" || weather === "blizzard" || weather === "ashfall" || weather === "starfall" ? 18 : 12;
+    for (let i = 0; i < count; i++) {
+      const x = 24 + (i * 79 + variant * 31) % 910;
+      const y = 75 + (i * 53 + world * 17) % 350;
+      let particle;
+      let target = {};
+      let duration = 1700 + (i % 6) * 190;
+      if (weather === "rain" || weather === "shimmer-rain") {
+        particle = this.add.line(x, y, 0, 0, -7, 18, 0x9edfff, 0.62).setLineWidth(2).setDepth(-17);
+        target = { x: x - 34, y: y + 90, alpha: 0.1 };
+        duration = 680 + (i % 5) * 55;
+      } else if (weather === "snow" || weather === "blizzard" || weather === "moon-snow") {
+        particle = this.add.star(x, y, 6, 2, 5 + (i % 3), 0xeafaff, 0.86).setDepth(-17);
+        target = { x: x + (i % 2 ? 28 : -22), y: y + 105, angle: 150, alpha: 0.18 };
+        duration = 2400 + (i % 7) * 220;
+      } else if (weather === "petals" || weather === "candy-drift") {
+        particle = this.add.ellipse(x, y, 8, 13, weather === "petals" ? 0xffa6c8 : 0xffe4f2, 0.85).setDepth(-17);
+        target = { x: x + 45, y: y + 75, angle: 220, alpha: 0.12 };
+      } else if (weather === "sand" || weather === "sandstorm" || weather === "wind") {
+        particle = this.add.ellipse(x, y, 18, 3, weather === "wind" ? 0xe4fff8 : 0xffd69a, 0.55).setDepth(-17);
+        target = { x: x + 100, y: y + (i % 2 ? 10 : -12), alpha: 0.08 };
+        duration = 1200 + (i % 5) * 130;
+      } else if (weather === "embers" || weather === "ash" || weather === "ashfall" || weather === "eruption-glow") {
+        particle = this.add.circle(x, y, 2 + (i % 3), weather === "ash" || weather === "ashfall" ? 0xb9a6a0 : 0xffa05b, 0.82).setDepth(-17);
+        target = { x: x + (i % 2 ? 20 : -16), y: y - 65, alpha: 0.08, scale: 0.4 };
+        duration = 1900 + (i % 6) * 180;
+      } else if (weather === "bubbles" || weather === "moon-bubbles") {
+        particle = this.add.circle(x, y, 4 + (i % 4), 0x9df5ff, 0.2).setStrokeStyle(2, 0xe4ffff, 0.72).setDepth(-17);
+        target = { y: y - 85, alpha: 0.08, scale: 1.35 };
+        duration = 2500 + (i % 5) * 210;
+      } else if (weather === "fireflies") {
+        particle = this.add.circle(x, y, 3, 0xc8ff8c, 0.9).setDepth(-17);
+        target = { x: x + (i % 2 ? 22 : -22), y: y - 20, alpha: 0.12, scale: 0.35 };
+        duration = 1100 + (i % 6) * 230;
+      } else {
+        particle = this.add.star(x, y, 5, 2, 6, accent, 0.78).setDepth(-17);
+        target = { x: x + (i % 2 ? 12 : -12), y: y + (i % 3) * 12 - 10, alpha: 0.12, scale: 0.55, angle: 35 };
+        duration = 1500 + (i % 6) * 220;
+      }
+      this.tweens.add({
+        targets: particle,
+        ...target,
+        duration,
+        delay: (i % 6) * 95,
+        ease: "Sine.easeInOut",
+        yoyo: true,
+        repeat: -1
+      });
+    }
+
+    // A subtle distant lightning flash gives storm stages a sense of depth.
+    if (weather === "rain" || weather === "shimmer-rain" || weather === "blizzard") {
+      const flash = this.add.rectangle(480, 270, 960, 540, 0xd8efff, 0).setDepth(-14);
+      this.time.addEvent({
+        delay: 5200 + world * 170,
+        loop: true,
+        callback: () => {
+          if (!flash.active) return;
+          this.tweens.add({ targets: flash, alpha: 0.12, duration: 90, yoyo: true, hold: 55 });
+        }
+      });
     }
   }
 
