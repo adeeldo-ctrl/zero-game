@@ -1160,3 +1160,11 @@ The first integrated implementation tranche has now been pushed to `main`:
 
 - Updated the legacy enemy movement unit test: the flyer is now an intentionally supported premium AI role with authored movement speed, so only unknown roles should use the generic fallback.
 - The previous CI failure was isolated to that stale expectation (and an older boss-profile test snapshot before the four-frame animation-profile update). The current source has corrected both; the next CI run will verify the current main commit.
+
+
+### Premium enemy and boss sprite-sheet integration audit (2026-11-27)
+- Confirmed the current runtime still imports four hero PNG sprite sheets but imports all enemy and boss sheets as SVG assets.
+- Confirmed the enemy runtime maps each of the 45 campaign identities to a four-frame slice in the shared `premium-enemy-atlas.svg`; the five boss identities load from separate SVG sheets at a configured 160×160 frame size.
+- Confirmed the campaign manifest already defines the 45 enemy identities across five regions and five distinct boss profiles. This roster data is not proof that premium character artwork has been authored or integrated.
+- The requested upgrade remains an art-and-runtime integration task: replace the vector enemy/boss textures with distinct premium raster sprite sheets, define and validate real animation frames for each identity, and preserve all gameplay behavior.
+- No APK was built or released during this work, in accordance with the final-only delivery rule.
