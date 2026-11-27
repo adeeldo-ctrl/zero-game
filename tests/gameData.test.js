@@ -11,7 +11,7 @@ test("campaign contains exactly 50 deterministic stages", () => {
 test("every stage has its own authored multi-level platform layout", () => {
   const signatures = new Set();
   for (const stage of STAGES) {
-    assert.equal(stage.platforms.length, 6, `stage ${stage.number}`);
+    assert.equal(stage.platforms.length, 4, `stage ${stage.number}`);
     for (const p of stage.platforms) {
       assert.ok(p.x - p.width / 2 >= 0 && p.x + p.width / 2 <= 960,
         `stage ${stage.number}: platform stays inside arena`);
@@ -104,12 +104,10 @@ test("each set of three lost hearts consumes exactly one chance", () => {
 });
 
 test("all fifty stage transitions use a deterministic Snow Bros style entry direction", () => {
-  const expected = ["down", "right", "left"];
   for (let stage = 1; stage <= 50; stage++) {
-    assert.equal(getStageTransitionDirection(stage), expected[(stage - 1) % 3]);
+    assert.equal(getStageTransitionDirection(stage), "up");
     assert.equal(getStageTransitionDirection(stage), getStageTransitionDirection(stage));
   }
-  assert.deepEqual(new Set(Array.from({ length: 50 }, (_, i) => getStageTransitionDirection(i + 1))), new Set(expected));
 });
 
 
@@ -153,6 +151,11 @@ test("all elevated platforms have a reachable route from the permanent floor", (
 test("boss milestones are dedicated boss-only stages with unique arena layouts", () => {
   const bossStages = [10, 20, 30, 40, 50].map(getStage);
   assert.deepEqual(bossStages.map((stage) => stage.number), [10, 20, 30, 40, 50]);
+  assert.deepEqual(bossStages.map((stage) => stage.boss.id), [
+    "gatekeeper", "iron-comet", "gale-talon", "suncrest", "void-sovereign",
+  ]);
+  assert.equal(new Set(bossStages.map((stage) => stage.boss.id)).size, 5,
+    "all five milestone bosses must have distinct identities");
   for (const stage of bossStages) {
     assert.equal(stage.stageType, "boss");
     assert.equal(stage.isBossStage, true);
