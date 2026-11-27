@@ -123,6 +123,15 @@ class ZeroGameScene extends Phaser.Scene {
         frameRate: 5,
         repeat: -1,
       });
+      const strikeKey = `boss-${kind}-strike`;
+      if (!this.anims.exists(strikeKey)) {
+        this.anims.create({
+          key: strikeKey,
+          frames: this.anims.generateFrameNumbers(`boss-sheet-${kind}`, { frames: [1, 2, 3] }),
+          frameRate: 12,
+          repeat: 0,
+        });
+      }
     });
   }
 
@@ -3153,7 +3162,12 @@ class ZeroGameScene extends Phaser.Scene {
     const bossSprite = this.add.sprite(0, -22, `boss-sheet-${bossSheetId}`, 0)
       .setDisplaySize(142, 142);
     c.add(bossSprite);
-    bossSprite.play(`boss-${bossSheetId}-presence`);
+    const bossPresenceKey = `boss-${bossSheetId}-presence`;
+    const bossStrikeKey = `boss-${bossSheetId}-strike`;
+    bossSprite.play(bossPresenceKey);
+    bossSprite.on(Phaser.Animations.Events.ANIMATION_COMPLETE, (animation) => {
+      if (animation.key === bossStrikeKey && bossSprite.active) bossSprite.play(bossPresenceKey);
+    });
     c.setData("authoredSprite", bossSprite);
     c.setData("bossSheetId", bossSheetId);
     return c;
@@ -3381,6 +3395,11 @@ class ZeroGameScene extends Phaser.Scene {
       const authoredBossSprite = visual.getData("authoredSprite");
       if (authoredBossSprite?.active) {
         const attackPose = attackState === "dash" || attackState === "volley";
+        const previousAttackState = authoredBossSprite.getData("lastAttackState") || "rest";
+        if (attackPose && previousAttackState !== attackState) {
+          authoredBossSprite.play(`boss-${visual.getData("bossSheetId")}-strike`, true);
+        }
+        authoredBossSprite.setData("lastAttackState", attackState);
         authoredBossSprite.setAngle(attackPose ? Math.sin(this.time.now * 0.025) * 5 : Math.sin(this.time.now * 0.004) * 1.8);
         authoredBossSprite.setScale(attackPose ? 1.045 : 1);
       }
