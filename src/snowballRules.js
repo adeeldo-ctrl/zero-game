@@ -14,7 +14,7 @@ export const ROLLING_BALL_START_SPEED = 390;
 export const ROLLING_BALL_ACCELERATION = 520;
 export const ROLLING_BALL_MAX_SPEED = 700;
 export const ROLLING_BALL_RADIUS = 27;
-export const ROLLING_BALL_WALL_BOUNCES = 3;
+export const ROLLING_BALL_WALL_BOUNCES = 1;
 export const ROLLING_BALL_BOUNCE_DAMPING = 0.72;
 
 export function calculateRollingBallMotion({
