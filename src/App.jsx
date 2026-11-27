@@ -64,6 +64,9 @@ class ZeroGameScene extends Phaser.Scene {
     enemySheets.forEach(([key, source]) => this.load.spritesheet(key, source, {
       frameWidth: 128, frameHeight: 128,
     }));
+    this.load.spritesheet("premium-enemy-atlas", premiumEnemyAtlas, {
+      frameWidth: 128, frameHeight: 128,
+    });
     const bossSheets = [
       ["boss-sheet-gatekeeper", bossGatekeeperSheet],
       ["boss-sheet-iron-comet", bossIronCometSheet],
