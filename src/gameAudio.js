@@ -93,7 +93,10 @@ export function createGameAudio() {
     const minimumGap = name === "step" ? 120 : name === "ballRoll" ? 190 : name === "hit" || name === "bossHit" || name === "ballImpact" ? 78 : 42;
     if (now - (lastSoundAt.get(name) || 0) < minimumGap) return;
     lastSoundAt.set(name, now);
+    // The first sound after returning from the background is a user gesture:
+    // resume the suspended context and restart the active music track once.
     ensureContext();
+    scheduleMusic();
     const notes = SOUND_NOTES[name] || SOUND_NOTES.ui;
     const element = name.startsWith("element-") ? name.slice(8) : "";
     const wave = element === "fire" ? "sawtooth"
