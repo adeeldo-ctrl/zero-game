@@ -19,6 +19,13 @@
 - Jump input must work reliably on touch and keyboard/controller. A held jump must not block subsequent jumps. Preserve the intended double-jump and flip/back-flip behavior, with correct landing/reset logic.
 - Keep the existing joystick behavior unchanged unless a verified defect requires a minimal targeted correction.
 
+### Enemy visual identity follow-up (2026-11-27)
+- Added named-family elemental chest glyphs and softly pulsing matching halo accents for fire, ice, lightning, water, nature, wind, earth, crystal, light, shadow, and plasma themed enemies where their configured names identify the theme.
+- Kept AI, movement, collision bodies, hitboxes, damage, and spawn logic unchanged.
+- Source commit: `d78bde3b7ea4d6becea61b24d1842c809050ae94`.
+- This is a procedural visual enhancement, not a claim that dedicated hand-painted enemy sprite sheets have been completed.
+- No consolidated verification or Android APK build was run; the final-build hold remains in force.
+
 ## 2. Enemy movement and collision
 - Fix enemies appearing to float or fly unintentionally. Ground-based enemies must remain grounded, obey gravity/floor/platform collision, and use appropriate walk, jump, attack, hit, and defeat states.
 - Any intentional airborne enemy must have an explicit designed airborne behavior and animation; no accidental drifting or hovering.
