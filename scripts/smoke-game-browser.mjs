@@ -650,7 +650,7 @@ try {
     if (stageState.boss !== (nextStage % 10 === 0) ||
         stageState.bossStage !== (nextStage % 10 === 0) ||
         stageState.bossActive !== (nextStage % 10 === 0) ||
-        stageState.configuredEnemyCount !== (nextStage % 10 === 0 ? 0 : undefined)) {
+        (stageState.bossStage ? stageState.configuredEnemyCount !== 0 : stageState.configuredEnemyCount <= 0)) {
       throw new Error(`Stage ${nextStage} boss milestone is not a dedicated boss-only encounter`);
     }
     if (stageState.bossStage && stageState.enemies.length !== 0) {
