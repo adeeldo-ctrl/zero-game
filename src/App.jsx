@@ -345,22 +345,84 @@ class ZeroGameScene extends Phaser.Scene {
     this.add.rectangle(480, 472, 960, 12, this.stageConfig.background.accent)
       .setDepth(-4);
 
-    const grass = this.add.graphics().setDepth(-3);
-    grass.lineStyle(2, 0x9ce36c, 0.9);
-
-    for (let x = 10; x < 960; x += 30) {
-      grass.lineBetween(x, 480, x - 4, 468);
-      grass.lineBetween(x + 4, 480, x + 9, 467);
-    }
-
-    for (let i = 0; i < 22; i++) {
-      const x = 20 + i * 43;
-      const y = 490 + (i % 3) * 12;
-
-      this.add.circle(
-        x, y, 3,
-        i % 2 ? 0xffe58a : 0xffa7d5
-      ).setDepth(-2);
+    // Match the arena's lower trim to its world instead of repeating grass
+    // and flowers in ice, desert, ocean, volcano, and cosmic stages.
+    const world = this.stageConfig.worldIndex || 0;
+    const groundDetail = this.add.graphics().setDepth(-3);
+    const accent = this.stageConfig.background.accent;
+    if (world === 0 || world === 4) {
+      groundDetail.lineStyle(2, world === 4 ? 0x80c99a : 0x9ce36c, 0.9);
+      for (let x = 10; x < 960; x += 30) {
+        groundDetail.lineBetween(x, 480, x - 4, 468);
+        groundDetail.lineBetween(x + 4, 480, x + 9, 467);
+      }
+      for (let i = 0; i < 22; i++) {
+        const x = 20 + i * 43;
+        this.add.circle(x, 490 + (i % 3) * 8, 3,
+          world === 4 ? 0x9ce6b0 : (i % 2 ? 0xffe58a : 0xffa7d5)).setDepth(-2);
+      }
+    } else if (world === 1) {
+      for (let x = 24; x < 960; x += 62) {
+        groundDetail.fillStyle(x % 2 ? 0xffe5f1 : 0xffd36b, 0.88);
+        groundDetail.fillEllipse(x, 485 + (x % 3) * 4, 20, 9);
+        groundDetail.fillStyle(0xffffff, 0.7);
+        groundDetail.fillCircle(x - 5, 480 + (x % 2) * 5, 3);
+      }
+    } else if (world === 2) {
+      for (let x = 18; x < 960; x += 48) {
+        groundDetail.fillStyle(0xbdefff, 0.82);
+        groundDetail.fillTriangle(x - 7, 495, x, 472 - (x % 3) * 3, x + 8, 495);
+        groundDetail.lineStyle(1, 0xffffff, 0.72);
+        groundDetail.lineBetween(x, 478, x, 493);
+      }
+    } else if (world === 3) {
+      for (let x = 20; x < 960; x += 58) {
+        groundDetail.fillStyle(x % 2 ? 0xd7a36b : 0xb77b48, 0.9);
+        groundDetail.fillEllipse(x, 490 + (x % 3) * 3, 24, 8);
+        groundDetail.fillStyle(0xffe09b, 0.72);
+        groundDetail.fillCircle(x - 6, 486, 2);
+      }
+    } else if (world === 5) {
+      for (let x = 24; x < 960; x += 68) {
+        groundDetail.fillStyle(0x8f80c8, 0.88);
+        groundDetail.fillTriangle(x - 11, 497, x, 469 - (x % 3) * 3, x + 12, 497);
+        groundDetail.fillStyle(accent, 0.85);
+        groundDetail.fillCircle(x, 481, 3);
+      }
+    } else if (world === 6) {
+      for (let x = 18; x < 960; x += 60) {
+        groundDetail.lineStyle(3, 0x65c8b7, 0.9);
+        groundDetail.beginPath();
+        groundDetail.moveTo(x, 500);
+        groundDetail.lineTo(x - 4, 482);
+        groundDetail.lineTo(x + 5, 474);
+        groundDetail.lineTo(x + 2, 462);
+        groundDetail.strokePath();
+        groundDetail.fillStyle(0xffd49b, 0.9);
+        groundDetail.fillCircle(x + 12, 491, 4);
+      }
+    } else if (world === 7) {
+      for (let x = 18; x < 960; x += 72) {
+        groundDetail.fillStyle(0xd8efff, 0.62);
+        groundDetail.fillEllipse(x, 493, 42, 10);
+        groundDetail.fillEllipse(x + 12, 488, 25, 10);
+      }
+    } else if (world === 8) {
+      for (let x = 18; x < 960; x += 58) {
+        groundDetail.lineStyle(3, 0x5b4650, 0.95);
+        groundDetail.lineBetween(x, 499, x + 7, 479);
+        groundDetail.lineBetween(x + 7, 479, x + 14, 499);
+        groundDetail.fillStyle(0xff9b55, 0.82);
+        groundDetail.fillCircle(x + 8, 486, 2 + (x % 3));
+      }
+    } else {
+      for (let x = 20; x < 960; x += 56) {
+        groundDetail.lineStyle(2, 0x7773ba, 0.9);
+        groundDetail.lineBetween(x, 498, x + 8, 480);
+        groundDetail.lineBetween(x + 8, 480, x + 16, 498);
+        groundDetail.fillStyle(0xffdf88, 0.92);
+        groundDetail.fillCircle(x + 8, 487, 2.5);
+      }
     }
   }
 
