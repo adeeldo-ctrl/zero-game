@@ -12,7 +12,7 @@ import { createCampaignLives, loseCampaignHeart, getStageTransitionDirection } f
 import { shouldHeroCollideWithPlatform, shouldDropThroughPlatform, getPlatformTextureScale } from "./platformRules";
 import { getBossPhase, isValidJumpStomp } from "./combatRules";
 import { canKickElementBall, canRollingBallHitTarget, isRollingBallOutOfBounds, calculateRollingBallMotion } from "./snowballRules";
-import { getEnemyMovementSpeed, REGULAR_ENEMY_VISUAL_SCALE } from "./enemyRules";
+import { getEnemyMovementSpeed, getSnowballPowerTier, REGULAR_ENEMY_VISUAL_SCALE } from "./enemyRules";
 import { MOBILE_ACTION_BUTTONS, enqueueMobileAction, consumeMobileAction } from "./mobileActionQueue";
 import "./App.css";
 
@@ -2440,8 +2440,9 @@ class ZeroGameScene extends Phaser.Scene {
         enemy.setData("enemyName", this.stageConfig.enemyTypes[i % this.stageConfig.enemyTypes.length]);
         const enemyClass = ["fast", "heavy", "special"][i % 3];
         enemy.setData("enemyClass", enemyClass);
-        enemy.setData("enemyPowerType", this.stageConfig.enemyPowerType || "fire");
-        enemy.setData("snowballPowerTier", enemyClass === "heavy" ? 3 : enemyClass === "special" ? 2 : 1);
+        const enemyPowerType = this.stageConfig.enemyPowerType || "fire";
+        enemy.setData("enemyPowerType", enemyPowerType);
+        enemy.setData("snowballPowerTier", getSnowballPowerTier(enemyClass, enemyPowerType, this.stageNumber));
         const aiTypes = ["chaser", "runner", "jumper", "guard", "charger", "chaser"];
         const aiType = aiTypes[i % aiTypes.length];
         enemy.setData("aiType", aiType);
