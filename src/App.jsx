@@ -3814,8 +3814,9 @@ class ZeroGameScene extends Phaser.Scene {
     if (this.healthLabel?.active) this.healthLabel.setColor("#ff7777");
     const direction = hero.x < enemy.x ? -1 : 1;
     hero.setVelocityX(direction * 260); hero.setVelocityY(-220);
-    if (this.heroVisual) this.tweens.add({ targets: this.heroVisual, angle: direction * 12, duration: 100, yoyo: true, repeat: 2 });
-    this.time.delayedCall(450, () => { if (hero.active && !this.gameOver && this.heroVisual) this.heroVisual.setAngle(0); });
+    this.heroHitStartedAt = now;
+    this.heroHitUntil = now + 360;
+    this.heroHitDirection = direction;
     if (this.heroVisual?.active) this.tweens.add({ targets: this.heroVisual, alpha: 0.25, duration: 90, yoyo: true, repeat: 3 });
     if (lives.chanceLost) {
       this.chanceLossInProgress = true;
@@ -4598,14 +4599,17 @@ class ZeroGameScene extends Phaser.Scene {
     }
 
     const specialActive = time < (this.specialPoseUntil || 0);
+    const normalAttackActive = attacking || time < (this.normalAttackUntil || 0);
+    const hitActive = time < (this.heroHitUntil || 0);
+    const articulatedAction = specialActive || normalAttackActive || hitActive;
     const heroSprite = visual.getData("heroSprite");
     const heroRigParts = visual.getData("heroRigParts") || [];
-    if (heroSprite?.active && heroSprite.visible === specialActive) {
-      heroSprite.setVisible(!specialActive);
+    if (heroSprite?.active && heroSprite.visible === articulatedAction) {
+      heroSprite.setVisible(!articulatedAction);
       heroRigParts.forEach((part) => {
-        if (part?.active) part.setVisible(specialActive);
+        if (part?.active) part.setVisible(articulatedAction);
       });
-      if (specialActive) {
+      if (articulatedAction) {
         const palette = visual.getData("heroPalette");
         const hero = this.selectedHero || getHero("ryo");
         const skin = hero.id === "volt" ? 0x62b84f : 0xe9b38b;
@@ -4788,6 +4792,22 @@ class ZeroGameScene extends Phaser.Scene {
       if (p.legR?.active) p.legR.setPosition(11, 24);
       if (p.kurta?.active) p.kurta.setScale(1, 1);
       if (p.waistcoat?.active) p.waistcoat.setScale(1, 1);
+    }
+
+    if (hitActive && !specialActive) {
+      const hitProgress = Phaser.Math.Clamp(
+        1 - (this.heroHitUntil - time) / Math.max(1, this.heroHitUntil - this.heroHitStartedAt), 0, 1
+      );
+      const recoil = 1 - hitProgress;
+      const hitDirection = this.heroHitDirection || -this.facing;
+      p.armL.rotation = -hitDirection * (0.9 + recoil * 0.25);
+      p.armR.rotation = hitDirection * (1.1 + recoil * 0.35);
+      p.legL.rotation = -0.18 - recoil * 0.24;
+      p.legR.rotation = 0.18 + recoil * 0.24;
+      p.handL.y = 16;
+      p.handR.y = 16;
+      visual.setAngle(-hitDirection * recoil * 0.14);
+      visual.setScale(this.facing, 1 - Math.sin(hitProgress * Math.PI) * 0.055);
     }
 
     // Landing animation
