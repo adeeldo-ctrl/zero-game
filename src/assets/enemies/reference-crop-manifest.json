@@ -1,15 +1,16 @@
 {
-  "source": "user-provided Snow Bros 40 Enemies collage",
+  "source": "User-uploaded Snow Bros 40 Enemies collage; all 48 reference crops are committed under src/assets/enemies/reference/.",
   "imageSize": {
     "width": 1536,
     "height": 1024
   },
   "cropCount": 48,
   "notes": [
-    "Approximate crop coordinates; some adjacent characters overlap and require manual cleanup.",
-    "The original collage background is retained in these reference crops.",
-    "These are not transparent game-ready sprites and do not contain animation frames.",
-    "Do not replace runtime enemy/boss textures until cleaned spritesheets and real animation frames are supplied."
+    "All 48 uploaded reference crops are preserved unchanged under src/assets/enemies/reference/.",
+    "Approximate crop boundaries include parts of the original scene and nearby decorative objects.",
+    "The original blue/ice scenery is retained; these images are not transparent character cutouts.",
+    "The crops are static references and do not contain animation frames.",
+    "Do not replace runtime enemy/boss textures until clean transparent spritesheets and genuine animation frames are ready."
   ],
   "crops": [
     {
