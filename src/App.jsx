@@ -70,6 +70,8 @@ class ZeroGameScene extends Phaser.Scene {
     this.bossDefeated = false;
     this.bossPhase = 1;
     this.powerType = "fire";
+    this.particlePowerLevel = 1;
+    this.particlePowerMaxLevel = 20;
     this.attackHeld = false;
     this.attackChargeStart = 0;
     this.attackCharge = 0;
@@ -1011,7 +1013,7 @@ class ZeroGameScene extends Phaser.Scene {
       fontSize: "12px", color: "#d9f6ff", fontStyle: "bold"
     }).setDepth(21);
 
-    this.powerLabel = this.add.text(640, 19, "POWER: FIRE [C]", { fontSize: "13px", color: "#ffb45e", fontStyle: "bold" }).setDepth(21);
+    this.powerLabel = this.add.text(640, 19, "POWER: FIRE • P1/20 [C]", { fontSize: "13px", color: "#ffb45e", fontStyle: "bold" }).setDepth(21);
     this.enemyLabel = this.add.text(
       390, 19, `ENEMIES: 0/${this.stageEnemyCount}`, {
         fontSize: "18px",
@@ -1436,7 +1438,7 @@ class ZeroGameScene extends Phaser.Scene {
     this.applyHeroLook(this.heroVisual, this.selectedHero);
     this.powerType = this.selectedHero.element;
     const element = getElement(this.powerType);
-    this.powerLabel.setText(`POWER: ${element.name.toUpperCase()} [POWER]`).setColor("#" + element.color.toString(16).padStart(6, "0"));
+    this.powerLabel.setText(`POWER: ${element.name.toUpperCase()} • P${this.particlePowerLevel}/20 [POWER]`).setColor("#" + element.color.toString(16).padStart(6, "0"));
     this.mobileControlVisuals?.get("cyclePower")?.text?.setText(`POWER\n${element.name.toUpperCase()}`).setFontSize("11px");
     this.updateLivesLabel();
     const enterGameplay = () => {
@@ -1700,11 +1702,17 @@ class ZeroGameScene extends Phaser.Scene {
       plasma: [0xffffff, 0xffa6d0, 0xe63f91],
     };
     const palette = colors[element.id] || colors.fire;
-    // Fire receives a tenfold visual upgrade: dense layered embers, sparks and flame tongues.
-    const particleCount = element.id === "fire" ? Math.min(180, count * 10) : count;
+    // Twenty collectible particle tiers increase density, scale, travel and linger time.
+    const powerLevel = Phaser.Math.Clamp(this.particlePowerLevel || 1, 1, this.particlePowerMaxLevel || 20);
+    const upgrade = (powerLevel - 1) / 19;
+    const densityMultiplier = 1 + upgrade * 2.5;
+    const particleCount = element.id === "fire" ? Math.min(360, Math.ceil(count * 10 * (1 + upgrade * 1.5))) : Math.min(240, Math.ceil(count * densityMultiplier));
+    const particleScale = scale * (1 + upgrade * 0.8);
+    const particleSpeed = 1 + upgrade * 0.65;
+    const particleLifetime = 1 + upgrade * 0.35;
     for (let i = 0; i < particleCount; i++) {
       const angle = (Math.PI * 2 * i / particleCount) + Phaser.Math.FloatBetween(-0.22, 0.22);
-      const speed = Phaser.Math.Between(24, 105) * scale;
+      const speed = Phaser.Math.Between(24, 105) * scale * particleSpeed;
       const color = palette[i % palette.length];
       let particle;
       switch (element.id) {
@@ -1749,7 +1757,7 @@ class ZeroGameScene extends Phaser.Scene {
           particle = this.add.star(x, y, 6, 3, Phaser.Math.Between(8, 13), color, 0.95).setAngle(Phaser.Math.Between(0, 360));
           break;
       }
-      particle.setDepth(25);
+      particle.setDepth(25).setScale(particleScale);
       const travel = speed * (element.id === "wind" ? 1.45 : element.id === "earth" ? 0.72 : 1);
       this.tweens.add({
         targets: particle,
@@ -1759,7 +1767,7 @@ class ZeroGameScene extends Phaser.Scene {
         scaleX: element.id === "wind" ? 0.15 : 0.35,
         scaleY: 0.25,
         angle: particle.angle + Phaser.Math.Between(-180, 180),
-        duration: Phaser.Math.Between(260, 520),
+        duration: Math.round(Phaser.Math.Between(260, 520) * particleLifetime),
         ease: "Cubic.easeOut",
         onComplete: () => particle.destroy(),
       });
@@ -2333,8 +2341,9 @@ class ZeroGameScene extends Phaser.Scene {
     if (reward <= 4) {
       const element = ELEMENTS[Phaser.Math.Between(0, ELEMENTS.length - 1)];
       this.powerType = element.id;
-      this.powerLabel.setText(`POWER: ${element.name.toUpperCase()} [C]`).setColor("#" + element.color.toString(16).padStart(6, "0"));
-      this.statusLabel.setText(`${element.name.toUpperCase()} POWER FOUND!`).setColor("#ffe17a");
+      this.upgradeParticlePower();
+      this.powerLabel.setText(`POWER: ${element.name.toUpperCase()} • P${this.particlePowerLevel}/20 [C]`).setColor("#" + element.color.toString(16).padStart(6, "0"));
+      this.statusLabel.setText(`PARTICLE POWER ${this.particlePowerLevel}/20 UPGRADED!`).setColor("#ffe17a");
     } else if (reward <= 6) {
       if (this.health < 3) {
         this.health = Math.min(3, this.health + 1);
@@ -2644,6 +2653,16 @@ class ZeroGameScene extends Phaser.Scene {
     restart.on("pointerdown", () => this.startNewCampaign());
   }
 
+  upgradeParticlePower() {
+    const current = Phaser.Math.Clamp(this.particlePowerLevel || 1, 1, 20);
+    this.particlePowerLevel = Math.min(20, current + 1);
+    if (this.powerLabel) {
+      const element = getElement(this.powerType);
+      this.powerLabel.setText(`POWER: ${element.name.toUpperCase()} • P${this.particlePowerLevel}/20 [C]`);
+    }
+    return this.particlePowerLevel;
+  }
+
   getPowerPalette() {
     const element = getElement(this.powerType);
     return { id: element.id, effect: element.effect, ball: element.ball, edge: element.edge, glow: element.glow, trail: element.trail };
@@ -2654,7 +2673,7 @@ class ZeroGameScene extends Phaser.Scene {
     this.powerType = modes[(modes.indexOf(this.powerType) + 1) % modes.length];
     const colors = Object.fromEntries(ELEMENTS.map(element => [element.id, "#" + element.color.toString(16).padStart(6, "0")]));
     const element = getElement(this.powerType);
-    this.powerLabel.setText(`POWER: ${element.name.toUpperCase()} [POWER]`).setColor(colors[this.powerType]);
+    this.powerLabel.setText(`POWER: ${element.name.toUpperCase()} • P${this.particlePowerLevel}/20 [POWER]`).setColor(colors[this.powerType]);
     this.statusLabel.setText(`${element.name.toUpperCase()} POWER READY!`).setColor(colors[this.powerType]);
     this.audio.play("powerSwitch");
     this.spawnElementParticles(this.hero.x + this.facing * 24, this.hero.y - 22, this.powerType, 12, 0.65);
