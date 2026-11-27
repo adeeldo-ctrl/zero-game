@@ -40,6 +40,17 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Prepare transparent enemy reference cutouts
+        run: npm run art:prepare-reference
+
+      - name: Upload prepared enemy reference cutouts
+        uses: actions/upload-artifact@v4
+        with:
+          name: zero-game-prepared-enemy-references
+          path: src/assets/enemies/prepared-reference/
+          if-no-files-found: error
+          retention-days: 7
+
       - name: Run automated tests
         run: npm test
 
