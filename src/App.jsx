@@ -2269,7 +2269,7 @@ class ZeroGameScene extends Phaser.Scene {
     this.menuObjects.push(shade, heading, sub);
     HEROES.forEach((hero, index) => {
       const x = 132 + index * 232;
-      const card = this.add.rectangle(x, 286, 216, 414, 0x142b49, 0.98).setStrokeStyle(3, hero.accent).setDepth(61).setInteractive({ useHandCursor: true });
+      const card = this.add.rectangle(x, 295, 216, 390, 0x142b49, 0.98).setStrokeStyle(3, hero.accent).setDepth(61).setInteractive({ useHandCursor: true });
       const glow = this.add.circle(x, 190, 68, hero.accent, 0.1).setStrokeStyle(2, hero.accent, 0.68).setDepth(62);
       const visual = this.createHeroVisual(x, 198, hero.id);
       this.applyHeroLook(visual, hero, true);
