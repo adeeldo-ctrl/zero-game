@@ -1028,3 +1028,7 @@ The following gameplay requirements are mandatory and supersede any conflicting 
 - Existing procedural rig metadata is retained for compatibility with current gameplay and hit-reaction code; the authored sprite is used for the visible character presentation.
 - Source commit: `812839ba69422264ba569b6ae2ca5ae361a12cf2`.
 - **Verification:** Not run; per the user's final-only verification instruction, consolidated testing remains deferred until all approved development is complete. No APK was built.
+
+- Follow-up sprite animation polish: regular enemies now hold a clean authored idle frame while stationary and resume their class-specific four-frame movement cycle when moving. Boss sprites receive restrained attack-state emphasis during dash/volley and subtle idle motion. Existing collision, AI and attack timing remain unchanged.
+- Source commit: `92467c7de0624fae05af315e7f2fe50afb43ab97`.
+- **Verification:** Not run; consolidated verification remains deferred until all development is complete. No APK was built.
