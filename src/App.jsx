@@ -1122,7 +1122,12 @@ class ZeroGameScene extends Phaser.Scene {
       legL,
       legR,
       armL,
-      armR
+      armR,
+      body,
+      chestPlate,
+      chestSigil,
+      belly,
+      headband,
     });
     c.setData("damageParts", {
   hornL,
@@ -4071,8 +4076,22 @@ class ZeroGameScene extends Phaser.Scene {
         const swing = Math.sin(et * (aiType === "runner" ? 0.026 : 0.018));
         parts.legL.rotation = swing * (aiType === "runner" ? 0.9 : 0.65);
         parts.legR.rotation = -swing * (aiType === "runner" ? 0.9 : 0.65);
-        parts.armL.rotation = -swing * 0.5;
-        parts.armR.rotation = swing * 0.5;
+        const stride = aiType === "runner" || aiType === "charger" ? 1.25 : 1;
+        parts.armL.rotation = -swing * 0.5 * stride;
+        parts.armR.rotation = swing * 0.5 * stride;
+        if (parts.body?.active) {
+          const bodyPulse = Math.abs(swing) * (aiType === "guard" ? 0.025 : 0.045);
+          parts.body.setScale(1 - bodyPulse * 0.45, 1 + bodyPulse);
+        }
+        if (parts.chestPlate?.active) {
+          parts.chestPlate.rotation = swing * 0.055;
+          parts.chestPlate.setScale(1 + Math.abs(swing) * 0.025, 1);
+        }
+        if (parts.chestSigil?.active) {
+          parts.chestSigil.rotation = Math.sin(et * 0.004) * 0.12;
+          parts.chestSigil.setAlpha(0.78 + (Math.sin(et * 0.006) + 1) * 0.11);
+        }
+        if (parts.headband?.active) parts.headband.rotation = swing * 0.035;
         enemyVisual.y = enemy.y + Math.abs(swing) * -2 + visualBob;
         enemyVisual.angle = 0;
       }
