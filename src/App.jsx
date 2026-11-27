@@ -3008,6 +3008,23 @@ class ZeroGameScene extends Phaser.Scene {
       this.audio.playVictoryTheme?.();
       this.addScore(5000);
       this.dropBossRewardShower(boss.x, boss.y);
+      const defeatPalette = getElement(this.stageConfig.boss?.element || "fire");
+      this.spawnElementParticles(boss.x, boss.y - 12, defeatPalette.id, 30, 1.45);
+      const defeatBurst = this.add.container(boss.x, boss.y - 12).setDepth(27);
+      const defeatStar = this.add.star(0, 0, 10, 10, 42, defeatPalette.color, 0.9)
+        .setStrokeStyle(4, defeatPalette.edge, 0.98);
+      const defeatRing = this.add.circle(0, 0, 54, defeatPalette.glow, 0)
+        .setStrokeStyle(5, defeatPalette.edge, 0.95);
+      defeatBurst.add([defeatRing, defeatStar]);
+      this.tweens.add({
+        targets: defeatBurst,
+        scale: 3.1,
+        alpha: 0,
+        angle: 35,
+        duration: 720,
+        ease: "Cubic.easeOut",
+        onComplete: () => defeatBurst.destroy(),
+      });
       this.bossDefeated = true;
       boss.setVelocity(0, 0);
       this.tweens.add({ targets: this.bossVisual, angle: 360, scale: 0.1,
