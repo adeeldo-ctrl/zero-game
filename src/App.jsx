@@ -1511,6 +1511,58 @@ class ZeroGameScene extends Phaser.Scene {
     ]);
 
     const inspiration = enemy.getData("enemyName") || "";
+    const identityDetails = [];
+    let identityProfile = "standard";
+    if (/masked|ninja/i.test(inspiration)) {
+      identityProfile = "masked-assassin";
+      identityDetails.push(
+        this.add.rectangle(0, 4, 31, 9, 0x30263e, 0.96).setStrokeStyle(1, hornColor, 0.9),
+        this.add.rectangle(-8, -7, 5, 3, 0xfff2c8),
+        this.add.rectangle(8, -7, 5, 3, 0xfff2c8),
+        this.add.triangle(0, -39, -12, 8, 0, -15, 12, 8, 0x28243d).setStrokeStyle(2, hornColor)
+      );
+    } else if (/tiger/i.test(inspiration)) {
+      identityProfile = "tiger-striker";
+      identityDetails.push(
+        this.add.triangle(-16, -1, -8, -7, 8, 0, -8, 7, 0x34283a),
+        this.add.triangle(16, -1, 8, -7, -8, 0, 8, 7, 0x34283a),
+        this.add.triangle(-12, 11, -7, -5, 8, 0, -7, 5, 0xf6d58a),
+        this.add.triangle(12, 11, 7, -5, -8, 0, 7, 5, 0xf6d58a)
+      );
+    } else if (/sonic|rapid|sky-step|whirlwind/i.test(inspiration)) {
+      identityProfile = "sonic-runner";
+      identityDetails.push(
+        this.add.triangle(-29, -22, 0, -8, 31, 0, 0, 8, 0xd9f5ff, 0.88),
+        this.add.triangle(-34, -8, 0, -6, 26, 0, 0, 6, hornColor, 0.86),
+        this.add.ellipse(0, 31, 31, 5, 0xb9e8f5, 0.72)
+      );
+    } else if (/flame|fire|inferno/i.test(inspiration)) {
+      identityProfile = "flame-vanguard";
+      identityDetails.push(
+        this.add.triangle(-11, -37, -8, 8, 0, -17, 8, 8, 0xffa34c),
+        this.add.triangle(0, -40, -9, 9, 0, -20, 9, 9, 0xffe17a),
+        this.add.triangle(11, -37, -8, 8, 0, -17, 8, 8, 0xff7544),
+        this.add.rectangle(-25, 8, 17, 7, 0xffa34c).setStrokeStyle(1, 0xffe7a0),
+        this.add.rectangle(25, 8, 17, 7, 0xffa34c).setStrokeStyle(1, 0xffe7a0)
+      );
+    } else if (/iron guard|stone fist/i.test(inspiration)) {
+      identityProfile = "iron-sentinel";
+      identityDetails.push(
+        this.add.rectangle(0, -1, 36, 23, 0x65798f, 0.96).setStrokeStyle(3, 0xdce7ef),
+        this.add.rectangle(0, -1, 19, 5, hornColor).setStrokeStyle(1, 0xffffff),
+        this.add.ellipse(-30, -3, 12, 12, 0xb5c5d2).setStrokeStyle(2, 0xffffff),
+        this.add.ellipse(30, -3, 12, 12, 0xb5c5d2).setStrokeStyle(2, 0xffffff)
+      );
+    } else if (/psychic/i.test(inspiration)) {
+      identityProfile = "psychic-oracle";
+      identityDetails.push(
+        this.add.star(-38, -27, 4, 3, 8, 0xd8c5ff).setStrokeStyle(1, 0xffffff),
+        this.add.star(38, -27, 4, 3, 8, 0xd8c5ff).setStrokeStyle(1, 0xffffff),
+        this.add.arc(0, -2, 51, 205, 335, false, 0xc8aaff, 0.55).setStrokeStyle(2, 0xd9caff, 0.9)
+      );
+    }
+    if (identityDetails.length) c.add(identityDetails);
+
     if (/claw/i.test(inspiration)) {
       const clawL = this.add.triangle(-30, 13, -2, -8, 8, 0, -3, 14, 0xe8e7ef).setStrokeStyle(2, 0x6c477b);
       const clawR = this.add.triangle(30, 13, 2, -8, -8, 0, 3, 14, 0xe8e7ef).setStrokeStyle(2, 0x6c477b);
@@ -1595,6 +1647,7 @@ class ZeroGameScene extends Phaser.Scene {
       bootR,
       belly,
       headband,
+      identityDetails,
     });
     c.setData("damageParts", {
   hornL,
@@ -1608,6 +1661,7 @@ class ZeroGameScene extends Phaser.Scene {
     enemy.setData("visual", c);
     c.setData("enemyClass", enemyClass);
     c.setData("classProfile", isFast ? "swift-scarf" : isHeavy ? "armored-bruiser" : "arcane-aura");
+    c.setData("identityProfile", identityProfile);
     enemy.setData("animTime", 0);
 
     return c;
@@ -4689,6 +4743,13 @@ class ZeroGameScene extends Phaser.Scene {
         if (parts.bootL?.active) parts.bootL.rotation = parts.legL.rotation * 0.72;
         if (parts.bootR?.active) parts.bootR.rotation = parts.legR.rotation * 0.72;
         if (parts.shadow?.active) parts.shadow.setScale(1 + Math.abs(swing) * 0.045, 1 - Math.abs(swing) * 0.035);
+        if (Array.isArray(parts.identityDetails)) {
+          parts.identityDetails.forEach((detail, index) => {
+            if (!detail?.active) return;
+            detail.rotation = Math.sin(et * 0.0035 + index * 0.8) * 0.035;
+            detail.setAlpha(0.88 + (Math.sin(et * 0.005 + index) + 1) * 0.055);
+          });
+        }
         enemyVisual.y = enemy.y + Math.abs(swing) * -2 + visualBob;
         enemyVisual.angle = 0;
       }
