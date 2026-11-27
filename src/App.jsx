@@ -9,7 +9,7 @@ import { Capacitor } from "@capacitor/core";
 import { ELEMENTS, HEROES, getElement, getStage, getHero } from "./gameData";
 import { createGameAudio } from "./gameAudio";
 import { createCampaignLives, loseCampaignHeart, getStageTransitionDirection } from "./campaignRules";
-import { shouldHeroCollideWithPlatform, shouldDropThroughPlatform } from "./platformRules";
+import { shouldHeroCollideWithPlatform, shouldDropThroughPlatform, getPlatformTextureScale } from "./platformRules";
 import { getBossPhase, isValidJumpStomp } from "./combatRules";
 import { canKickElementBall, canRollingBallHitTarget, isRollingBallOutOfBounds, calculateRollingBallMotion } from "./snowballRules";
 import { getEnemyMovementSpeed, REGULAR_ENEMY_VISUAL_SCALE } from "./enemyRules";
@@ -1199,7 +1199,7 @@ class ZeroGameScene extends Phaser.Scene {
     authored.forEach(({ x, y, width = 200 }, platformIndex) => {
       const accent = this.stageConfig.background.accent;
       const platform = this.platforms.create(x, y, "platform");
-      platform.setScale(width / 100, 1).setTint(this.stageConfig.background.platform || 0x8a6a50).refreshBody();
+      platform.setScale(getPlatformTextureScale(width), 1).setTint(this.stageConfig.background.platform || 0x8a6a50).refreshBody();
       this.add.ellipse(x, y - 12, width * 0.9, 15, accent, 0.22).setDepth(1);
       const trim = this.add.rectangle(x, y - 13, width * 0.94, 4, accent, 0.95).setDepth(2);
       const bevel = this.add.rectangle(x, y - 8, width * 0.78, 2, 0xffffff, 0.22).setDepth(3);
