@@ -19,6 +19,12 @@
 - Source commit: `3d950a5d189941f1857bde1f6f79d435e10582ce`.
 - No tests/builds were run; final consolidated verification and APK remain deferred until development is complete.
 
+### Enemy AI-state pose animation (2026-11-27)
+- Added clear visual anticipation poses for runner/charger enemies, forward-leaning dash poses, guarded bracing poses, and airborne tuck poses for jumpers.
+- The poses reuse the existing visual rig and update per frame; enemy state transitions, AI decisions, velocities, physics, hitboxes, damage, and attack timing are unchanged.
+- Source commit: `28b9c6413a094e676863ac5a60e71de0289becd3`.
+- No tests/builds were run; final consolidated verification and Android APK remain deferred until development is complete.
+
 ## Non-negotiable preservation rules
 - Preserve the currently working joystick/controller movement and touch mapping. Do not regress the approved controls.
 - Keep the game in landscape and make the playable scene fill the complete device viewport.
