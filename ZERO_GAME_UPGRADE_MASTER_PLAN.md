@@ -435,3 +435,18 @@ The following source changes are committed on `main` and covered by the integrat
 - The Android workflow remains final-only. It supports manual dispatch and one explicit push trigger: adding `ZERO_GAME_FINAL_RELEASE_TRIGGER.md` on `main` after integrated CI has passed.
 - Ordinary source pushes never trigger an APK build. The one-time marker is only to start the final signed Release APK after the approved scope and final CI are complete.
 - The Release APK is signed with a runner-generated one-time key. Preserve the delivered APK as the final install package; a future update signed with a different key will require uninstalling the old package first.
+
+
+## Final Release APK delivered — 2026-11-27
+
+- **Release workflow:** GitHub Actions run `45954385742` — successful.
+- **Source commit:** `5f5e18990bd5cdccb8f3b27d7fe3f59e8af8cd60`.
+- **Artifact:** `zero-game-release-apk`, artifact ID `15178341478`.
+- **APK:** `zero-game-release.apk`, 3,620,521 bytes (about 3.45 MiB).
+- **SHA-256:** `513c83f7d817b4bb63b328cd226ba76a2a71eb1f750f017520b10b9b6d64d811`.
+- Gradle Release build, ZIP alignment, APK signing, `apksigner verify`, and artifact upload all succeeded.
+- Automated browser gameplay verification passed on source commit `f98f76d2b146a63afb29a884435f3046fb067ca1` in CI run `45953202448`. The Release workflow also passed its game-data tests, lint, and production web build on the release commit.
+- **Physical Android handset test:** not performed by GitHub Actions. Install and play-test on the target handset before treating touch/audio/device compatibility as physically confirmed.
+- The APK is signed using a one-time CI-generated signing key. Future updates signed with a different key cannot update this installation in place; uninstalling the old package may be required.
+
+**Delivery status:** Signed Release APK successfully built, signature-verified, uploaded to GitHub Actions, and downloaded for direct delivery.
