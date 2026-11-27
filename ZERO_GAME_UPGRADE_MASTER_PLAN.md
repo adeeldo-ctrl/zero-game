@@ -509,3 +509,10 @@ The following gameplay requirements are mandatory and supersede any conflicting 
 - The progression changes visual particle presentation only. Existing gameplay controls and non-particle systems are left unchanged.
 - Source commit: `5ffeb6594ae8c8242be8b3824634894c3b2a19c3`.
 - Consolidated CI has not yet been run for this change; do not claim this update verified until the workflow passes.
+
+
+### Final particle-tier scaling adjustment
+
+- Power 1–20 now scales particle density from 1x to 10x across the tier range, in addition to the existing fire baseline boost.
+- Higher tiers also scale particle size, travel speed, and lifetime. Particle counts are capped per burst to avoid unbounded object creation.
+- Latest gameplay implementation commit: `48f9bdbe0557190a2152d8c6d6ca3a7ff2937126`.
