@@ -1,15 +1,20 @@
 name: ZERO GAME Android APK
 
 on:
-  # APK assembly is intentionally manual-only. Pushes run checks, never APK builds.
+  # APK assembly is final-only: manual dispatch or the one-time marker added after integrated CI passes.
   workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - ZERO_GAME_FINAL_RELEASE_TRIGGER.md
 
 permissions:
   contents: read
 
 jobs:
   build-android:
-    if: github.event_name == 'workflow_dispatch'
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'push'
     name: Build signed release APK
     runs-on: ubuntu-latest
     timeout-minutes: 35
