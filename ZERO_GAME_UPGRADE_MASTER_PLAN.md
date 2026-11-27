@@ -170,6 +170,12 @@
 - Source commit: `9b0c071d6b5b16d2e60a9cdeccb88dc5630270ec`; smoke coverage commit: `7f0ef91c5f5c3652bdfeeb9db821e9a1ccf08ef2`.
 - No tests/builds were run; final consolidated verification and Android Release APK remain deferred until development is complete.
 
+### Audio output mixing polish (2026-11-27)
+- Added a shared master gain stage with a conservative output level and an optional dynamics compressor when the Web Audio implementation supports it.
+- The fallback remains compatible with WebViews that do not expose a compressor node; individual track, SFX, mute and volume controls remain unchanged.
+- Source commit: `7fa41f91dbfaf15073b4c9c84597c81878309c6c`.
+- No tests/builds were run; consolidated verification and Android Release APK remain deferred until development is complete.
+
 ## Non-negotiable preservation rules
 - Preserve the currently working joystick/controller movement and touch mapping. Do not regress the approved controls.
 - Keep the game in landscape and make the playable scene fill the complete device viewport.
