@@ -568,7 +568,7 @@ class ZeroGameScene extends Phaser.Scene {
         for (let leaf = 0; leaf < 4; leaf++) {
           const y = 438 - leaf * 19;
           g.fillStyle(leaf % 2 ? 0x4f9b62 : 0x80c978, 0.92);
-          g.fillEllipse(x + (side ? -18 : 18), y, 34, 12).setRotation((side ? -1 : 1) * 0.5);
+          g.fillEllipse(x + (side ? -18 : 18), y, 34, 12);
         }
         g.fillStyle(0xffa5d1, 0.9);
         g.fillEllipse(x + (side ? -9 : 9), 455, 20, 8);
