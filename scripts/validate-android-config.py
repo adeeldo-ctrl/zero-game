@@ -72,6 +72,10 @@ assert "workflow_run" not in content, (
     "The APK workflow must not depend on automatic workflow-run events"
 )
 assert "assembleRelease" in content and "apksigner" in content and "zero-game-release-apk" in content and "upload-artifact@v4" in content
+assert "npm test" in content and "npm run lint" in content and "npm run build" in content
+assert "scripts/validate-android-config.py" in content and "scripts/smoke-game-browser.mjs" in content, (
+    "Final Android workflow must run the complete consolidated verification before APK assembly"
+)
 assert "screenOrientation" in content, "Android launcher must be locked to landscape"
 assert "android.permission.INTERNET" in content, "Android co-op networking needs Internet permission"
 assert "usesCleartextTraffic" in content, "Android local Wi-Fi WebSocket access is not configured"
