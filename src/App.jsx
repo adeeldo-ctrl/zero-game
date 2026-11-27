@@ -1453,6 +1453,10 @@ class ZeroGameScene extends Phaser.Scene {
       return;
     }
     if (sprite && forceRigPreview) {
+      const textureKey = `hero-sheet-${hero.id}`;
+      if (sprite.texture.key !== textureKey) sprite.setTexture(textureKey, 0);
+      visual.setData("heroSpriteId", hero.id);
+      visual.setData("heroLookId", hero.id);
       sprite.setVisible(false);
       (visual.getData("heroRigParts") || []).forEach((part) => {
         if (part?.active) part.setVisible(true);
