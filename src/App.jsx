@@ -2241,6 +2241,9 @@ class ZeroGameScene extends Phaser.Scene {
     socket.onerror = () => this.netStatusText?.setText("WI-FI SERVER NOT FOUND • START SERVER ON HOST PC").setColor("#ff8b8b");
     socket.onclose = () => {
       this.netConnected = false;
+      this.remoteState = null;
+      if (this.remoteVisual?.active) this.remoteVisual.setAlpha(0.25);
+      if (this.netSocket === socket) this.netSocket = null;
       if (this.netStatusText?.active && this.netStatusText.text.includes("READY")) {
         this.netStatusText.setText("WI-FI DISCONNECTED").setColor("#ff8b8b");
       }
