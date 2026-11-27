@@ -1114,3 +1114,21 @@ The first integrated implementation tranche has now been pushed to `main`:
 - Added real arcade-physics enemy projectiles and connected all special-platform overlap hooks. Accelerator, spring, fading, moving, slippery and elemental-energy platform behaviors are now routed through the runtime; drop-through keeps the existing one-way platform behavior.
 - Added tests for the additional AI roles and platform family/special-type assignments. These tests are authored but intentionally not run yet because the user's requested single consolidated verification is reserved until the full premium rebuild is implemented.
 - **Remaining work:** deeper stage-specific background compositions, richer original audio beyond the current generated note-sequence identities, boss-specific signature attack execution and animation synchronization, richer attendant visual identities, and a full authored platform route/layout pass. No CI verification or APK build has been started.
+
+
+### Follow-up implementation tranche — signature bosses and expanded stage platforms (2026-11-27)
+
+- Corrected the regular enemy animation runtime selector: movement and attack now resolve the animation clip from each enemy's unique archetype ID, rather than falling back to the shared fast/heavy/special animation keys. This applies to normal spawns and boss attendants.
+- Gave each boss's volley a distinct signature pattern and projectile identity:
+  - Arena Gatekeeper: heavy stone-shard spread with a ground-quake accent
+  - Iron Comet: narrow, fast boxing-punch projectiles
+  - Gale Talon: wide fan of aerial talon blades
+  - Suncrest Master: radial solar burst with a flare ring
+  - Void Sovereign: rotating radial void shots with a rift effect
+- Boss sprite strike clips now activate during anticipation, dash, volley and slam states, with boss-specific tilt/scale accents. The existing five separate boss sprite sheets retain their different silhouettes and individual idle/strike frame profiles.
+- Added explicit signature move identities to the stage boss definitions and strengthened roster tests to require nine distinct behavior roles in every 10-stage enemy region.
+- Expanded all 50 normal-stage layouts from four to six elevated platforms. Added two extra per-stage ledges selected to avoid close vertical/horizontal overlap and remain connected to the existing floor/platform route. Boss arenas now also have six elevated platforms.
+- Updated the browser campaign smoke expectation to seven total platforms (six elevated plus the permanent floor). The platform reachability test remains in place and will be included in the one consolidated verification.
+- Confirmed by source inspection that the ten world backgrounds each have five atmosphere variants, producing 50 stage-specific world/landmark compositions; all 50 stage music sequences have distinct note orderings, and the five boss tracks remain separately routed.
+
+**Remaining before the single consolidated verification:** inspect/fix any integration issues found by static review; verify boss attendant replenishment under real encounter flow; verify platform special effects, collisions and all 50 route layouts in the browser smoke; confirm every 45 atlas frame/animation resolves; then run the complete CI suite once and fix any failures. Only after that should the single final signed Android APK be built. No interim APK is to be produced.
