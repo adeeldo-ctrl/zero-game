@@ -1,4 +1,5 @@
 // ZERO GAME: data-driven campaign definitions.
+import { getPremiumStageEnemyRoster, getPremiumEnemyRegion } from "./premiumCampaignData.js";
 // Stage visuals, enemy families, bosses and elemental powers are kept separate
 // from the Phaser scene so the campaign can grow without hard-coded level logic.
 
@@ -129,6 +130,8 @@ export const STAGES = Array.from({ length: 50 }, (_, index) => {
   const worldIndex = Math.floor(index / 5) % WORLDS.length;
   const world = WORLDS[worldIndex];
   const family = ENEMY_FAMILIES[(index + Math.floor(index / 3)) % ENEMY_FAMILIES.length];
+  const premiumRegion = getPremiumEnemyRegion(number);
+  const premiumRoster = getPremiumStageEnemyRoster(number);
   const boss = number % 10 === 0 ? BOSS_DATA[number / 10 - 1] : null;
   return {
     number,
@@ -154,10 +157,12 @@ export const STAGES = Array.from({ length: 50 }, (_, index) => {
         [810 - (number / 10) * 12, 340, 190], [480, 255 + (number / 10) * 5, 220]]
       : STAGE_PLATFORM_LAYOUTS[index]
     ).map(([x, y, width]) => ({ x, y, width, height: 18 })),
+    enemyRegionId: premiumRegion.id,
+    enemyRoster: boss ? [] : premiumRoster,
     enemyFamily: family.id,
     enemyPowerType: ["fire", "ice", "lightning", "water", "nature", "wind", "earth", "light", "shadow", "plasma"][(index + worldIndex) % 10],
     enemyTypes: boss ? [] : Array.from({ length: 6 + Math.floor(index / 10) }, (_, enemyIndex) =>
-      family.names[(index + enemyIndex * 2) % family.names.length]
+      premiumRoster[enemyIndex % premiumRoster.length]?.name || family.names[enemyIndex % family.names.length]
     ),
     enemyCount: boss ? 0 : 6 + Math.floor(index / 10),
     enemySpawnPositions: createStageEnemySpawnPositions(number, boss ? 0 : 6 + Math.floor(index / 10)),
