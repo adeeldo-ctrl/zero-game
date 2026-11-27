@@ -214,6 +214,14 @@
 - Workflow commit: `b5ab0159dc663e2f05129ba09dc79013eea62f5f`; validator commit: `e52385a23c1cb2b0cbe550b5f4177891fb094b67`.
 - No Android build or device test was run. Co-op still needs two-device verification on a trusted local network.
 
+### Persistent co-op session across campaign transitions (2026-11-27)
+- The Wi-Fi WebSocket connection now survives Phaser scene shutdown/restart between campaign stages; audio still suspends on each shutdown and resumes when the next stage starts.
+- The socket is closed only when the scene is finally destroyed, with the final-destroy cleanup registered once for the scene lifetime.
+- Unexpected socket closure now clears the remote interpolation target and fades the remote avatar to its disconnected state.
+- Added Chromium smoke coverage with a mock socket to assert that a real stage restart does not close the co-op connection.
+- Source commits: `ff66a1537682f45328112eb498c59a08a4b45e1a`, `dc19d82ff959e860974a79f54aebb0cd6b0c4650`, `4258c7500a0d98f3aaa4764b2a5ed9b317cf69b9`; smoke coverage: `86e904e6c3c8f7b676ebad1286ba158592c70164`.
+- No tests/builds were run; two-device co-op testing remains pending. Final consolidated verification and Android Release APK remain deferred until development is complete.
+
 ## Non-negotiable preservation rules
 - Preserve the currently working joystick/controller movement and touch mapping. Do not regress the approved controls.
 - Keep the game in landscape and make the playable scene fill the complete device viewport.
