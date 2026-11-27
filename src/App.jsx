@@ -579,8 +579,10 @@ class ZeroGameScene extends Phaser.Scene {
     shot.fillStyle(0x44edff).fillCircle(13, 13, 9);
     shot.lineStyle(3, 0xffffff).strokeCircle(13, 13, 7);
     shot.fillStyle(0xffffff).fillCircle(10, 9, 3);
+    shot.fillStyle(0xffffff).fillPoints([{x:13,y:1},{x:24,y:13},{x:13,y:25},{x:2,y:13}], true);
     shot.generateTexture("shot", 26, 26);
     shot.destroy();
+    this.createElementProjectileTextures();
 
     const platform = this.make.graphics({ x: 0, y: 0, add: false });
     platform.fillStyle(0x614a42).fillRoundedRect(0, 4, 180, 28, 5);
@@ -589,6 +591,29 @@ class ZeroGameScene extends Phaser.Scene {
     platform.fillStyle(0x8ad35b).fillRoundedRect(5, 1, 170, 5, 3);
     platform.generateTexture("platform", 180, 32);
     platform.destroy();
+  }
+
+  createElementProjectileTextures() {
+    // Element-specific white masks; projectile tint supplies the selected power colour.
+    const shapes = {
+      fire: g => { g.fillPoints([{x:16,y:1},{x:23,y:13},{x:20,y:26},{x:12,y:30},{x:5,y:22},{x:8,y:12}], true); g.fillStyle(0xffffff,1); g.fillTriangle(13,24,15,12,19,22); },
+      ice: g => { g.lineStyle(3,0xffffff,1); for(let i=0;i<6;i++){const a=i*Math.PI/3, ex=16+Math.cos(a)*13, ey=16+Math.sin(a)*13; g.lineBetween(16,16,ex,ey); g.lineBetween(ex,ey,ex-Math.cos(a-.5)*5,ey-Math.sin(a-.5)*5); g.lineBetween(ex,ey,ex-Math.cos(a+.5)*5,ey-Math.sin(a+.5)*5);} },
+      lightning: g => { g.fillPoints([{x:17,y:0},{x:7,y:16},{x:14,y:16},{x:10,y:31},{x:25,y:12},{x:17,y:12}],true); },
+      water: g => { g.fillPoints([{x:16,y:0},{x:26,y:14},{x:25,y:23},{x:16,y:30},{x:7,y:23},{x:6,y:14}],true); },
+      nature: g => { g.fillPoints([{x:16,y:1},{x:27,y:10},{x:23,y:24},{x:16,y:30},{x:7,y:22},{x:5,y:10}],true); g.lineStyle(2,0xffffff,1); g.lineBetween(8,23,24,8); },
+      wind: g => { g.lineStyle(4,0xffffff,1); g.beginPath(); g.moveTo(3,9); g.lineTo(19,7); g.lineTo(27,11); g.moveTo(1,16); g.lineTo(17,14); g.lineTo(25,18); g.moveTo(5,23); g.lineTo(17,21); g.lineTo(23,24); g.strokePath(); },
+      earth: g => { g.fillPoints([{x:3,y:18},{x:9,y:4},{x:22,y:2},{x:29,y:16},{x:22,y:29},{x:7,y:26}],true); },
+      light: g => { const p=[]; for(let i=0;i<10;i++){const a=-Math.PI/2+i*Math.PI/5,r=i%2?6:15;p.push({x:16+Math.cos(a)*r,y:16+Math.sin(a)*r});} g.fillPoints(p,true); },
+      shadow: g => { g.fillPoints([{x:22,y:2},{x:10,y:4},{x:3,y:15},{x:8,y:27},{x:22,y:29},{x:16,y:21},{x:15,y:12}],true); },
+      plasma: g => { g.fillPoints([{x:16,y:0},{x:21,y:10},{x:30,y:15},{x:21,y:20},{x:16,y:31},{x:11,y:21},{x:1,y:16},{x:11,y:11}],true); },
+    };
+    Object.entries(shapes).forEach(([id, draw]) => {
+      const g=this.make.graphics({x:0,y:0,add:false});
+      g.fillStyle(0xffffff,1);
+      draw(g);
+      g.generateTexture(`shot-${id}`,32,32);
+      g.destroy();
+    });
   }
 
   createHeroVisual(x, y) {
@@ -3756,6 +3781,11 @@ class ZeroGameScene extends Phaser.Scene {
     this.projectiles.getChildren().forEach(projectile => {
       if (!projectile.active) return;
 
+      const elementId = getElement(projectile.getData("powerType") || this.powerType).id;
+      if (projectile.getData("elementTextureApplied") !== elementId) {
+        projectile.setTexture(`shot-${elementId}`);
+        projectile.setData("elementTextureApplied", elementId);
+      }
       const glow = projectile.getData("glow");
       const trail = projectile.getData("trail");
 
@@ -3789,7 +3819,8 @@ export default function App() {
     const game = gameRef.current;
     if (!game) return null;
     const scene = game.scene.getScene("ZeroGameScene");
-    if (!scene || !scene.sys.isActive() || !scene.gameStarted || scene.gameOver || scene.stageCleared) return null;
+    if (!scene || !scene.sys.isActive() || !scene.gameStarted || scene.gameOver ||
+        (scene.stageCleared && !scene.stageCollectionActive)) return null;
     return scene;
   }, []);
 
