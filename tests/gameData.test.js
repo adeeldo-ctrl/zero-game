@@ -135,3 +135,21 @@ test("all elevated platforms have a reachable route from the permanent floor", (
       `stage ${stage.number}: every elevated platform must be reachable from the floor`);
   }
 });
+
+test("boss milestones are dedicated boss-only stages with unique arena layouts", () => {
+  const bossStages = [10, 20, 30, 40, 50].map(getStage);
+  assert.deepEqual(bossStages.map((stage) => stage.number), [10, 20, 30, 40, 50]);
+  for (const stage of bossStages) {
+    assert.equal(stage.stageType, "boss");
+    assert.equal(stage.isBossStage, true);
+    assert.equal(stage.enemyCount, 0);
+    assert.deepEqual(stage.enemyTypes, []);
+    assert.ok(stage.boss);
+  }
+  assert.equal(new Set(bossStages.map((stage) => JSON.stringify(stage.platforms))).size, 5);
+  for (const stage of STAGES.filter((item) => !item.isBossStage)) {
+    assert.equal(stage.stageType, "normal");
+    assert.ok(stage.enemyCount > 0);
+    assert.equal(stage.boss, null);
+  }
+});
