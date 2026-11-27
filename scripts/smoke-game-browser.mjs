@@ -45,9 +45,9 @@ try {
   }
 
   // Enter the campaign, choose one hero, and exercise live gameplay inputs.
-  await page.mouse.click(480, 474);
+  await page.mouse.click(480, 502);
   await delay(450);
-  await page.mouse.click(120, 486);
+  await page.mouse.click(132, 468);
   await delay(2600);
   await page.keyboard.press("Space");
   await delay(700);
