@@ -185,6 +185,11 @@ test("campaign enemy powers rotate through all ten elemental identities", () => 
 
 test("premium campaign defines five unique regional rosters of nine enemies", () => {
   assert.equal(PREMIUM_ENEMY_REGIONS.length, 5);
+  for (const region of PREMIUM_ENEMY_REGIONS) {
+    assert.equal(region.enemies.length, 9, `${region.id} must have nine enemy types`);
+    assert.equal(new Set(region.enemies.map((enemy) => enemy.role)).size, 9,
+      `${region.id} must use nine distinct enemy behavior roles`);
+  }
   const ids = PREMIUM_ENEMY_REGIONS.flatMap((region) => region.enemies.map((enemy) => enemy.id));
   assert.equal(ids.length, 45);
   assert.equal(new Set(ids).size, 45);
@@ -200,6 +205,8 @@ test("premium campaign defines five unique regional rosters of nine enemies", ()
 test("all five bosses and all 50 stage music cues have unique identities", () => {
   assert.equal(PREMIUM_BOSSES.length, 5);
   assert.equal(new Set(PREMIUM_BOSSES.map((boss) => boss.id)).size, 5);
+  assert.equal(new Set(PREMIUM_BOSSES.map((boss) => boss.signature)).size, 5);
+  assert.ok(PREMIUM_BOSSES.every((boss) => boss.animations.includes("attack-primary") && boss.animations.includes("special")));
   assert.equal(PREMIUM_STAGE_MUSIC.length, 50);
   assert.equal(new Set(PREMIUM_STAGE_MUSIC.map((track) => track.trackId)).size, 50);
   const sequences = Array.from({ length: 50 }, (_, index) => getStageThemeSequence(index + 1).join("-"));
