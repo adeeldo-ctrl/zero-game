@@ -2886,9 +2886,15 @@ class ZeroGameScene extends Phaser.Scene {
     const isMaster = bossStyle.includes("master");
     const isFinal = bossStyle.includes("final");
     const isGatekeeper = bossStyle.includes("grappler");
-    const fistL = this.add.circle(-62, 24, isBoxer ? 23 : 17, isBoxer ? 0x5a2638 : 0xffb45e).setStrokeStyle(isBoxer ? 5 : 2, 0xffd36b);
-    const fistR = this.add.circle(62, 24, isBoxer ? 23 : 17, isBoxer ? 0x5a2638 : 0xffb45e).setStrokeStyle(isBoxer ? 5 : 2, 0xffd36b);
-    const aura = this.add.circle(0, -8, 83, bossColor, 0.13).setStrokeStyle(5, bossColor, 0.8);
+    const bossElementPalette = getElement(bossElement);
+    const fistL = this.add.circle(-62, 24, isBoxer ? 23 : 17,
+      isBoxer ? 0x5a2638 : bossElementPalette.color)
+      .setStrokeStyle(isBoxer ? 5 : 2, bossElementPalette.edge);
+    const fistR = this.add.circle(62, 24, isBoxer ? 23 : 17,
+      isBoxer ? 0x5a2638 : bossElementPalette.color)
+      .setStrokeStyle(isBoxer ? 5 : 2, bossElementPalette.edge);
+    const aura = this.add.circle(0, -8, 83, bossElementPalette.glow, 0.13)
+      .setStrokeStyle(5, bossElementPalette.edge, 0.8);
     const body = this.add.ellipse(0, -8, isAgile ? 100 : isGatekeeper ? 142 : isFinal ? 132 : 124,
       isAgile ? 124 : isGatekeeper ? 104 : isFinal ? 126 : 112, bossColor).setStrokeStyle(5, 0x30243f);
     const belly = this.add.ellipse(0, 12, 72, 58, 0xf2b77e);
