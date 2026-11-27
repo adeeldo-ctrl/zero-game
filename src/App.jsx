@@ -5388,6 +5388,7 @@ export default function App() {
         scene.mobileJumpHeld = false;
         scene.mobileJumpPressedAt = 0;
         scene.attackHeld = false;
+        Object.values(scene.keys || {}).forEach((key) => key?.reset?.());
       }
     };
     window.addEventListener("blur", resetTouches);
@@ -5462,6 +5463,7 @@ export default function App() {
           scene.mobileJumpHeld = false;
           scene.mobileJumpPressedAt = 0;
           scene.attackHeld = false;
+          Object.values(scene.keys || {}).forEach((key) => key?.reset?.());
         }
         scene?.audio?.stop?.();
         game.scene.pause("ZeroGameScene");
