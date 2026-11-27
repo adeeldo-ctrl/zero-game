@@ -284,17 +284,18 @@ For all four:
 ## Acceptance checklist
 - [ ] Hero has polished walk/jump/land/attack animations; no name label above hero.
 - [ ] Existing joystick/controller behavior remains correct.
-- [ ] Enemies no longer float unintentionally.
-- [ ] Background music and all requested gameplay/UI sound effects work with volume controls.
-- [ ] All 50 stages are fixed, distinct, and deterministic.
-- [ ] Premium stage presentation and increased upward platform layout are complete.
-- [ ] No platform geometry traps the hero or enemies; all routes are playable.
-- [ ] Snowball freeze/roll/close-range kick mechanic works reliably.
-- [ ] Extra 1, Extra 2, and Extra 3 each damage enemies and have distinct special animations.
-- [ ] Four original final bosses implement the specified archetypes and suitable movement/animations.
+- [ ] Enemies no longer float unintentionally; each archetype uses stable platform-aware movement and readable state poses.
+- [ ] Original menu, ten world, five boss, victory and defeat music tracks plus distinct gameplay/UI sound effects work with independent volume/mute controls and background/resume lifecycle.
+- [ ] All 50 stages are fixed, distinct, deterministic, and distributed across ten themed worlds.
+- [ ] Every arena has six elevated authored platforms plus the continuous floor; all routes are reachable and playable.
+- [ ] Premium world scenery, stage-variant landmarks, weather, and atmospheric effects remain readable behind gameplay.
+- [ ] Snowball freeze/roll/close-range kick mechanic works reliably, survives three wall bounces, and resolves on the fourth impact.
+- [ ] EXTRA 1, EXTRA 2, and EXTRA 3 each damage enemies, have distinct signature effects, and remain immediately reusable.
+- [ ] All five boss encounters are distinct, playable and reachable on stages 10, 20, 30, 40 and 50, with three attack families and final-warlord phases.
+- [ ] Four hero spritesheets, hero selection, locomotion, landing, turning, signature effects and campaign persistence work without input regressions.
 - [ ] Original ZERO GAME icon is applied to Android launcher and app branding.
-- [ ] Automated checks pass and a fresh Android APK is built and linked.
-- [ ] Physical-device verification status is reported honestly.
+- [ ] One consolidated automated verification pass passes, followed by a signed Android Release APK build and artifact verification.
+- [ ] Physical-device verification status is reported honestly and separately from browser automation.
 
 
 ## Implementation progress — 2026-11-20
