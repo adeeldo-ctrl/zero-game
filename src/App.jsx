@@ -1686,7 +1686,7 @@ class ZeroGameScene extends Phaser.Scene {
       strokeThickness: 3
     }).setDepth(21);
 
-    this.heroTitleLabel = this.add.text(20, 37, `${this.selectedHero.name.toUpperCase()}  |  STAGE ${String(this.stageNumber).padStart(2,"0")}`, {
+    this.heroTitleLabel = this.add.text(20, 37, `${this.selectedHero.name.toUpperCase()}  |  ${this.stageConfig.world.toUpperCase()}  •  STAGE ${String(this.stageNumber).padStart(2,"0")}`, {
       fontSize: "12px", color: "#d9f6ff", fontStyle: "bold"
     }).setDepth(21);
 
