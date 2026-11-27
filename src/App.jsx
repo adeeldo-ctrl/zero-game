@@ -2396,7 +2396,11 @@ class ZeroGameScene extends Phaser.Scene {
 
   spawnEnemies() {
     if (this.stageConfig.isBossStage || this.stageEnemyCount <= 0) return;
-    const positions = Array.from({ length: this.stageEnemyCount }, (_, i) => 70 + i * (820 / Math.max(1, this.stageEnemyCount - 1)));
+    const authoredPositions = this.stageConfig.enemySpawnPositions;
+    const positions = Array.isArray(authoredPositions) && authoredPositions.length === this.stageEnemyCount
+      ? [...authoredPositions]
+      : Array.from({ length: this.stageEnemyCount }, (_, i) =>
+        70 + i * (820 / Math.max(1, this.stageEnemyCount - 1)));
 
     const familyPalettes = {
       striker: { colors: [0x8b4a3e, 0x355b8a, 0x6d4b83], horns: [0xffd36b, 0x8feaff, 0xffa3a3] },
