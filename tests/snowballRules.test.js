@@ -41,15 +41,41 @@ test("rolling ball keeps momentum while falling between platforms", () => {
   assert.ok(falling.rotationDelta > 0);
 });
 
-test("kicked elemental ball ends on its first wall impact", () => {
-  assert.equal(ROLLING_BALL_WALL_BOUNCES, 1);
-  const result = calculateRollingBallMotion({
+test("kicked elemental ball survives three damped wall bounces and ends on the fourth", () => {
+  assert.equal(ROLLING_BALL_WALL_BOUNCES, 3);
+  let motion = calculateRollingBallMotion({
     velocityX: 600, direction: 1, wallBounces: 0, deltaMs: 16, blockedRight: true,
   });
-  assert.equal(result.hitWall, true);
-  assert.equal(result.finished, true);
-  assert.equal(result.velocityX, 0);
-  assert.equal(result.wallBounces, 1);
+  assert.equal(motion.hitWall, true);
+  assert.equal(motion.finished, false);
+  assert.equal(motion.direction, -1);
+  assert.equal(motion.wallBounces, 1);
+  assert.ok(Math.abs(motion.velocityX) < 600);
+
+  motion = calculateRollingBallMotion({
+    velocityX: motion.velocityX, direction: motion.direction, wallBounces: motion.wallBounces,
+    deltaMs: 16, blockedLeft: true,
+  });
+  assert.equal(motion.finished, false);
+  assert.equal(motion.direction, 1);
+  assert.equal(motion.wallBounces, 2);
+
+  motion = calculateRollingBallMotion({
+    velocityX: motion.velocityX, direction: motion.direction, wallBounces: motion.wallBounces,
+    deltaMs: 16, blockedRight: true,
+  });
+  assert.equal(motion.finished, false);
+  assert.equal(motion.direction, -1);
+  assert.equal(motion.wallBounces, 3);
+
+  motion = calculateRollingBallMotion({
+    velocityX: motion.velocityX, direction: motion.direction, wallBounces: motion.wallBounces,
+    deltaMs: 16, blockedLeft: true,
+  });
+  assert.equal(motion.hitWall, true);
+  assert.equal(motion.finished, true);
+  assert.equal(motion.velocityX, 0);
+  assert.equal(motion.wallBounces, 4);
 });
 
 test("rolling snowballs are cleaned up after leaving the arena", () => {
