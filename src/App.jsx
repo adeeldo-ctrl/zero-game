@@ -3190,10 +3190,16 @@ class ZeroGameScene extends Phaser.Scene {
     }
     const airborne = !enemy.body.blocked.down;
     if (enemy.getData("wasAirborne") && !airborne) {
-      const shock = this.add.ellipse(enemy.x, 480, 55, 13, 0xff714e, 0.78)
-        .setStrokeStyle(3, 0xffd36b).setDepth(8);
+      const landingElement = this.stageConfig.boss?.element || "fire";
+      const landingPalette = getElement(landingElement);
+      const shock = this.add.ellipse(enemy.x, 480, 55, 13, landingPalette.color, 0.78)
+        .setStrokeStyle(3, landingPalette.edge).setDepth(8);
+      const shockRing = this.add.ellipse(enemy.x, 480, 72, 19, landingPalette.glow, 0)
+        .setStrokeStyle(2, landingPalette.edge, 0.9).setDepth(8);
       this.tweens.add({ targets: shock, scaleX: 6.2, alpha: 0, duration: 520,
         onComplete: () => shock.destroy() });
+      this.tweens.add({ targets: shockRing, scaleX: 5.4, scaleY: 1.8, alpha: 0, duration: 460,
+        onComplete: () => shockRing.destroy() });
       this.cameras.main.shake(220, 0.007);
       if (Math.abs(this.hero.x - enemy.x) < 145) this.damageHero(this.hero, enemy);
       if (enemy.getData("bossAttackState") === "slam") {
@@ -3214,7 +3220,8 @@ class ZeroGameScene extends Phaser.Scene {
     const spreadWidth = element === "lightning" ? 0.15 : element === "ice" ? 0.28 : element === "shadow" ? 0.34 : 0.22;
     const speed = (element === "fire" ? 310 : element === "lightning" ? 350 : element === "ice" ? 210 : 265) + this.bossPhase * 28;
     const radius = this.bossPhase === 3 ? 13 : 10;
-    const color = bossData.color || 0xff735d;
+    const shotPalette = getElement(element);
+    const color = shotPalette.color || bossData.color || 0xff735d;
     this.statusLabel.setText(`${bossData.attack || "SPECIAL ATTACK"}!`);
     for (let i = 0; i < count; i++) {
       const spread = (i - (count - 1) / 2) * spreadWidth;
@@ -3228,7 +3235,8 @@ class ZeroGameScene extends Phaser.Scene {
             : bossStyle.includes("final")
               ? this.add.circle(boss.x, boss.y - 18, radius * 1.2, color, 0.98)
               : this.add.rectangle(boss.x, boss.y - 18, radius * 2.2, radius * 1.8, color, 0.98).setAngle(45);
-      shot.setStrokeStyle(3, 0xffffff, 0.95).setDepth(18);
+      shot.setStrokeStyle(3, shotPalette.edge || 0xffffff, 0.98).setDepth(18);
+      shot.setData("elementId", element);
       this.physics.add.existing(shot);
       this.bossShots.add(shot);
       shot.body.setAllowGravity(false);
