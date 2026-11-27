@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="540" viewBox="0 0 960 540">
+<defs><linearGradient id="sky" x2="0" y2="1"><stop stop-color="#51447f"/><stop offset="1" stop-color="#252c60"/></linearGradient><linearGradient id="crystal" x2="0" y2="1"><stop stop-color="#f2e4ff"/><stop offset=".45" stop-color="#a88de6"/><stop offset="1" stop-color="#4e65a1"/></linearGradient></defs>
+<rect width="960" height="540" fill="url(#sky)"/><g fill="#c7b5ff" opacity=".2"><circle cx="180" cy="140" r="105"/><circle cx="770" cy="165" r="130"/></g>
+<path d="M0 405 Q180 325 360 400 T720 390 T960 410 V540 H0Z" fill="#353a76"/>
+<g stroke="#d9cbff" stroke-width="4" fill="url(#crystal)"><path d="M75 450 L130 260 L185 450Z"/><path d="M115 450 L155 320 L195 450Z"/><path d="M280 455 L350 185 L420 455Z"/><path d="M340 455 L385 285 L430 455Z"/><path d="M650 460 L720 220 L790 460Z"/><path d="M760 455 L820 275 L880 455Z"/></g>
+<g stroke="#fff" stroke-width="4" opacity=".6"><path d="M130 260 L145 450"/><path d="M350 185 L370 455"/><path d="M720 220 L735 460"/></g>
+<g fill="#fff" opacity=".72"><circle cx="250" cy="115" r="3"/><circle cx="560" cy="100" r="4"/><circle cx="880" cy="95" r="3"/><circle cx="485" cy="235" r="2"/></g></svg>
