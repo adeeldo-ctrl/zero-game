@@ -79,6 +79,12 @@
 - Source commit: `2db94319a9f5b3a4ffa08a28c1f87bc47ffd71dc`.
 - No tests/builds were run; final consolidated verification and Android APK remain deferred until development is complete.
 
+### Campaign smoke-check platform-count alignment (2026-11-27)
+- Corrected the Chromium campaign sweep assertion to match the current stage contract: six elevated authored platforms plus the permanent floor (seven static bodies total).
+- The prior smoke failure was a stale expectation of four elevated platforms; game-data tests already require six authored elevated platforms per stage. No stage layout or gameplay code changed.
+- Source/test commit: `d85738625c41e7060b09527ca6621f5cf2ebd89c`.
+- This is a source-level test alignment only; no consolidated verification or APK build was run.
+
 ## Non-negotiable preservation rules
 - Preserve the currently working joystick/controller movement and touch mapping. Do not regress the approved controls.
 - Keep the game in landscape and make the playable scene fill the complete device viewport.
