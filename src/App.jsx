@@ -1700,8 +1700,10 @@ class ZeroGameScene extends Phaser.Scene {
       plasma: [0xffffff, 0xffa6d0, 0xe63f91],
     };
     const palette = colors[element.id] || colors.fire;
-    for (let i = 0; i < count; i++) {
-      const angle = (Math.PI * 2 * i / count) + Phaser.Math.FloatBetween(-0.22, 0.22);
+    // Fire receives a tenfold visual upgrade: dense layered embers, sparks and flame tongues.
+    const particleCount = element.id === "fire" ? Math.min(180, count * 10) : count;
+    for (let i = 0; i < particleCount; i++) {
+      const angle = (Math.PI * 2 * i / particleCount) + Phaser.Math.FloatBetween(-0.22, 0.22);
       const speed = Phaser.Math.Between(24, 105) * scale;
       const color = palette[i % palette.length];
       let particle;
@@ -2316,11 +2318,14 @@ class ZeroGameScene extends Phaser.Scene {
     const x = Phaser.Math.Between(130, 830);
     const y = Phaser.Math.Between(280, 390);
     const chest = this.add.container(x, y).setDepth(7);
-    const shadow = this.add.ellipse(0, 17, 58, 12, 0x101426, 0.28);
-    const base = this.add.rectangle(0, 0, 48, 30, 0x9a5527).setStrokeStyle(3, 0xffd36b);
-    const lid = this.add.rectangle(0, -17, 52, 14, 0xd98a37).setStrokeStyle(3, 0xffe08a);
-    const lock = this.add.rectangle(0, 0, 9, 13, 0xffdf72);
-    chest.add([shadow, base, lid, lock]);
+    const shadow = this.add.ellipse(0, 20, 66, 14, 0x101426, 0.34);
+    const base = this.add.rectangle(0, 1, 54, 34, 0x8a431f).setStrokeStyle(4, 0xffd36b);
+    const front = this.add.rectangle(0, 2, 46, 26, 0xb96a2d).setStrokeStyle(2, 0xffc65c);
+    const lid = this.add.rectangle(0, -19, 60, 18, 0xd98a37).setStrokeStyle(4, 0xffe08a);
+    const lock = this.add.rectangle(0, 2, 10, 16, 0xffdf72).setStrokeStyle(2, 0x9a5a1c);
+    const shine = this.add.star(-18, -19, 4, 2, 7, 0xffffff, 0.95);
+    chest.add([shadow, base, front, lid, lock, shine]);
+    chest.setSize(62, 48);
     chest.setData("opened", false);
     this.treasureChest = chest;
     this.tweens.add({ targets: chest, y: y - 5, duration: 850, yoyo: true, repeat: -1 });
@@ -2353,8 +2358,14 @@ class ZeroGameScene extends Phaser.Scene {
       this.addScore(3000);
       this.startBonusStage();
     }
-    this.cameras.main.flash(180, 255, 220, 120);
-    this.time.delayedCall(800, () => { if (chest.active) chest.destroy(); });
+    const powerVisual = this.add.container(chest.x, chest.y - 38).setDepth(30);
+    const halo = this.add.circle(0, 0, 28, 0xffe17a, 0.22).setStrokeStyle(4, 0xffffff, 0.95);
+    const icon = this.add.star(0, 0, 8, 8, 20, 0xffd447, 1).setStrokeStyle(3, 0xffffff);
+    powerVisual.add([halo, icon]);
+    this.tweens.add({ targets: powerVisual, y: powerVisual.y - 72, scale: 1.7, alpha: 0, duration: 950, onComplete: () => powerVisual.destroy() });
+    this.spawnElementParticles(chest.x, chest.y - 12, this.powerType, 32, 1.35, "treasure-burst");
+    this.cameras.main.flash(260, 255, 220, 120);
+    this.time.delayedCall(950, () => { if (chest.active) chest.destroy(); });
   }
 
   startBonusStage() {
@@ -2390,10 +2401,24 @@ class ZeroGameScene extends Phaser.Scene {
       : [{ type: "cake", label: "CAKE", value: 250, color: 0xff8eb4 }, { type: "fruit", label: "FRUIT", value: 400, color: 0xff5b58 }, { type: "chicken", label: "CHICKEN", value: 500, color: 0xffc45e }, { type: "diamond", label: "DIAMOND", value: 1000, color: 0x69eaff }, { type: "gold", label: "GOLD", value: 1500, color: 0xffd447 }];
     const reward = rewards[Phaser.Math.Between(0, rewards.length - 1)];
     const item = this.add.container(x, y).setDepth(25);
-    const gem = this.add.circle(0, 0, 15, reward.color, 1).setStrokeStyle(3, 0xffffff);
-    const shine = this.add.circle(-5, -5, 4, 0xffffff, 0.9);
-    const label = this.add.text(0, 23, reward.label, { fontSize: "9px", color: "#ffffff", fontStyle: "bold", stroke: "#18223b", strokeThickness: 3 }).setOrigin(0.5);
-    item.add([gem, shine, label]);
+    const glow = this.add.circle(0, 0, 22, reward.color, 0.22).setStrokeStyle(2, 0xffffff, 0.8);
+    item.add(glow);
+    // Draw recognizable collectible artwork instead of text-only placeholders.
+    if (reward.type === "fruit") {
+      const berry = this.add.ellipse(0, 2, 24, 29, 0xe93445).setStrokeStyle(2, 0xffb0a6);
+      const leaf1 = this.add.ellipse(-6, -14, 13, 7, 0x38a84b).setAngle(-28);
+      const leaf2 = this.add.ellipse(6, -14, 13, 7, 0x57c65b).setAngle(28);
+      const seeds = [-6,-1,5].map((sx, i) => this.add.ellipse(sx, -2 + (i%2)*8, 2, 4, 0xfff0a5));
+      item.add([berry, leaf1, leaf2, ...seeds]);
+    } else if (reward.type === "cake") {
+      item.add([this.add.rectangle(0, 4, 28, 17, 0xffd2e4).setStrokeStyle(2, 0xffffff), this.add.ellipse(0, -5, 30, 13, 0xff86b4), this.add.circle(0, -13, 5, 0xff4e67)]);
+    } else if (reward.type === "chicken") {
+      item.add([this.add.ellipse(0, 1, 27, 19, 0xffc45e), this.add.circle(12, -8, 7, 0xffd47a), this.add.circle(16, -10, 2, 0x202033), this.add.ellipse(-15, 7, 12, 7, 0xfff0cf)]);
+    } else if (reward.type === "diamond") {
+      item.add([this.add.polygon(0, 0, [0,-19,17,-5,10,17,-10,17,-17,-5], 0x69eaff).setStrokeStyle(3, 0xffffff), this.add.line(-8,-5,8,10, -8,0xffffff,0.8)]);
+    } else {
+      item.add([this.add.star(0, 0, 8, 9, 17, 0xffd447).setStrokeStyle(3, 0xfff2a6), this.add.circle(-5,-6,4,0xffffff,0.9)]);
+    }
     item.setData("rewardType", reward.type);
     item.setData("rewardValue", reward.value);
     this.physics.add.existing(item);
@@ -2472,12 +2497,32 @@ class ZeroGameScene extends Phaser.Scene {
     this.audio.playVictoryTheme?.();
     this.stageCleared = true;
     this.hero.setVelocity(0, 0);
-    this.statusLabel.setText(`STAGE ${String(this.stageNumber).padStart(2,"0")} COMPLETE!`).setColor("#ffe17a");
+    this.physics.world.pause();
+    this.statusLabel.setText(`STAGE ${String(this.stageNumber).padStart(2,"0")} COMPLETE! COLLECT YOUR POINTS!`).setColor("#ffe17a");
+    const beginCollection = () => {
+      this.physics.world.resume();
+      this.hero?.setVelocity(0, 0);
+      const countdown = this.add.text(480, 112, "COLLECT POINTS: 5", {
+        fontSize: "25px", color: "#ffe17a", fontStyle: "bold", stroke: "#402b4e", strokeThickness: 6
+      }).setOrigin(0.5).setDepth(48);
+      let remaining = 5;
+      this.time.addEvent({ delay: 1000, repeat: 4, callback: () => {
+        remaining -= 1;
+        if (countdown.active) countdown.setText(remaining > 0 ? `COLLECT POINTS: ${remaining}` : "SCORE LOCKED!");
+        if (remaining === 0) {
+          this.physics.world.pause();
+          this.time.delayedCall(250, () => {
+            if (countdown.active) countdown.destroy();
+            this.showVictory();
+          });
+        }
+      }});
+    };
     if (this.heroVisual?.active) {
-      this.tweens.add({ targets: this.heroVisual, y: -120, alpha: 0, scale: 0.72, duration: 720, ease: "Cubic.easeIn",
-        onComplete: () => this.showVictory() });
+      this.tweens.add({ targets: this.heroVisual, y: -120, alpha: 0.35, scale: 0.72, duration: 720, ease: "Cubic.easeIn",
+        onComplete: beginCollection });
     } else {
-      this.showVictory();
+      beginCollection();
     }
   }
 
