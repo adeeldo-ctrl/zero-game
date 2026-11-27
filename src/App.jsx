@@ -1564,6 +1564,8 @@ class ZeroGameScene extends Phaser.Scene {
       backSpikes,
       classCrest,
       classGuard,
+      bootL,
+      bootR,
       belly,
       headband,
     });
@@ -4640,9 +4642,15 @@ class ZeroGameScene extends Phaser.Scene {
           parts.classCrest.rotation = isNaN(et) ? 0 : Math.sin(et * (aiType === "runner" ? 0.018 : 0.004)) * 0.12;
           parts.classCrest.setAlpha(0.82 + (Math.sin(et * 0.006) + 1) * 0.08);
         }
-        if (parts.classGuard?.active && aiType === "guard") {
-          parts.classGuard.rotation = Math.sin(et * 0.003) * 0.035;
+        if (parts.classGuard?.active) {
+          const guardMotion = enemy.getData("enemyClass") === "special"
+            ? Math.sin(et * 0.004) * 0.06
+            : swing * 0.035;
+          parts.classGuard.rotation = guardMotion;
         }
+        if (parts.bootL?.active) parts.bootL.rotation = parts.legL.rotation * 0.72;
+        if (parts.bootR?.active) parts.bootR.rotation = parts.legR.rotation * 0.72;
+        if (parts.shadow?.active) parts.shadow.setScale(1 + Math.abs(swing) * 0.045, 1 - Math.abs(swing) * 0.035);
         enemyVisual.y = enemy.y + Math.abs(swing) * -2 + visualBob;
         enemyVisual.angle = 0;
       }
