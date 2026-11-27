@@ -308,7 +308,7 @@ class ZeroGameScene extends Phaser.Scene {
     const farColor = this.stageConfig.background.far;
     const groundColor = this.stageConfig.background.ground;
     const world = this.stageConfig.worldIndex || 0;
-    this.add.image(480, 270, `world-backdrop-${world}`)
+    this.worldBackdrop = this.add.image(480, 270, `world-backdrop-${world}`)
       .setDisplaySize(W, H)
       .setAlpha(0.58)
       .setDepth(-29);
