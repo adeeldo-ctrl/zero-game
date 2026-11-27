@@ -2188,7 +2188,7 @@ class ZeroGameScene extends Phaser.Scene {
     catch { this.netStatusText?.setText("COULD NOT OPEN WI-FI CONNECTION").setColor("#ff8b8b"); return; }
     this.netSocket = socket;
     socket.onopen = () => {
-      socket.send(JSON.stringify({ type: "join", room: "DASTAAN" }));
+      socket.send(JSON.stringify({ type: "join", room: "ZERO" }));
     };
     socket.onmessage = event => {
       let msg;
