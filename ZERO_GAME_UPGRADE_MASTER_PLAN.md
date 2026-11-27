@@ -55,6 +55,12 @@
 - Source commit: `3a5efc133b9362aa4f4d9bb436b3430b8c7f2d5f`.
 - No tests/builds were run; final consolidated verification and Android APK remain deferred until development is complete.
 
+### Elemental boss defeat finale (2026-11-27)
+- Added a boss-element particle burst with a large expanding star/ring effect when the boss is defeated, complementing the existing boss visual collapse and reward shower.
+- Boss health, defeat timing, score, reward drops, stage transition, and combat logic are unchanged.
+- Source commit: `77cfacad77d8970a00c8aedc4cb6c5170d422af8`.
+- No tests/builds were run; final consolidated verification and Android APK remain deferred until development is complete.
+
 ## Non-negotiable preservation rules
 - Preserve the currently working joystick/controller movement and touch mapping. Do not regress the approved controls.
 - Keep the game in landscape and make the playable scene fill the complete device viewport.
