@@ -140,3 +140,9 @@ export function getPremiumBoss(stageNumber) {
 export function getPremiumStageMusic(stageNumber) {
   return PREMIUM_STAGE_MUSIC[Math.max(0, Math.min(49, Number(stageNumber) - 1))];
 }
+
+export const PREMIUM_ENEMY_ARCHETYPES = PREMIUM_ENEMY_REGIONS.flatMap((region) => region.enemies);
+
+export function getPremiumEnemyFrameIndex(archetypeId) {
+  return PREMIUM_ENEMY_ARCHETYPES.findIndex((enemy) => enemy.id === archetypeId);
+}
