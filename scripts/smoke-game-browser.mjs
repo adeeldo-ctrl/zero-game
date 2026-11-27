@@ -794,12 +794,14 @@ try {
   // when the WebView never delivers touchend for fingers that were held.
   await dispatchTouch("touchstart", [point(5, 132, 448), point(6, 665, 340)]);
   await nativePage.evaluate(() => {
+    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+    scene.keys.left.isDown = true;
+    scene.keys.left.isUp = false;
     Object.defineProperty(document, "hidden", { configurable: true, value: true });
     document.dispatchEvent(new Event("visibilitychange"));
-    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
     if (scene?.touch.axis !== 0 || scene?.mobileActionQueue?.length ||
-        scene?.mobileJumpHeld || scene?.attackHeld) {
-      throw new Error("Backgrounding did not clear active joystick and action inputs");
+        scene?.mobileJumpHeld || scene?.attackHeld || scene?.keys.left.isDown) {
+      throw new Error("Backgrounding did not clear active joystick, action, and keyboard inputs");
     }
   });
   await nativePage.evaluate(() => {
