@@ -5393,11 +5393,21 @@ export default function App() {
     const handleVisibilityChange = () => {
       const scene = game.scene.getScene("ZeroGameScene");
       if (document.hidden) {
+        // A WebView may background while one or more fingers are still down.
+        // Clear pointer ownership as well as scene flags so a lost touchend
+        // cannot leave the joystick or an EXTRA button permanently captured.
+        mobilePointers.current.clear();
         if (scene?.touch) {
           Object.keys(scene.touch).forEach((key) => {
             if (typeof scene.touch[key] === "boolean") scene.touch[key] = false;
           });
           scene.touch.axis = 0;
+        }
+        if (scene?.mobileActionQueue) scene.mobileActionQueue.length = 0;
+        if (scene) {
+          scene.mobileJumpHeld = false;
+          scene.mobileJumpPressedAt = 0;
+          scene.attackHeld = false;
         }
         scene?.audio?.stop?.();
         game.scene.pause("ZeroGameScene");
