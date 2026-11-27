@@ -570,3 +570,9 @@ The following gameplay requirements are mandatory and supersede any conflicting 
 - Added cached sprite-sheet loading and per-hero idle, walk, jump, landing, turn, and signature-power-up animation definitions from the existing 210×212 frame layout.
 - Main gameplay, home-screen previews, hero selection, and remote co-op hero visuals now select the matching authored character artwork. Existing physics bodies, touch controls, movement logic, special-effect timing, and the legacy pose rig remain unchanged.
 - This development change does not trigger an Android APK build. Consolidated verification remains deferred until all approved development is complete.
+
+
+### Hero turn transition polish — 2026-11-27
+
+- Added a short authored turn-frame transition when a grounded hero changes movement direction, then returns smoothly to the appropriate idle or walk loop.
+- The landing, jump, movement, and signature-power-up animation states retain priority and continue using the existing game physics and input path.
