@@ -425,6 +425,25 @@ class ZeroGameScene extends Phaser.Scene {
       }
     }
 
+    if (weather === "aurora" || weather === "cosmic-night" || weather === "starlight") {
+      const aurora = this.add.graphics().setDepth(-25).setAlpha(0.42);
+      const auroraColors = [0x62e7c5, 0x8e9cff, 0xe28cff];
+      auroraColors.forEach((color, band) => {
+        aurora.lineStyle(10 - band * 2, color, 0.2);
+        let previous = null;
+        for (let step = 0; step <= 28; step++) {
+          const x = 30 + step * 33;
+          const y = 92 + band * 25 + Math.sin(step * 0.42 + band * 1.7) * (20 + band * 5);
+          if (previous) aurora.lineBetween(previous.x, previous.y, x, y);
+          previous = { x, y };
+        }
+      });
+      this.tweens.add({
+        targets: aurora, alpha: 0.72, y: 12, duration: 5200,
+        ease: "Sine.easeInOut", yoyo: true, repeat: -1
+      });
+    }
+
     const count = weather === "rain" || weather === "blizzard" || weather === "ashfall" || weather === "starfall" ? 18 : 12;
     for (let i = 0; i < count; i++) {
       const x = 24 + (i * 79 + variant * 31) % 910;
