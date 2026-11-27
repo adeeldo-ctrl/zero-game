@@ -112,6 +112,13 @@
 - Source commit: `958776606f17105423d5a879b54696bc2664263a`.
 - No tests/builds were run; final integrated verification and Android APK remain deferred until development is complete.
 
+### Deterministic stage-specific enemy spawn lanes (2026-11-27)
+- Added a fixed spawn-position list to each of the 50 stage definitions; each normal stage has its own deterministic, sorted spawn lanes within the arena's safe horizontal bounds.
+- Enemy spawn logic now consumes the stage definition rather than reusing the same evenly spaced line for every stage. Boss-only stages retain zero regular enemy spawn positions.
+- Added automated data assertions for spawn count, bounds, ordering, duplicate positions, and distinct stage patterns.
+- Source commits: `2ddca2ac21dab49461d279f693ec6eb158da7850`, `79350bbd7df273f7dfd2b5bb422003ee0e4911ed`, `e58127afa0f96c8c7d5a5913c8076c058c1ec5b1`.
+- No tests/builds were run; consolidated verification and final Android APK remain deferred until all development is complete.
+
 ## Non-negotiable preservation rules
 - Preserve the currently working joystick/controller movement and touch mapping. Do not regress the approved controls.
 - Keep the game in landscape and make the playable scene fill the complete device viewport.
