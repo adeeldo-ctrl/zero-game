@@ -1432,16 +1432,23 @@ class ZeroGameScene extends Phaser.Scene {
     return c;
   }
 
-  applyHeroLook(visual, hero) {
+  applyHeroLook(visual, hero, forceRigPreview = false) {
     if (!visual?.active || !hero) return;
     const sprite = visual.getData("heroSprite");
-    if (sprite) {
+    if (sprite && !forceRigPreview) {
       const textureKey = `hero-sheet-${hero.id}`;
       if (sprite.texture.key !== textureKey) sprite.setTexture(textureKey, 0);
       visual.setData("heroSpriteId", hero.id);
       visual.setData("heroLookId", hero.id);
       this.setHeroSpriteAnimation(visual, "idle");
       return;
+    }
+    if (sprite && forceRigPreview) {
+      sprite.setVisible(false);
+      (visual.getData("heroRigParts") || []).forEach((part) => {
+        if (part?.active) part.setVisible(true);
+      });
+      visual.setData("heroSpriteSelectionPreview", true);
     }
     const palette = visual.getData("heroPalette");
     if (palette) {
@@ -2263,17 +2270,17 @@ class ZeroGameScene extends Phaser.Scene {
     HEROES.forEach((hero, index) => {
       const x = 132 + index * 232;
       const card = this.add.rectangle(x, 286, 216, 414, 0x142b49, 0.98).setStrokeStyle(3, hero.accent).setDepth(61).setInteractive({ useHandCursor: true });
-      const glow = this.add.circle(x, 196, 70, hero.accent, 0.12).setStrokeStyle(3, hero.accent, 0.75).setDepth(62);
-      const visual = this.createHeroVisual(x, 218, hero.id);
-      const palette = visual.getData("heroPalette");
-      palette.kurta.setFillStyle(hero.color); palette.waistcoat.setFillStyle(hero.accent); palette.capLine.setFillStyle(hero.accent);
-      this.applyHeroLook(visual, hero); visual.setDepth(63).setScale(1.03);
-      const name = this.add.text(x, 300, hero.name.toUpperCase(), { fontSize: "20px", color: "#ffffff", fontStyle: "bold" }).setOrigin(0.5).setDepth(64);
-      const title = this.add.text(x, 328, hero.title, { fontSize: "11px", color: "#9feaff", fontStyle: "bold", align: "center", wordWrap: { width: 188 }, fixedWidth: 188 }).setOrigin(0.5).setDepth(64);
-      const power = this.add.text(x, 365, hero.superPower.toUpperCase(), { fontSize: "13px", color: "#ffe17a", fontStyle: "bold", align: "center", wordWrap: { width: 188 }, fixedWidth: 188 }).setOrigin(0.5).setDepth(64);
-      const moves = this.add.text(x, 405, hero.specialMoves.map(move => move.name).join("\n"), { fontSize: "10px", color: "#d7eaff", align: "center", lineSpacing: 4, wordWrap: { width: 188 }, fixedWidth: 188, fixedHeight: 62 }).setOrigin(0.5, 0).setDepth(64);
-      const choose = this.add.text(x, 468, "SELECT HERO", { fontSize: "12px", color: "#ffffff", backgroundColor: "#126d7b", padding: { x: 14, y: 7 }, fontStyle: "bold" }).setOrigin(0.5).setDepth(64).setInteractive({ useHandCursor: true });
-      this.menuObjects.push(card, glow, visual, name, title, power, moves, choose);
+      const glow = this.add.circle(x, 190, 68, hero.accent, 0.1).setStrokeStyle(2, hero.accent, 0.68).setDepth(62);
+      const visual = this.createHeroVisual(x, 198, hero.id);
+      this.applyHeroLook(visual, hero, true);
+      visual.setDepth(63).setScale(0.9);
+      const name = this.add.text(x, 258, hero.name.toUpperCase(), { fontSize: "20px", color: "#ffffff", fontStyle: "bold" }).setOrigin(0.5).setDepth(64);
+      const title = this.add.text(x, 285, hero.title, { fontSize: "11px", color: "#9feaff", fontStyle: "bold", align: "center", wordWrap: { width: 188 }, fixedWidth: 188, fixedHeight: 30 }).setOrigin(0.5, 0).setDepth(64);
+      const description = this.add.text(x, 319, hero.description, { fontSize: "10px", color: "#d4e5f6", align: "center", lineSpacing: 2, wordWrap: { width: 188 }, fixedWidth: 188, fixedHeight: 44 }).setOrigin(0.5, 0).setDepth(64);
+      const power = this.add.text(x, 368, hero.superPower.toUpperCase(), { fontSize: "12px", color: "#ffe17a", fontStyle: "bold", align: "center", wordWrap: { width: 188 }, fixedWidth: 188, fixedHeight: 20 }).setOrigin(0.5, 0).setDepth(64);
+      const moves = this.add.text(x, 393, hero.specialMoves.map(move => move.name).join("\n"), { fontSize: "9px", color: "#d7eaff", align: "center", lineSpacing: 2, wordWrap: { width: 188 }, fixedWidth: 188, fixedHeight: 54 }).setOrigin(0.5, 0).setDepth(64);
+      const choose = this.add.text(x, 463, "SELECT HERO", { fontSize: "12px", color: "#ffffff", backgroundColor: "#126d7b", padding: { x: 14, y: 7 }, fontStyle: "bold" }).setOrigin(0.5).setDepth(64).setInteractive({ useHandCursor: true });
+      this.menuObjects.push(card, glow, visual, name, title, description, power, moves, choose);
       this.tweens.add({ targets: visual, y: 210, angle: index % 2 ? 1.5 : -1.5, duration: 760 + index * 120, yoyo: true, repeat: -1, ease: "Sine.easeInOut" });
       this.tweens.add({ targets: glow, scale: 1.16, alpha: 0.2, duration: 900 + index * 100, yoyo: true, repeat: -1 });
       const select = () => {
