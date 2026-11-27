@@ -132,12 +132,16 @@ export const STAGES = Array.from({ length: 50 }, (_, index) => {
       stageVariant: index % 5,
       atmosphere: ["Dawn", "Daylight", "Sunset", "Twilight", "Midnight"][index % 5]
     },
-    platforms: STAGE_PLATFORM_LAYOUTS[index].map(([x, y, width]) => ({ x, y, width, height: 18 })),
+    stageType: boss ? "boss" : "normal",
+    isBossStage: Boolean(boss),
+    platforms: (boss
+      ? [[480, 405, 620], [205, 315, 190], [755, 315, 190], [480, 225, 220]]
+      : STAGE_PLATFORM_LAYOUTS[index]).map(([x, y, width]) => ({ x, y, width, height: 18 })),
     enemyFamily: family.id,
-    enemyTypes: Array.from({ length: 6 + Math.floor(index / 10) }, (_, enemyIndex) =>
+    enemyTypes: boss ? [] : Array.from({ length: 6 + Math.floor(index / 10) }, (_, enemyIndex) =>
       family.names[(index + enemyIndex * 2) % family.names.length]
     ),
-    enemyCount: 6 + Math.floor(index / 10),
+    enemyCount: boss ? 0 : 6 + Math.floor(index / 10),
     timeLimit: 120,
     boss
   };
