@@ -156,6 +156,13 @@
 - Source commit: `1abf17c11ce227495e15c29d4907b9e26f2673c2`; smoke test commit: `0408b2a77b5714047d967b197d8e90eaab54f005`.
 - No tests/builds were run; consolidated verification and Android Release APK remain deferred until development is complete.
 
+### Ten-element enemy identity and snowball strength tiers (2026-11-27)
+- Normal campaign stages now rotate enemy elemental identity through all ten elements rather than only six.
+- Added a deterministic snowball strength-tier rule that combines enemy class, elemental affinity and campaign progression; the resulting tier is capped and continues to drive the ball's visible size and its existing boss-impact strength.
+- Added focused rule coverage for elemental/class/progression combinations and campaign data coverage requiring all ten elements to appear.
+- Source commits: `5c31dd8989e1255b0cfd3d27e77e028c7fe04dfa`, `1041c969290de65235278f449b719fc6d9d2ed73`, `eb164a721826883e53d6552a77cd6c21057958ff`; tests: `4b898bef8b8e9dd34028db6216ac35281af062cd`, `bb0e0a05cc252e9cd7cc05ac1e1f92454201d564`.
+- No tests/builds were run; final consolidated verification and Android Release APK remain deferred until all development is complete.
+
 ## Non-negotiable preservation rules
 - Preserve the currently working joystick/controller movement and touch mapping. Do not regress the approved controls.
 - Keep the game in landscape and make the playable scene fill the complete device viewport.
