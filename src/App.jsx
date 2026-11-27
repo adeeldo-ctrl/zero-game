@@ -31,7 +31,7 @@ import { createGameAudio } from "./gameAudio";
 import { createCampaignLives, loseCampaignHeart, getStageTransitionDirection } from "./campaignRules";
 import { shouldHeroCollideWithPlatform, shouldDropThroughPlatform, getPlatformTextureScale } from "./platformRules";
 import { getBossPhase, isValidJumpStomp } from "./combatRules";
-import { getBossAttendantWaveSize, BOSS_ATTENDANT_MAX_ACTIVE, getBossSignatureProfile } from "./bossEncounterRules";
+import { getBossAttendantWaveSize, BOSS_ATTENDANT_MAX_ACTIVE, getBossSignatureProfile, BOSS_ANIMATION_PROFILES } from "./bossEncounterRules";
 import { canKickElementBall, canRollingBallHitTarget, isRollingBallOutOfBounds, calculateRollingBallMotion } from "./snowballRules";
 import { getEnemyMovementSpeed, getSnowballPowerTier, REGULAR_ENEMY_VISUAL_SCALE } from "./enemyRules";
 import { MOBILE_ACTION_BUTTONS, enqueueMobileAction, consumeMobileAction } from "./mobileActionQueue";
@@ -168,19 +168,12 @@ class ZeroGameScene extends Phaser.Scene {
         });
       }
     });
-    const bossAnimationProfiles = {
-      gatekeeper: { idle: [0, 1, 0, 1], idleRate: 4, strike: [2, 3, 2], strikeRate: 8 },
-      "iron-comet": { idle: [0, 1, 2, 1], idleRate: 8, strike: [1, 2, 3, 2], strikeRate: 16 },
-      "gale-talon": { idle: [0, 2, 0, 2], idleRate: 9, strike: [1, 2, 3, 1], strikeRate: 18 },
-      suncrest: { idle: [0, 1, 2, 3], idleRate: 5, strike: [3, 2, 1, 2], strikeRate: 11 },
-      "void-sovereign": { idle: [0, 3, 0, 3], idleRate: 4, strike: [2, 1, 3, 2], strikeRate: 14 },
-    };
-    Object.entries(bossAnimationProfiles).forEach(([kind, profile]) => {
+    Object.entries(BOSS_ANIMATION_PROFILES).forEach(([kind, profile]) => {
       const key = `boss-${kind}-presence`;
       if (!this.anims.exists(key)) {
         this.anims.create({
           key,
-          frames: this.anims.generateFrameNumbers(`boss-sheet-${kind}`, { frames: profile.idle }),
+          frames: this.anims.generateFrameNumbers(`boss-sheet-${kind}`, { frames: profile.idleFrames }),
           frameRate: profile.idleRate,
           repeat: -1,
         });
@@ -189,7 +182,7 @@ class ZeroGameScene extends Phaser.Scene {
       if (!this.anims.exists(strikeKey)) {
         this.anims.create({
           key: strikeKey,
-          frames: this.anims.generateFrameNumbers(`boss-sheet-${kind}`, { frames: profile.strike }),
+          frames: this.anims.generateFrameNumbers(`boss-sheet-${kind}`, { frames: profile.strikeFrames }),
           frameRate: profile.strikeRate,
           repeat: 0,
         });
