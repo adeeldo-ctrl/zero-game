@@ -5,3 +5,6 @@ This one-time marker requests the signed Android Release APK after the integrate
 No ordinary development commit should trigger an APK build.
 
 Signing retry: use the PKCS12 keystore password for the private key password as required by the runner's keytool format.
+
+
+Final particle tier update release request: 2026-11-27. Include source commit `48f9bdbe0557190a2152d8c6d6ca3a7ff2937126` and the subsequent master-plan documentation commit in the release build.
