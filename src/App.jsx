@@ -2574,7 +2574,7 @@ class ZeroGameScene extends Phaser.Scene {
     const cheekMarks = [-1, 1].map((side) =>
       this.add.triangle(side * 37, -5, -7, -5, 7, -5, 0, 13, palette.trim, 0.9)
     );
-    const crownGem = this.add.diamond(0, -79, 18, 24, palette.glow, 0.98)
+    const crownGem = this.add.star(0, -79, 4, 7, 13, palette.glow, 0.98)
       .setStrokeStyle(2, palette.trim, 0.95);
     const chestEmblem = this.add.star(0, 5, isFinal ? 8 : 6, isFinal ? 7 : 5, isFinal ? 25 : 18,
       isFinal ? 0xe5d5ff : 0xffd36b, 0.95).setStrokeStyle(3, bossColor, 0.95);
