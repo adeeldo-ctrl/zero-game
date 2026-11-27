@@ -2254,6 +2254,12 @@ class ZeroGameScene extends Phaser.Scene {
       } else if (msg.type === "room-full") {
         this.netStatusText?.setText("ROOM FULL • ONLY 2 PLAYERS").setColor("#ff8b8b");
         socket.close();
+      } else if (msg.type === "already-joined") {
+        this.netStatusText?.setText("THIS CONNECTION ALREADY JOINED A ROOM").setColor("#ff8b8b");
+        socket.close();
+      } else if (msg.type === "invalid-room") {
+        this.netStatusText?.setText("ROOM CODE MUST BE 3-12 LETTERS OR NUMBERS").setColor("#ff8b8b");
+        socket.close();
       } else if (msg.type === "state") {
         this.ensureRemoteVisual();
         this.remoteState = {
