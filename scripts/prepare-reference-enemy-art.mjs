@@ -143,12 +143,13 @@ for (const crop of manifest.crops) {
   fs.writeFileSync(path.join(outputDir, outputName), prepared.png);
   report.push({ source: crop.file, output: outputName, size: "128x128", removedBackdropRatio: Number(prepared.removedRatio.toFixed(3)), status: "static-cutout-review-required" });
 }
+// Bosses are composed from the user's visually approved, intact enemy cutouts only.
 const bossSources = [
-  { id: "gatekeeper", source: "11_ice-golem.png" },
-  { id: "iron-comet", source: "19_ice-robot.png" },
-  { id: "gale-talon", source: "16_blue-dragon.png" },
+  { id: "gatekeeper", source: "02_green-ice-monster.png" },
+  { id: "iron-comet", source: "34_blue-ogre-a.png" },
+  { id: "gale-talon", source: "40_armored-lizard.png" },
   { id: "suncrest", source: "09_pumpkin.png" },
-  { id: "void-sovereign", source: "30_purple-demon.png" },
+  { id: "void-sovereign", source: "47_ice-knight.png" },
 ];
 const bossReport = [];
 for (const boss of bossSources) {
@@ -161,7 +162,7 @@ for (const boss of bossSources) {
 }
 fs.writeFileSync(path.join(bossOutputDir, "preparation-report.json"), JSON.stringify({
   source: "user-uploaded enemy references", count: bossReport.length,
-  note: "Five distinct references enlarged into dedicated 160x160 transparent boss base cutouts. These are static; boss-specific animation frames and visual review remain required.",
+  note: "Five visually approved enemy cutouts enlarged into dedicated 160x160 transparent boss base cutouts. These remain static base artwork; existing boss animation/gameplay is preserved until genuine boss animation frames are authored.",
   assets: bossReport,
 }, null, 2) + "\n");
 fs.writeFileSync(path.join(outputDir, "preparation-report.json"), JSON.stringify({
