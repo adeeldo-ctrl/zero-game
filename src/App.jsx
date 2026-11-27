@@ -2307,7 +2307,8 @@ class ZeroGameScene extends Phaser.Scene {
     this.tweens.add({ targets: orbitA, x: -86, y: -48, duration: bossElement === "ice" ? 620 : 900, yoyo: true, repeat: -1, ease: "Sine.easeInOut" });
     this.tweens.add({ targets: orbitB, x: 86, y: -48, duration: bossElement === "shadow" ? 620 : 900, yoyo: true, repeat: -1, ease: "Sine.easeInOut" });
     c.setData("parts", { shadow, legL, legR, footL, footR, armL, armR,
-      fistL, fistR, body, belly, pupilL, pupilR, aura });
+      fistL, fistR, body, belly, pupilL, pupilR, aura, chestEmblem,
+      shoulderL, shoulderR, belt, beltGem, headband, orbitA, orbitB });
     return c;
   }
 
@@ -2435,8 +2436,22 @@ class ZeroGameScene extends Phaser.Scene {
       p.footR.y = 44 + Math.max(0, -swing) * -5;
       p.armL.rotation = -0.22 + swing * 0.24;
       p.armR.rotation = 0.22 - swing * 0.24;
+      const breath = Math.sin(t * 0.0032);
+      const powerPulse = 0.82 + (Math.sin(t * 0.007) + 1) * 0.09;
       p.fistL.y = 24 + Math.sin(t * 0.006) * 3;
       p.fistR.y = 24 - Math.sin(t * 0.006) * 3;
+      p.body.setScale(1 + breath * 0.018, 1 - breath * 0.014);
+      p.belly.setScale(1 + breath * 0.025, 1 - breath * 0.018);
+      if (p.chestEmblem?.active) {
+        p.chestEmblem.rotation = Math.sin(t * 0.0025) * 0.08;
+        p.chestEmblem.setScale(powerPulse);
+      }
+      if (p.beltGem?.active) p.beltGem.setAlpha(powerPulse);
+      if (p.shoulderL?.active) p.shoulderL.rotation = swing * 0.045;
+      if (p.shoulderR?.active) p.shoulderR.rotation = -swing * 0.045;
+      if (p.headband?.active) p.headband.rotation = swing * 0.025;
+      if (p.orbitA?.active) p.orbitA.setAlpha(0.7 + (Math.sin(t * 0.004) + 1) * 0.13);
+      if (p.orbitB?.active) p.orbitB.setAlpha(0.7 + (Math.cos(t * 0.004) + 1) * 0.13);
       visual.y = enemy.y + Math.abs(swing) * -2;
 
       // Bosses now use readable, style-specific anticipation and attack poses.
