@@ -1036,3 +1036,7 @@ The following gameplay requirements are mandatory and supersede any conflicting 
 - Boss combat animation follow-up: each of the five authored boss sheets now has a dedicated strike sequence. Dash/volley state transitions trigger the matching one-shot strike animation, which returns to the boss's looping presence animation on completion. Existing attack timing, hitboxes, damage and AI are untouched.
 - Source commit: `438e296b495208e902c5cf57ec124cfb4223bfda`.
 - **Verification:** Not run; consolidated verification remains deferred until all development is complete. No APK was built.
+
+- Enemy combat animation follow-up: fast, heavy and special enemy sheets each have a dedicated one-shot strike sequence. High-speed charge transitions trigger the matching class animation and return to movement/idle presentation without changing enemy movement speeds, AI decisions or collision behavior.
+- Source commit: `479c0111a71b2929507a78db7dd2ac7c625da9a9`.
+- **Verification:** Not run; consolidated verification remains deferred until all development is complete. No APK was built.
