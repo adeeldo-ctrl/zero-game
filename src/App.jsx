@@ -1540,8 +1540,6 @@ class ZeroGameScene extends Phaser.Scene {
 
         const scale = (i % 2 === 0 ? 1.12 : 1) * 1.2;
         enemy.setScale(scale);
-        enemy.setSize(52, 62);
-        enemy.setOffset(6, 2);
 
         const visual = this.createEnemyVisual(
           enemy,
