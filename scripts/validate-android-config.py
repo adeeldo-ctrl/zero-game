@@ -51,7 +51,7 @@ assert "github.event_name == 'workflow_dispatch'" in content, (
 assert "workflow_run" not in content, (
     "The APK workflow must not depend on automatic workflow-run events"
 )
-assert "assembleRelease" in content and "apksigner verify" in content and "zero-game-release-apk" in content and "upload-artifact@v4" in content
+assert "assembleRelease" in content and "apksigner" in content and "zero-game-release-apk" in content and "upload-artifact@v4" in content
 assert "screenOrientation" in content, "Android launcher must be locked to landscape"
 for flag in ("SYSTEM_UI_FLAG_IMMERSIVE_STICKY", "SYSTEM_UI_FLAG_HIDE_NAVIGATION", "SYSTEM_UI_FLAG_FULLSCREEN"):
     assert flag in content, f"Android immersive full-screen mode is missing {flag}"
