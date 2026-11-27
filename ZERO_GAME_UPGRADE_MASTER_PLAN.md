@@ -599,3 +599,11 @@ The following gameplay requirements are mandatory and supersede any conflicting 
 - Telegraph colors now match the active boss element (fire, earth, wind, ice, lightning, shadow, light, water, nature, or plasma), while the existing attack timing, damage, movement, and collision behavior remain unchanged.
 - The warning marker is clamped inside the arena so it remains visible near either screen edge. The effect is one short-lived container per boss attack to keep mobile rendering overhead controlled.
 - No APK build or intermediate release was triggered.
+
+
+## Enemy locomotion and armor animation polish — 2026-11-27
+
+- Extended enemy animation rigs to include their body, chest armor, glowing chest sigil, and headband alongside the existing arms and legs.
+- Movement now adds a restrained body compression/rebound, armor follow-through, and a subtle sigil pulse. Runner and charger families receive a stronger stride response, while guard enemies retain a steadier body profile.
+- Existing enemy AI states, speeds, collision boxes, attack windows, and mobile controls are unchanged. Effects reuse existing enemy parts and add no per-frame display objects.
+- No APK build was triggered.
