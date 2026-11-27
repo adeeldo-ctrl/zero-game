@@ -1427,6 +1427,14 @@ class ZeroGameScene extends Phaser.Scene {
     c.setData("heroSprite", heroArt);
     c.setData("heroRigParts", c.list.filter((child) => child !== shadow && child !== heroArt));
     c.setData("heroSpriteId", heroId);
+    this.applyHeroLook(c, getHero(heroId), true);
+    heroArt.setVisible(true);
+    (c.getData("heroRigParts") || []).forEach((part) => {
+      if (part?.active) part.setVisible(false);
+    });
+    (c.getData("heroLookItems") || []).forEach((part) => {
+      if (part?.active) part.setVisible(false);
+    });
     this.setHeroSpriteAnimation(c, "idle");
 
     return c;
@@ -1448,7 +1456,6 @@ class ZeroGameScene extends Phaser.Scene {
       (visual.getData("heroRigParts") || []).forEach((part) => {
         if (part?.active) part.setVisible(true);
       });
-      visual.setData("heroSpriteSelectionPreview", true);
     }
     const palette = visual.getData("heroPalette");
     if (palette) {
@@ -4622,9 +4629,13 @@ class ZeroGameScene extends Phaser.Scene {
     const articulatedAction = specialActive || normalAttackActive || hitActive;
     const heroSprite = visual.getData("heroSprite");
     const heroRigParts = visual.getData("heroRigParts") || [];
+    const heroLookItems = visual.getData("heroLookItems") || [];
     if (heroSprite?.active && heroSprite.visible === articulatedAction) {
       heroSprite.setVisible(!articulatedAction);
       heroRigParts.forEach((part) => {
+        if (part?.active) part.setVisible(articulatedAction);
+      });
+      heroLookItems.forEach((part) => {
         if (part?.active) part.setVisible(articulatedAction);
       });
       if (articulatedAction) {
