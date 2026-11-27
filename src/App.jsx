@@ -248,7 +248,15 @@ class ZeroGameScene extends Phaser.Scene {
     this.createHUD();
     this.createMobileControls();
     this.input.keyboard.once("keydown", () => { this.audio.unlock(); this.audio.play("stage"); });
-    this.events.once("shutdown", () => { this.audio.stop(); if (this.netSocket) this.netSocket.close(); });
+    // Stage transitions restart this Phaser scene; keep the Wi-Fi co-op
+    // socket alive across those restarts and close it only on final destroy.
+    this.events.once("shutdown", () => { this.audio.stop(); });
+    this.events.once("destroy", () => {
+      if (this.netSocket) this.netSocket.close();
+      this.netSocket = null;
+      this.netConnected = false;
+      this.remoteState = null;
+    });
     this.defeated = 0;
     this.stageCleared = false;
     this.stageCollectionActive = false;
