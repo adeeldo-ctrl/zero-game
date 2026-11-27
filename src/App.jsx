@@ -317,7 +317,6 @@ class ZeroGameScene extends Phaser.Scene {
     const world = this.stageConfig.worldIndex || 0;
     const variant = this.stageConfig.background.stageVariant || 0;
     const accent = this.stageConfig.background.accent;
-    const atmosphere = this.stageConfig.background.atmosphere || "Daylight";
     const weatherByWorld = [
       ["sunny", "petals", "rain", "golden", "fireflies"],
       ["sunny", "candy-drift", "petals", "sunset", "starlight"],
@@ -358,7 +357,7 @@ class ZeroGameScene extends Phaser.Scene {
       const x = 24 + (i * 79 + variant * 31) % 910;
       const y = 75 + (i * 53 + world * 17) % 350;
       let particle;
-      let target = {};
+      let target;
       let duration = 1700 + (i % 6) * 190;
       if (weather === "rain" || weather === "shimmer-rain") {
         particle = this.add.line(x, y, 0, 0, -7, 18, 0x9edfff, 0.62).setLineWidth(2).setDepth(-17);
