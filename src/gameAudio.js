@@ -1,3 +1,29 @@
+
+export function getStageThemeSequence(stageNumber) {
+  const stage = Math.max(1, Math.min(50, Math.floor(Number(stageNumber) || 1)));
+  const worldIndex = Math.floor((stage - 1) / 5);
+  const localStage = (stage - 1) % 5;
+  const motifs = [
+    ["C4", "E4", "G4", "B4", "A4", "G4", "E4", "D4"],
+    ["E4", "G4", "B4", "D5", "C5", "B4", "G4", "E4"],
+    ["D4", "F#4", "A4", "E5", "D5", "A4", "F#4", "E4"],
+    ["A3", "D4", "E4", "A4", "G4", "E4", "D4", "C4"],
+    ["G3", "B3", "D4", "G4", "F#4", "D4", "B3", "A3"],
+    ["C4", "D#4", "G4", "C5", "A#4", "G4", "D#4", "D4"],
+    ["F#3", "A3", "C4", "E4", "D4", "C4", "A3", "G3"],
+    ["D4", "G4", "A4", "D5", "C5", "A4", "G4", "E4"],
+    ["E3", "G3", "B3", "E4", "D4", "B3", "G3", "F#3"],
+    ["C3", "G3", "C4", "D#4", "G4", "D#4", "C4", "G3"],
+  ];
+  const motif = motifs[worldIndex];
+  const shift = localStage * 2;
+  const rotated = motif.slice(shift).concat(motif.slice(0, shift));
+  if (localStage === 1 || localStage === 3) return rotated.slice().reverse();
+  if (localStage === 2) return rotated.map((note, index) => index % 2 ? motif[(index + 3) % motif.length] : note);
+  if (localStage === 4) return rotated.map((note, index) => index % 3 === 0 ? motif[(index + 5) % motif.length] : note);
+  return rotated;
+}
+
 export function clampAudioVolume(value) {
   return Math.max(0, Math.min(1, Number(value) || 0));
 }
@@ -168,12 +194,15 @@ export function createGameAudio() {
       musicTimer = null;
       if (generation !== musicGeneration || !musicEnabled || !context) return;
       const bossTrack = activeTrack.startsWith("boss-");
-      const worldIndex = Number(activeTrack.split("-")[1]) || 0;
+      const stageTrack = activeTrack.startsWith("stage-");
+      const trackIndex = Number(activeTrack.split("-")[1]) || 0;
+      const worldIndex = trackIndex;
       const notes = bossTrack ? bossThemes[worldIndex] || bossThemes[0]
-        : activeTrack === "menu" ? menuTheme
-          : activeTrack === "victory" ? victoryTheme
-            : activeTrack === "defeat" ? defeatTheme
-              : worldThemes[worldIndex % worldThemes.length];
+        : stageTrack ? getStageThemeSequence(trackIndex)
+          : activeTrack === "menu" ? menuTheme
+            : activeTrack === "victory" ? victoryTheme
+              : activeTrack === "defeat" ? defeatTheme
+                : worldThemes[worldIndex % worldThemes.length];
       const name = notes[musicIndex % notes.length];
       const frequency = NOTE_FREQUENCIES[name] || 130.81;
       const beat = musicIndex % 4;
@@ -197,7 +226,7 @@ export function createGameAudio() {
       }
       if (beat === 1 || beat === 3) tone(1480, 0.035, "square", 0.0035 * musicVolume);
       musicIndex++;
-      musicTimer = schedule(step, bossTrack ? 300 : activeTrack === "menu" ? 320 : 255);
+      musicTimer = schedule(step, bossTrack ? 300 : activeTrack === "menu" ? 320 : stageTrack ? 238 + (trackIndex % 4) * 7 : 255);
     };
     step();
   };
@@ -270,6 +299,7 @@ export function createGameAudio() {
     playVictoryTheme: () => setTrack("victory"),
     playDefeatTheme: () => setTrack("defeat"),
     playWorldTheme: (worldIndex) => setTrack(`world-${Math.max(0, Math.floor(Number(worldIndex) || 0) % 10)}`),
+    playStageTheme: (stageNumber) => setTrack(`stage-${Math.max(1, Math.min(50, Math.floor(Number(stageNumber) || 1)))}`),
     playBossTheme: (bossIndex) => setTrack(`boss-${Math.max(0, Math.floor(Number(bossIndex) || 0) % 5)}`)
   };
 }
