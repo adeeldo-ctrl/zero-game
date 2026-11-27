@@ -111,6 +111,11 @@ export const PREMIUM_PLATFORM_FAMILIES = [
   "clockwork-metal", "lava-obsidian", "rune-energy", "floating-moss", "starfield",
 ];
 
+export const PREMIUM_PLATFORM_SHAPES = [
+  "cloud-island", "crystal-bridge", "gear-rail", "vine-branch",
+  "rune-arch", "candy-bubble", "lava-crack", "star-bridge",
+];
+
 export const PREMIUM_SPECIAL_PLATFORM_TYPES = [
   "accelerator", "spring-bounce", "temporary-fade", "moving", "slippery-ice",
   "one-way-drop-through", "elemental-energy",
