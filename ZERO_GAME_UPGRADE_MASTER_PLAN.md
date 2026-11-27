@@ -105,6 +105,13 @@
 - Source commit: `fb17af0c2bd00aa2f99e3079c4762f4e21eddaa1`.
 - No tests/builds were run; final consolidated verification and APK remain deferred until all development is complete.
 
+### Distinct boss entrance and defeat sequences (2026-11-27)
+- Added style-specific entrance accents for the Gatekeeper, boxing champion, agile claw acrobat, martial-arts master, and final warlord: ground shock rings, inward glove beats, spinning talon stars, rising-sun rays, and eclipse/orbit treatment respectively.
+- Added matching boss-style defeat finale motifs while retaining the shared elemental reward/impact core.
+- The five boss encounters remain on the existing fixed campaign milestones; attack selection, health, damage, telegraph windows, physics and phase progression are unchanged.
+- Source commit: `958776606f17105423d5a879b54696bc2664263a`.
+- No tests/builds were run; final integrated verification and Android APK remain deferred until development is complete.
+
 ## Non-negotiable preservation rules
 - Preserve the currently working joystick/controller movement and touch mapping. Do not regress the approved controls.
 - Keep the game in landscape and make the playable scene fill the complete device viewport.
