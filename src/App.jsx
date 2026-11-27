@@ -499,6 +499,74 @@ class ZeroGameScene extends Phaser.Scene {
         repeat: -1,
       });
     }
+    if (["rain", "shimmer-rain"].includes(weather)) {
+      for (let i = 0; i < 6; i++) {
+        const x = 82 + i * 158;
+        const puddle = this.add.ellipse(x, 493, 54 + (i % 3) * 8, 7, 0x9bdcff, 0.17)
+          .setDepth(-4);
+        const reflection = this.add.ellipse(x - 8, 491, 19, 2, 0xe8fbff, 0.28)
+          .setDepth(-4);
+        this.tweens.add({
+          targets: [puddle, reflection],
+          alpha: 0.07,
+          scaleX: 1.22,
+          duration: 1250 + i * 120,
+          delay: i * 90,
+          yoyo: true,
+          repeat: -1,
+          ease: "Sine.easeInOut",
+        });
+      }
+    } else if (["snow", "blizzard", "moon-snow"].includes(weather)) {
+      for (let i = 0; i < 6; i++) {
+        const x = 75 + i * 160;
+        const drift = this.add.ellipse(x, 493, 48 + (i % 2) * 16, 8, 0xdff8ff, 0.24)
+          .setDepth(-4);
+        const crystal = this.add.triangle(x + 13, 488, -5, 5, 0, -9, 5, 5, 0xc8f4ff, 0.72)
+          .setDepth(-4);
+        this.tweens.add({
+          targets: [drift, crystal],
+          alpha: 0.12,
+          y: "-=2",
+          duration: 1900 + i * 140,
+          delay: i * 110,
+          yoyo: true,
+          repeat: -1,
+          ease: "Sine.easeInOut",
+        });
+      }
+    } else if (["sand", "sandstorm"].includes(weather)) {
+      for (let i = 0; i < 5; i++) {
+        const dust = this.add.ellipse(90 + i * 190, 492, 82, 9, 0xe3b77d, 0.14)
+          .setDepth(-4);
+        this.tweens.add({
+          targets: dust,
+          x: dust.x + (i % 2 ? -18 : 18),
+          alpha: 0.04,
+          scaleX: 1.3,
+          duration: 2300 + i * 170,
+          yoyo: true,
+          repeat: -1,
+          ease: "Sine.easeInOut",
+        });
+      }
+    } else if (["ash", "ashfall", "embers", "eruption-glow"].includes(weather)) {
+      for (let i = 0; i < 7; i++) {
+        const ember = this.add.circle(58 + i * 140, 491 - (i % 3) * 3, 2 + (i % 2), 0xffa05b, 0.48)
+          .setDepth(-4);
+        this.tweens.add({
+          targets: ember,
+          y: ember.y - 9 - (i % 3) * 3,
+          alpha: 0.06,
+          scale: 0.35,
+          duration: 1350 + i * 145,
+          delay: i * 75,
+          yoyo: true,
+          repeat: -1,
+          ease: "Sine.easeInOut",
+        });
+      }
+    }
     const celestial = this.add.container(0, 0).setDepth(-27);
     const halo = this.add.circle(790, 128, 76, night ? 0xb9d7ff : 0xffd36b, 0.11);
     const orb = this.add.circle(790, 128, 35, night ? 0xe4efff : 0xffe69b, 0.96);
