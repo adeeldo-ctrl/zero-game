@@ -42,7 +42,7 @@ assert not re.search(r"(?m)^  workflow_run:", trigger_block.group(1)), (
 assert not re.search(r"(?m)^  pull_request:", trigger_block.group(1)), (
     "Pull requests must not trigger Android APK builds"
 )
-assert re.search(r"(?ms)^  push:\\s*\\n(?:[ \\t]+.*\\n)*", trigger_block.group(1)), (
+assert re.search(r"(?ms)^  push:\s*\n(?:[ \t]+.*\n)*", trigger_block.group(1)), (
     "The final APK workflow must support the one-time release marker"
 )
 assert "ZERO_GAME_FINAL_RELEASE_TRIGGER.md" in trigger_block.group(1), (
