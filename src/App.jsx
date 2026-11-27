@@ -471,6 +471,34 @@ class ZeroGameScene extends Phaser.Scene {
     const weather = (weatherByWorld[world] || weatherByWorld[0])[variant];
     const night = /night|moon|fireflies|starlight|aurora|cosmic/.test(weather) || [4, 5, 9].includes(world) && variant === 4;
     const stormWeather = ["rain", "shimmer-rain", "blizzard", "sandstorm", "ashfall", "starfall"].includes(weather);
+    const atmosphereTints = {
+      rain: [0x9dcaff, 0.075], "shimmer-rain": [0xb7d9ff, 0.07],
+      snow: [0xc8efff, 0.07], blizzard: [0xd5f4ff, 0.11], "moon-snow": [0x9bbce8, 0.07],
+      sand: [0xf4c77e, 0.055], sandstorm: [0xd8a56e, 0.12],
+      ash: [0x9b8b91, 0.065], ashfall: [0x817780, 0.12],
+      embers: [0xff8b56, 0.055], "eruption-glow": [0xff754d, 0.085],
+      aurora: [0x9c8cff, 0.055], starlight: [0x8e8bff, 0.045],
+      "meteor-dust": [0xb49cff, 0.055], starfall: [0x8978d9, 0.095],
+      "cosmic-night": [0x777de0, 0.065], crystal: [0xc1aaff, 0.045],
+      bubbles: [0x7be8e1, 0.04], "moon-bubbles": [0x7daee8, 0.05],
+      wind: [0xbad8ff, 0.04], clouds: [0xbad8ff, 0.045],
+      sunset: [0xffc48a, 0.05], golden: [0xffd58a, 0.045],
+      petals: [0xffb7d6, 0.04], "candy-drift": [0xffb7df, 0.045],
+      "moon-mist": [0x8ba6d6, 0.045], moonlight: [0x8ba6d6, 0.04],
+      "desert-night": [0x9b8bc4, 0.045], fireflies: [0x9bdc9c, 0.035],
+    };
+    const tint = atmosphereTints[weather];
+    if (tint) {
+      const wash = this.add.rectangle(480, 270, 960, 540, tint[0], tint[1]).setDepth(-11);
+      this.tweens.add({
+        targets: wash,
+        alpha: tint[1] * 1.18,
+        duration: 3200 + variant * 240,
+        ease: "Sine.easeInOut",
+        yoyo: true,
+        repeat: -1,
+      });
+    }
     const celestial = this.add.container(0, 0).setDepth(-27);
     const halo = this.add.circle(790, 128, 76, night ? 0xb9d7ff : 0xffd36b, 0.11);
     const orb = this.add.circle(790, 128, 35, night ? 0xe4efff : 0xffe69b, 0.96);
