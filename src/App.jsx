@@ -5525,23 +5525,27 @@ class ZeroGameScene extends Phaser.Scene {
           const enemyKind = enemy.getData("enemyClass") || "special";
           const archetypeId = enemy.getData("enemyArchetypeId");
           const hasPremiumArtwork = getPremiumEnemyFrameIndex(archetypeId) >= 0;
+          const idleKey = hasPremiumArtwork ? `enemy-${archetypeId}-idle` : null;
           const animationKey = hasPremiumArtwork ? `enemy-${archetypeId}-move` : `enemy-${enemyKind}-move`;
-          const strikeKey = hasPremiumArtwork ? `enemy-${archetypeId}-strike` : `enemy-${enemyKind}-strike`;
+          const attackKey = hasPremiumArtwork ? `enemy-${archetypeId}-attack` : `enemy-${enemyKind}-strike`;
           const moving = Math.abs(enemy.body.velocity.x) > 18;
           const charging = Math.abs(enemy.body.velocity.x) > 180;
           const wasCharging = Boolean(authoredSprite.getData("attackPose"));
-          if (charging && !wasCharging) authoredSprite.play(strikeKey, true);
-          if (!charging && wasCharging && moving && authoredSprite.anims.currentAnim?.key === strikeKey) {
+          if (charging && !wasCharging) authoredSprite.play(attackKey, true);
+          if (!charging && wasCharging && moving && authoredSprite.anims.currentAnim?.key === attackKey) {
             authoredSprite.play(animationKey, true);
           }
           authoredSprite.setData("attackPose", charging);
-          if (moving && !charging && authoredSprite.anims.currentAnim?.key !== strikeKey) {
+          if (moving && !charging && authoredSprite.anims.currentAnim?.key !== attackKey) {
             if (authoredSprite.anims.currentAnim?.key !== animationKey || !authoredSprite.anims.isPlaying) {
               authoredSprite.play(animationKey, true);
             }
-          } else if (!moving && authoredSprite.anims.currentAnim?.key !== strikeKey && authoredSprite.anims.isPlaying) {
-            authoredSprite.anims.stop();
-            authoredSprite.setFrame(authoredSprite.getData("idleFrame") || 0);
+          } else if (!moving && authoredSprite.anims.currentAnim?.key !== attackKey) {
+            if (idleKey && authoredSprite.anims.currentAnim?.key !== idleKey) authoredSprite.play(idleKey, true);
+            else if (!idleKey && authoredSprite.anims.isPlaying) {
+              authoredSprite.anims.stop();
+              authoredSprite.setFrame(authoredSprite.getData("idleFrame") || 0);
+            }
           }
         }
         const stride = aiType === "runner" || aiType === "charger" ? 1.25 : 1;
