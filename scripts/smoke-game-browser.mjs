@@ -671,6 +671,18 @@ try {
   if (landmarkSignatures.size !== 50) {
     throw new Error(`Expected 50 unique world/stage landmark compositions, received ${landmarkSignatures.size}`);
   }
+  await page.evaluate(() => {
+    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+    scene.stageNumber = 50;
+    scene.stageCleared = true;
+    scene.showVictory();
+    const actions = scene.children.list.filter((item) =>
+      item.type === "Text" && ["PLAY AGAIN", "CHANGE HERO"].includes(item.text)
+    );
+    if (actions.length !== 2 || actions.some((item) => !item.input?.enabled)) {
+      throw new Error("Final campaign victory screen must offer working replay and hero-change actions");
+    }
+  });
 
   const nativePage = await browser.newPage({ viewport: { width: 960, height: 540 } });
   const nativeErrors = [];
