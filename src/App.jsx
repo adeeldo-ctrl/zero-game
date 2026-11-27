@@ -201,7 +201,7 @@ class ZeroGameScene extends Phaser.Scene {
     this.createHeroAnimations();
     this.createPlatforms();
 
-    // Invisible physics body for Ibrahim
+    // Invisible physics body for the currently selected hero
     this.hero = this.physics.add.sprite(480, 450, "ryo");
     this.hero.setCollideWorldBounds(true);
     this.hero.setDepth(10);
