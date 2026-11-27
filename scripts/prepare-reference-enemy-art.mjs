@@ -87,7 +87,7 @@ function isBackdrop(r, g, b) {
   const paleIce = b > 165 && g > 165 && b >= r * 0.98 && Math.abs(g - b) < 48;
   return blueScene || darkBlue || paleIce;
 }
-function removeConnectedBackdrop(image) {
+function removeConnectedBackdrop(image, targetSize = 128) {
   const { width, height, channels, pixels } = image;
   const total = width * height, transparent = new Uint8Array(total), queue = new Int32Array(total);
   let head = 0, tail = 0;
@@ -117,19 +117,22 @@ function removeConnectedBackdrop(image) {
   }
   if (maxX < minX || maxY < minY) throw new Error("Background removal erased the entire subject");
   const subjectWidth = maxX - minX + 1, subjectHeight = maxY - minY + 1;
-  const scale = Math.min(112 / subjectWidth, 112 / subjectHeight, 1);
+  const inset = targetSize === 160 ? 12 : 8;
+  const scale = Math.min((targetSize - inset * 2) / subjectWidth, (targetSize - inset * 2) / subjectHeight, 1);
   const outWidth = Math.max(1, Math.round(subjectWidth * scale)), outHeight = Math.max(1, Math.round(subjectHeight * scale));
-  const canvas = Buffer.alloc(128 * 128 * 4);
+  const canvas = Buffer.alloc(targetSize * targetSize * 4);
   for (let y = 0; y < outHeight; y += 1) for (let x = 0; x < outWidth; x += 1) {
     const sx = minX + Math.min(subjectWidth - 1, Math.floor(x / scale));
     const sy = minY + Math.min(subjectHeight - 1, Math.floor(y / scale));
     const src = (sy * width + sx) * 4;
-    const dx = Math.floor((128 - outWidth) / 2) + x, dy = Math.floor((128 - outHeight) / 2) + y;
-    rgba.copy(canvas, (dy * 128 + dx) * 4, src, src + 4);
+    const dx = Math.floor((targetSize - outWidth) / 2) + x, dy = Math.floor((targetSize - outHeight) / 2) + y;
+    rgba.copy(canvas, (dy * targetSize + dx) * 4, src, src + 4);
   }
-  return { png: encodePng(128, 128, canvas), removedRatio: removed / total };
+  return { png: encodePng(targetSize, targetSize, canvas), removedRatio: removed / total };
 }
 fs.mkdirSync(outputDir, { recursive: true });
+const bossOutputDir = path.join(root, "src/assets/bosses/prepared-reference");
+fs.mkdirSync(bossOutputDir, { recursive: true });
 const report = [];
 for (const crop of manifest.crops) {
   const input = path.join(sourceDir, crop.file);
@@ -139,6 +142,27 @@ for (const crop of manifest.crops) {
   fs.writeFileSync(path.join(outputDir, outputName), prepared.png);
   report.push({ source: crop.file, output: outputName, size: "128x128", removedBackdropRatio: Number(prepared.removedRatio.toFixed(3)), status: "static-cutout-review-required" });
 }
+const bossSources = [
+  { id: "gatekeeper", source: "11_ice-golem.png" },
+  { id: "iron-comet", source: "19_ice-robot.png" },
+  { id: "gale-talon", source: "16_blue-dragon.png" },
+  { id: "suncrest", source: "09_pumpkin.png" },
+  { id: "void-sovereign", source: "30_purple-demon.png" },
+];
+const bossReport = [];
+for (const boss of bossSources) {
+  const source = path.join(sourceDir, boss.source);
+  if (!fs.existsSync(source)) throw new Error(`Missing boss reference: ${boss.source}`);
+  const prepared = removeConnectedBackdrop(decodePng(fs.readFileSync(source)), 160);
+  const output = `${boss.id}.png`;
+  fs.writeFileSync(path.join(bossOutputDir, output), prepared.png);
+  bossReport.push({ id: boss.id, source: boss.source, output, size: "160x160", removedBackdropRatio: Number(prepared.removedRatio.toFixed(3)), status: "enlarged-static-boss-base-review-required" });
+}
+fs.writeFileSync(path.join(bossOutputDir, "preparation-report.json"), JSON.stringify({
+  source: "user-uploaded enemy references", count: bossReport.length,
+  note: "Five distinct references enlarged into dedicated 160x160 transparent boss base cutouts. These are static; boss-specific animation frames and visual review remain required.",
+  assets: bossReport,
+}, null, 2) + "\n");
 fs.writeFileSync(path.join(outputDir, "preparation-report.json"), JSON.stringify({
   source: "user-uploaded reference crops",
   generatedAt: new Date().toISOString(),
@@ -146,4 +170,4 @@ fs.writeFileSync(path.join(outputDir, "preparation-report.json"), JSON.stringify
   note: "These are automatically segmented static cutouts. Inspect edges and subject integrity before production use. No animation frames are fabricated.",
   assets: report,
 }, null, 2) + "\n");
-console.log(`Prepared ${report.length} transparent static reference cutouts in ${path.relative(root, outputDir)}. Manual visual review and animation authoring remain required.`);
+console.log(`Prepared ${report.length} transparent 128x128 enemy cutouts and ${bossReport.length} enlarged 160x160 boss base cutouts. Manual visual review and animation authoring remain required.`);
