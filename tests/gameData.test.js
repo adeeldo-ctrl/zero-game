@@ -193,6 +193,7 @@ test("premium campaign defines five unique regional rosters of nine enemies", ()
     assert.ok(roster.length >= 2 && roster.length <= 9);
     assert.equal(new Set(roster.map((enemy) => enemy.id)).size, roster.length);
     assert.equal(getStage(stage).enemyRegionId, PREMIUM_ENEMY_REGIONS[Math.floor((stage - 1) / 10)].id);
+    if (stage % 10 === 9) assert.equal(roster.length, 9, `stage ${stage} introduces all nine regional enemies before its boss`);
   }
 });
 
