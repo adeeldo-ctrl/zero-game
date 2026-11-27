@@ -3760,6 +3760,19 @@ class ZeroGameScene extends Phaser.Scene {
     this.dropReward(enemy.x, enemy.y);
     this.addScore(500);
     this.audio.play("ballEnd");
+    const endElement = enemy.getData("rollElementId") || ball?.getData("elementId") || "fire";
+    const endPalette = getElement(endElement);
+    this.spawnElementBallEffects(enemy.x, enemy.y, endElement, "impact", 1.25);
+    const endRing = this.add.circle(enemy.x, enemy.y, 34, endPalette.glow, 0)
+      .setStrokeStyle(4, endPalette.edge, 0.96).setDepth(20);
+    this.tweens.add({
+      targets: endRing,
+      scale: 2.8,
+      alpha: 0,
+      duration: 300,
+      ease: "Cubic.easeOut",
+      onComplete: () => endRing.destroy(),
+    });
     if (animate && ball?.active) {
       this.tweens.add({
         targets: ball,
