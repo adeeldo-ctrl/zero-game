@@ -1040,3 +1040,10 @@ The following gameplay requirements are mandatory and supersede any conflicting 
 - Enemy combat animation follow-up: fast, heavy and special enemy sheets each have a dedicated one-shot strike sequence. High-speed charge transitions trigger the matching class animation and return to movement/idle presentation without changing enemy movement speeds, AI decisions or collision behavior.
 - Source commit: `479c0111a71b2929507a78db7dd2ac7c625da9a9`.
 - **Verification:** Not run; consolidated verification remains deferred until all development is complete. No APK was built.
+
+
+### User scope change — remove Wi-Fi co-op (2026-11-27)
+- User explicitly requested removal of the Wi-Fi/multiplayer system because it is not useful.
+- Remove the host/join menu controls, WebSocket client and remote-avatar logic, multiplayer smoke checks, relay package/script, and Android cleartext/network setup.
+- Preserve the complete single-player campaign, stages, heroes, bosses, combat effects, audio, and mobile controls.
+- Final Android Release APK is requested after the consolidated verification passes.
