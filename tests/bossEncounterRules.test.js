@@ -47,6 +47,9 @@ test("each boss has its own idle and strike animation frame order and timing", (
   assert.equal(new Set(profiles.map((profile) => profile.idleFrames.join(","))).size, 5);
   assert.equal(new Set(profiles.map((profile) => profile.strikeFrames.join(","))).size, 5);
   assert.equal(new Set(profiles.map((profile) => profile.strikeRate)).size, 5);
+  assert.equal(new Set(profiles.map((profile) => profile.hitFrames.join(","))).size, 5);
+  assert.equal(new Set(profiles.map((profile) => profile.phaseFrames.join(","))).size, 5);
+  assert.equal(new Set(profiles.map((profile) => profile.defeatFrames.join(","))).size, 5);
   for (const profile of profiles) {
     assert.equal(profile.idleFrames.length, 4);
     assert.equal(profile.strikeFrames.length, 4);
