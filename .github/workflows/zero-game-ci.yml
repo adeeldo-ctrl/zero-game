@@ -1,9 +1,7 @@
 name: ZERO GAME Continuous Checks
 
 on:
-  push:
-    branches:
-      - main
+  # Run the consolidated verification manually after development is complete.
   workflow_dispatch:
 
 permissions:
