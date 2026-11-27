@@ -19,6 +19,12 @@
 - Jump input must work reliably on touch and keyboard/controller. A held jump must not block subsequent jumps. Preserve the intended double-jump and flip/back-flip behavior, with correct landing/reset logic.
 - Keep the existing joystick behavior unchanged unless a verified defect requires a minimal targeted correction.
 
+### World-specific distant skyline pass (2026-11-27)
+- Replaced the remaining shared snow-capped mountain backdrop with ten world-aware distant silhouettes: forest canopy, candy hills, ice peaks, desert dunes, crystal spires, ocean swells, floating sky islands, volcanic ridges, and cosmic citadel forms.
+- The near-hill layer remains subtle and sits behind the world landmarks and gameplay.
+- Source commit: `6f4d5970eb51c77c4bf5cd772aede9334340f68b`.
+- No tests/builds were run during this implementation step.
+
 ### Remove legacy clear-sky layer duplication (2026-11-27)
 - Removed the older always-present sun/moon and six white-cloud layer from the base background. Those duplicated the newer stage atmosphere and could show clear-sky imagery underneath rain, snow, and storm variants.
 - The stage atmosphere is now the single owner of celestial bodies and cloud banks; world landmarks and mountains remain in the background.
