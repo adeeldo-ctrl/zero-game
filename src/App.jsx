@@ -3774,39 +3774,73 @@ class ZeroGameScene extends Phaser.Scene {
   fireBossVolley(boss) {
     if (!this.hero?.active) return;
     const bossData = this.stageConfig.boss || {};
+    const bossId = bossData.id || "gatekeeper";
     const element = bossData.element || "fire";
-    const bossStyle = bossData.style || "";
-    const base = Phaser.Math.Angle.Between(boss.x, boss.y - 15, this.hero.x, this.hero.y - 10);
-    const count = this.bossPhase === 3 ? 7 : this.bossPhase === 2 ? 5 : 3;
-    const spreadWidth = element === "lightning" ? 0.15 : element === "ice" ? 0.28 : element === "shadow" ? 0.34 : 0.22;
-    const speed = (element === "fire" ? 310 : element === "lightning" ? 350 : element === "ice" ? 210 : 265) + this.bossPhase * 28;
-    const radius = this.bossPhase === 3 ? 13 : 10;
     const shotPalette = getElement(element);
     const color = shotPalette.color || bossData.color || 0xff735d;
+    const base = Phaser.Math.Angle.Between(boss.x, boss.y - 15, this.hero.x, this.hero.y - 10);
+    const phase = this.bossPhase || 1;
+    const profiles = {
+      gatekeeper: { count: phase === 3 ? 7 : phase === 2 ? 5 : 3, spread: 0.2, speed: 225, shape: "stone", radial: false },
+      "iron-comet": { count: phase === 3 ? 5 : phase === 2 ? 4 : 3, spread: 0.11, speed: 390, shape: "punch", radial: false },
+      "gale-talon": { count: phase === 3 ? 9 : phase === 2 ? 7 : 5, spread: 0.46, speed: 320, shape: "talon", radial: false },
+      suncrest: { count: phase === 3 ? 10 : phase === 2 ? 8 : 6, spread: Math.PI * 2, speed: 245, shape: "sun", radial: true },
+      "void-sovereign": { count: phase === 3 ? 12 : phase === 2 ? 9 : 6, spread: Math.PI * 1.6, speed: 275, shape: "void", radial: true },
+    };
+    const profile = profiles[bossId] || profiles.gatekeeper;
     this.statusLabel.setText(`${bossData.attack || "SPECIAL ATTACK"}!`);
-    for (let i = 0; i < count; i++) {
-      const spread = (i - (count - 1) / 2) * spreadWidth;
-      const angle = base + spread;
-      const shot = bossStyle.includes("boxing")
-        ? this.add.rectangle(boss.x, boss.y - 18, radius * 2.7, radius * 1.45, color, 0.98).setAngle(spread * 90)
-        : bossStyle.includes("agile")
-          ? this.add.star(boss.x, boss.y - 18, 5, radius * 0.55, radius * 1.55, color, 0.98)
-          : bossStyle.includes("master")
-            ? this.add.ellipse(boss.x, boss.y - 18, radius * 2.7, radius * 1.1, color, 0.98).setAngle(spread * 45)
-            : bossStyle.includes("final")
-              ? this.add.circle(boss.x, boss.y - 18, radius * 1.2, color, 0.98)
-              : this.add.rectangle(boss.x, boss.y - 18, radius * 2.2, radius * 1.8, color, 0.98).setAngle(45);
+    for (let i = 0; i < profile.count; i++) {
+      const progress = profile.count <= 1 ? 0.5 : i / (profile.count - 1);
+      const angle = profile.radial
+        ? (Math.PI * 2 * i / profile.count) + (bossId === "void-sovereign" ? this.time.now * 0.00035 : -Math.PI / 2)
+        : base + (progress - 0.5) * profile.spread;
+      const radius = bossId === "iron-comet" ? 8 : bossId === "void-sovereign" ? 13 : 10 + (phase === 3 ? 3 : 0);
+      let shot;
+      if (profile.shape === "stone") {
+        shot = this.add.polygon(boss.x, boss.y - 18, [0, -14, 12, -3, 8, 12, -9, 10, -13, -2], 0x9b7957, 0.98);
+      } else if (profile.shape === "punch") {
+        shot = this.add.rectangle(boss.x, boss.y - 18, 34, 15, 0xffbd69, 0.98).setAngle(angle * 180 / Math.PI);
+      } else if (profile.shape === "talon") {
+        shot = this.add.star(boss.x, boss.y - 18, 4, 5, 17, 0x9cecff, 0.98).setAngle(angle * 180 / Math.PI);
+      } else if (profile.shape === "sun") {
+        shot = this.add.star(boss.x, boss.y - 18, 8, 5, 15, 0xffdf69, 0.98).setStrokeStyle(3, 0xffffff, 0.95);
+      } else {
+        shot = this.add.circle(boss.x, boss.y - 18, radius * 1.35, 0x32245e, 0.98)
+          .setStrokeStyle(3, 0xbca4ff, 0.95);
+      }
       shot.setStrokeStyle(3, shotPalette.edge || 0xffffff, 0.98).setDepth(18);
       shot.setData("elementId", element);
+      shot.setData("bossSignature", bossId);
       this.physics.add.existing(shot);
       this.bossShots.add(shot);
       shot.body.setAllowGravity(false);
       shot.body.setCircle(radius);
-      const wave = element === "shadow" ? Math.sin(i * 1.7) * 0.12 : 0;
-      shot.body.setVelocity(Math.cos(angle + wave) * speed, Math.sin(angle + wave) * speed);
+      const phaseBoost = phase === 3 ? 1.2 : phase === 2 ? 1.08 : 1;
+      const velocity = profile.speed * phaseBoost;
+      shot.body.setVelocity(Math.cos(angle) * velocity, Math.sin(angle) * velocity);
       shot.setData("bossShot", true);
-      this.tweens.add({ targets: shot, scale: 1.35, duration: element === "lightning" ? 120 : 220, yoyo: true, repeat: -1 });
-      this.time.delayedCall(2600, () => { if (shot.active) shot.destroy(); });
+      if (bossId === "void-sovereign") {
+        this.tweens.add({ targets: shot, angle: 360, scale: 1.55, duration: 560, repeat: -1 });
+      } else {
+        this.tweens.add({ targets: shot, scale: bossId === "iron-comet" ? 1.12 : 1.35,
+          duration: bossId === "gale-talon" ? 130 : 220, yoyo: true, repeat: -1 });
+      }
+      this.time.delayedCall(3000, () => { if (shot.active) shot.destroy(); });
+    }
+    if (bossId === "gatekeeper") {
+      const quake = this.add.rectangle(boss.x, 493, 130, 7, 0xd7ad76, 0.8).setDepth(17);
+      this.tweens.add({ targets: quake, x: this.hero.x, scaleX: 1.6, alpha: 0, duration: 420,
+        onComplete: () => quake.destroy() });
+    } else if (bossId === "suncrest") {
+      const flare = this.add.circle(boss.x, boss.y - 20, 38, 0xffe36a, 0.18)
+        .setStrokeStyle(4, 0xffffff, 0.95).setDepth(17);
+      this.tweens.add({ targets: flare, scale: 2.4, alpha: 0, duration: 520,
+        onComplete: () => flare.destroy() });
+    } else if (bossId === "void-sovereign") {
+      const rift = this.add.circle(boss.x, boss.y - 18, 54, 0x38256e, 0.16)
+        .setStrokeStyle(5, 0xbba4ff, 0.9).setDepth(17);
+      this.tweens.add({ targets: rift, angle: 180, scale: 1.9, alpha: 0, duration: 650,
+        onComplete: () => rift.destroy() });
     }
   }
 
