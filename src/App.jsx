@@ -2513,10 +2513,24 @@ class ZeroGameScene extends Phaser.Scene {
               : ["STONE FIST CRASH!", "GATEKEEPER SHARDS!", "FORTRESS CHARGE!"];
       this.statusLabel.setText(bossCallouts[nextAttack] || "BOSS ATTACK!");
       this.statusLabel.setColor("#ff806d");
-      const warning = this.add.ellipse(this.hero.x, 478, nextAttack === 0 ? 150 : 90, 16, 0xff594f, 0.24)
-        .setStrokeStyle(3, 0xffd36b).setDepth(8);
-      this.tweens.add({ targets: warning, alpha: 0.9, scaleX: 1.25, duration: 170, yoyo: true, repeat: 2,
-        onComplete: () => warning.destroy() });
+      const bossElement = this.stageConfig.boss?.element || "fire";
+      const telegraphColors = {
+        fire: 0xff7148, earth: 0xc58a55, wind: 0x8debdc,
+        ice: 0x8deaff, lightning: 0xb18aff, shadow: 0x9b78e8,
+        light: 0xffe36a, water: 0x319cff, nature: 0x65d878, plasma: 0xff5ca8,
+      };
+      const telegraphColor = telegraphColors[bossElement] || 0xff7148;
+      const warningX = Phaser.Math.Clamp(this.hero.x, 72, 888);
+      const warning = this.add.container(warningX, 478).setDepth(8);
+      const warningCore = this.add.ellipse(0, 0, nextAttack === 0 ? 150 : 90, 16,
+        telegraphColor, 0.22).setStrokeStyle(3, telegraphColor, 0.95);
+      const warningRing = this.add.ellipse(0, 0, nextAttack === 0 ? 170 : 108, 24,
+        telegraphColor, 0).setStrokeStyle(2, 0xffffff, 0.82);
+      const warningRune = this.add.star(0, -15, 4, 4, 9, telegraphColor, 0.95)
+        .setStrokeStyle(1, 0xffffff, 0.9);
+      warning.add([warningRing, warningCore, warningRune]);
+      this.tweens.add({ targets: warning, alpha: 0.28, scaleX: 1.18, duration: 170,
+        yoyo: true, repeat: 2, onComplete: () => warning.destroy() });
       if (visual?.active) this.tweens.add({ targets: visual, scaleY: 0.86, duration: 120, yoyo: true });
     }
     if (attackState === "tell" && this.time.now >= enemy.getData("bossTellUntil")) {
