@@ -58,15 +58,15 @@ Enemies use distinct original visual families, including masked acrobats, armore
 
 The Android workflow produces the signed **Release APK** and is intentionally separate from ordinary development. Do not build a debug/intermediate APK while development is in progress.
 
-After all approved development is complete and the consolidated CI checks pass:
+After all approved development is complete:
 
 1. Open the repository's Actions tab.
 2. Select **ZERO GAME Android APK** and use **Run workflow**.
-3. Wait for the signed Release workflow to complete successfully.
-4. Download the `zero-game-release-apk` artifact.
-5. Install `zero-game-release.apk` on an Android device.
+3. The workflow performs the single consolidated verification pass: automated tests, lint, Android configuration validation, web build, and Chromium campaign/mobile smoke checks.
+4. Only if every check passes does it create, align and sign the Release APK.
+5. Download the `zero-game-release-apk` artifact and install `zero-game-release.apk` on an Android device.
 
-The workflow verifies APK alignment and signature before uploading the artifact. Automated browser checks do not replace physical Android-device testing. For Wi-Fi co-op, the host PC runs `npm run multiplayer`; the Android player joins using the host PC's LAN IPv4 address. The relay uses TCP port 3001.
+The workflow is protected by an explicit final-approval lock and cannot create an APK while development is in progress. Automated browser checks do not replace physical Android-device testing. For Wi-Fi co-op, the host PC runs `npm run multiplayer`; the Android player joins using the host PC's LAN IPv4 address. The relay uses TCP port 3001.
 
 ## Build the web game locally
 
