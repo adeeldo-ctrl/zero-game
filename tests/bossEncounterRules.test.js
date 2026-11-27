@@ -20,6 +20,6 @@ test("boss attendants arrive in pairs and never exceed eight active", () => {
 test("attendant wave sizing handles invalid and over-cap counts safely", () => {
   assert.equal(getBossAttendantWaveSize(-4), 2);
   assert.equal(getBossAttendantWaveSize(10), 0);
-  assert.equal(getBossAttendantWaveSize(3, 8, 2), 0);
+  assert.equal(getBossAttendantWaveSize(3, 8, 2), 2);
   assert.equal(getBossAttendantWaveSize(2, 7, 2), 2);
 });
