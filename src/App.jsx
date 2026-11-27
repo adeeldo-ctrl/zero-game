@@ -2351,7 +2351,6 @@ class ZeroGameScene extends Phaser.Scene {
       this.heroVisual.setPosition(480, 450).setVisible(true).setAlpha(1);
       if (this.stageConfig.isBossStage) this.spawnBoss();
       else { this.spawnEnemies(); this.spawnTreasureChest(); }
-      this.sendNet({ type: "hero", heroId: this.selectedHero.id });
       this.statusLabel.setText(`${this.stageConfig.world.toUpperCase()} - STAGE ${this.stageNumber}`).setColor("#ffffff");
       const intro = this.add.text(480, 205, `STAGE ${String(this.stageNumber).padStart(2,"0")}  •  ${this.stageConfig.world.toUpperCase()}\nGET READY!`, {
         fontSize: "27px", color: "#ffe17a", fontStyle: "bold", align: "center", stroke: "#1a2948", strokeThickness: 6, lineSpacing: 8
@@ -4301,7 +4300,6 @@ class ZeroGameScene extends Phaser.Scene {
       return;
     }
     this.superReadyAt = this.time.now + 12000;
-    this.sendNet({ type: "super", x: this.hero.x, y: this.hero.y - 8, direction: this.facing, powerType: this.powerType, heroId: this.selectedHero?.id || "ryo" });
     const palette = this.getPowerPalette();
     const label = this.selectedHero?.superPower || "Guardian Burst";
     const ring = this.add.circle(this.hero.x, this.hero.y - 12, 35, palette.glow, 0.18)
@@ -4347,7 +4345,6 @@ class ZeroGameScene extends Phaser.Scene {
     this.normalComboCount = combo;
     this.lastComboAt = now;
     this.normalAttackKind = combo === 2 ? "kick" : "punch";
-    this.sendNet({ type: "shot", x: this.hero.x, y: this.hero.y - 8, direction: this.facing, powerType: this.powerType, charge });
     if (this.kickNearestElementBall()) return;
     const meleeTarget = this.enemies.getChildren().find((enemy) => enemy.active &&
       !enemy.getData("frozen") && Math.abs(enemy.y - this.hero.y) < 72 &&
