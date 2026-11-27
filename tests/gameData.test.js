@@ -20,6 +20,15 @@ test("every stage has its own authored multi-level platform layout", () => {
       assert.ok(p.y >= 160 && p.y <= 420,
         `stage ${stage.number}: platform is within playable vertical range`);
     }
+    for (let i = 0; i < stage.platforms.length; i++) {
+      for (let j = i + 1; j < stage.platforms.length; j++) {
+        const a = stage.platforms[i], b = stage.platforms[j];
+        const overlapsHorizontally = a.x - a.width / 2 < b.x + b.width / 2 &&
+          b.x - b.width / 2 < a.x + a.width / 2;
+        assert.ok(!(overlapsHorizontally && Math.abs(a.y - b.y) < 60),
+          `stage ${stage.number}: platform lines must not visually overlap`);
+      }
+    }
     signatures.add(JSON.stringify(stage.platforms));
   }
   assert.equal(signatures.size, 50, "all stage layouts must be distinct");
@@ -231,4 +240,8 @@ test("campaign platforms use all premium materials and only supported special ty
     }
   }
   assert.equal(materials.size, PREMIUM_PLATFORM_FAMILIES.length);
+  const specialTypes = new Set(STAGES.flatMap((stage) => stage.platforms
+    .map((platform) => platform.specialType).filter(Boolean)));
+  assert.equal(specialTypes.size, PREMIUM_SPECIAL_PLATFORM_TYPES.length,
+    "all seven special platform effects must appear in the 50-stage campaign");
 });
