@@ -2295,6 +2295,16 @@ class ZeroGameScene extends Phaser.Scene {
       const select = () => {
         if (this.heroSelectionLocked) return;
         this.heroSelectionLocked = true; this.audio.unlock(); this.audio.play("ui"); this.selectedHero = hero;
+        this.applyHeroLook(this.heroVisual, hero, true);
+        const selectedSprite = this.heroVisual?.getData("heroSprite");
+        selectedSprite?.setVisible(true);
+        (this.heroVisual?.getData("heroRigParts") || []).forEach((part) => {
+          if (part?.active) part.setVisible(false);
+        });
+        (this.heroVisual?.getData("heroLookItems") || []).forEach((part) => {
+          if (part?.active) part.setVisible(false);
+        });
+        if (this.heroVisual?.active) this.setHeroSpriteAnimation(this.heroVisual, "idle");
         localStorage.setItem("zero_game_hero", hero.id);
         this.powerType = hero.element; this.campaignActive = true;
         const lives = createCampaignLives();
