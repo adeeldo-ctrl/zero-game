@@ -86,5 +86,6 @@ These commands verify and build the web game only. They do not create an Android
 - On mobile, use the left virtual joystick for movement and the right-side buttons for Jump, Fire, Super and the three EXTRA actions. The touch overlay supports simultaneous pointer input.
 - Music and sound effects can be adjusted independently using the in-game MUSIC and SFX controls. Keyboard shortcuts M and N toggle the corresponding audio channels.
 - Audio starts after the first player interaction to comply with mobile browser/WebView audio restrictions.
-- The current game uses animated visual effects and does not yet expose a dedicated reduced-motion setting or screen-reader navigation mode; these are known accessibility limitations rather than supported features.
+- Ambient stage/weather loops respect the device's `prefers-reduced-motion` accessibility preference; one-shot gameplay cues and transitions remain available.
+- The canvas menus do not yet provide full screen-reader navigation, which remains a known accessibility limitation.
 
