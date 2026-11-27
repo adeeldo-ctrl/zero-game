@@ -51,8 +51,9 @@ test("stopping audio clears queued notes and suspends active audio", async () =>
   const oscillators = [];
   let nextTimer = 1;
   let suspended = false;
+  let audioContext;
   class FakeAudioContext {
-    constructor() { this.state = "running"; this.currentTime = 0; this.destination = {}; }
+    constructor() { this.state = "running"; this.currentTime = 0; this.destination = {}; audioContext = this; }
     resume() { this.state = "running"; return Promise.resolve(); }
     suspend() { this.state = "suspended"; suspended = true; return Promise.resolve(); }
     createOscillator() {
@@ -95,6 +96,13 @@ test("stopping audio clears queued notes and suspends active audio", async () =>
     assert.ok(oscillators.some((oscillator) => oscillator.stopCalls > 0),
       "stop should terminate currently playing oscillators");
     assert.equal(suspended, true, "stop should suspend the audio context");
+
+    // The first gameplay sound after returning from the background is a
+    // player interaction and must resume both audio and the selected music.
+    audio.play("jump");
+    assert.equal(audioContext.state, "running", "a new player sound should resume the suspended context");
+    assert.ok(timers.size > 0, "music scheduling should restart after the first resumed interaction");
+    audio.stop();
   } finally {
     globalThis.window = previous.window;
     globalThis.localStorage = previous.localStorage;
