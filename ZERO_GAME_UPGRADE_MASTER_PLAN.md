@@ -1047,3 +1047,46 @@ The following gameplay requirements are mandatory and supersede any conflicting 
 - Remove the host/join menu controls, WebSocket client and remote-avatar logic, multiplayer smoke checks, relay package/script, and Android cleartext/network setup.
 - Preserve the complete single-player campaign, stages, heroes, bosses, combat effects, audio, and mobile controls.
 - Final Android Release APK is requested after the consolidated verification passes.
+
+
+# Premium Campaign Rebuild — User-approved scope (2026-11-27)
+
+This scope supersedes the earlier shared enemy-class and mostly shared boss-presentation approach. It is a full 50-stage content/visual/audio pass, not a simple palette or name change. Preserve the existing four selectable heroes, 50-stage campaign, controls, lives/hearts, elemental attacks, collectible progression, and the existing platform-jump game loop. Wi-Fi/co-op networking is explicitly excluded and must not be reintroduced.
+
+## 1. Ten distinct enemy regions (Stages 1–10, 11–20, ... 41–50)
+- Divide the campaign into five 10-stage enemy regions/world arcs. Each 10-stage arc must have its own roster of nine clearly distinguishable enemy archetypes: 45 distinct regular/special enemy designs across the full campaign.
+- Enemy identity must be visible in silhouette, body proportions, costume/armor, face, palette, movement, attack tells, and animation—not merely a recolor or renamed shared sprite.
+- Include a deliberate mix of ordinary enemies and special variants in every 10-stage roster (for example: agile runner, armored guard, leaper, ranged caster, shield bearer, burrower/ambusher, flying/gliding type, elite charger, and a region-specific special). These are role examples; final names and designs must fit each region's theme.
+- Within each 10-stage arc, stage-by-stage enemy combinations and spawn formations must progress. Later stages introduce the roster's more challenging/special members and combinations; do not make all ten stages spawn the same enemy.
+- Reuse a region's nine archetypes intentionally across its ten stages, but do not carry the same generic three enemy visuals through all 50 stages.
+- Every archetype needs its own authored sprite artwork/sprite sheet and readable animation states (idle, move, attack/special, hit, defeat). Special enemies require a distinct signature behavior and a clear telegraph. AI, collision, health, attack timing, and animation must remain synchronized.
+- Keep the active regular-enemy population bounded and mobile-performance friendly. Spawn/despawn and defeat bookkeeping must not leave a stage impossible to clear.
+
+## 2. Five unique major bosses and their attendants
+- Boss stages remain 10, 20, 30, 40, and 50. Each major boss must have its own original visual identity, dedicated sprite sheet/art, animation set, movement language, signature attacks, phase presentation, hit reaction, and defeat sequence. A different name, element tint, or armor trim on a shared animation is not sufficient.
+- Every major boss has its own boss-only music theme and distinctive arena/entrance audio cue.
+- Boss encounters are supported by smaller elite/miniboss-style attendants. Introduce attendants in pairs (two at a time), with no more than eight active attendants at once. When active attendants are defeated and the count falls below the intended wave cap, replenish in pairs until the cap of eight is reached while the encounter is active; never exceed eight. Stop replenishing when the boss encounter ends.
+- Attendants must be visually and behaviorally distinct from ordinary enemies, but must not make the boss unfair or obscure the boss's attacks. Define clear spawn cues, safe entry points, defeat bookkeeping, and boss-stage completion rules.
+- Boss damage/phase progression must remain possible while attendants are present. Ensure attendants cannot respawn indefinitely after the boss is defeated or block stage completion.
+
+## 3. Stage backgrounds and premium audio identity
+- Every stage must have an authored or deliberately composed background treatment with meaningful variation in landmarks, depth layers, lighting, atmosphere, and decorative motion. Avoid using the same background composition for all stages in a world with only a hue shift.
+- Provide a distinct background-music identity for each stage in the campaign (50 stage cues/themes, with controlled motif variation permitted where it makes musical sense). The music must match that stage's world, atmosphere, and gameplay intensity.
+- Each of the five major bosses must override the stage track with its own exclusive boss theme. Boss themes must be audibly distinguishable from one another, not only volume/pitch changes.
+- Add smooth stage-to-stage and boss entrance/defeat transitions, sensible audio-loop points, and separate music/SFX volume controls. No copyrighted game soundtrack or copied melodies; use original or properly licensed audio assets.
+- Audio must start/stop correctly on stage restart, pause, victory, game over, and scene shutdown. Avoid overlapping duplicate music loops.
+
+## 4. Premium platform/line redesign
+- Rework platform/line visuals and layouts across the campaign. More platforms are allowed where they improve routes and variety, but every platform must be readable, reachable, non-overlapping, and consistent with collision geometry.
+- Introduce multiple clearly different platform families/materials (for example: polished stone, candy-glass, carved wood, ice crystal, cloud/sky, metal/gear, lava/obsidian, rune/energy, floating moss, and starfield platforms). Use shape, trim, surface detail, lighting, animation, and material—not just color—to distinguish them.
+- Author varied line/platform shapes and arrangements per stage: broad/small ledges, staggered routes, split platforms, stepped routes, floating islands, curved/ornamental edges, safe central arenas, and boss-specific arena layouts. Do not force every stage into the same four/six horizontal-line template.
+- Add selected special platforms with clear gameplay functions, such as speed/accelerator strips, bounce/spring pads, temporary/fading platforms, moving platforms, slippery ice, one-way/drop-through platforms, and elemental/energy platforms. Each special type needs an unmistakable visual cue, readable activation feedback, fair timing, and tested collision behavior.
+- Some stages should combine special platform mechanics, but avoid clutter and unfair unavoidable hazards. Keep the hero, enemies, projectiles, and platform edges visually readable on mobile screens.
+- Platform visual width, height, decoration, and physics body must align exactly. All stage layouts must be validated for arena bounds, reachability, collision overlap, spawn safety, and boss combat space.
+
+## 5. Quality gates and delivery policy
+- Build this as a cohesive premium content pass. Do not mark a category complete because placeholder SVGs, recolors, labels, or a generic shared animation were added.
+- Update the campaign data model, asset manifest, animation registry, enemy/boss AI and encounter rules, stage music routing, and platform behavior together. Add focused automated coverage for roster uniqueness, stage assignments, music mapping, boss-attendant cap/pair replenishment, platform bounds/reachability/collision alignment, and stage-clear correctness.
+- Keep the existing controls and campaign rules stable unless a change is required for the approved features. Do not add Wi-Fi/co-op or unrelated features.
+- Do not build or deliver an interim APK. Follow the user's standing instruction: complete all approved development first, run one consolidated verification after implementation is complete, fix any failures, then create one final signed Android Release APK. Do not claim physical-device testing unless it actually occurs.
+- Status at the time this scope was added: requirements recorded; implementation of this premium campaign rebuild is not yet complete. Existing three enemy sheets and five boss sheets do not satisfy the requested 45 enemy archetypes, five fully distinct boss move/animation identities, 50 stage-music identities, five exclusive boss themes, or the full platform-family/mechanic redesign.
