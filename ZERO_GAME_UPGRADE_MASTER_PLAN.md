@@ -643,3 +643,12 @@ The following gameplay requirements are mandatory and supersede any conflicting 
 
 - Added three soft, layered aurora ribbons to aurora, cosmic-night, and starlight variants, using a restrained teal/violet palette and slow vertical breathing.
 - The ribbons sit behind gameplay and reuse a single Graphics object per stage; no changes to player visibility, stage collision, or game rules. No APK build was triggered.
+
+
+## Premium stage scenery expansion — 2026-11-27
+
+- Added a dedicated world-specific foreground-detail layer across all ten worlds: forest roots/ferns/mushrooms; desert cacti and dune stones; ice shelves and icicles; sandstone columns and torch bowls; jungle palm fronds/vines; faceted crystal geodes; ocean coral/sea grass/pearls; sky-island cloud trim and banners; volcanic obsidian/magma seams; and cosmic observatory rings/star nodes.
+- Details are placed along the outer margins and lower frame to avoid obscuring the playable arena, platforms, enemies, or hero.
+- Stage-variant landmark composition remains layered with the new world-specific foreground art.
+- Commits: `f625934a885a5e08fa531409234dd6d80bfbbff5` (initial scenery layer), `97ca54b24e3e3b05ab0203712e932b212d4a475d` (drawing-call correction).
+- **Verification:** Not run; development remains in progress. No APK was built.
