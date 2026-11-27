@@ -1700,7 +1700,6 @@ class ZeroGameScene extends Phaser.Scene {
     const palette = colors[element.id] || colors.fire;
     const powerLevel = Phaser.Math.Clamp(this.particlePowerLevel || 1, 1, this.particlePowerMaxLevel || 20);
     const upgrade = (powerLevel - 1) / 19;
-    const densityMultiplier = 1 + upgrade * 9;
     const particleCount = element.id === "fire" ? Math.min(240, Math.ceil(count * 10 * (1 + upgrade * 0.35))) : Math.min(120, Math.ceil(count * (1 + upgrade * 2.5)));
     const particleScale = scale * (1 + upgrade * 1.8);
     const particleSpeed = 1 + upgrade * 1.5;
