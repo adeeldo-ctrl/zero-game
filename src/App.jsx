@@ -594,23 +594,55 @@ class ZeroGameScene extends Phaser.Scene {
   }
 
   createElementProjectileTextures() {
-    // Element-specific white masks; projectile tint supplies the selected power colour.
+    // Premium, power-specific projectile sprites. Each texture is generated once
+    // per scene; runtime shots reuse the cached texture (no per-shot Graphics).
     const shapes = {
-      fire: g => { g.fillPoints([{x:16,y:1},{x:23,y:13},{x:20,y:26},{x:12,y:30},{x:5,y:22},{x:8,y:12}], true); g.fillStyle(0xffffff,1); g.fillTriangle(13,24,15,12,19,22); },
-      ice: g => { g.lineStyle(3,0xffffff,1); for(let i=0;i<6;i++){const a=i*Math.PI/3, ex=16+Math.cos(a)*13, ey=16+Math.sin(a)*13; g.lineBetween(16,16,ex,ey); g.lineBetween(ex,ey,ex-Math.cos(a-.5)*5,ey-Math.sin(a-.5)*5); g.lineBetween(ex,ey,ex-Math.cos(a+.5)*5,ey-Math.sin(a+.5)*5);} },
-      lightning: g => { g.fillPoints([{x:17,y:0},{x:7,y:16},{x:14,y:16},{x:10,y:31},{x:25,y:12},{x:17,y:12}],true); },
-      water: g => { g.fillPoints([{x:16,y:0},{x:26,y:14},{x:25,y:23},{x:16,y:30},{x:7,y:23},{x:6,y:14}],true); },
-      nature: g => { g.fillPoints([{x:16,y:1},{x:27,y:10},{x:23,y:24},{x:16,y:30},{x:7,y:22},{x:5,y:10}],true); g.lineStyle(2,0xffffff,1); g.lineBetween(8,23,24,8); },
-      wind: g => { g.lineStyle(4,0xffffff,1); g.beginPath(); g.moveTo(3,9); g.lineTo(19,7); g.lineTo(27,11); g.moveTo(1,16); g.lineTo(17,14); g.lineTo(25,18); g.moveTo(5,23); g.lineTo(17,21); g.lineTo(23,24); g.strokePath(); },
-      earth: g => { g.fillPoints([{x:3,y:18},{x:9,y:4},{x:22,y:2},{x:29,y:16},{x:22,y:29},{x:7,y:26}],true); },
-      light: g => { const p=[]; for(let i=0;i<10;i++){const a=-Math.PI/2+i*Math.PI/5,r=i%2?6:15;p.push({x:16+Math.cos(a)*r,y:16+Math.sin(a)*r});} g.fillPoints(p,true); },
-      shadow: g => { g.fillPoints([{x:22,y:2},{x:10,y:4},{x:3,y:15},{x:8,y:27},{x:22,y:29},{x:16,y:21},{x:15,y:12}],true); },
-      plasma: g => { g.fillPoints([{x:16,y:0},{x:21,y:10},{x:30,y:15},{x:21,y:20},{x:16,y:31},{x:11,y:21},{x:1,y:16},{x:11,y:11}],true); },
+      fire: g => {
+        g.fillPoints([{x:16,y:0},{x:25,y:12},{x:22,y:25},{x:16,y:31},{x:8,y:26},{x:6,y:16}], true);
+        g.fillStyle(0xffffff,0.95); g.fillPoints([{x:16,y:8},{x:20,y:17},{x:16,y:25},{x:12,y:19}],true);
+        g.lineStyle(1.5,0xffffff,0.8); g.lineBetween(9,23,13,28);
+      },
+      ice: g => {
+        g.lineStyle(4,0xffffff,1);
+        for(let i=0;i<6;i++){const a=i*Math.PI/3, ex=16+Math.cos(a)*14, ey=16+Math.sin(a)*14; g.lineBetween(16,16,ex,ey); g.lineBetween(ex,ey,ex-Math.cos(a-.55)*6,ey-Math.sin(a-.55)*6); g.lineBetween(ex,ey,ex-Math.cos(a+.55)*6,ey-Math.sin(a+.55)*6);}
+        g.fillStyle(0xffffff,1); g.fillCircle(16,16,3);
+      },
+      lightning: g => {
+        g.fillPoints([{x:18,y:0},{x:7,y:17},{x:14,y:17},{x:9,y:32},{x:26,y:12},{x:18,y:12}],true);
+        g.lineStyle(2,0xffffff,0.9); g.lineBetween(18,3,11,15);
+      },
+      water: g => {
+        g.fillPoints([{x:16,y:0},{x:25,y:13},{x:27,y:21},{x:22,y:28},{x:16,y:31},{x:9,y:27},{x:5,y:20},{x:8,y:12}],true);
+        g.fillStyle(0xffffff,0.95); g.fillEllipse(12,17,5,10); g.lineStyle(1.5,0xffffff,0.8); g.strokeEllipse(16,20,17,19);
+      },
+      nature: g => {
+        g.fillPoints([{x:16,y:0},{x:27,y:10},{x:24,y:22},{x:16,y:31},{x:7,y:24},{x:4,y:13}],true);
+        g.lineStyle(2.5,0xffffff,1); g.lineBetween(8,24,24,7); g.lineBetween(14,18,12,10); g.lineBetween(18,15,24,16);
+      },
+      wind: g => {
+        g.lineStyle(4,0xffffff,1); g.beginPath(); g.moveTo(2,9); g.lineTo(17,6); g.lineTo(28,10); g.moveTo(0,16); g.lineTo(15,13); g.lineTo(26,17); g.moveTo(4,24); g.lineTo(17,21); g.lineTo(25,24); g.strokePath();
+        g.lineStyle(1.5,0xffffff,0.8); g.beginPath(); g.moveTo(7,3); g.lineTo(20,2); g.strokePath();
+      },
+      earth: g => {
+        g.fillPoints([{x:3,y:18},{x:9,y:4},{x:22,y:2},{x:30,y:15},{x:23,y:29},{x:8,y:27}],true);
+        g.lineStyle(2,0xffffff,0.9); g.lineBetween(9,7,16,16); g.lineBetween(16,16,25,9); g.lineBetween(16,16,21,26);
+      },
+      light: g => { const p=[]; for(let i=0;i<10;i++){const a=-Math.PI/2+i*Math.PI/5,r=i%2?7:16;p.push({x:16+Math.cos(a)*r,y:16+Math.sin(a)*r});} g.fillPoints(p,true); g.lineStyle(1.5,0xffffff,0.9); g.strokeCircle(16,16,7); },
+      shadow: g => {
+        g.fillPoints([{x:24,y:3},{x:12,y:2},{x:4,y:12},{x:5,y:23},{x:15,y:30},{x:27,y:25},{x:18,y:20},{x:15,y:13}],true);
+        g.lineStyle(2,0xffffff,0.8); g.beginPath(); g.arc(16,16,10,-1.3,1.6,false); g.strokePath();
+      },
+      plasma: g => {
+        g.fillPoints([{x:16,y:0},{x:22,y:10},{x:31,y:15},{x:22,y:20},{x:16,y:31},{x:10,y:21},{x:1,y:16},{x:10,y:11}],true);
+        g.fillStyle(0xffffff,0.95); g.fillCircle(16,16,4); g.lineStyle(1.5,0xffffff,0.8); g.strokeCircle(16,16,11);
+      },
     };
     Object.entries(shapes).forEach(([id, draw]) => {
       const g=this.make.graphics({x:0,y:0,add:false});
-      g.fillStyle(0xffffff,1);
-      draw(g);
+      // Soft-edged layered silhouette with a crisp white specular core.
+      g.fillStyle(0xffffff,0.16); g.fillCircle(16,16,15);
+      g.lineStyle(2,0xffffff,0.48); g.strokeCircle(16,16,14);
+      g.fillStyle(0xffffff,1); draw(g);
       g.generateTexture(`shot-${id}`,32,32);
       g.destroy();
     });
@@ -1273,7 +1305,7 @@ class ZeroGameScene extends Phaser.Scene {
       ? (data.heroId === "mei" ? [-0.65, -0.32, 0, 0.32, 0.65] : data.heroId === "volt" ? [-0.12, 0, 0.12] : [-0.45, 0, 0.45])
       : [0];
     directions.forEach(offset => {
-      const projectile = this.projectiles.create(data.x, data.y, "shot");
+      const projectile = this.projectiles.create(data.x, data.y, `shot-${data.powerType || "fire"}`);
       projectile.setTint(palette.ball).setScale(superShot ? 2.7 : 1.8 + Math.min(1, (data.charge || 0) / 1500) * 1.8).setDepth(16);
       projectile.body.setAllowGravity(false);
       projectile.body.setSize(26, 26);
@@ -2968,7 +3000,7 @@ class ZeroGameScene extends Phaser.Scene {
 
       // Route special impacts through the same authoritative hit pipeline as fire.
       // This keeps enemy damage, defeat counters, score and boss-stage progression in sync.
-      const impactProjectile = this.projectiles.create(this.hero.x, this.hero.y - 12, "shot");
+      const impactProjectile = this.projectiles.create(this.hero.x, this.hero.y - 12, `shot-${this.powerType}`);
       impactProjectile.setData("specialAttack", true);
       impactProjectile.setData("powerType", this.powerType);
       this.hitEnemy(impactProjectile, enemy);
@@ -2987,7 +3019,7 @@ class ZeroGameScene extends Phaser.Scene {
     const launchWave = () => {
       const x = this.hero.x + this.facing * 42;
       const y = this.hero.y - 13;
-      const projectile = this.projectiles.create(x, y, "shot");
+      const projectile = this.projectiles.create(x, y, `shot-${this.powerType}`);
       projectile.setTint(accent).setScale(2.5).setDepth(17);
       projectile.body.setAllowGravity(false);
       projectile.body.setSize(30, 24);
@@ -3092,7 +3124,7 @@ class ZeroGameScene extends Phaser.Scene {
       : heroId === "volt" ? [-0.12, 0, 0.12] : [-0.62, -0.31, 0, 0.31, 0.62];
     const speed = heroId === "volt" ? 920 : heroId === "mei" ? 560 : 680;
     spread.forEach((offset, index) => {
-      const projectile = this.projectiles.create(this.hero.x + this.facing * 40, this.hero.y - 8, "shot");
+      const projectile = this.projectiles.create(this.hero.x + this.facing * 40, this.hero.y - 8, `shot-${this.powerType}`);
       projectile.setTint(palette.ball).setScale(heroId === "volt" ? 3.4 : 2.8).setDepth(16);
       projectile.body.setAllowGravity(false);
       projectile.body.setSize(28, 28);
@@ -3133,7 +3165,7 @@ class ZeroGameScene extends Phaser.Scene {
       this.audio.play(combo === 2 ? "kick" : "punch");
       if (meleeTarget.getData("isBoss")) this.hitBoss(meleeTarget, combo === 2 ? 3 : 2);
       else {
-        const strike = this.projectiles.create(this.hero.x + this.facing * 42, this.hero.y - 12, "shot");
+        const strike = this.projectiles.create(this.hero.x + this.facing * 42, this.hero.y - 12, `shot-${this.powerType}`);
         strike.setData("specialAttack", combo === 2);
         strike.setData("powerType", this.powerType);
         this.hitEnemy(strike, meleeTarget);
@@ -3157,7 +3189,7 @@ class ZeroGameScene extends Phaser.Scene {
       const wide = fireKind === "dragon-wave";
       const shotX = startX, shotY = startY + shot.y;
       const glow = this.add.circle(shotX, shotY, wide ? radius * 1.8 : radius * 1.15, power.glow, wide ? 0.68 : 0.5).setDepth(12);
-      const projectile = this.projectiles.create(shotX, shotY, "shot");
+      const projectile = this.projectiles.create(shotX, shotY, `shot-${this.powerType}`);
       projectile.setTint(power.ball).setScale(wide ? 2.9 + strength * 1.1 : fireKind === "fan" ? 1.35 + strength : 1.8 + strength * 1.8).setDepth(14);
       const speed = wide ? 560 + strength * 160 : fireKind === "fan" ? 660 + strength * 180 : 780 + strength * 300;
       projectile.setVelocityX(this.facing * speed).setVelocityY(shot.vy);
