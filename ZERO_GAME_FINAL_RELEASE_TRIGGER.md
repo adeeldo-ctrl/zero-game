@@ -14,3 +14,6 @@ Latest elemental particle and power-ball release request: 2026-11-27. Include so
 
 
 Latest gameplay correction release request: 2026-11-27. Include source commit `8f808ae0d9343cc1fa6a9585ff9846806eed6afc`, which passed integrated CI run `45974674667` including all 35 automated tests, lint, Android configuration validation, web build, and Chromium campaign smoke test. This update includes the selected-element snowball silhouettes, first-wall-impact cleanup, playable five-second score collection, and reduced particle/tween load.
+
+
+Latest lightweight elemental particle redesign release request: 2026-11-27. Include source commit `1a27c65cf7fa096895d9599c34af21e928fb1fd1`, which passed integrated CI run `45977867744` (tests, lint, Android configuration validation, web build, and Chromium campaign smoke test). Build the signed Android APK from this exact verified commit.
