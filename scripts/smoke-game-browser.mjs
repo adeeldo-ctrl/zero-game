@@ -317,8 +317,11 @@ try {
     scene.chances = 3;
     scene.chanceLossInProgress = false;
     scene.gameOver = false;
-    const harmlessEnemy = { active: true, x: 500, getData: () => false };
-    scene.lastDamage = -10000;
+    const harmlessEnemy = { active: true, x: 500, y: 450, body: { top: 420 }, getData: () => false };
+    scene.hero.setPosition(300, 450);
+    scene.hero.body.reset(300, 450);
+    scene.hero.setVelocity(0, 0);
+    scene.lastDamage = scene.time.now - 2000;
     scene.damageHero(scene.hero, harmlessEnemy);
     if (scene.health !== 2 || scene.chances !== 3) throw new Error("First hit did not remove exactly one heart");
     window.__ZERO_GAME_LIVES_TEST_ENEMY__ = harmlessEnemy;
@@ -326,7 +329,10 @@ try {
   await delay(700);
   await page.evaluate(() => {
     const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
-    scene.lastDamage = -10000;
+    scene.hero.setPosition(300, 450);
+    scene.hero.body.reset(300, 450);
+    scene.hero.setVelocity(0, 0);
+    scene.lastDamage = scene.time.now - 2000;
     scene.damageHero(scene.hero, window.__ZERO_GAME_LIVES_TEST_ENEMY__);
     if (scene.health !== 1 || scene.chances !== 3) throw new Error("Second hit did not remove exactly one heart");
   });
