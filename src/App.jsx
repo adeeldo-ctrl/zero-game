@@ -963,6 +963,28 @@ class ZeroGameScene extends Phaser.Scene {
       });
     }
     g.setAlpha(0.78);
+    this.tweens.add({
+      targets: g,
+      alpha: 0.86,
+      duration: 2400 + variant * 260,
+      ease: "Sine.easeInOut",
+      yoyo: true,
+      repeat: -1,
+    });
+    if (variant === 4) {
+      const landmarkStar = this.add.star(480, 158, 4, 4, 11, gold, 0.82)
+        .setStrokeStyle(2, pale, 0.8).setDepth(-13);
+      this.tweens.add({
+        targets: landmarkStar,
+        angle: 90,
+        scale: 1.55,
+        alpha: 0.12,
+        duration: 2100,
+        ease: "Sine.easeInOut",
+        yoyo: true,
+        repeat: -1,
+      });
+    }
   }
 
   createCastle(x, y) {
