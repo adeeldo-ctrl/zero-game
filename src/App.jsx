@@ -145,8 +145,19 @@ class ZeroGameScene extends Phaser.Scene {
     PREMIUM_ENEMY_ARCHETYPES.forEach((archetype) => {
       const frameStart = getPremiumEnemyFrameIndex(archetype.id) * 4;
       const profile = enemyAnimationProfiles[archetype.role] || enemyAnimationProfiles.runner;
+      const idleKey = `enemy-${archetype.id}-idle`;
       const moveKey = `enemy-${archetype.id}-move`;
-      const strikeKey = `enemy-${archetype.id}-strike`;
+      const attackKey = `enemy-${archetype.id}-attack`;
+      const hitKey = `enemy-${archetype.id}-hit`;
+      const defeatKey = `enemy-${archetype.id}-defeat`;
+      if (!this.anims.exists(idleKey)) {
+        this.anims.create({
+          key: idleKey,
+          frames: [{ key: "premium-enemy-atlas", frame: frameStart }],
+          frameRate: 1,
+          repeat: -1,
+        });
+      }
       if (!this.anims.exists(moveKey)) {
         this.anims.create({
           key: moveKey,
@@ -157,13 +168,33 @@ class ZeroGameScene extends Phaser.Scene {
           repeat: -1,
         });
       }
-      if (!this.anims.exists(strikeKey)) {
+      if (!this.anims.exists(attackKey)) {
         this.anims.create({
-          key: strikeKey,
+          key: attackKey,
           frames: this.anims.generateFrameNumbers("premium-enemy-atlas", {
             frames: profile.strike.map((frame) => frameStart + frame),
           }),
           frameRate: profile.rate + (archetype.tier === "elite" ? 6 : 4),
+          repeat: 0,
+        });
+      }
+      if (!this.anims.exists(hitKey)) {
+        this.anims.create({
+          key: hitKey,
+          frames: this.anims.generateFrameNumbers("premium-enemy-atlas", {
+            frames: [frameStart + 3, frameStart + 1, frameStart + 3],
+          }),
+          frameRate: 16,
+          repeat: 0,
+        });
+      }
+      if (!this.anims.exists(defeatKey)) {
+        this.anims.create({
+          key: defeatKey,
+          frames: this.anims.generateFrameNumbers("premium-enemy-atlas", {
+            frames: [frameStart + 3, frameStart + 2, frameStart + 1, frameStart],
+          }),
+          frameRate: archetype.tier === "elite" ? 11 : 9,
           repeat: 0,
         });
       }
@@ -1952,13 +1983,15 @@ class ZeroGameScene extends Phaser.Scene {
       hasPremiumArtwork ? "premium-enemy-atlas" : `enemy-sheet-${enemyClass}`, idleFrame)
       .setDisplaySize(isHeavy ? 94 : 86, isHeavy ? 106 : 100);
     c.add(enemySprite);
+    const enemyIdleKey = hasPremiumArtwork ? `enemy-${archetypeId}-idle` : null;
     const enemyMoveKey = hasPremiumArtwork ? `enemy-${archetypeId}-move` : `enemy-${enemyClass}-move`;
-    const enemyStrikeKey = hasPremiumArtwork ? `enemy-${archetypeId}-strike` : `enemy-${enemyClass}-strike`;
+    const enemyAttackKey = hasPremiumArtwork ? `enemy-${archetypeId}-attack` : `enemy-${enemyClass}-strike`;
     enemySprite.setData("idleFrame", idleFrame);
-    enemySprite.play(enemyMoveKey);
+    enemySprite.play(enemyIdleKey || enemyMoveKey);
     enemySprite.on(Phaser.Animations.Events.ANIMATION_COMPLETE, (animation) => {
-      if (animation.key !== enemyStrikeKey || !enemySprite.active) return;
+      if (animation.key !== enemyAttackKey || !enemySprite.active) return;
       if (Math.abs(enemy.body?.velocity?.x || 0) > 18) enemySprite.play(enemyMoveKey);
+      else if (enemyIdleKey) enemySprite.play(enemyIdleKey);
       else { enemySprite.anims.stop(); enemySprite.setFrame(idleFrame); }
     });
     c.setData("authoredSprite", enemySprite);
