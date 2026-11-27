@@ -113,6 +113,15 @@ class ZeroGameScene extends Phaser.Scene {
         frameRate: kind === "fast" ? 9 : 6,
         repeat: -1,
       });
+      const strikeKey = `enemy-${kind}-strike`;
+      if (!this.anims.exists(strikeKey)) {
+        this.anims.create({
+          key: strikeKey,
+          frames: this.anims.generateFrameNumbers(`enemy-sheet-${kind}`, { frames: [1, 2, 3] }),
+          frameRate: kind === "fast" ? 13 : 9,
+          repeat: 0,
+        });
+      }
     });
     ["gatekeeper", "iron-comet", "gale-talon", "suncrest", "void-sovereign"].forEach((kind) => {
       const key = `boss-${kind}-presence`;
@@ -1908,7 +1917,14 @@ class ZeroGameScene extends Phaser.Scene {
     const enemySprite = this.add.sprite(0, -12, `enemy-sheet-${enemyClass}`, 0)
       .setDisplaySize(isHeavy ? 94 : 86, isHeavy ? 106 : 100);
     c.add(enemySprite);
-    enemySprite.play(`enemy-${enemyClass}-move`);
+    const enemyMoveKey = `enemy-${enemyClass}-move`;
+    const enemyStrikeKey = `enemy-${enemyClass}-strike`;
+    enemySprite.play(enemyMoveKey);
+    enemySprite.on(Phaser.Animations.Events.ANIMATION_COMPLETE, (animation) => {
+      if (animation.key !== enemyStrikeKey || !enemySprite.active) return;
+      if (Math.abs(enemy.body?.velocity?.x || 0) > 18) enemySprite.play(enemyMoveKey);
+      else { enemySprite.anims.stop(); enemySprite.setFrame(0); }
+    });
     c.setData("authoredSprite", enemySprite);
     enemy.setData("visual", c);
     c.setData("enemyClass", enemyClass);
@@ -5205,12 +5221,22 @@ class ZeroGameScene extends Phaser.Scene {
         parts.legR.rotation = -swing * (aiType === "runner" ? 0.9 : 0.65);
         const authoredSprite = enemyVisual.getData("authoredSprite");
         if (authoredSprite?.active) {
-          const animationKey = `enemy-${enemy.getData("enemyClass") || "special"}-move`;
-          if (Math.abs(enemy.body.velocity.x) > 18) {
+          const enemyKind = enemy.getData("enemyClass") || "special";
+          const animationKey = `enemy-${enemyKind}-move`;
+          const strikeKey = `enemy-${enemyKind}-strike`;
+          const moving = Math.abs(enemy.body.velocity.x) > 18;
+          const charging = Math.abs(enemy.body.velocity.x) > 180;
+          const wasCharging = Boolean(authoredSprite.getData("attackPose"));
+          if (charging && !wasCharging) authoredSprite.play(strikeKey, true);
+          if (!charging && wasCharging && moving && authoredSprite.anims.currentAnim?.key === strikeKey) {
+            authoredSprite.play(animationKey, true);
+          }
+          authoredSprite.setData("attackPose", charging);
+          if (moving && !charging && authoredSprite.anims.currentAnim?.key !== strikeKey) {
             if (authoredSprite.anims.currentAnim?.key !== animationKey || !authoredSprite.anims.isPlaying) {
               authoredSprite.play(animationKey, true);
             }
-          } else if (authoredSprite.anims.isPlaying) {
+          } else if (!moving && authoredSprite.anims.currentAnim?.key !== strikeKey && authoredSprite.anims.isPlaying) {
             authoredSprite.anims.stop();
             authoredSprite.setFrame(0);
           }
