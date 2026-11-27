@@ -97,11 +97,15 @@ test("stopping audio clears queued notes and suspends active audio", async () =>
       "stop should terminate currently playing oscillators");
     assert.equal(suspended, true, "stop should suspend the audio context");
 
-    // The first gameplay sound after returning from the background is a
-    // player interaction and must resume both audio and the selected music.
+    // Even with SFX muted, the first player interaction after returning
+    // from the background must resume the selected music track.
+    audio.setSfxEnabled(false);
+    const oscillatorCountBeforeResume = oscillators.length;
     audio.play("jump");
-    assert.equal(audioContext.state, "running", "a new player sound should resume the suspended context");
-    assert.ok(timers.size > 0, "music scheduling should restart after the first resumed interaction");
+    assert.equal(audioContext.state, "running", "a new player interaction should resume the suspended context");
+    assert.ok(timers.size > 0, "the selected music track should resume after the first interaction");
+    assert.ok(oscillators.length > oscillatorCountBeforeResume,
+      "music notes should be scheduled even when sound effects are muted");
     audio.stop();
   } finally {
     globalThis.window = previous.window;
