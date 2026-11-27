@@ -4655,28 +4655,18 @@ class ZeroGameScene extends Phaser.Scene {
     const heroSprite = visual.getData("heroSprite");
     const heroRigParts = visual.getData("heroRigParts") || [];
     const heroLookItems = visual.getData("heroLookItems") || [];
-    if (heroSprite?.active && heroSprite.visible === articulatedAction) {
-      heroSprite.setVisible(!articulatedAction);
-      heroRigParts.forEach((part) => {
-        if (part?.active) part.setVisible(articulatedAction);
-      });
-      heroLookItems.forEach((part) => {
-        if (part?.active) part.setVisible(articulatedAction);
-      });
-      if (articulatedAction) {
-        const palette = visual.getData("heroPalette");
-        const hero = this.selectedHero || getHero("ryo");
-        const skin = hero.id === "volt" ? 0x62b84f : 0xe9b38b;
-        palette?.kurta?.setFillStyle(hero.color);
-        palette?.waistcoat?.setFillStyle(hero.accent);
-        palette?.capLine?.setFillStyle(hero.accent);
-        [palette?.face, palette?.neck, palette?.handL, palette?.handR]
-          .forEach((part) => part?.setFillStyle(skin));
-        palette?.armL?.setFillStyle(hero.color);
-        palette?.armR?.setFillStyle(hero.color);
-        palette?.hair?.setFillStyle(hero.id === "kairo" ? 0xf2c34e : hero.id === "volt" ? 0xf28a32 : 0x30251f);
-      }
-    }
+
+    // Keep the selected hero's authored sprite visible during every action.
+    // The legacy vector rig is a shared fallback model and looks like the old
+    // default hero when it is swapped in for attacks/specials/hit reactions.
+    // Action poses are now played by the selected hero's own sprite sheet.
+    if (heroSprite?.active) heroSprite.setVisible(true);
+    heroRigParts.forEach((part) => {
+      if (part?.active) part.setVisible(false);
+    });
+    heroLookItems.forEach((part) => {
+      if (part?.active) part.setVisible(false);
+    });
     const specialProgress = specialActive
       ? Phaser.Math.Clamp((time - (this.specialPoseStartedAt || time)) / Math.max(1, (this.specialPoseUntil || time) - (this.specialPoseStartedAt || time)), 0, 1)
       : 0;
