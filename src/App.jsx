@@ -124,21 +124,29 @@ class ZeroGameScene extends Phaser.Scene {
         });
       }
     });
-    ["gatekeeper", "iron-comet", "gale-talon", "suncrest", "void-sovereign"].forEach((kind) => {
+    const bossAnimationProfiles = {
+      gatekeeper: { idle: [0, 1, 0, 1], idleRate: 4, strike: [2, 3, 2], strikeRate: 8 },
+      "iron-comet": { idle: [0, 1, 2, 1], idleRate: 8, strike: [1, 2, 3, 2], strikeRate: 16 },
+      "gale-talon": { idle: [0, 2, 0, 2], idleRate: 9, strike: [1, 2, 3, 1], strikeRate: 18 },
+      suncrest: { idle: [0, 1, 2, 3], idleRate: 5, strike: [3, 2, 1, 2], strikeRate: 11 },
+      "void-sovereign": { idle: [0, 3, 0, 3], idleRate: 4, strike: [2, 1, 3, 2], strikeRate: 14 },
+    };
+    Object.entries(bossAnimationProfiles).forEach(([kind, profile]) => {
       const key = `boss-${kind}-presence`;
-      if (this.anims.exists(key)) return;
-      this.anims.create({
-        key,
-        frames: this.anims.generateFrameNumbers(`boss-sheet-${kind}`, { start: 0, end: 3 }),
-        frameRate: 5,
-        repeat: -1,
-      });
+      if (!this.anims.exists(key)) {
+        this.anims.create({
+          key,
+          frames: this.anims.generateFrameNumbers(`boss-sheet-${kind}`, { frames: profile.idle }),
+          frameRate: profile.idleRate,
+          repeat: -1,
+        });
+      }
       const strikeKey = `boss-${kind}-strike`;
       if (!this.anims.exists(strikeKey)) {
         this.anims.create({
           key: strikeKey,
-          frames: this.anims.generateFrameNumbers(`boss-sheet-${kind}`, { frames: [1, 2, 3] }),
-          frameRate: 12,
+          frames: this.anims.generateFrameNumbers(`boss-sheet-${kind}`, { frames: profile.strike }),
+          frameRate: profile.strikeRate,
           repeat: 0,
         });
       }
