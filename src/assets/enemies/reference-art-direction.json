@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "status": "reference-artwork-available-production-cutouts-pending",
+  "status": "approved-boss-base-artwork-prepared",
   "source": "User-uploaded Snow Bros-style enemy collage; all 48 individual PNG reference crops are committed under src/assets/enemies/reference/.",
   "rules": [
     "Mappings are visual starting points only; do not rename gameplay archetypes or change AI roles.",
@@ -267,42 +267,42 @@
     {
       "id": "gatekeeper",
       "name": "Arena Gatekeeper",
-      "direction": "oversized stone-and-ice fortress guardian; unique crown/shoulder silhouette; 2x regular character scale; not a recolored regular enemy",
-      "sourceImage": "11_ice-golem",
+      "direction": "oversized emerald frost guardian; retain the approved creature silhouette and add boss-scale presentation",
+      "sourceImage": "02_green-ice-monster",
       "productionFrameSize": "160x160",
-      "artTreatment": "Use this uploaded character crop as the boss base, remove its collage background, preserve its recognizable silhouette, and enlarge/recompose it to fill a dedicated 160x160 boss frame. Do not merely stretch the regular enemy output. Boss animation frames must be authored separately; do not duplicate a static frame as fake animation."
+      "artTreatment": "Use only this visually approved intact cutout. Remove the collage background, enlarge and recompose into a dedicated transparent 160x160 boss base. Keep the recognizable character identity. Do not fabricate sprite poses by duplicating a static frame; preserve the existing runtime boss animation until genuine boss animation artwork is ready."
     },
     {
       "id": "iron-comet",
       "name": "Iron Comet",
-      "direction": "meteor-forged armored bruiser with comet-tail accents and broad silhouette",
-      "sourceImage": "19_ice-robot",
+      "direction": "heavy blue ogre champion with a broad armored stance",
+      "sourceImage": "34_blue-ogre-a",
       "productionFrameSize": "160x160",
-      "artTreatment": "Use this uploaded character crop as the boss base, remove its collage background, preserve its recognizable silhouette, and enlarge/recompose it to fill a dedicated 160x160 boss frame. Do not merely stretch the regular enemy output. Boss animation frames must be authored separately; do not duplicate a static frame as fake animation."
+      "artTreatment": "Use only this visually approved intact cutout. Remove the collage background, enlarge and recompose into a dedicated transparent 160x160 boss base. Keep the recognizable character identity. Do not fabricate sprite poses by duplicating a static frame; preserve the existing runtime boss animation until genuine boss animation artwork is ready."
     },
     {
       "id": "gale-talon",
       "name": "Gale Talon",
-      "direction": "large winged aerial duelist with swept feather/ice-blade silhouette",
-      "sourceImage": "16_blue-dragon",
+      "direction": "large plated reptile champion with a strong forward-facing silhouette",
+      "sourceImage": "40_armored-lizard",
       "productionFrameSize": "160x160",
-      "artTreatment": "Use this uploaded character crop as the boss base, remove its collage background, preserve its recognizable silhouette, and enlarge/recompose it to fill a dedicated 160x160 boss frame. Do not merely stretch the regular enemy output. Boss animation frames must be authored separately; do not duplicate a static frame as fake animation."
+      "artTreatment": "Use only this visually approved intact cutout. Remove the collage background, enlarge and recompose into a dedicated transparent 160x160 boss base. Keep the recognizable character identity. Do not fabricate sprite poses by duplicating a static frame; preserve the existing runtime boss animation until genuine boss animation artwork is ready."
     },
     {
       "id": "suncrest",
       "name": "Suncrest Master",
-      "direction": "radiant martial-artist creature with sun crest, warm gold/orange palette, clear humanoid stance",
+      "direction": "radiant pumpkin guardian with a bold warm silhouette",
       "sourceImage": "09_pumpkin",
       "productionFrameSize": "160x160",
-      "artTreatment": "Use this uploaded character crop as the boss base, remove its collage background, preserve its recognizable silhouette, and enlarge/recompose it to fill a dedicated 160x160 boss frame. Do not merely stretch the regular enemy output. Boss animation frames must be authored separately; do not duplicate a static frame as fake animation."
+      "artTreatment": "Use only this visually approved intact cutout. Remove the collage background, enlarge and recompose into a dedicated transparent 160x160 boss base. Keep the recognizable character identity. Do not fabricate sprite poses by duplicating a static frame; preserve the existing runtime boss animation until genuine boss animation artwork is ready."
     },
     {
       "id": "void-sovereign",
       "name": "Void Sovereign",
-      "direction": "final cosmic entity with floating segmented body, starfield void core, and distinct multi-phase silhouette",
-      "sourceImage": "30_purple-demon",
+      "direction": "final ice-knight champion with a distinct helmeted silhouette",
+      "sourceImage": "47_ice-knight",
       "productionFrameSize": "160x160",
-      "artTreatment": "Use this uploaded character crop as the boss base, remove its collage background, preserve its recognizable silhouette, and enlarge/recompose it to fill a dedicated 160x160 boss frame. Do not merely stretch the regular enemy output. Boss animation frames must be authored separately; do not duplicate a static frame as fake animation."
+      "artTreatment": "Use only this visually approved intact cutout. Remove the collage background, enlarge and recompose into a dedicated transparent 160x160 boss base. Keep the recognizable character identity. Do not fabricate sprite poses by duplicating a static frame; preserve the existing runtime boss animation until genuine boss animation artwork is ready."
     }
   ],
   "excludedAsStandaloneEnemyRefs": [
@@ -311,7 +311,7 @@
     "45_owl-b",
     "48_skull-cloud"
   ],
-  "note": "All 48 uploaded crop PNGs are now available in the repository at src/assets/enemies/reference/. The source crops have been preserved unchanged; runtime vector sheets remain active until clean transparent animated replacements are ready. Five selected references for enlarged boss bases: 11_ice-golem, 19_ice-robot, 16_blue-dragon, 09_pumpkin, and 30_purple-demon.",
+  "note": "Five boss base designs are selected only from the 21 visually approved enemy cutouts: Gatekeeper (02 green ice monster), Iron Comet (34 blue ogre A), Gale Talon (40 armored lizard), Suncrest (09 pumpkin), and Void Sovereign (47 ice knight). Boss bases are static artwork; existing runtime animation remains until genuine boss animation frames are available.",
   "additionalOriginalDesigns": [
     {
       "id": "custom-fern-glider",
