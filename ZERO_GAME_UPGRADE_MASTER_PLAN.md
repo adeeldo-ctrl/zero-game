@@ -119,6 +119,16 @@
 - Source commits: `2ddca2ac21dab49461d279f693ec6eb158da7850`, `79350bbd7df273f7dfd2b5bb422003ee0e4911ed`, `e58127afa0f96c8c7d5a5913c8076c058c1ec5b1`.
 - No tests/builds were run; consolidated verification and final Android APK remain deferred until all development is complete.
 
+### Final-only Android build guard and mobile lifecycle hardening (2026-11-27)
+- Updated the README to describe only the signed Release APK workflow and web-only local build commands.
+- Removed the legacy `android:apk` debug shortcut from package scripts; disabled both legacy local APK scripts so they cannot create debug/intermediate APKs.
+- Extended Android static validation to reject reintroduced debug build shortcuts and stale debug-APK README instructions.
+- On app background, native touch ownership, joystick state, queued EXTRA actions, held jump, and held attack are now cleared together. Added Chromium smoke coverage for background/resume while multiple touch identifiers are still held, then starting a fresh joystick touch after resume.
+- Audio now resumes the selected music track on the first player sound interaction after returning from background; a focused lifecycle regression test was added.
+- Corrected the campaign smoke test's stale platform count: each arena contains six elevated platforms plus the continuous floor (seven static bodies). The game-data tests already assert six authored elevated platforms.
+- Commits: README `c178c700eb1dcb1adca9190bcd8529f51742306f`; package debug shortcut removal `036caa57481e548cebe721dfa9d8fff4af89b44d`; local build guards `9404dfd4a95a5c5d6684000d9c4f5623bac83f89`, `8210c675401d503c3b486a210681e4eaa1ef2d20`; platform smoke alignment `d85738625c41e7060b09527ca6621f5cf2ebd89c`; audio resume `f90a60f72c66c43410b23bddf092804522c66f99` and test `e5c708ebd0db59e37bdf7caa45d64c92f3f3e38b`; mobile background cleanup `e4e70e679295446962c6c2526000ba526cec3960` and smoke coverage `6715d1c7bda749899e3c121535967a3b29935232`; Android policy validator `436b50bb379518ee0bc0e7f3e3101f7b89b07dd6`.
+- No consolidated verification was run and no APK was built. The only authorized APK build remains the signed Release workflow after all development is complete and final CI passes.
+
 ## Non-negotiable preservation rules
 - Preserve the currently working joystick/controller movement and touch mapping. Do not regress the approved controls.
 - Keep the game in landscape and make the playable scene fill the complete device viewport.
