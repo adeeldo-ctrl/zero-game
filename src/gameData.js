@@ -135,8 +135,8 @@ export const STAGES = Array.from({ length: 50 }, (_, index) => {
     stageType: boss ? "boss" : "normal",
     isBossStage: Boolean(boss),
     platforms: (boss
-      ? [[480, 405, 620], [170 + ((number / 10) % 3) * 24, 315, 190],
-        [790 - ((number / 10) % 3) * 24, 315, 190], [480, 225 + ((number / 10) % 2) * 15, 220]]
+      ? [[480, 405, 620], [150 + (number / 10) * 12, 315, 190],
+        [810 - (number / 10) * 12, 315, 190], [480, 215 + (number / 10) * 5, 220]]
       : STAGE_PLATFORM_LAYOUTS[index]).map(([x, y, width]) => ({ x, y, width, height: 18 })),
     enemyFamily: family.id,
     enemyPowerType: ["fire", "ice", "lightning", "water", "earth", "shadow"][(index + worldIndex) % 6],
