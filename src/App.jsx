@@ -3378,6 +3378,12 @@ class ZeroGameScene extends Phaser.Scene {
     if (visual?.active) {
       visual.setPosition(enemy.x, enemy.y);
       visual.setScale(direction * 1.15, 1.15);
+      const authoredBossSprite = visual.getData("authoredSprite");
+      if (authoredBossSprite?.active) {
+        const attackPose = attackState === "dash" || attackState === "volley";
+        authoredBossSprite.setAngle(attackPose ? Math.sin(this.time.now * 0.025) * 5 : Math.sin(this.time.now * 0.004) * 1.8);
+        authoredBossSprite.setScale(attackPose ? 1.045 : 1);
+      }
       const p = visual.getData("parts");
       const t = (enemy.getData("bossAnim") || 0) + delta;
       enemy.setData("bossAnim", t);
@@ -5178,6 +5184,18 @@ class ZeroGameScene extends Phaser.Scene {
         const swing = Math.sin(et * (aiType === "runner" ? 0.026 : 0.018));
         parts.legL.rotation = swing * (aiType === "runner" ? 0.9 : 0.65);
         parts.legR.rotation = -swing * (aiType === "runner" ? 0.9 : 0.65);
+        const authoredSprite = enemyVisual.getData("authoredSprite");
+        if (authoredSprite?.active) {
+          const animationKey = `enemy-${enemy.getData("enemyClass") || "special"}-move`;
+          if (Math.abs(enemy.body.velocity.x) > 18) {
+            if (authoredSprite.anims.currentAnim?.key !== animationKey || !authoredSprite.anims.isPlaying) {
+              authoredSprite.play(animationKey, true);
+            }
+          } else if (authoredSprite.anims.isPlaying) {
+            authoredSprite.anims.stop();
+            authoredSprite.setFrame(0);
+          }
+        }
         const stride = aiType === "runner" || aiType === "charger" ? 1.25 : 1;
         parts.armL.rotation = -swing * 0.5 * stride;
         parts.armR.rotation = swing * 0.5 * stride;
