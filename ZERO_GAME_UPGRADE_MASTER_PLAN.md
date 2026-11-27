@@ -222,6 +222,13 @@
 - Source commits: `ff66a1537682f45328112eb498c59a08a4b45e1a`, `dc19d82ff959e860974a79f54aebb0cd6b0c4650`, `4258c7500a0d98f3aaa4764b2a5ed9b317cf69b9`; smoke coverage: `86e904e6c3c8f7b676ebad1286ba158592c70164`.
 - No tests/builds were run; two-device co-op testing remains pending. Final consolidated verification and Android Release APK remain deferred until development is complete.
 
+### Remote co-op hero identity restoration (2026-11-27)
+- Co-op state packets now carry the selected hero identity alongside position, facing and locomotion state.
+- When a campaign stage restarts and the remote visual is recreated, it restores the peer's chosen hero automatically and interpolates toward the latest received position.
+- Added Chromium smoke coverage for hero restoration, facing and position interpolation.
+- Source commit: `553a7ff79eeb55bf86f39bc9ee3a9f940a3c70b5`; smoke coverage: `c262a65920f4c7f248c0ed1204eeff939e0f562c`.
+- No tests/builds were run; final consolidated verification and Android Release APK remain deferred until development is complete.
+
 ## Non-negotiable preservation rules
 - Preserve the currently working joystick/controller movement and touch mapping. Do not regress the approved controls.
 - Keep the game in landscape and make the playable scene fill the complete device viewport.
