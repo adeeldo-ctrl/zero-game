@@ -195,6 +195,14 @@
 - Source commit: `942d3df3e2c77173292ac1b7000e3f31a6d8550a`.
 - No tests/builds were run; final consolidated verification and Android APK remain deferred until development is complete.
 
+### Wi-Fi co-op identity and movement sync hardening (2026-11-27)
+- Renamed the default co-op room from the legacy DASTAAN label to ZERO and updated the setup guide with host/join steps.
+- The relay now limits WebSocket payload size, rejects duplicate joins and invalid hero/state messages, bounds remote player coordinates, applies a small per-socket message interval, and safely handles socket/server errors.
+- Player IDs now reuse the vacant slot after a disconnect, avoiding duplicate player identities when the host or guest leaves and reconnects.
+- Remote player movement now interpolates toward received positions and mirrors the remote hero's idle/walk/jump state instead of snapping on every packet.
+- Commits: server validation `36ad838e638062e9598eb7d062e1ad46e09d210c`; room identity `2a2b29c5e9ffd33f14bb95a9633c6d68fcaae8f3`; movement state validation `e41ffd34b1465b529ac316b98c5393ad8fa9369d`; remote interpolation `ec5d406859108b96b9dc1767e9cc13d0aab99383`; reconnect player-slot fix `27d2b78daf9544c9c79db81b9e6a5b23e52b1e85`; README `3aa2015b5140fba40b4af32830aac2f7aa4c6cd4`.
+- No tests/builds were run; co-op still requires real two-device playtesting. Consolidated verification and Android Release APK remain deferred until all development is complete.
+
 ## Non-negotiable preservation rules
 - Preserve the currently working joystick/controller movement and touch mapping. Do not regress the approved controls.
 - Keep the game in landscape and make the playable scene fill the complete device viewport.
