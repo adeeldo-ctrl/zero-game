@@ -27,5 +27,28 @@
   "rejectedOrReviewRequired": "All other prepared cutouts remain reference-only and must not be integrated as final character artwork.",
   "animation": "Approved images are static single-frame cutouts, not completed animated sprite sheets. Preserve existing animation behaviour or add genuine authored animation frames separately.",
   "bosses": "Five distinct boss base designs are now selected from approved intact cutouts: Gatekeeper (02 green ice monster), Iron Comet (34 blue ogre A), Gale Talon (40 armored lizard), Suncrest (09 pumpkin), and Void Sovereign (47 ice knight). Their transparent PNGs are integrated as boss artwork. They remain single-frame bases; existing Phaser action motion is retained, with dedicated hand-authored animation frames still outstanding.",
-  "enemyIntegration": "21 approved static cutouts are integrated selectively for matching enemy archetypes. Unapproved/damaged cutouts remain unused. Existing animation/gameplay update logic is retained; the approved cutouts themselves are single-frame artwork."
+  "enemyIntegration": "21 approved static cutouts are integrated selectively for matching enemy archetypes. Unapproved/damaged cutouts remain unused. Existing animation/gameplay update logic is retained; the approved cutouts themselves are single-frame artwork.",
+  "runtimeEnemyMapping": {
+    "gumdrop-dasher": "02_green-ice-monster.png",
+    "spirit-pouncer": "03_red-horn-demon.png",
+    "icicle-hopper": "05_winter-chick.png",
+    "jelly-vault": "07_pink-octopus.png",
+    "fizz-bomber": "09_pumpkin.png",
+    "bark-bruiser": "10_goggle-brown-creature.png",
+    "spore-caster": "14_mushroom-crab.png",
+    "caramel-mauler": "15_brown-goggle-creature.png",
+    "moss-scout": "20_spiky-hedgehog.png",
+    "vine-vault": "23_green-frog.png",
+    "acorn-leaper": "25_squirrel.png",
+    "candy-copter": "27_bee.png",
+    "eclipse-summoner": "33_mummy.png",
+    "taffy-tank": "34_blue-ogre-a.png",
+    "temple-breaker": "35_blue-ogre-b.png",
+    "jade-shellback": "37_green-turtle-a.png",
+    "root-burrower": "38_green-turtle-b.png",
+    "mire-burrower": "39_green-lizard.png",
+    "nebula-warden": "40_armored-lizard.png",
+    "licorice-sniper": "42_rat-guard.png",
+    "comet-dart": "47_ice-knight.png"
+  }
 }
