@@ -203,6 +203,11 @@
 - Commits: server validation `36ad838e638062e9598eb7d062e1ad46e09d210c`; room identity `2a2b29c5e9ffd33f14bb95a9633c6d68fcaae8f3`; movement state validation `e41ffd34b1465b529ac316b98c5393ad8fa9369d`; remote interpolation `ec5d406859108b96b9dc1767e9cc13d0aab99383`; reconnect player-slot fix `27d2b78daf9544c9c79db81b9e6a5b23e52b1e85`; README `3aa2015b5140fba40b4af32830aac2f7aa4c6cd4`.
 - No tests/builds were run; co-op still requires real two-device playtesting. Consolidated verification and Android Release APK remain deferred until all development is complete.
 
+### Selected hero sprite texture synchronization (2026-11-27)
+- Corrected the force-rig costume handoff to update the underlying hero spritesheet texture and hero identity metadata at the same time as rebuilding costume accessories. This ensures the live campaign hero remains the one selected on the card when the articulated rig is hidden again.
+- Source commit: `22dc18b3fe89ec4701c17efb07d3c0c5d2d36574`.
+- No tests/builds were run; consolidated verification and Android APK remain deferred until all development is complete.
+
 ## Non-negotiable preservation rules
 - Preserve the currently working joystick/controller movement and touch mapping. Do not regress the approved controls.
 - Keep the game in landscape and make the playable scene fill the complete device viewport.
