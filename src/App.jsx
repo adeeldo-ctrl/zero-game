@@ -1691,189 +1691,182 @@ class ZeroGameScene extends Phaser.Scene {
   spawnElementParticles(x, y, elementId = this.powerType, count = 12, scale = 1, attackVariant = "default") {
     const element = getElement(elementId || "fire");
     const colors = {
-      fire: [0xfff3a1, 0xffb02e, 0xff5428], ice: [0xffffff, 0x9beaff, 0x4ebeea],
-      lightning: [0xffffff, 0xe3c6ff, 0x8b55ff], water: [0xe6fbff, 0x68d7ff, 0x1689df],
-      nature: [0xe4ffc0, 0x8be86c, 0x319b4d], wind: [0xffffff, 0xc4fff4, 0x66cdbd],
-      earth: [0xffe3b2, 0xc18a52, 0x79502f], light: [0xffffff, 0xfff29a, 0xffc83d],
-      shadow: [0xe0d2ff, 0x9b75e8, 0x493078], plasma: [0xffffff, 0xffa6d0, 0xe63f91],
+      fire: [0xffe45c, 0xff7628], ice: [0xffffff, 0x8beaff],
+      lightning: [0xffffff, 0xffdf4d], water: [0xeaffff, 0x32b9f2],
+      nature: [0xeaffb5, 0x55bd58], wind: [0xffffff, 0x9cefe0],
+      earth: [0xffd29a, 0x9b6338], light: [0xffffff, 0xffdc55],
+      shadow: [0xc9a9ff, 0x392354], plasma: [0xffe4fb, 0xff4f9b],
     };
     const palette = colors[element.id] || colors.fire;
     const powerLevel = Phaser.Math.Clamp(this.particlePowerLevel || 1, 1, this.particlePowerMaxLevel || 20);
     const upgrade = (powerLevel - 1) / 19;
-    const particleCount = element.id === "fire" ? Math.min(240, Math.ceil(count * 10 * (1 + upgrade * 0.35))) : Math.min(120, Math.ceil(count * (1 + upgrade * 2.5)));
-    const particleScale = scale * (1 + upgrade * 1.8);
-    const particleSpeed = 1 + upgrade * 1.5;
-    const particleLifetime = 1 + upgrade * 0.75;
-    for (let i = 0; i < particleCount; i++) {
-      const angle = (Math.PI * 2 * i / particleCount) + Phaser.Math.FloatBetween(-0.22, 0.22);
-      const speed = Phaser.Math.Between(24, 105) * scale * particleSpeed;
+    // One lightweight Graphics object per burst replaces dozens/hundreds of
+    // individual display objects, per-particle tweens and extra glow objects.
+    const shapeCount = Math.min(element.id === "fire" ? 7 : 5, Math.max(2, Math.ceil(count / 5)));
+    const graphic = this.add.graphics().setPosition(x, y).setDepth(25);
+    const size = Phaser.Math.Clamp(7 * scale * (1 + upgrade * 0.22), 5, 12);
+    for (let i = 0; i < shapeCount; i++) {
+      const ox = Phaser.Math.Between(-9, 9);
+      const oy = Phaser.Math.Between(-9, 9);
       const color = palette[i % palette.length];
-      let particle;
+      const s = size * Phaser.Math.FloatBetween(0.8, 1.2);
+      graphic.lineStyle(Math.max(1.5, s * 0.22), color, 1);
+      graphic.fillStyle(color, 0.96);
       switch (element.id) {
         case "fire":
-          if (attackVariant === "fan") particle = this.add.ellipse(x, y, 5, Phaser.Math.Between(20, 30), color, 0.98).setAngle(Phaser.Math.Between(-72, 72));
-          else if (attackVariant.includes("wave")) particle = this.add.ellipse(x, y, 18, 7, color, 0.98).setAngle(Phaser.Math.Between(-18, 18));
-          else particle = this.add.ellipse(x, y, 7, Phaser.Math.Between(12, 22), color, 0.98).setAngle(Phaser.Math.Between(-35, 35));
+          graphic.fillPoints([{x:ox-s*0.55,y:oy+s},{x:ox-s*0.35,y:oy},{x:ox,y:oy-s*1.45},{x:ox+s*0.2,y:oy-s*0.35},{x:ox+s*0.62,y:oy-s*0.85},{x:ox+s*0.58,y:oy+s}], true);
           break;
-        case "ice": {
-          particle = this.add.graphics();
-          const arm = Phaser.Math.Between(6, 11);
-          particle.lineStyle(2.2, color, 1);
-          for (let a = 0; a < 6; a++) {
-            const t = a * Math.PI / 3;
-            const ex = Math.cos(t) * arm, ey = Math.sin(t) * arm;
-            particle.lineBetween(0, 0, ex, ey);
-            particle.lineBetween(ex, ey, ex - Math.cos(t - 0.55) * 4, ey - Math.sin(t - 0.55) * 4);
-            particle.lineBetween(ex, ey, ex - Math.cos(t + 0.55) * 4, ey - Math.sin(t + 0.55) * 4);
+        case "ice":
+          for (let arm = 0; arm < 6; arm++) {
+            const a = arm * Math.PI / 3;
+            const ex = ox + Math.cos(a) * s;
+            const ey = oy + Math.sin(a) * s;
+            graphic.lineBetween(ox, oy, ex, ey);
+            graphic.lineBetween(ex, ey, ex - Math.cos(a - 0.55) * s * 0.38, ey - Math.sin(a - 0.55) * s * 0.38);
+            graphic.lineBetween(ex, ey, ex - Math.cos(a + 0.55) * s * 0.38, ey - Math.sin(a + 0.55) * s * 0.38);
           }
           break;
-        }
-        case "lightning": {
-          particle = this.add.graphics();
-          particle.lineStyle(3, color, 1);
-          particle.beginPath(); particle.moveTo(-3, -11); particle.lineTo(4, -3); particle.lineTo(-2, 1); particle.lineTo(5, 10); particle.strokePath();
-          particle.setAngle(Phaser.Math.Between(-65, 65)); break;
-        }
+        case "lightning":
+          graphic.beginPath();
+          graphic.moveTo(ox - s * 0.2, oy - s);
+          graphic.lineTo(ox + s * 0.45, oy - s * 0.15);
+          graphic.lineTo(ox - s * 0.12, oy + s * 0.05);
+          graphic.lineTo(ox + s * 0.28, oy + s);
+          graphic.strokePath();
+          break;
         case "water":
-          particle = this.add.triangle(x, y, 0, -10, 7, 4, -7, 4, color, 0.94).setStrokeStyle(1, 0xffffff, 0.85).setAngle(Phaser.Math.Between(0, 360)); break;
-        case "nature": {
-          particle = this.add.ellipse(x, y, 8, 17, color, 0.95).setAngle(Phaser.Math.Between(-70, 70));
-          const vein = this.add.graphics(); vein.lineStyle(1.3, 0xf4ffe7, 0.9); vein.lineBetween(x, y - 7, x, y + 7); vein.setDepth(26);
-          this.tweens.add({ targets: vein, alpha: 0, duration: 360, onComplete: () => vein.destroy() }); break;
-        }
+          graphic.fillPoints([{x:ox,y:oy-s*1.3},{x:ox+s*0.7,y:oy-s*0.05},{x:ox+s*0.62,y:oy+s*0.65},{x:ox,y:oy+s},{x:ox-s*0.62,y:oy+s*0.65},{x:ox-s*0.7,y:oy-s*0.05}], true);
+          graphic.lineStyle(1.5, 0xffffff, 0.95);
+          graphic.lineBetween(ox - s * 0.18, oy - s * 0.35, ox - s * 0.35, oy + s * 0.25);
+          break;
+        case "nature":
+          graphic.fillPoints([{x:ox,y:oy-s*1.2},{x:ox+s*0.9,y:oy-s*0.25},{x:ox+s*0.45,y:oy+s*0.75},{x:ox,y:oy+s*1.1},{x:ox-s*0.65,y:oy+s*0.3},{x:ox-s*0.75,y:oy-s*0.45}], true);
+          graphic.lineStyle(1.5, 0xf4ffe0, 1);
+          graphic.lineBetween(ox, oy - s, ox, oy + s * 0.85);
+          break;
         case "wind":
-          particle = this.add.arc(x, y, Phaser.Math.Between(8, 17), 195, 345, false, color, 0.95).setStrokeStyle(3, color, 0.95).setAngle(Phaser.Math.Between(-80, 80)); break;
+          for (let line = 0; line < 3; line++) {
+            const yy = oy + (line - 1) * s * 0.55;
+            graphic.beginPath();
+            graphic.moveTo(ox - s, yy + s * 0.2);
+            graphic.lineTo(ox - s * 0.25, yy - s * 0.2);
+            graphic.lineTo(ox + s * 0.35, yy - s * 0.2);
+            graphic.lineTo(ox + s, yy + s * 0.15);
+            graphic.strokePath();
+          }
+          break;
         case "earth":
-          particle = this.add.polygon(x, y, [-8,-3,-2,-10,8,-4,6,6,-4,9], color, 1).setStrokeStyle(1, 0xffe4bd, 0.75).setAngle(Phaser.Math.Between(0, 360)); break;
-        case "light":
-          particle = this.add.star(x, y, 4, 3, Phaser.Math.Between(8, 13), color, 1).setAngle(Phaser.Math.Between(0, 360)); break;
+          graphic.fillPoints([{x:ox-s,y:oy-s*0.25},{x:ox-s*0.25,y:oy-s},{x:ox+s*0.75,y:oy-s*0.55},{x:ox+s,y:oy+s*0.45},{x:ox+s*0.05,y:oy+s},{x:ox-s*0.8,y:oy+s*0.55}], true);
+          break;
+        case "light": {
+          const points = [];
+          for (let p = 0; p < 10; p++) {
+            const a = -Math.PI / 2 + p * Math.PI / 5;
+            const r = p % 2 === 0 ? s * 1.2 : s * 0.48;
+            points.push({x:ox + Math.cos(a) * r,y:oy + Math.sin(a) * r});
+          }
+          graphic.fillPoints(points, true);
+          break;
+        }
         case "shadow":
-          particle = this.add.arc(x, y, Phaser.Math.Between(7, 13), 65, 295, false, color, 0.92).setStrokeStyle(3, 0x211438, 0.95).setAngle(Phaser.Math.Between(0, 360)); break;
-        case "plasma":
-          particle = this.add.circle(x, y, Phaser.Math.Between(4, 8), color, 0.85).setStrokeStyle(2, 0xffffff, 0.95);
-          this.tweens.add({ targets: particle, scale: 1.45, duration: 160, yoyo: true }); break;
+          graphic.beginPath();
+          graphic.moveTo(ox + s * 0.75, oy - s * 0.85);
+          graphic.lineTo(ox - s * 0.15, oy - s * 0.9);
+          graphic.lineTo(ox - s, oy - s * 0.1);
+          graphic.lineTo(ox - s * 0.45, oy + s * 0.85);
+          graphic.lineTo(ox + s * 0.75, oy + s * 0.65);
+          graphic.strokePath();
+          break;
         default:
-          particle = this.add.star(x, y, 6, 3, Phaser.Math.Between(8, 13), color, 0.95); break;
+          graphic.fillPoints([{x:ox,y:oy-s*1.2},{x:ox+s*0.4,y:oy-s*0.35},{x:ox+s*1.1,y:oy},{x:ox+s*0.35,y:oy+s*0.3},{x:ox,y:oy+s*1.2},{x:ox-s*0.35,y:oy+s*0.3},{x:ox-s*1.1,y:oy},{x:ox-s*0.4,y:oy-s*0.35}], true);
+          break;
       }
-      particle.setDepth(25).setScale(particleScale);
-      const travel = speed * (element.id === "wind" ? 1.65 : element.id === "earth" ? 0.72 : 1);
-      const driftX = element.id === "wind" ? Math.cos(angle + 0.8) * travel * 0.35 : Math.cos(angle) * travel;
-      const driftY = element.id === "fire" ? Math.sin(angle) * travel - Phaser.Math.Between(10, 28)
-        : element.id === "wind" ? Math.sin(angle) * travel - 8 : Math.sin(angle) * travel;
-      this.tweens.add({
-        targets: particle, x: x + driftX, y: y + driftY, alpha: 0,
-        scaleX: element.id === "wind" ? 0.12 : 0.35, scaleY: element.id === "wind" ? 0.55 : 0.25,
-        angle: particle.angle + Phaser.Math.Between(-180, 180),
-        duration: Math.round(Phaser.Math.Between(260, 520) * particleLifetime),
-        ease: "Cubic.easeOut", onComplete: () => particle.destroy(),
-      });
     }
+    const angle = Phaser.Math.FloatBetween(-Math.PI, Math.PI);
+    const travel = Phaser.Math.Between(18, 42) * scale;
+    const duration = attackVariant === "kick" ? 240 : 300;
+    this.tweens.add({
+      targets: graphic,
+      x: x + Math.cos(angle) * travel,
+      y: y + Math.sin(angle) * travel - (element.id === "fire" ? 12 : 0),
+      alpha: 0,
+      scale: 0.45,
+      angle: Phaser.Math.Between(-35, 35),
+      duration,
+      ease: "Cubic.easeOut",
+      onComplete: () => graphic.destroy(),
+    });
   }
 
   createElementBall(x, y, palette) {
-    // Each power uses a strong, non-spherical silhouette so it cannot read as
-    // the same blue snowball with a different tint.
+    // A compact, unmistakable silhouette for each power; no glowing particle cloud.
     const ball = this.add.container(x, y).setDepth(16);
     ball.setData("elementId", palette.id);
     const details = [];
-    const ring = (radius, color, width = 4, start = 20, end = 340) =>
-      this.add.arc(0, 0, radius, start, end, false, color, 0.95).setStrokeStyle(width, color, 0.95);
     const poly = (points, color = palette.ball, stroke = palette.edge, width = 4) =>
       this.add.polygon(0, 0, points, color, 0.98).setStrokeStyle(width, stroke, 1);
     switch (palette.id) {
       case "wind": {
         const funnel = this.add.graphics();
-        funnel.fillStyle(palette.ball, 0.28);
+        funnel.fillStyle(palette.ball, 0.3);
         funnel.fillTriangle(-20, -19, 20, -19, 5, 22);
-        funnel.lineStyle(5, palette.edge, 1);
-        funnel.beginPath(); funnel.moveTo(-22, -18); funnel.lineTo(22, -18);
-        funnel.moveTo(-17, -2); funnel.lineTo(17, -2);
-        funnel.moveTo(-10, 13); funnel.lineTo(10, 13); funnel.strokePath();
-        details.push(funnel, ring(25, 0xffffff, 3, 20, 165), ring(17, palette.edge, 4, 190, 350));
-        ball.setData("motionStyle", "twister"); break;
+        funnel.lineStyle(4, palette.edge, 1);
+        funnel.lineBetween(-22, -18, 22, -18);
+        funnel.lineBetween(-17, -2, 17, -2);
+        funnel.lineBetween(-10, 13, 10, 13);
+        details.push(funnel);
+        ball.setData("motionStyle", "twister");
+        break;
       }
-      case "water": {
-        details.push(poly([0,-29, 17,-8, 23,8, 17,23, 0,29, -17,23, -23,8, -17,-8], palette.ball, palette.edge, 4),
-          this.add.ellipse(-7,-8,9,22,0xeaffff,0.95).setAngle(24),
-          this.add.arc(0,5,18,205,335,false,0xffffff,0.9).setStrokeStyle(3,0xffffff,0.9),
-          this.add.circle(19,-18,4,0xffffff,0.95));
-        ball.setData("motionStyle", "flow"); break;
-      }
-      case "fire": {
-        details.push(poly([-22,17,-17,-4,-7,-25,1,-10,12,-29,17,-7,25,17,12,25,-12,25], palette.ball, palette.edge, 4),
-          poly([-9,15,-4,-4,3,7,10,-8,12,16], 0xffe17a, 0xffffcf, 2),
-          this.add.ellipse(0,16,15,7,0xfff3a0,0.95));
-        ball.setData("motionStyle", "flame"); break;
-      }
-      case "ice": {
-        details.push(poly([0,-29,9,-13,25,-17,17,-1,29,8,12,13,15,29,0,19,-15,29,-12,12,-29,8,-14,-2,-25,-18,-8,-13], palette.ball, palette.edge, 4));
-        const snowflake = this.add.graphics(); snowflake.lineStyle(3, 0xffffff, 1);
-        for (let i = 0; i < 6; i++) {
-          const a = i * Math.PI / 3, ex = Math.cos(a) * 19, ey = Math.sin(a) * 19;
-          snowflake.lineBetween(0,0,ex,ey);
-          snowflake.lineBetween(ex,ey,ex-Math.cos(a-0.5)*6,ey-Math.sin(a-0.5)*6);
-          snowflake.lineBetween(ex,ey,ex-Math.cos(a+0.5)*6,ey-Math.sin(a+0.5)*6);
-        }
-        details.push(snowflake); ball.setData("motionStyle", "ice-roll"); break;
-      }
+      case "water":
+        details.push(poly([0,-29,17,-8,23,8,17,23,0,29,-17,23,-23,8,-17,-8]),
+          this.add.ellipse(-7,-8,9,22,0xeaffff,0.95).setAngle(24));
+        ball.setData("motionStyle", "flow");
+        break;
+      case "fire":
+        details.push(poly([-22,17,-17,-4,-7,-25,1,-10,12,-29,17,-7,25,17,12,25,-12,25]),
+          poly([-9,15,-4,-4,3,7,10,-8,12,16], 0xffe17a, 0xffffcf, 2));
+        ball.setData("motionStyle", "flame");
+        break;
+      case "ice":
+        details.push(poly([0,-29,9,-13,25,-17,17,-1,29,8,12,13,15,29,0,19,-15,29,-12,12,-29,8,-14,-2,-25,-18,-8,-13]));
+        ball.setData("motionStyle", "ice-roll");
+        break;
       case "lightning":
-        details.push(poly([-5,-29,17,-5,4,1,15,27,-17,3,-3,-4], palette.ball, palette.edge, 4),
-          this.add.graphics().lineStyle(3,0xffffff,1).lineBetween(-3,-18,8,-4));
-        ball.setData("motionStyle", "spark-dash"); break;
+        details.push(poly([-5,-29,17,-5,4,1,15,27,-17,3,-3,-4]));
+        ball.setData("motionStyle", "spark-dash");
+        break;
       case "nature":
-        details.push(poly([0,-29,15,-17,22,-2,15,17,0,29,-15,17,-22,-2,-15,-17], palette.ball, palette.edge, 4),
-          this.add.graphics().lineStyle(3,0xeaffb0,1).lineBetween(0,-22,0,23).lineBetween(0,0,-12,-9).lineBetween(0,7,12,-3));
-        ball.setData("motionStyle", "leaf-roll"); break;
+        details.push(poly([0,-29,15,-17,22,-2,15,17,0,29,-15,17,-22,-2,-15,-17]),
+          this.add.graphics().lineStyle(3,0xeaffb0,1).lineBetween(0,-22,0,23));
+        ball.setData("motionStyle", "leaf-roll");
+        break;
       case "earth":
-        details.push(poly([-25,-10,-10,-27,9,-20,26,-5,19,18,3,27,-21,15], palette.ball, palette.edge, 5),
-          poly([-7,-8,3,-18,13,-5,2,8], 0xffd59a, 0xffedc7, 2));
-        ball.setData("motionStyle", "rock-roll"); break;
+        details.push(poly([-25,-10,-10,-27,9,-20,26,-5,19,18,3,27,-21,15]));
+        ball.setData("motionStyle", "rock-roll");
+        break;
       case "light":
-        details.push(this.add.star(0,0,8,12,29,palette.ball).setStrokeStyle(4,palette.edge),
-          this.add.star(0,0,8,4,13,0xffffff), this.add.circle(0,0,4,0xfff4a6));
-        ball.setData("motionStyle", "radiant"); break;
+        details.push(this.add.star(0,0,8,12,29,palette.ball).setStrokeStyle(3,palette.edge));
+        ball.setData("motionStyle", "radiant");
+        break;
       case "shadow":
-        details.push(this.add.arc(-2,0,27,35,325,false,0x25163f,1).setStrokeStyle(9,palette.edge,1),
-          this.add.arc(8,-1,19,45,315,false,palette.ball,1).setStrokeStyle(7,palette.ball,1),
-          this.add.arc(-7,0,13,75,285,false,0x25163f,1).setStrokeStyle(5,0x25163f,1),
-          this.add.circle(16,-13,4,0xffffff,0.9));
-        ball.setData("motionStyle", "shade"); break;
+        details.push(poly([-22,-15,-5,-28,17,-17,25,2,8,27,-17,18]));
+        ball.setData("motionStyle", "shade");
+        break;
       default:
-        details.push(poly([-22,-12,-9,-27,9,-21,25,-5,17,17,0,27,-18,15], palette.ball, palette.edge, 4),
-          this.add.star(0,0,6,4,15,0xffffff), ring(31,palette.edge,3,35,315));
-        ball.setData("motionStyle", "plasma"); break;
+        details.push(poly([-22,-12,-9,-27,9,-21,25,-5,17,17,0,27,-18,15]));
+        ball.setData("motionStyle", "plasma");
+        break;
     }
     ball.add(details);
-    this.tweens.add({ targets: details, alpha: 0.82, duration: palette.id === "wind" ? 260 : 420, yoyo: true, repeat: -1 });
-    this.spawnElementParticles(x, y, palette.id, 8, 0.65);
+    this.spawnElementParticles(x, y, palette.id, 4, 0.55);
     return ball;
   }
 
   spawnElementBallEffects(x, y, elementId, kind = "trail", scale = 1) {
-    const palette = getElement(elementId || "fire");
-    const count = kind === "kick" ? 14 : kind === "impact" ? 10 : 3;
-    if (palette.id === "ice") {
-      this.spawnElementParticles(x, y, "ice", count, scale, kind);
-    } else if (palette.id === "wind") {
-      for (let i = 0; i < count; i++) {
-        const arc = this.add.arc(x + Phaser.Math.Between(-12, 12), y + Phaser.Math.Between(-18, 18),
-          Phaser.Math.Between(12, 25), 190, 345, false, i % 2 ? 0xffffff : palette.edge, 0.9)
-          .setStrokeStyle(3, i % 2 ? 0xffffff : palette.edge).setDepth(29);
-        this.tweens.add({ targets: arc, x: arc.x - 28, y: arc.y - 10, angle: arc.angle + 160,
-          alpha: 0, scale: 0.35, duration: 360, onComplete: () => arc.destroy() });
-      }
-    } else if (palette.id === "water") {
-      for (let i = 0; i < count; i++) {
-        const drop = this.add.ellipse(x + Phaser.Math.Between(-8, 8), y + Phaser.Math.Between(-8, 8),
-          Phaser.Math.Between(5, 9), Phaser.Math.Between(9, 16), i % 2 ? 0xeaffff : palette.edge, 0.94)
-          .setStrokeStyle(1, 0xffffff).setDepth(29).setAngle(Phaser.Math.Between(-35, 35));
-        this.tweens.add({ targets: drop, x: drop.x + Phaser.Math.Between(-34, 34),
-          y: drop.y + Phaser.Math.Between(12, 38), scale: 0.25, alpha: 0, duration: 430,
-          onComplete: () => drop.destroy() });
-      }
-    } else {
-      this.spawnElementParticles(x, y, palette.id, count, scale, kind);
-    }
+    // Reuse the same batched, low-object-count renderer for kick, trail and impact.
+    const count = kind === "kick" ? 8 : kind === "impact" ? 6 : 3;
+    this.spawnElementParticles(x, y, elementId, count, scale, kind);
   }
 
   recordEnemyDefeat(enemy) {
@@ -2869,7 +2862,7 @@ class ZeroGameScene extends Phaser.Scene {
     ball.setPosition(enemy.x, enemy.y + bob);
     const nextTrailAt = enemy.getData("nextSnowTrailAt") || 0;
     if (this.time.now >= nextTrailAt) {
-      enemy.setData("nextSnowTrailAt", this.time.now + (elementId === "wind" ? 115 : 145));
+      enemy.setData("nextSnowTrailAt", this.time.now + (elementId === "wind" ? 360 : 420));
       this.spawnElementBallEffects(enemy.x - (enemy.getData("rollDirection") || 1) * 18, enemy.y + 5, elementId, "trail", 0.7);
     }
     const spin = elementId === "wind" ? 1.8 : elementId === "water" ? 0.65 : elementId === "lightning" ? 2.1 : 1;
