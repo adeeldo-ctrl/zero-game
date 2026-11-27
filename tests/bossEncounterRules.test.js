@@ -6,6 +6,7 @@ import {
   getBossAttendantWaveSize,
   BOSS_SIGNATURE_PROFILES,
   getBossSignatureProfile,
+  BOSS_ANIMATION_PROFILES,
 } from "../src/bossEncounterRules.js";
 
 test("boss attendants arrive in pairs and never exceed eight active", () => {
@@ -38,4 +39,18 @@ test("five bosses have unique signature attack shapes, pacing and patterns", () 
     assert.ok(profile.counts[0] < profile.counts[1] && profile.counts[1] < profile.counts[2]);
   }
   assert.equal(getBossSignatureProfile("unknown").signature, "stonequake");
+});
+
+test("each boss has its own idle and strike animation frame order and timing", () => {
+  const profiles = Object.values(BOSS_ANIMATION_PROFILES);
+  assert.equal(profiles.length, 5);
+  assert.equal(new Set(profiles.map((profile) => profile.idleFrames.join(","))).size, 5);
+  assert.equal(new Set(profiles.map((profile) => profile.strikeFrames.join(","))).size, 5);
+  assert.equal(new Set(profiles.map((profile) => profile.strikeRate)).size, 5);
+  for (const profile of profiles) {
+    assert.equal(profile.idleFrames.length, 4);
+    assert.equal(profile.strikeFrames.length, 4);
+    assert.ok(profile.idleFrames.every((frame) => frame >= 0 && frame <= 3));
+    assert.ok(profile.strikeFrames.every((frame) => frame >= 0 && frame <= 3));
+  }
 });
