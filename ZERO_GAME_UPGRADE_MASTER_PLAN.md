@@ -1144,3 +1144,13 @@ The first integrated implementation tranche has now been pushed to `main`:
 - Added data checks for six platforms per arena, no close-height horizontal line overlap, full route reachability from the floor, all ten materials, all eight silhouette families, and all seven special platform effects. A source-level calculation across the 50 generated layouts found no route or close-line-overlap failures; the consolidated browser/CI verification is still pending.
 
 **Next:** complete the remaining integration review, then perform the single consolidated verification and final signed Android APK build. Do not create an interim APK.
+
+
+### Follow-up implementation tranche — full enemy/boss reaction clips and entrance audio (2026-11-27)
+
+- Completed the regular-enemy animation state registry for all 45 archetypes: dedicated idle, move, attack, hit and defeat clips now resolve from each archetype's four-frame atlas range. The live AI triggers attack clips for ranged, flying, summoner, ambusher and bomber behaviors; hit/defeat clips are triggered through the shared enemy hit pipeline. Runner/charger attacks continue to use their attack clip while dashing.
+- Completed the boss animation state registry: each of the five bosses has its own idle, strike, hit-reaction, phase-change and defeat frame order/timing. The live boss combat code triggers the appropriate clip during hits, phase transitions, attack states and defeat.
+- Added five separate boss entrance sound cues and connected each milestone boss to its matching cue before the exclusive boss music theme begins.
+- Extended tests to require the full five-state animation manifest for all 45 enemy archetypes and unique boss hit/phase/defeat frame sequences in addition to the existing unique idle/strike and signature-attack checks.
+
+**Implementation now covers the approved enemy roster/art/AI/animation states, five distinct boss identities/attack patterns/animation states, attendants, 50 stage soundtrack identities, five boss themes/entrance cues, 50 atmosphere/landmark compositions, and the expanded platform/material/silhouette/special-mechanic design. Next is the one consolidated verification pass and any fixes it reveals; only then create the single final signed Android APK.**
