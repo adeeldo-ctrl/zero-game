@@ -446,10 +446,12 @@ class ZeroGameScene extends Phaser.Scene {
     ];
     const weather = (weatherByWorld[world] || weatherByWorld[0])[variant];
     const night = /night|moon|fireflies|starlight|aurora|cosmic/.test(weather) || [4, 5, 9].includes(world) && variant === 4;
+    const stormWeather = ["rain", "shimmer-rain", "blizzard", "sandstorm", "ashfall", "starfall"].includes(weather);
     const celestial = this.add.container(0, 0).setDepth(-27);
     const halo = this.add.circle(790, 128, 76, night ? 0xb9d7ff : 0xffd36b, 0.11);
     const orb = this.add.circle(790, 128, 35, night ? 0xe4efff : 0xffe69b, 0.96);
     celestial.add([halo, orb]);
+    if (stormWeather) celestial.setVisible(false);
     if (night) {
       for (let i = 0; i < 3; i++) {
         celestial.add(this.add.circle(778 + i * 9, 118 + (i % 2) * 12, 5, 0x9aaed1, 0.24));
@@ -469,20 +471,27 @@ class ZeroGameScene extends Phaser.Scene {
 
     // Soft distant cloud banks add slow sky movement without obscuring play.
     const cloudWeather = ["sunny", "petals", "golden", "sunset", "moonlight", "moon-mist", "clouds"];
-    if (cloudWeather.includes(weather)) {
+    if (cloudWeather.includes(weather) || stormWeather) {
       for (let i = 0; i < 3; i++) {
         const cloudX = 115 + i * 345;
-        const cloudY = 118 + (i % 2) * 52;
-        const cloud = this.add.container(cloudX, cloudY).setDepth(-26).setAlpha(night ? 0.12 : 0.19);
-        const cloudTint = night ? 0x9fb7d8 : weather === "sunset" ? 0xffc4b2 : 0xf4fbff;
+        const cloudY = stormWeather ? 128 + (i % 2) * 34 : 118 + (i % 2) * 52;
+        const cloud = this.add.container(cloudX, cloudY).setDepth(-26)
+          .setAlpha(stormWeather ? 0.34 : night ? 0.12 : 0.19);
+        const cloudTint = stormWeather
+          ? (weather === "sandstorm" ? 0xb98c62 : weather === "ashfall" ? 0x82747a : 0x64758f)
+          : night ? 0x9fb7d8 : weather === "sunset" ? 0xffc4b2 : 0xf4fbff;
         cloud.add([
-          this.add.ellipse(-25, 5, 82, 22, cloudTint, 0.9),
-          this.add.ellipse(0, -5, 48, 34, cloudTint, 0.9),
-          this.add.ellipse(27, 4, 66, 24, cloudTint, 0.9),
+          this.add.ellipse(-25, 5, 92, 28, cloudTint, 0.94),
+          this.add.ellipse(0, -5, 58, 42, cloudTint, 0.94),
+          this.add.ellipse(30, 4, 76, 30, cloudTint, 0.94),
         ]);
+        if (stormWeather) {
+          cloud.add(this.add.ellipse(0, 14, 106, 13, cloudTint, 0.7));
+        }
         this.tweens.add({
-          targets: cloud, x: cloudX + (i % 2 ? -34 : 34),
-          duration: 9000 + i * 1700, ease: "Sine.easeInOut", yoyo: true, repeat: -1
+          targets: cloud, x: cloudX + (i % 2 ? -42 : 42),
+          duration: stormWeather ? 6200 + i * 900 : 9000 + i * 1700,
+          ease: "Sine.easeInOut", yoyo: true, repeat: -1
         });
       }
     }
