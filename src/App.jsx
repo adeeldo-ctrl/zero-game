@@ -1640,6 +1640,43 @@ class ZeroGameScene extends Phaser.Scene {
     }
   }
 
+  spawnSnowballParticles(x, y, kind = "freeze", count = 12, scale = 1) {
+    for (let i = 0; i < count; i++) {
+      const angle = Phaser.Math.FloatBetween(0, Math.PI * 2);
+      const distance = Phaser.Math.Between(8, 34) * scale;
+      let particle;
+      if (kind === "roll") {
+        particle = this.add.ellipse(x, y, Phaser.Math.Between(8, 15), Phaser.Math.Between(3, 6),
+          i % 3 === 0 ? 0xffffff : 0xbdeeff, 0.92).setAngle(Phaser.Math.Between(-35, 35));
+      } else if (kind === "kick") {
+        particle = this.add.star(x, y, 4, 2, Phaser.Math.Between(5, 9), i % 2 ? 0xffffff : 0x8fe8ff, 0.98)
+          .setAngle(Phaser.Math.Between(0, 360));
+      } else if (kind === "impact") {
+        particle = this.add.triangle(x, y, -7, 5, 0, -10, 8, 6,
+          i % 2 ? 0xffffff : 0x8bdfff, 0.98).setAngle(Phaser.Math.Between(0, 360));
+      } else {
+        particle = this.add.star(x, y, 6, 3, Phaser.Math.Between(7, 12),
+          i % 3 === 0 ? 0xffffff : i % 3 === 1 ? 0xbceeff : 0x77cfff, 0.98)
+          .setAngle(Phaser.Math.Between(0, 360));
+      }
+      particle.setDepth(29);
+      const travel = kind === "roll" ? Phaser.Math.Between(12, 30) : distance;
+      const duration = kind === "kick" ? 300 : kind === "impact" ? 420 : 360;
+      this.tweens.add({
+        targets: particle,
+        x: x + Math.cos(angle) * travel + (kind === "kick" ? 28 : 0),
+        y: y + Math.sin(angle) * travel - (kind === "freeze" ? 8 : 0),
+        angle: particle.angle + Phaser.Math.Between(-210, 210),
+        scaleX: kind === "roll" || kind === "kick" ? 0.18 : 0.48,
+        scaleY: 0.35,
+        alpha: 0,
+        duration,
+        ease: "Cubic.easeOut",
+        onComplete: () => particle.destroy(),
+      });
+    }
+  }
+
   spawnElementParticles(x, y, elementId = this.powerType, count = 12, scale = 1, attackVariant = "default") {
     const element = getElement(elementId || "fire");
     const colors = {
@@ -1787,6 +1824,7 @@ class ZeroGameScene extends Phaser.Scene {
       enemy.setData("frozen", true); enemy.setVelocity(0, 0);
       if (visual?.active) visual.setVisible(false);
       const palette = hitPalette;
+      this.spawnSnowballParticles(enemy.x, enemy.y, "freeze", 18, 1.1);
       const ball = this.createElementBall(enemy.x, enemy.y, palette);
       enemy.setData("elementBall", ball);
       enemy.setData("ballPalette", palette);
@@ -1809,6 +1847,7 @@ class ZeroGameScene extends Phaser.Scene {
       if (hits >= 3) {
         const ball = enemy.getData("elementBall");
         if (ball?.active) this.tweens.add({ targets: ball, scale: 1.9, alpha: 0, duration: 220, onComplete: () => ball.destroy() });
+        this.spawnSnowballParticles(enemy.x, enemy.y, "impact", 24, 1.2);
         const pop = this.add.circle(enemy.x, enemy.y, 28, hitPalette.edge, 0.9).setStrokeStyle(4, 0xffffff).setDepth(20);
         this.spawnElementParticles(enemy.x, enemy.y, hitPalette.id, 24, 1.25);
         this.tweens.add({ targets: pop, scale: 3.2, alpha: 0, duration: 260, onComplete: () => pop.destroy() });
@@ -1868,10 +1907,12 @@ class ZeroGameScene extends Phaser.Scene {
     const isAgile = bossStyle.includes("agile");
     const isMaster = bossStyle.includes("master");
     const isFinal = bossStyle.includes("final");
+    const isGatekeeper = bossStyle.includes("grappler");
     const fistL = this.add.circle(-62, 24, isBoxer ? 23 : 17, isBoxer ? 0x5a2638 : 0xffb45e).setStrokeStyle(isBoxer ? 5 : 2, 0xffd36b);
     const fistR = this.add.circle(62, 24, isBoxer ? 23 : 17, isBoxer ? 0x5a2638 : 0xffb45e).setStrokeStyle(isBoxer ? 5 : 2, 0xffd36b);
     const aura = this.add.circle(0, -8, 83, bossColor, 0.13).setStrokeStyle(5, bossColor, 0.8);
-    const body = this.add.ellipse(0, -8, isAgile ? 106 : 124, isAgile ? 118 : 112, bossColor).setStrokeStyle(5, 0x30243f);
+    const body = this.add.ellipse(0, -8, isAgile ? 100 : isGatekeeper ? 142 : isFinal ? 132 : 124,
+      isAgile ? 124 : isGatekeeper ? 104 : isFinal ? 126 : 112, bossColor).setStrokeStyle(5, 0x30243f);
     const belly = this.add.ellipse(0, 12, 72, 58, 0xf2b77e);
     const bellyMark = this.add.ellipse(0, 15, 39, 31, 0xffd69b, 0.75);
     const headband = this.add.rectangle(0, -62, isMaster ? 108 : 94, isFinal ? 15 : 9, isFinal ? 0x9d83ff : 0xffd36b).setStrokeStyle(2, 0x8c4a3c);
@@ -1888,7 +1929,14 @@ class ZeroGameScene extends Phaser.Scene {
     const orbitA = this.add.circle(-72, -18, isFinal ? 13 : 9, bossColor, 0.95).setStrokeStyle(2, 0xffffff);
     const orbitB = this.add.circle(72, -18, isFinal ? 13 : 9, bossColor, 0.95).setStrokeStyle(2, 0xffffff);
     const styleDetails = [];
-    if (isBoxer) {
+    if (isGatekeeper) {
+      styleDetails.push(
+        this.add.ellipse(-55, -22, 36, 54, 0x6f8295).setStrokeStyle(4, 0xd8e6f2),
+        this.add.ellipse(55, -22, 36, 54, 0x6f8295).setStrokeStyle(4, 0xd8e6f2),
+        this.add.rectangle(0, -76, 112, 13, 0x8da5b8).setStrokeStyle(3, 0xe4f4ff),
+        this.add.circle(0, -76, 10, 0xffd36b).setStrokeStyle(2, 0xffffff)
+      );
+    } else if (isBoxer) {
       styleDetails.push(
         this.add.rectangle(-62, 4, 31, 8, 0xffd36b),
         this.add.rectangle(62, 4, 31, 8, 0xffd36b)
@@ -2544,7 +2592,7 @@ class ZeroGameScene extends Phaser.Scene {
     ball.setScale(1.45);
     this.tweens.add({ targets: ball, scale: 1.7, duration: 130, yoyo: true });
     const palette = enemy.getData("ballPalette") || this.getPowerPalette();
-    this.spawnElementParticles(enemy.x, enemy.y, palette.id, 16, 1.05);
+    this.spawnSnowballParticles(enemy.x, enemy.y, "kick", 20, 1.15);
     const flash = this.add.circle(enemy.x, enemy.y, 36, palette.glow, 0.8).setStrokeStyle(5, palette.edge).setDepth(20);
     this.tweens.add({ targets: flash, scale: 2.3, alpha: 0, duration: 220, onComplete: () => flash.destroy() });
     this.audio.play("ballRoll");
@@ -2605,6 +2653,11 @@ class ZeroGameScene extends Phaser.Scene {
     enemy.setData("rollDirection", motion.direction);
     enemy.setVelocityX(motion.velocityX);
     ball.setPosition(enemy.x, enemy.y);
+    const nextTrailAt = enemy.getData("nextSnowTrailAt") || 0;
+    if (this.time.now >= nextTrailAt) {
+      enemy.setData("nextSnowTrailAt", this.time.now + 85);
+      this.spawnSnowballParticles(enemy.x - (enemy.getData("rollDirection") || 1) * 18, enemy.y + 5, "roll", 3, 0.7);
+    }
     // Spin is tied to actual travel distance, so falling and slowing look natural.
     ball.angle += motion.rotationDelta;
     const hits = enemy.getData("rollHits") || [];
@@ -2614,7 +2667,7 @@ class ZeroGameScene extends Phaser.Scene {
       hits.push(target);
       enemy.setData("rollHits", hits);
       this.audio.play("ballImpact");
-      this.spawnElementParticles(target.x, target.y, (enemy.getData("ballPalette") || this.getPowerPalette()).id, 18, 1);
+      this.spawnSnowballParticles(target.x, target.y, "impact", 18, 1.05);
       if (target.getData("isBoss")) {
         this.hitBoss(target, 5);
         this.statusLabel.setText("BOSS HIT BY ELEMENTAL BALL!").setColor("#ffe17a");
@@ -2626,7 +2679,7 @@ class ZeroGameScene extends Phaser.Scene {
         const ballPalette = enemy.getData("ballPalette") || this.getPowerPalette();
         const burst = this.add.circle(target.x, target.y, 32, ballPalette.edge, 0.95).setStrokeStyle(5, 0xffffff).setDepth(22);
         this.tweens.add({ targets: burst, scale: 2.8, alpha: 0, duration: 260, onComplete: () => burst.destroy() });
-        this.spawnElementParticles(target.x, target.y, ballPalette.id, 22, 1.15);
+        this.spawnSnowballParticles(target.x, target.y, "impact", 22, 1.2);
         this.dropReward(target.x, target.y);
         this.addScore(500);
         this.recordEnemyDefeat(target);
