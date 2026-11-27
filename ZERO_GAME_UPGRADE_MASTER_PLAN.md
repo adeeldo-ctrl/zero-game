@@ -428,3 +428,10 @@ The following source changes are committed on `main` and covered by the integrat
 - Physical Android installation, touch alignment, and audio behavior remain unverified on a physical handset.
 
 **Status:** The screenshot/menu, signature-effect, snowball-effect, boss-pattern, music-theme, and release-workflow changes above are implemented. Do not mark the overall project delivered until the remaining agreed acceptance scope is complete and a signed Release APK artifact has been built and verified.
+
+
+## Final Release APK trigger policy — 2026-11-27
+
+- The Android workflow remains final-only. It supports manual dispatch and one explicit push trigger: adding `ZERO_GAME_FINAL_RELEASE_TRIGGER.md` on `main` after integrated CI has passed.
+- Ordinary source pushes never trigger an APK build. The one-time marker is only to start the final signed Release APK after the approved scope and final CI are complete.
+- The Release APK is signed with a runner-generated one-time key. Preserve the delivered APK as the final install package; a future update signed with a different key will require uninstalling the old package first.
