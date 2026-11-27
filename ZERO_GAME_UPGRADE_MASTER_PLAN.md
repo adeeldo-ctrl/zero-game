@@ -746,3 +746,5 @@ The following gameplay requirements are mandatory and supersede any conflicting 
 - The previous CI run's automated tests passed; lint failed on this redundant assignment. No APK was built. Full consolidated verification remains deferred until development scope is complete.
 
 - Continued enemy animation polish: class-specific jaw/rune guard movement, boot rotation synchronized with the stride, and subtle shadow compression while running. Visual-only; enemy AI, movement speed, collision, hitboxes and damage are unchanged. Source commit: `c63fb941004abf8afe77fbd88bb902a5a38f4e84`.
+
+- Boss idle animation polish: cape sway now reflects agile/final boss style, ground shadow subtly responds to movement, feet follow leg rotation, and boxing bosses have restrained alternating glove pulses. Boss attack timing, hitboxes, damage, AI, and phase progression are unchanged. Source commit: `e894d59ddfe773295373da0c92949df871b497a0`.
