@@ -161,7 +161,7 @@ export const STAGES = Array.from({ length: 50 }, (_, index) => {
         : [STAGE_PLATFORM_LAYOUTS[index][3][0], 165, 160],
     ].map(([x, y, width]) => ({ x, y, width, height: 18 })),
     enemyFamily: family.id,
-    enemyPowerType: ["fire", "ice", "lightning", "water", "earth", "shadow"][(index + worldIndex) % 6],
+    enemyPowerType: ["fire", "ice", "lightning", "water", "nature", "wind", "earth", "light", "shadow", "plasma"][(index + worldIndex) % 10],
     enemyTypes: boss ? [] : Array.from({ length: 6 + Math.floor(index / 10) }, (_, enemyIndex) =>
       family.names[(index + enemyIndex * 2) % family.names.length]
     ),
