@@ -764,6 +764,10 @@ try {
   await nativePage.addInitScript(() => { window.__ZERO_GAME_TEST_NATIVE_TOUCH__ = true; });
   await nativePage.goto("http://127.0.0.1:4173", { waitUntil: "domcontentloaded" });
   await nativePage.locator("#game-container canvas").last().waitFor({ state: "visible" });
+  await nativePage.waitForFunction(() => {
+    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+    return scene?.hero?.active && scene?.heroVisual?.active && scene?.selectedHero;
+  }, undefined, { timeout: 15000 });
   // Enter gameplay directly for this page so the special native-touch test
   // does not depend on mouse events in the hero-select screen.
   await nativePage.evaluate(() => {
