@@ -5,6 +5,16 @@ import heroRyoSheet from "./assets/heroes/hero_ryo.png";
 import heroKairoSheet from "./assets/heroes/hero_kairo.png";
 import heroMeiSheet from "./assets/heroes/hero_mei.png";
 import heroVoltSheet from "./assets/heroes/hero_volt.png";
+import worldBackdropEmerald from "./assets/backgrounds/world-emerald.svg";
+import worldBackdropCandy from "./assets/backgrounds/world-candy.svg";
+import worldBackdropFrozen from "./assets/backgrounds/world-frozen.svg";
+import worldBackdropDesert from "./assets/backgrounds/world-desert.svg";
+import worldBackdropMoonlit from "./assets/backgrounds/world-moonlit.svg";
+import worldBackdropCrystal from "./assets/backgrounds/world-crystal.svg";
+import worldBackdropCoral from "./assets/backgrounds/world-coral.svg";
+import worldBackdropSky from "./assets/backgrounds/world-sky.svg";
+import worldBackdropVolcano from "./assets/backgrounds/world-volcano.svg";
+import worldBackdropCosmic from "./assets/backgrounds/world-cosmic.svg";
 import { Capacitor } from "@capacitor/core";
 import { ELEMENTS, HEROES, getElement, getStage, getHero } from "./gameData";
 import { createGameAudio } from "./gameAudio";
@@ -29,6 +39,14 @@ class ZeroGameScene extends Phaser.Scene {
         frameWidth: 210,
         frameHeight: 212,
       });
+    });
+    const worldBackdrops = [
+      worldBackdropEmerald, worldBackdropCandy, worldBackdropFrozen,
+      worldBackdropDesert, worldBackdropMoonlit, worldBackdropCrystal,
+      worldBackdropCoral, worldBackdropSky, worldBackdropVolcano, worldBackdropCosmic,
+    ];
+    worldBackdrops.forEach((source, index) => {
+      this.load.image(`world-backdrop-${index}`, source);
     });
   }
 
@@ -290,6 +308,10 @@ class ZeroGameScene extends Phaser.Scene {
     const farColor = this.stageConfig.background.far;
     const groundColor = this.stageConfig.background.ground;
     const world = this.stageConfig.worldIndex || 0;
+    this.add.image(480, 270, `world-backdrop-${world}`)
+      .setDisplaySize(W, H)
+      .setAlpha(0.58)
+      .setDepth(-29);
     farScene.fillStyle(farColor, 0.96);
     if (world === 0 || world === 4) {
       farScene.fillEllipse(150, 365, 420, 150);
