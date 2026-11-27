@@ -11,13 +11,13 @@ npm.cmd install
 npm.cmd run dev -- --host 0.0.0.0
 ```
 
-For existing two-player Wi-Fi co-op, open a second PowerShell window:
+For two-player Wi-Fi co-op, start the relay on the host PC in a second PowerShell window before either player connects:
 
 ```powershell
 npm.cmd run multiplayer
 ```
 
-The host PC and both players must be on the same trusted Wi-Fi network. Allow Node.js through Windows Firewall on Private networks if prompted.
+Both devices must be on the same trusted Wi-Fi network. On the host PC, choose HOST WI-FI; on the second device, choose JOIN WI-FI and enter the host PC's LAN IPv4 address. Both clients join the ZERO room, which allows two players. Allow Node.js through Windows Firewall on Private networks if prompted.
 
 ## Gameplay preserved
 
@@ -42,7 +42,7 @@ The three on-screen EXTRA buttons are independent and always map to the selected
 
 All twelve signature moves are implemented through distinct wave, uppercut, spin, rapid-strike, electric-burst, rolling-charge or throw effects. All three special buttons have unlimited use: no cooldown, countdown, power meter or limited-use counter. Existing movement, jump, double-jump, charged Fire attack, Super attack, elemental selection, stage progression and co-op systems remain in place.
 
-Enemies use original archetypes inspired by other Street Fighter-style fighters, including masked claw acrobats, boxing bruisers, military chargers, heavy grapplers and electric wild fighters. Their AI includes chaser, runner, jumper, flyer, guard and charger behaviors. Boss encounters are themed around the Tiger Emperor, Crimson Claw, Iron Champion and Psycho Warlord archetypes.
+Enemies use original arcade-fighter archetypes, including masked claw acrobats, boxing bruisers, military chargers, heavy grapplers and electric wild fighters. Their grounded AI includes chaser, runner, jumper, guard and charger behaviors. The five dedicated boss encounters are Arena Gatekeeper, Iron Comet, Gale Talon, Suncrest Master and Void Sovereign.
 
 ## Controls
 
