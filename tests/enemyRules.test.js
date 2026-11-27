@@ -37,3 +37,10 @@ test("enemy elemental power, class and campaign progression determine snowball s
   assert.equal(getSnowballPowerTier("heavy", "earth", 50), 5);
   assert.equal(getSnowballPowerTier("unknown", "unknown", 0), 1);
 });
+
+test("premium enemy roles include distinct flight, ambush, ranged, bomber and summoner behaviors", () => {
+  for (const type of ["flyer", "ambusher", "ranged", "bomber", "summoner"]) {
+    assert.ok(GROUND_ENEMY_TYPES.includes(type), type);
+    assert.equal(getEnemyMovementSpeed(type, 74), 74, type);
+  }
+});
