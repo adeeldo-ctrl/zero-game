@@ -6,6 +6,7 @@ import {
   isRollingBallOutOfBounds,
   calculateRollingBallMotion,
   ROLLING_BALL_MAX_SPEED,
+  ROLLING_BALL_WALL_BOUNCES,
 } from "../src/snowballRules.js";
 
 test("only a nearby frozen non-rolling enemy in front can be kicked", () => {
@@ -40,13 +41,23 @@ test("rolling ball keeps momentum while falling between platforms", () => {
   assert.ok(falling.rotationDelta > 0);
 });
 
-test("rolling snowball ends on first side-wall collision", () => {
-  const left = calculateRollingBallMotion({ velocityX: -600, direction: -1, deltaMs: 16, blockedLeft: true });
-  const right = calculateRollingBallMotion({ velocityX: 600, direction: 1, deltaMs: 16, blockedRight: true });
-  assert.equal(left.hitWall, true);
-  assert.equal(right.hitWall, true);
-  assert.equal(left.velocityX, 0);
-  assert.equal(right.velocityX, 0);
+test("kicked snowball rebounds for three wall impacts before ending", () => {
+  let state = { velocityX: 600, direction: 1, wallBounces: 0 };
+  const impacts = [];
+  for (let i = 0; i < ROLLING_BALL_WALL_BOUNCES; i++) {
+    const result = calculateRollingBallMotion({
+      ...state, deltaMs: 16, blockedRight: state.direction > 0, blockedLeft: state.direction < 0,
+    });
+    impacts.push(result);
+    state = { velocityX: result.velocityX, direction: result.direction, wallBounces: result.wallBounces };
+  }
+  assert.equal(impacts[0].finished, false);
+  assert.equal(impacts[0].direction, -1);
+  assert.equal(impacts[1].finished, false);
+  assert.equal(impacts[1].direction, 1);
+  assert.equal(impacts[2].finished, true);
+  assert.equal(impacts[2].velocityX, 0);
+  assert.equal(impacts[2].wallBounces, 3);
 });
 
 test("rolling snowballs are cleaned up after leaving the arena", () => {
