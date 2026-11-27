@@ -218,6 +218,21 @@ class ZeroGameScene extends Phaser.Scene {
           repeat: 0,
         });
       }
+      for (const [state, frames, rate] of [
+        ["hit", profile.hitFrames, profile.strikeRate + 2],
+        ["phase", profile.phaseFrames, profile.strikeRate + 1],
+        ["defeat", profile.defeatFrames, profile.idleRate + 5],
+      ]) {
+        const stateKey = `boss-${kind}-${state}`;
+        if (!this.anims.exists(stateKey)) {
+          this.anims.create({
+            key: stateKey,
+            frames: this.anims.generateFrameNumbers(`boss-sheet-${kind}`, { frames }),
+            frameRate: rate,
+            repeat: 0,
+          });
+        }
+      }
     });
   }
 
@@ -3348,7 +3363,8 @@ class ZeroGameScene extends Phaser.Scene {
     const bossStrikeKey = `boss-${bossSheetId}-strike`;
     bossSprite.play(bossPresenceKey);
     bossSprite.on(Phaser.Animations.Events.ANIMATION_COMPLETE, (animation) => {
-      if (animation.key === bossStrikeKey && bossSprite.active) bossSprite.play(bossPresenceKey);
+      const recoverableClips = [bossStrikeKey, `boss-${bossSheetId}-hit`, `boss-${bossSheetId}-phase`];
+      if (recoverableClips.includes(animation.key) && bossSprite.active) bossSprite.play(bossPresenceKey);
     });
     c.setData("authoredSprite", bossSprite);
     c.setData("bossSheetId", bossSheetId);
@@ -3525,6 +3541,9 @@ class ZeroGameScene extends Phaser.Scene {
     this.bossBar.scaleX = this.bossHealth / this.bossMaxHealth;
     const v = this.bossVisual;
     if (v?.active) {
+      const bossSprite = v.getData("authoredSprite");
+      const bossHitKey = `boss-${v.getData("bossSheetId")}-hit`;
+      if (bossSprite?.active && this.anims.exists(bossHitKey)) bossSprite.play(bossHitKey, true);
       this.tweens.add({ targets: v, angle: this.facing * 9, scaleX: 1.28,
         duration: 65, yoyo: true, repeat: 1,
         onComplete: () => { if (v.active) { v.setAngle(0); v.setScale(1.15); } } });
@@ -3547,6 +3566,9 @@ class ZeroGameScene extends Phaser.Scene {
     const previousBossPhase = this.bossPhase;
     this.bossPhase = getBossPhase(this.bossHealth, this.bossMaxHealth);
     if (this.bossPhase > previousBossPhase && v?.active) {
+      const bossSprite = v.getData("authoredSprite");
+      const phaseKey = `boss-${v.getData("bossSheetId")}-phase`;
+      if (bossSprite?.active && this.anims.exists(phaseKey)) bossSprite.play(phaseKey, true);
       const parts = v.getData("parts");
       if (parts?.aura?.active) {
         parts.aura.setAlpha(0.48).setScale(1.42);
@@ -3576,6 +3598,9 @@ class ZeroGameScene extends Phaser.Scene {
       const defeatRing = this.add.circle(0, 0, 54, defeatPalette.glow, 0)
         .setStrokeStyle(5, defeatPalette.edge, 0.95);
       const defeatStyle = this.stageConfig.boss?.style || "";
+      const defeatSprite = v?.getData("authoredSprite");
+      const defeatKey = `boss-${v?.getData("bossSheetId")}-defeat`;
+      if (defeatSprite?.active && this.anims.exists(defeatKey)) defeatSprite.play(defeatKey, true);
       const finaleDetails = [];
       if (defeatStyle.includes("boxing")) {
         [-1, 1].forEach((side) => {
