@@ -1,6 +1,10 @@
 
 import { useCallback, useEffect, useRef } from "react";
 import Phaser from "phaser";
+import heroRyoSheet from "./assets/heroes/hero_ryo.png";
+import heroKairoSheet from "./assets/heroes/hero_kairo.png";
+import heroMeiSheet from "./assets/heroes/hero_mei.png";
+import heroVoltSheet from "./assets/heroes/hero_volt.png";
 import { Capacitor } from "@capacitor/core";
 import { ELEMENTS, HEROES, getElement, getStage, getHero } from "./gameData";
 import { createGameAudio } from "./gameAudio";
@@ -14,7 +18,55 @@ import "./App.css";
 
 class ZeroGameScene extends Phaser.Scene {
   preload() {
-    // Combat visuals are built from Phaser graphics when the scene is created.
+    const heroSheets = {
+      ryo: heroRyoSheet,
+      kairo: heroKairoSheet,
+      mei: heroMeiSheet,
+      volt: heroVoltSheet,
+    };
+    Object.entries(heroSheets).forEach(([heroId, source]) => {
+      this.load.spritesheet(`hero-sheet-${heroId}`, source, {
+        frameWidth: 210,
+        frameHeight: 212,
+      });
+    });
+  }
+
+  createHeroAnimations() {
+    const animationRanges = {
+      idle: { start: 0, end: 3, frameRate: 6, repeat: -1 },
+      land: { start: 4, end: 5, frameRate: 8, repeat: 0 },
+      walk: { start: 6, end: 11, frameRate: 11, repeat: -1 },
+      jump: { start: 12, end: 14, frameRate: 8, repeat: -1 },
+      turn: { start: 15, end: 16, frameRate: 7, repeat: 0 },
+      victory: { start: 18, end: 21, frameRate: 9, repeat: 0 },
+    };
+    ["ryo", "kairo", "mei", "volt"].forEach((heroId) => {
+      const textureKey = `hero-sheet-${heroId}`;
+      Object.entries(animationRanges).forEach(([state, range]) => {
+        const key = `hero-${heroId}-${state}`;
+        if (this.anims.exists(key)) return;
+        this.anims.create({
+          key,
+          frames: this.anims.generateFrameNumbers(textureKey, {
+            start: range.start,
+            end: range.end,
+          }),
+          frameRate: range.frameRate,
+          repeat: range.repeat,
+        });
+      });
+    });
+  }
+
+  setHeroSpriteAnimation(visual, state) {
+    const sprite = visual?.getData("heroSprite");
+    const heroId = visual?.getData("heroSpriteId") || "ryo";
+    if (!sprite?.active) return;
+    const key = `hero-${heroId}-${state}`;
+    if (this.anims.exists(key) && sprite.anims.currentAnim?.key !== key) {
+      sprite.play(key, true);
+    }
   }
 
   constructor() {
@@ -118,6 +170,7 @@ class ZeroGameScene extends Phaser.Scene {
     this.bonusMode = false;
     this.createBackground();
     this.createTextures();
+    this.createHeroAnimations();
     this.createPlatforms();
 
     // Invisible physics body for Ibrahim
@@ -129,7 +182,7 @@ class ZeroGameScene extends Phaser.Scene {
     this.hero.setVisible(false);
 
     // Animated visual character
-    this.heroVisual = this.createHeroVisual(480, 450);
+    this.heroVisual = this.createHeroVisual(480, 450, this.selectedHero.id);
     this.applyHeroLook(this.heroVisual, this.selectedHero);
 
     this.heroPlatformCollider = this.physics.add.collider(this.hero, this.platforms, null,
@@ -728,7 +781,7 @@ class ZeroGameScene extends Phaser.Scene {
     });
   }
 
-  createHeroVisual(x, y) {
+  createHeroVisual(x, y, heroId = this.selectedHero?.id || "ryo") {
     const c = this.add.container(x, y).setDepth(10);
 
     const shadow = this.add.ellipse(
@@ -865,11 +918,33 @@ class ZeroGameScene extends Phaser.Scene {
     c.setData("heroPalette", { kurta, waistcoat, capLine, face, neck, handL, handR, hair, armL, armR });
     
 
+    // Render the authored pixel-art sprite sheet as the visible hero. The
+    // legacy vector rig remains hidden so existing pose references stay safe.
+    const heroArt = this.add.sprite(0, 0, `hero-sheet-${heroId}`, 0)
+      .setOrigin(0.5, 0.5)
+      .setScale(0.42);
+    c.add(heroArt);
+    c.list.forEach((child) => {
+      if (child !== shadow && child !== heroArt) child.setVisible(false);
+    });
+    c.setData("heroSprite", heroArt);
+    c.setData("heroSpriteId", heroId);
+    this.setHeroSpriteAnimation(c, "idle");
+
     return c;
   }
 
   applyHeroLook(visual, hero) {
     if (!visual?.active || !hero) return;
+    const sprite = visual.getData("heroSprite");
+    if (sprite) {
+      const textureKey = `hero-sheet-${hero.id}`;
+      if (sprite.texture.key !== textureKey) sprite.setTexture(textureKey, 0);
+      visual.setData("heroSpriteId", hero.id);
+      visual.setData("heroLookId", hero.id);
+      this.setHeroSpriteAnimation(visual, "idle");
+      return;
+    }
     const palette = visual.getData("heroPalette");
     if (palette) {
       const skin = hero.id === "volt" ? 0x62b84f : 0xe9b38b;
@@ -1374,7 +1449,7 @@ class ZeroGameScene extends Phaser.Scene {
 
   ensureRemoteVisual() {
     if (this.remoteVisual?.active) return;
-    this.remoteVisual = this.createHeroVisual(720, 450);
+    this.remoteVisual = this.createHeroVisual(720, 450, "ryo");
     this.remoteVisual.setDepth(11).setScale(1).setAlpha(0.9);
     const ring = this.add.circle(0, -58, 28, 0x62eaff, 0.14)
       .setStrokeStyle(2, 0x62eaff, 0.9);
@@ -1496,7 +1571,7 @@ class ZeroGameScene extends Phaser.Scene {
     this.menuObjects.push(shade, panel, topLine, title, subtitle, tagline);
     const previewXs = [210, 390, 570, 750];
     HEROES.forEach((hero, i) => {
-      const visual = this.createHeroVisual(previewXs[i], 312);
+      const visual = this.createHeroVisual(previewXs[i], 312, hero.id);
       const palette = visual.getData("heroPalette");
       palette.kurta.setFillStyle(hero.color); palette.waistcoat.setFillStyle(hero.accent); palette.capLine.setFillStyle(hero.accent);
       this.applyHeroLook(visual, hero);
@@ -1535,7 +1610,7 @@ class ZeroGameScene extends Phaser.Scene {
       const x = 132 + index * 232;
       const card = this.add.rectangle(x, 286, 216, 414, 0x142b49, 0.98).setStrokeStyle(3, hero.accent).setDepth(61).setInteractive({ useHandCursor: true });
       const glow = this.add.circle(x, 196, 70, hero.accent, 0.12).setStrokeStyle(3, hero.accent, 0.75).setDepth(62);
-      const visual = this.createHeroVisual(x, 218);
+      const visual = this.createHeroVisual(x, 218, hero.id);
       const palette = visual.getData("heroPalette");
       palette.kurta.setFillStyle(hero.color); palette.waistcoat.setFillStyle(hero.accent); palette.capLine.setFillStyle(hero.accent);
       this.applyHeroLook(visual, hero); visual.setDepth(63).setScale(1.03);
@@ -3802,6 +3877,8 @@ class ZeroGameScene extends Phaser.Scene {
     // Landing animation
     if (this.heroWasAirborne && !airborne) {
       this.audio.play("land");
+      this.setHeroSpriteAnimation(visual, "land");
+      this.heroLandAnimUntil = time + 250;
       visual.setScale(this.facing, 0.88);
 
       this.tweens.add({
@@ -3811,6 +3888,12 @@ class ZeroGameScene extends Phaser.Scene {
         ease: "Back.easeOut"
       });
     }
+
+    const spriteState = time < (this.heroLandAnimUntil || 0) ? "land"
+      : this.specialPoseType ? "victory"
+        : airborne ? "jump"
+          : moving ? "walk" : "idle";
+    this.setHeroSpriteAnimation(visual, spriteState);
 
     this.heroWasAirborne = airborne;
 
