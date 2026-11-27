@@ -738,3 +738,9 @@ The following gameplay requirements are mandatory and supersede any conflicting 
 - Existing enemy AI, physics, collision, health, damage, and movement values were not changed.
 - Commit: `9502c149394d53aa0418b15552ce0f2e471bfc7c`.
 - **Verification:** Not run; development remains in progress. No APK was built.
+
+
+## 2026-11-27 — CI lint correction
+- Fixed the ESLint `no-useless-assignment` failure in `src/App.jsx` by removing the redundant initial `null` assignment for `classCrest`; every enemy-class branch assigns its visual crest before it is used.
+- Source commit: `5e847bda3ab9a6a86fd333df9e87d53ec99feb62`.
+- The previous CI run's automated tests passed; lint failed on this redundant assignment. No APK was built. Full consolidated verification remains deferred until development scope is complete.
