@@ -3081,6 +3081,17 @@ class ZeroGameScene extends Phaser.Scene {
     return true;
   }
 
+  playEnemyReactionAnimation(enemy, state) {
+    const visual = enemy?.getData("visual");
+    const sprite = visual?.getData("authoredSprite");
+    const archetypeId = enemy?.getData("enemyArchetypeId");
+    const key = `enemy-${archetypeId}-${state}`;
+    if (!visual?.active || !sprite?.active || !this.anims.exists(key)) return null;
+    visual.setVisible(true).setAlpha(1);
+    sprite.play(key, true);
+    return visual;
+  }
+
   hitEnemy(projectile, enemy) {
     if (!projectile.active || !enemy.active || enemy.getData("defeatCounted")) return;
     if (enemy.getData("frozen") || enemy.getData("rolling")) {
@@ -3116,7 +3127,12 @@ class ZeroGameScene extends Phaser.Scene {
     const visual = enemy.getData("visual");
     if (hits === 1) {
       enemy.setData("frozen", true); enemy.setVelocity(0, 0);
-      if (visual?.active) visual.setVisible(false);
+      const hitVisual = this.playEnemyReactionAnimation(enemy, "hit");
+      if (hitVisual) {
+        this.time.delayedCall(145, () => {
+          if (enemy.active && hitVisual.active && enemy.getData("frozen")) hitVisual.setVisible(false);
+        });
+      } else if (visual?.active) visual.setVisible(false);
       const palette = hitPalette;
       this.spawnSnowballParticles(enemy.x, enemy.y, "freeze", 18, 1.1, hitPalette.id);
       const ball = this.createElementBall(enemy.x, enemy.y, palette);
@@ -3149,6 +3165,11 @@ class ZeroGameScene extends Phaser.Scene {
         this.spawnElementParticles(enemy.x, enemy.y, hitPalette.id, 24, 1.25);
         this.tweens.add({ targets: pop, scale: 3.2, alpha: 0, duration: 260, onComplete: () => pop.destroy() });
         this.audio.play("defeat");
+        const defeatVisual = this.playEnemyReactionAnimation(enemy, "defeat");
+        if (defeatVisual) {
+          this.tweens.add({ targets: defeatVisual, alpha: 0, scale: 0.42, angle: 18, duration: 320,
+            onComplete: () => { if (defeatVisual.active) defeatVisual.destroy(); } });
+        }
         this.dropReward(enemy.x, enemy.y); this.addScore(500); this.recordEnemyDefeat(enemy); enemy.destroy();
         this.statusLabel.setText("ELEMENTAL ORB POPPED!"); this.statusLabel.setColor("#62ffb4");
       }
@@ -3177,7 +3198,11 @@ class ZeroGameScene extends Phaser.Scene {
       .setStrokeStyle(5, 0xffffff).setDepth(20);
     this.tweens.add({ targets: finalBurst, scale: 3.8, alpha: 0,
       duration: 320, onComplete: () => finalBurst.destroy() });
-    if (visual.active) visual.destroy();
+    const defeatVisual = this.playEnemyReactionAnimation(enemy, "defeat");
+    if (defeatVisual) {
+      this.tweens.add({ targets: defeatVisual, alpha: 0, scale: 0.42, angle: 18, duration: 320,
+        onComplete: () => { if (defeatVisual.active) defeatVisual.destroy(); } });
+    } else if (visual.active) visual.destroy();
     this.audio.play("defeat");
     this.dropReward(enemy.x, enemy.y);
     this.addScore(500);
