@@ -734,8 +734,14 @@ try {
         !stageState.heroSelectionLocked || !stageState.campaignActive) {
       throw new Error(`Stage ${nextStage} lost campaign identity or remaining lives`);
     }
-    if (stageState.enemies.some((enemy) => !enemy.gravity || enemy.type === "flyer")) {
-      throw new Error(`Stage ${nextStage} spawned a non-grounded regular enemy`);
+    const invalidGroundEnemy = stageState.enemies.some((enemy) =>
+      enemy.type !== "flyer" && !enemy.gravity
+    );
+    const invalidFlyingEnemy = stageState.enemies.some((enemy) =>
+      enemy.type === "flyer" && (enemy.gravity || enemy.y < 160 || enemy.y > 360)
+    );
+    if (invalidGroundEnemy || invalidFlyingEnemy) {
+      throw new Error(`Stage ${nextStage} has an invalid grounded or flying enemy spawn`);
     }
     visitedStages.push(stageState.number);
   }
