@@ -24,6 +24,20 @@ export function getStageThemeSequence(stageNumber) {
   return rotated;
 }
 
+
+const BOSS_THEME_SEQUENCES = [
+  ["C3", "G3", "D4", "G3", "A3", "D4"],
+  ["G3", "D4", "A4", "D4", "C4", "G4"],
+  ["D3", "A3", "E4", "A3", "G3", "D4"],
+  ["A3", "E4", "B4", "E4", "D4", "A4"],
+  ["C3", "D#3", "G3", "B3", "C4", "G3"],
+];
+
+export function getBossThemeSequence(bossIndex) {
+  const index = Math.max(0, Math.floor(Number(bossIndex) || 0)) % BOSS_THEME_SEQUENCES.length;
+  return [...BOSS_THEME_SEQUENCES[index]];
+}
+
 export function clampAudioVolume(value) {
   return Math.max(0, Math.min(1, Number(value) || 0));
 }
@@ -165,13 +179,6 @@ export function createGameAudio() {
   };
 
   let activeTrack = "world-0";
-  const bossThemes = [
-    ["C3", "G3", "D4", "G3", "A3", "D4"],
-    ["G3", "D4", "A4", "D4", "C4", "G4"],
-    ["D3", "A3", "E4", "A3", "G3", "D4"],
-    ["A3", "E4", "B4", "E4", "D4", "A4"],
-    ["C3", "D#3", "G3", "B3", "C4", "G3"]
-  ];
   const worldThemes = [
     ["C4", "E4", "G4", "B4", "A4", "G4", "E4", "D4"],
     ["E4", "G4", "B4", "D5", "C5", "B4", "G4", "E4"],
@@ -197,7 +204,7 @@ export function createGameAudio() {
       const stageTrack = activeTrack.startsWith("stage-");
       const trackIndex = Number(activeTrack.split("-")[1]) || 0;
       const worldIndex = trackIndex;
-      const notes = bossTrack ? bossThemes[worldIndex] || bossThemes[0]
+      const notes = bossTrack ? getBossThemeSequence(worldIndex)
         : stageTrack ? getStageThemeSequence(trackIndex)
           : activeTrack === "menu" ? menuTheme
             : activeTrack === "victory" ? victoryTheme
