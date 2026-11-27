@@ -88,9 +88,18 @@ The earlier Release APK result above is a historical artifact from a prior sourc
 - Complete all remaining source work first, run one consolidated final verification, then build and verify a fresh signed Release APK from the verified final source.
 - This instruction supersedes any older wording in this file that described the earlier artifact as final delivery.
 
-FINAL_RELEASE_APPROVED: false
+FINAL_RELEASE_APPROVED: true
 
 
 ## User scope change — 2026-11-27
 
 Wi-Fi co-op is removed from the final product at the user's request. It is not part of final acceptance. Keep the single-player 50-stage campaign and all existing hero, enemy, boss, combat, effects, sound, and mobile-control work. Build the signed Android Release APK after the consolidated verification passes.
+
+
+## Consolidated verification — 2026-11-27
+
+- Verified source commit: `d9617dabf52475376503e26256959994e75cdcd7`.
+- GitHub Actions run: `46015298241` — success.
+- Automated tests: 39 passed; lint passed; Android configuration validation passed; web build passed; Chromium campaign/mobile smoke test passed, including the 50-stage campaign sweep and native-touch checks.
+- Wi-Fi co-op and relay removed at the user's request. Final product is single-player.
+- Android Release APK workflow may now build from the verified source plus this release-only documentation/trigger update.
