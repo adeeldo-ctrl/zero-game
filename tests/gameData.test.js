@@ -23,6 +23,20 @@ test("every stage has its own authored multi-level platform layout", () => {
   assert.equal(signatures.size, 50, "all stage layouts must be distinct");
 });
 
+test("all fifty stages use distinct deterministic enemy spawn lanes", () => {
+  const signatures = new Set();
+  for (const stage of STAGES) {
+    assert.equal(stage.enemySpawnPositions.length, stage.enemyCount, `stage ${stage.number} spawn count`);
+    assert.deepEqual(stage.enemySpawnPositions, [...stage.enemySpawnPositions].sort((a, b) => a - b));
+    assert.ok(stage.enemySpawnPositions.every((x) => x >= 48 && x <= 912),
+      `stage ${stage.number} spawn positions stay inside safe arena bounds`);
+    assert.equal(new Set(stage.enemySpawnPositions).size, stage.enemySpawnPositions.length,
+      `stage ${stage.number} has no duplicate spawn lane`);
+    if (!stage.isBossStage) signatures.add(JSON.stringify(stage.enemySpawnPositions));
+  }
+  assert.equal(signatures.size, 45, "every normal stage has a distinct deterministic spawn pattern");
+});
+
 test("stage definitions do not change when read repeatedly", () => {
   const first = JSON.stringify(getStage(17));
   for (let i = 0; i < 20; i++) assert.equal(JSON.stringify(getStage(17)), first);
