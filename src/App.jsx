@@ -2553,6 +2553,29 @@ class ZeroGameScene extends Phaser.Scene {
     });
   }
 
+
+  spawnEnemyProjectile(enemy, pattern = "single") {
+    if (!enemy?.active || !this.hero?.active || this.gameOver || this.bossDefeated) return;
+    const palette = getElement(enemy.getData("enemyPowerType") || "shadow");
+    const direction = this.hero.x >= enemy.x ? 1 : -1;
+    const baseAngle = Phaser.Math.Angle.Between(enemy.x, enemy.y - 8, this.hero.x, this.hero.y - 8);
+    const spreads = pattern === "triple" ? [-0.22, 0, 0.22] : [0];
+    spreads.forEach((spread, index) => {
+      const shot = this.add.circle(enemy.x + direction * 24, enemy.y - 12, pattern === "triple" ? 8 : 10,
+        palette.color, 0.96).setStrokeStyle(3, palette.edge, 0.95).setDepth(18);
+      this.physics.add.existing(shot);
+      this.bossShots.add(shot);
+      shot.body.setAllowGravity(false);
+      shot.body.setCircle(pattern === "triple" ? 7 : 9);
+      const angle = baseAngle + spread;
+      const speed = pattern === "triple" ? 205 : 235;
+      shot.body.setVelocity(Math.cos(angle) * speed, Math.sin(angle) * speed);
+      shot.setData("isEnemyProjectile", true);
+      this.tweens.add({ targets: shot, scale: 1.35, duration: 180 + index * 35, yoyo: true, repeat: -1 });
+      this.time.delayedCall(2600, () => { if (shot.active) shot.destroy(); });
+    });
+  }
+
   spawnEnemies() {
     if (this.stageConfig.isBossStage || this.stageEnemyCount <= 0) return;
     const authoredPositions = this.stageConfig.enemySpawnPositions;
@@ -2597,7 +2620,7 @@ class ZeroGameScene extends Phaser.Scene {
         const enemyPowerType = this.stageConfig.enemyPowerType || "fire";
         enemy.setData("enemyPowerType", enemyPowerType);
         enemy.setData("snowballPowerTier", getSnowballPowerTier(enemyClass, enemyPowerType, this.stageNumber));
-        const roleAi = { runner: "runner", leaper: "jumper", flying: "jumper", ambusher: "charger", ranged: "guard", bomber: "charger", illusionist: "runner", summoner: "guard", shield: "guard", heavy: "chaser", charger: "charger" };
+        const roleAi = { runner: "runner", leaper: "jumper", flying: "flyer", ambusher: "ambusher", ranged: "ranged", bomber: "bomber", illusionist: "ambusher", summoner: "summoner", shield: "guard", heavy: "chaser", charger: "charger" };
         const aiType = roleAi[archetype?.role] || ["chaser", "runner", "jumper", "guard", "charger", "chaser"][i % 6];
         enemy.setData("aiType", aiType);
         enemy.setData("aiState", aiType === "runner" || aiType === "charger" ? "tell" : aiType === "guard" ? "guard" : "patrol");
@@ -3232,7 +3255,7 @@ class ZeroGameScene extends Phaser.Scene {
       enemy.setData("hitCount", 0);
       enemy.setData("enemyPowerType", this.stageConfig.boss?.element || "fire");
       enemy.setData("snowballPowerTier", 4);
-      const roleAi = { runner: "runner", leaper: "jumper", flying: "jumper", ambusher: "charger", ranged: "guard", bomber: "charger", illusionist: "runner", summoner: "guard", shield: "guard", heavy: "chaser", charger: "charger" };
+      const roleAi = { runner: "runner", leaper: "jumper", flying: "flyer", ambusher: "ambusher", ranged: "ranged", bomber: "bomber", illusionist: "ambusher", summoner: "summoner", shield: "guard", heavy: "chaser", charger: "charger" };
       const aiType = roleAi[archetype.role] || "charger";
       enemy.setData("aiType", aiType);
       enemy.setData("aiState", aiType === "runner" || aiType === "charger" ? "tell" : "patrol");
@@ -5251,6 +5274,68 @@ class ZeroGameScene extends Phaser.Scene {
         facing = state === "charge" ? enemy.getData("dashDirection") : direction;
         if (state === "tell" && enemyVisual) enemyVisual.setAlpha(0.55 + Math.sin(elapsed * 0.03) * 0.35);
         else if (enemyVisual) enemyVisual.setAlpha(1);
+
+      } else if (aiType === "flyer") {
+        enemy.body.setAllowGravity(false);
+        speed = 74 + Math.min(36, Math.abs(this.hero.y - enemy.y) * 0.08);
+        facing = direction;
+        enemy.setY(225 + Math.sin(elapsed * 0.0025 + (enemy.getData("animTime") || 0)) * 28);
+        if (Math.abs(this.hero.x - enemy.x) < 250 && elapsed >= (enemy.getData("nextRangedAt") || 0)) {
+          enemy.setData("nextRangedAt", elapsed + 2600);
+          this.spawnEnemyProjectile(enemy, "single");
+          if (enemyVisual) enemyVisual.setAlpha(0.5);
+          this.time.delayedCall(260, () => { if (enemyVisual?.active) enemyVisual.setAlpha(1); });
+        }
+      } else if (aiType === "ranged" || aiType === "summoner") {
+        const distance = Math.abs(this.hero.x - enemy.x);
+        speed = distance > (aiType === "summoner" ? 330 : 285) ? 62 : distance < 175 ? -48 : 0;
+        facing = direction;
+        if (elapsed >= (enemy.getData("nextRangedAt") || 0)) {
+          enemy.setData("nextRangedAt", elapsed + (aiType === "summoner" ? 3200 : 2500));
+          if (enemyVisual) this.tweens.add({ targets: enemyVisual, scaleY: 1.18, duration: 140, yoyo: true });
+          this.spawnEnemyProjectile(enemy, aiType === "summoner" ? "triple" : "single");
+        }
+      } else if (aiType === "ambusher") {
+        let state = enemy.getData("aiState") || "tell";
+        const distance = Math.abs(this.hero.x - enemy.x);
+        if (state === "tell" && distance < 260 && elapsed >= (enemy.getData("aiStateUntil") || 0)) {
+          state = "vanish";
+          enemy.setData("aiState", state);
+          enemy.setData("aiStateUntil", elapsed + 360);
+          if (enemyVisual) enemyVisual.setAlpha(0.08);
+          enemy.setVelocityX(0);
+        } else if (state === "vanish" && elapsed >= enemy.getData("aiStateUntil")) {
+          enemy.setPosition(Phaser.Math.Clamp(this.hero.x - direction * 100, 44, 916), enemy.y);
+          state = "pounce";
+          enemy.setData("aiState", state);
+          enemy.setData("aiStateUntil", elapsed + 420);
+          enemy.setData("dashDirection", direction);
+          if (enemyVisual) enemyVisual.setAlpha(1);
+          this.audio.play("enemyAttack");
+        } else if (state === "pounce" && elapsed >= enemy.getData("aiStateUntil")) {
+          state = "recover";
+          enemy.setData("aiState", state);
+          enemy.setData("aiStateUntil", elapsed + 850);
+        } else if (state === "recover" && elapsed >= enemy.getData("aiStateUntil")) {
+          state = "tell";
+          enemy.setData("aiState", state);
+          enemy.setData("aiStateUntil", elapsed + 900);
+        }
+        speed = state === "pounce" ? 310 : state === "recover" || state === "vanish" ? 0 : 34;
+        facing = state === "pounce" ? enemy.getData("dashDirection") : direction;
+      } else if (aiType === "bomber") {
+        const distance = Phaser.Math.Distance.Between(enemy.x, enemy.y, this.hero.x, this.hero.y);
+        speed = distance > 110 ? 115 : 0;
+        facing = direction;
+        if (distance < 118 && elapsed >= (enemy.getData("nextBlastAt") || 0)) {
+          enemy.setData("nextBlastAt", elapsed + 3000);
+          this.audio.play("enemyAttack");
+          const blast = this.add.circle(enemy.x, enemy.y, 28, 0xff9b55, 0.42)
+            .setStrokeStyle(4, 0xffe17a, 0.95).setDepth(24);
+          this.tweens.add({ targets: blast, scale: 3.4, alpha: 0, duration: 420, onComplete: () => blast.destroy() });
+          if (distance < 118) this.damageHero(this.hero, enemy);
+          if (enemyVisual) this.tweens.add({ targets: enemyVisual, scale: 1.65, alpha: 0.35, duration: 130, yoyo: true });
+        }
       } else if (aiType === "jumper") {
         speed = 42;
         if (enemy.body.blocked.down && elapsed >= (enemy.getData("nextHop") || elapsed + 700)) {
