@@ -8,7 +8,8 @@
     "Do not render reference crops directly as gameplay sprites because they contain scenery and adjacent decorative objects.",
     "Create clean transparent character cutouts and genuine idle, move, attack, hit and defeat animation frames before replacing the runtime atlas.",
     "Keep all 45 archetypes visually distinct; do not duplicate one PNG across a region.",
-    "Bosses require separately authored larger spritesheets and must remain visually distinct from regular enemies."
+    "Bosses require separately authored larger spritesheets and must remain visually distinct from regular enemies.",
+    "Prepare five dedicated enlarged 160x160 transparent boss base cutouts from five different uploaded reference images, in addition to regular 128x128 enemy cutouts."
   ],
   "regions": [
     {
@@ -266,27 +267,42 @@
     {
       "id": "gatekeeper",
       "name": "Arena Gatekeeper",
-      "direction": "oversized stone-and-ice fortress guardian; unique crown/shoulder silhouette; 2x regular character scale; not a recolored regular enemy"
+      "direction": "oversized stone-and-ice fortress guardian; unique crown/shoulder silhouette; 2x regular character scale; not a recolored regular enemy",
+      "sourceImage": "11_ice-golem",
+      "productionFrameSize": "160x160",
+      "artTreatment": "Use this uploaded character crop as the boss base, remove its collage background, preserve its recognizable silhouette, and enlarge/recompose it to fill a dedicated 160x160 boss frame. Do not merely stretch the regular enemy output. Boss animation frames must be authored separately; do not duplicate a static frame as fake animation."
     },
     {
       "id": "iron-comet",
       "name": "Iron Comet",
-      "direction": "meteor-forged armored bruiser with comet-tail accents and broad silhouette"
+      "direction": "meteor-forged armored bruiser with comet-tail accents and broad silhouette",
+      "sourceImage": "19_ice-robot",
+      "productionFrameSize": "160x160",
+      "artTreatment": "Use this uploaded character crop as the boss base, remove its collage background, preserve its recognizable silhouette, and enlarge/recompose it to fill a dedicated 160x160 boss frame. Do not merely stretch the regular enemy output. Boss animation frames must be authored separately; do not duplicate a static frame as fake animation."
     },
     {
       "id": "gale-talon",
       "name": "Gale Talon",
-      "direction": "large winged aerial duelist with swept feather/ice-blade silhouette"
+      "direction": "large winged aerial duelist with swept feather/ice-blade silhouette",
+      "sourceImage": "16_blue-dragon",
+      "productionFrameSize": "160x160",
+      "artTreatment": "Use this uploaded character crop as the boss base, remove its collage background, preserve its recognizable silhouette, and enlarge/recompose it to fill a dedicated 160x160 boss frame. Do not merely stretch the regular enemy output. Boss animation frames must be authored separately; do not duplicate a static frame as fake animation."
     },
     {
       "id": "suncrest",
       "name": "Suncrest Master",
-      "direction": "radiant martial-artist creature with sun crest, warm gold/orange palette, clear humanoid stance"
+      "direction": "radiant martial-artist creature with sun crest, warm gold/orange palette, clear humanoid stance",
+      "sourceImage": "09_pumpkin",
+      "productionFrameSize": "160x160",
+      "artTreatment": "Use this uploaded character crop as the boss base, remove its collage background, preserve its recognizable silhouette, and enlarge/recompose it to fill a dedicated 160x160 boss frame. Do not merely stretch the regular enemy output. Boss animation frames must be authored separately; do not duplicate a static frame as fake animation."
     },
     {
       "id": "void-sovereign",
       "name": "Void Sovereign",
-      "direction": "final cosmic entity with floating segmented body, starfield void core, and distinct multi-phase silhouette"
+      "direction": "final cosmic entity with floating segmented body, starfield void core, and distinct multi-phase silhouette",
+      "sourceImage": "30_purple-demon",
+      "productionFrameSize": "160x160",
+      "artTreatment": "Use this uploaded character crop as the boss base, remove its collage background, preserve its recognizable silhouette, and enlarge/recompose it to fill a dedicated 160x160 boss frame. Do not merely stretch the regular enemy output. Boss animation frames must be authored separately; do not duplicate a static frame as fake animation."
     }
   ],
   "excludedAsStandaloneEnemyRefs": [
@@ -295,7 +311,7 @@
     "45_owl-b",
     "48_skull-cloud"
   ],
-  "note": "All 48 uploaded crop PNGs are now available in the repository at src/assets/enemies/reference/. The source crops have been preserved unchanged; runtime vector sheets remain active until clean transparent animated replacements are ready.",
+  "note": "All 48 uploaded crop PNGs are now available in the repository at src/assets/enemies/reference/. The source crops have been preserved unchanged; runtime vector sheets remain active until clean transparent animated replacements are ready. Five selected references for enlarged boss bases: 11_ice-golem, 19_ice-robot, 16_blue-dragon, 09_pumpkin, and 30_purple-demon.",
   "additionalOriginalDesigns": [
     {
       "id": "custom-fern-glider",
