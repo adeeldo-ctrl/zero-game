@@ -1,5 +1,5 @@
 // ZERO GAME: data-driven campaign definitions.
-import { getPremiumStageEnemyRoster, getPremiumEnemyRegion } from "./premiumCampaignData.js";
+import { getPremiumStageEnemyRoster, getPremiumEnemyRegion, PREMIUM_PLATFORM_FAMILIES, PREMIUM_SPECIAL_PLATFORM_TYPES } from "./premiumCampaignData.js";
 // Stage visuals, enemy families, bosses and elemental powers are kept separate
 // from the Phaser scene so the campaign can grow without hard-coded level logic.
 
@@ -156,7 +156,14 @@ export const STAGES = Array.from({ length: 50 }, (_, index) => {
       ? [[480, 420, 620], [150 + (number / 10) * 12, 340, 190],
         [810 - (number / 10) * 12, 340, 190], [480, 255 + (number / 10) * 5, 220]]
       : STAGE_PLATFORM_LAYOUTS[index]
-    ).map(([x, y, width]) => ({ x, y, width, height: 18 })),
+    ).map(([x, y, width], platformIndex) => ({
+      x, y, width, height: 18,
+      materialId: PREMIUM_PLATFORM_FAMILIES[(number * 3 + platformIndex * 2) % PREMIUM_PLATFORM_FAMILIES.length],
+      specialType: (number + platformIndex * 3) % 5 === 0
+        ? PREMIUM_SPECIAL_PLATFORM_TYPES[(number + platformIndex) % PREMIUM_SPECIAL_PLATFORM_TYPES.length]
+        : null,
+      specialDirection: (number + platformIndex) % 2 === 0 ? 1 : -1,
+    })),
     enemyRegionId: premiumRegion.id,
     enemyRoster: boss ? [] : premiumRoster,
     enemyFamily: family.id,
