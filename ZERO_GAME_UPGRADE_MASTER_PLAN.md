@@ -182,6 +182,13 @@
 - Source commit: `20e795f38af66d1e4a76041d5e46f6dc0a837548`; smoke test commit: `9ca5ea989f294cad530aadf417ed5375ec3e51f8`.
 - No tests/builds were run; final consolidated verification and Android Release APK remain deferred until all development is complete.
 
+### Audio resume and single-track lifecycle correction (2026-11-27)
+- The first audio interaction after the app returns from the background now resumes the selected music track even when SFX are muted; the previous code could resume the audio context for a sound but leave the music scheduler stopped.
+- Removed unused parallel menu/gameplay/world music loops so the active track scheduler remains the single source of playback and cannot accidentally layer duplicate loops.
+- Added an automated regression test that stops audio, mutes SFX, resumes via a player interaction, and verifies that music notes and scheduling restart.
+- Source commits: `88334a4ced3ac33ab87db7a5f879560507dcb2a3`, `cd0d61ca79e4d6dd8f52f7c03a12a1a0269f2e20`.
+- No tests/builds were run; final consolidated verification and Android APK remain deferred until all development is complete.
+
 ## Non-negotiable preservation rules
 - Preserve the currently working joystick/controller movement and touch mapping. Do not regress the approved controls.
 - Keep the game in landscape and make the playable scene fill the complete device viewport.
