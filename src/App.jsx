@@ -5338,7 +5338,12 @@ class ZeroGameScene extends Phaser.Scene {
           const blast = this.add.circle(enemy.x, enemy.y, 28, 0xff9b55, 0.42)
             .setStrokeStyle(4, 0xffe17a, 0.95).setDepth(24);
           this.tweens.add({ targets: blast, scale: 3.4, alpha: 0, duration: 420, onComplete: () => blast.destroy() });
-          if (distance < 118) this.damageHero(this.hero, enemy);
+          this.time.delayedCall(420, () => {
+            if (!this.gameOver && enemy.active && this.hero?.active &&
+              Phaser.Math.Distance.Between(enemy.x, enemy.y, this.hero.x, this.hero.y) < 118) {
+              this.damageHero(this.hero, enemy);
+            }
+          });
           if (enemyVisual) this.tweens.add({ targets: enemyVisual, scale: 1.65, alpha: 0.35, duration: 130, yoyo: true });
         }
       } else if (aiType === "jumper") {
