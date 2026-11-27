@@ -3938,7 +3938,6 @@ class ZeroGameScene extends Phaser.Scene {
     const bossId = bossData.id || "gatekeeper";
     const element = bossData.element || "fire";
     const shotPalette = getElement(element);
-    const color = shotPalette.color || bossData.color || 0xff735d;
     const base = Phaser.Math.Angle.Between(boss.x, boss.y - 15, this.hero.x, this.hero.y - 10);
     const phase = this.bossPhase || 1;
     const profile = getBossSignatureProfile(bossId);
