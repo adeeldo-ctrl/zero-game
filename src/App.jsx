@@ -3381,6 +3381,17 @@ class ZeroGameScene extends Phaser.Scene {
     const bossSprite = this.add.image(0, -22, `boss-image-${bossSheetId}`)
       .setDisplaySize(150, 150);
     c.add(bossSprite);
+    // Living idle motion for the approved single-frame boss artwork.
+    this.tweens.add({
+      targets: bossSprite,
+      y: isAgile ? -27 : -25,
+      scaleX: isFinal ? 1.045 : 1.025,
+      scaleY: isFinal ? 0.975 : 0.985,
+      duration: isBoxer ? 520 : isAgile ? 430 : isFinal ? 820 : 680,
+      yoyo: true,
+      repeat: -1,
+      ease: "Sine.easeInOut",
+    });
     c.setData("authoredSprite", bossSprite);
     c.setData("bossSheetId", bossSheetId);
     return c;
