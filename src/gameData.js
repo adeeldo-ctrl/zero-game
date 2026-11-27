@@ -90,11 +90,11 @@ const WORLDS = [
 ];
 
 const BOSS_DATA = [
-  { name: "Arena Gatekeeper", family: "power", element: "earth", hp: 34, attack: "Ground Pulse", color: 0x8a5943, style: "intro grappler" },
-  { name: "Iron Comet", family: "striker", element: "earth", hp: 46, attack: "Iron Comet Combo", color: 0x6259a7, style: "boxing champion" },
-  { name: "Gale Talon", family: "agile", element: "wind", hp: 54, attack: "Gale Talon Rush", color: 0x8d405e, style: "agile claw acrobat" },
-  { name: "Suncrest Master", family: "striker", element: "fire", hp: 64, attack: "Sunline Strike", color: 0xa64b3d, style: "disciplined martial arts master" },
-  { name: "Void Sovereign", family: "power", element: "shadow", hp: 82, attack: "Void Crown Assault", color: 0x493b76, style: "final warlord" }
+  { id: "gatekeeper", name: "Arena Gatekeeper", family: "power", element: "earth", hp: 34, attack: "Ground Pulse", color: 0x8a5943, style: "intro grappler" },
+  { id: "iron-comet", name: "Iron Comet", family: "striker", element: "earth", hp: 46, attack: "Iron Comet Combo", color: 0x6259a7, style: "boxing champion" },
+  { id: "gale-talon", name: "Gale Talon", family: "agile", element: "wind", hp: 54, attack: "Gale Talon Rush", color: 0x8d405e, style: "agile claw acrobat" },
+  { id: "suncrest", name: "Suncrest Master", family: "striker", element: "fire", hp: 64, attack: "Sunline Strike", color: 0xa64b3d, style: "disciplined martial arts master" },
+  { id: "void-sovereign", name: "Void Sovereign", family: "power", element: "shadow", hp: 82, attack: "Void Crown Assault", color: 0x493b76, style: "final warlord" }
 ];
 
 const stageColor = (color, step, channelShift = 1) => {
@@ -146,20 +146,14 @@ export const STAGES = Array.from({ length: 50 }, (_, index) => {
     },
     stageType: boss ? "boss" : "normal",
     isBossStage: Boolean(boss),
-    platforms: [
-      ...(boss
-        ? [[480, 420, 620], [150 + (number / 10) * 12, 340, 190],
-          [810 - (number / 10) * 12, 340, 190], [480, 255 + (number / 10) * 5, 220]]
-        : STAGE_PLATFORM_LAYOUTS[index]),
-      // Add a reachable middle ledge and a high route to every arena. Their
-      // anchors follow each stage's authored layout instead of repeating a grid.
-      boss
-        ? [150 + (number / 10) * 12, 285, 150]
-        : [STAGE_PLATFORM_LAYOUTS[index][0][0], 285, 150],
-      boss
-        ? [480, 175, 170]
-        : [STAGE_PLATFORM_LAYOUTS[index][3][0], 165, 160],
-    ].map(([x, y, width]) => ({ x, y, width, height: 18 })),
+    // Keep only the four authored platforms per arena. The former extra
+    // anchor ledges duplicated nearby platforms and made the horizontal lines
+    // overlap visually on multiple stages.
+    platforms: (boss
+      ? [[480, 420, 620], [150 + (number / 10) * 12, 340, 190],
+        [810 - (number / 10) * 12, 340, 190], [480, 255 + (number / 10) * 5, 220]]
+      : STAGE_PLATFORM_LAYOUTS[index]
+    ).map(([x, y, width]) => ({ x, y, width, height: 18 })),
     enemyFamily: family.id,
     enemyPowerType: ["fire", "ice", "lightning", "water", "nature", "wind", "earth", "light", "shadow", "plasma"][(index + worldIndex) % 10],
     enemyTypes: boss ? [] : Array.from({ length: 6 + Math.floor(index / 10) }, (_, enemyIndex) =>
