@@ -1,4 +1,4 @@
-// Dastaan Heroes: data-driven campaign definitions.
+// ZERO GAME: data-driven campaign definitions.
 // Stage visuals, enemy families, bosses and elemental powers are kept separate
 // from the Phaser scene so the campaign can grow without hard-coded level logic.
 
