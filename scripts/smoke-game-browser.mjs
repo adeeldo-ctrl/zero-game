@@ -43,6 +43,20 @@ try {
   if (dimensions.width !== 960 || dimensions.height !== 540) {
     throw new Error(`Unexpected game canvas dimensions: ${JSON.stringify(dimensions)}`);
   }
+  const accessibility = await page.evaluate(() => ({
+    gameRole: document.querySelector("#game-container")?.getAttribute("role"),
+    gameLabel: document.querySelector("#game-container")?.getAttribute("aria-label"),
+    instructions: document.querySelector("#game-instructions")?.textContent?.trim(),
+    controlsRole: document.querySelector("#mobile-controls-overlay")?.getAttribute("role"),
+    controlsLabel: document.querySelector("#mobile-controls-overlay")?.getAttribute("aria-label"),
+  }));
+  if (accessibility.gameRole !== "application" ||
+      !accessibility.gameLabel?.includes("ZERO GAME") ||
+      !accessibility.instructions ||
+      accessibility.controlsRole !== "group" ||
+      !accessibility.controlsLabel?.includes("movement joystick")) {
+    throw new Error("Game canvas and mobile touch surface are missing accessible descriptions");
+  }
 
   const reducedMotionPage = await browser.newPage({
     viewport: { width: 960, height: 540 },
