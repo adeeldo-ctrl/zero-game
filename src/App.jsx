@@ -4649,9 +4649,7 @@ class ZeroGameScene extends Phaser.Scene {
     }
 
     const specialActive = time < (this.specialPoseUntil || 0);
-    const normalAttackActive = attacking || time < (this.normalAttackUntil || 0);
     const hitActive = time < (this.heroHitUntil || 0);
-    const articulatedAction = specialActive || normalAttackActive || hitActive;
     const heroSprite = visual.getData("heroSprite");
     const heroRigParts = visual.getData("heroRigParts") || [];
     const heroLookItems = visual.getData("heroLookItems") || [];
