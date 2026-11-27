@@ -1,12 +1,13 @@
 {
   "version": 1,
-  "status": "art-direction-mapping-only",
-  "source": "User-provided Snow Bros-style enemy collage; crop files are in the separately prepared reference ZIP.",
+  "status": "reference-artwork-available-production-cutouts-pending",
+  "source": "User-uploaded Snow Bros-style enemy collage; all 48 individual PNG reference crops are committed under src/assets/enemies/reference/.",
   "rules": [
     "Mappings are visual starting points only; do not rename gameplay archetypes or change AI roles.",
-    "Crop references retain collage background and are not production-ready transparent PNGs.",
-    "For each mapped enemy, redraw/cut out a clean standalone character in the same visual style; create five genuine animation states: idle, move, attack, hit, defeat.",
-    "Use color/material variations and original details to keep all 45 archetypes visually distinct; do not simply duplicate one PNG across a region.",
+    "Reference PNGs are approximate crops with original collage scenery/background retained; they are not transparent production sprites.",
+    "Do not render reference crops directly as gameplay sprites because they contain scenery and adjacent decorative objects.",
+    "Create clean transparent character cutouts and genuine idle, move, attack, hit and defeat animation frames before replacing the runtime atlas.",
+    "Keep all 45 archetypes visually distinct; do not duplicate one PNG across a region.",
     "Bosses require separately authored larger spritesheets and must remain visually distinct from regular enemies."
   ],
   "regions": [
@@ -294,7 +295,7 @@
     "45_owl-b",
     "48_skull-cloud"
   ],
-  "note": "The source collage itself contains decorative effects and adjacent overlaps. Some source crops are alternatives or visual cues; final clean artwork must be authored as separate spritesheets.",
+  "note": "All 48 uploaded crop PNGs are now available in the repository at src/assets/enemies/reference/. The source crops have been preserved unchanged; runtime vector sheets remain active until clean transparent animated replacements are ready.",
   "additionalOriginalDesigns": [
     {
       "id": "custom-fern-glider",
