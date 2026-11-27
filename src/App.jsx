@@ -1340,12 +1340,14 @@ class ZeroGameScene extends Phaser.Scene {
       const palette = visual.getData("heroPalette");
       palette.kurta.setFillStyle(hero.color); palette.waistcoat.setFillStyle(hero.accent); palette.capLine.setFillStyle(hero.accent);
       this.applyHeroLook(visual, hero);
+      visual.setData("heroPreview", true);
       visual.setDepth(64).setScale(0.82).setAlpha(0);
       this.menuObjects.push(visual);
       this.tweens.add({ targets: visual, y: 307 - (i % 2) * 4, alpha: 1, duration: 850, delay: 180 + i * 130, ease: "Back.easeOut" });
       this.tweens.add({ targets: visual, y: 301 - (i % 2) * 4, duration: 800 + i * 100, delay: 1100 + i * 100, yoyo: true, repeat: -1, ease: "Sine.easeInOut" });
       const label = this.add.text(previewXs[i], 360, hero.name.toUpperCase(), { fontSize: "17px", color: "#ffffff", fontStyle: "bold", stroke: "#10243a", strokeThickness: 3 }).setOrigin(0.5).setDepth(65);
       const style = this.add.text(previewXs[i], 385, hero.style.toUpperCase(), { fontSize: "10px", color: "#9feaff", fontStyle: "bold", align: "center", wordWrap: { width: 154, useAdvancedWrap: true }, lineSpacing: 2, fixedWidth: 154, fixedHeight: 34 }).setOrigin(0.5, 0).setDepth(65);
+      style.setData("heroDescription", hero.id);
       this.menuObjects.push(label, style);
     });
     this.tweens.add({ targets: title, scale: 1, y: 88, duration: 850, ease: "Back.easeOut" });
