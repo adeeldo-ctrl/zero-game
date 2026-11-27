@@ -167,3 +167,12 @@ test("boss milestones are dedicated boss-only stages with unique arena layouts",
     assert.equal(stage.boss, null);
   }
 });
+
+
+test("campaign enemy powers rotate through all ten elemental identities", () => {
+  const enemyPowers = new Set(STAGES.map((stage) => stage.enemyPowerType));
+  assert.deepEqual(enemyPowers, new Set([
+    "fire", "ice", "lightning", "water", "nature",
+    "wind", "earth", "light", "shadow", "plasma",
+  ]));
+});
