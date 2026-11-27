@@ -19,6 +19,12 @@
 - Jump input must work reliably on touch and keyboard/controller. A held jump must not block subsequent jumps. Preserve the intended double-jump and flip/back-flip behavior, with correct landing/reset logic.
 - Keep the existing joystick behavior unchanged unless a verified defect requires a minimal targeted correction.
 
+### World and stage identity in HUD (2026-11-27)
+- The HUD's secondary title now identifies the selected hero, current world, and zero-padded stage number together, so the player can recognize the current campaign region during play.
+- No HUD control positions, score/health fields, or gameplay behavior were changed.
+- Source commit: `1d2f3f645a2798d0674d9a318e1a08c152c6b94a`.
+- No tests/builds were run during this implementation step.
+
 ### World-specific distant skyline pass (2026-11-27)
 - Replaced the remaining shared snow-capped mountain backdrop with ten world-aware distant silhouettes: forest canopy, candy hills, ice peaks, desert dunes, crystal spires, ocean swells, floating sky islands, volcanic ridges, and cosmic citadel forms.
 - The near-hill layer remains subtle and sits behind the world landmarks and gameplay.
