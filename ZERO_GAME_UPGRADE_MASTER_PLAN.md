@@ -25,6 +25,12 @@
 - Source commit: `28b9c6413a094e676863ac5a60e71de0289becd3`.
 - No tests/builds were run; final consolidated verification and Android APK remain deferred until development is complete.
 
+### Animated stage landmark lighting (2026-11-27)
+- All five stage-variant landmark compositions now receive a slow, restrained alpha-light pulse; the fifth/final variant also has a rotating, softly pulsing star accent.
+- The effect sits in the distant landmark layer behind gameplay and does not alter stage geometry, platform visibility, collisions, or controls.
+- Source commit: `213a3c8c97dcfbf7ee7c3a19e7efa34b029e5784`.
+- No tests/builds were run; final consolidated verification and Android APK remain deferred until development is complete.
+
 ## Non-negotiable preservation rules
 - Preserve the currently working joystick/controller movement and touch mapping. Do not regress the approved controls.
 - Keep the game in landscape and make the playable scene fill the complete device viewport.
