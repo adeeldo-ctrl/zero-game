@@ -450,3 +450,44 @@ The following source changes are committed on `main` and covered by the integrat
 - The APK is signed using a one-time CI-generated signing key. Future updates signed with a different key cannot update this installation in place; uninstalling the old package may be required.
 
 **Delivery status:** Signed Release APK successfully built, signature-verified, uploaded to GitHub Actions, and downloaded for direct delivery.
+
+## User clarification — snowball durability, dedicated boss stages, enemy scale and jump-stomp rules (2026-11-27)
+
+The following gameplay requirements are mandatory and supersede any conflicting first-wall snowball behavior or shared boss-stage flow:
+
+### Snowball kick durability
+- A kicked snowball must **not be destroyed by enemy fire/projectile effects**. Enemy fire may visually interact with it, but must not remove it or cancel its travel.
+- After the hero kicks a snowball, it must remain active through **2 or 3 wall collisions** (use a deterministic, clearly visible bounce counter), then disappear on the next configured wall impact.
+- Wall impacts must reverse horizontal travel with controlled bounce damping and preserve reliable platform/floor collision. The ball must not become trapped or bounce forever.
+- Enemy-hit effects and enemy projectiles must not prematurely destroy a kicked snowball.
+- Snowball appearance/size/impact strength must reflect the elemental power/strength used to freeze it; keep the relationship readable and consistent rather than using one generic ball for every power.
+
+### Dedicated boss stages
+- Boss encounters must take place in their own dedicated stage/arena, separate from the regular enemy stage.
+- Do not spawn a boss at the end of a regular enemy wave or append a boss after clearing the normal enemies in that same stage.
+- Use explicit, deterministic boss-stage entries and transitions. Preserve the 50-stage campaign structure and the intended boss milestones; regular stages and boss stages must have distinct stage definitions, layouts, entry presentation, enemy rules and completion handling.
+- A boss stage must load its boss encounter as the stage's primary encounter, with no preceding regular enemy quota unless specifically authored as part of that dedicated boss stage.
+
+### Enemy size and movement
+- Increase the visible size of regular enemies by **20%** from their current baseline, while keeping physics hitboxes aligned with the enlarged visible sprites.
+- Correct enemy navigation and movement: enemies must move on the intended platforms, face/approach the player correctly, jump only when their AI state calls for it, and avoid floating, sliding, getting stuck or moving through platform geometry.
+- Tune movement speed and acceleration by enemy archetype so the enlarged enemies remain controllable and fair.
+
+### Enemy elemental fire and snowball strength
+- The enemy's elemental/fire power must determine the strength tier of the snowball interaction. Keep the visual size, elemental appearance and gameplay impact consistent with that power tier.
+- Do not allow enemy fire/projectile hits to destroy a kicked snowball.
+
+### Hero jump-stomp protection
+- When the hero successfully jumps onto/stomps an enemy from above, that enemy must pause/stop its movement for the stomp reaction window.
+- A valid jump-stomp must not reduce the hero's hearts or consume a campaign chance. The enemy should show a clear, brief hit/stun reaction and then resume or enter its appropriate defeat/freeze state.
+- Side collisions and ordinary enemy attacks must retain their normal rules; only the valid top-down jump-stomp interaction receives this protection.
+
+### Acceptance checks
+- Kicked snowballs survive enemy fire and complete exactly the configured 2–3 wall bounces before being removed.
+- Bosses only appear after loading their own dedicated boss stage; no boss spawns as the final event of a normal enemy stage.
+- Regular enemy visuals are exactly 1.20× their prior baseline, with collision bodies aligned to the new dimensions.
+- Each enemy archetype has stable, platform-aware movement and correct facing/approach behavior.
+- Elemental snowball tiers reflect the applicable power strength and remain consistent through kick/impact.
+- A top-down hero jump-stomp stops the enemy briefly and causes no heart/chance loss; ordinary side contact remains unchanged.
+- Automated tests cover bounce counts, projectile immunity, dedicated boss-stage routing, enemy scale/movement rules and jump-stomp damage immunity.
+- Build a fresh Android APK only after all requested implementation and verification work is complete, following the repository's manual APK workflow policy. Report physical-device verification separately and honestly.
