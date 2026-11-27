@@ -19,6 +19,11 @@
 - Jump input must work reliably on touch and keyboard/controller. A held jump must not block subsequent jumps. Preserve the intended double-jump and flip/back-flip behavior, with correct landing/reset logic.
 - Keep the existing joystick behavior unchanged unless a verified defect requires a minimal targeted correction.
 
+### Background composition scope correction (2026-11-27)
+- Reused the single world-index declaration across the far-sky and lower-ground layers after combining both world-aware compositions into `createBackground()`.
+- Source commit: `a65fc0075c77e35181250e103e7bce13201d90f1`.
+- This was a source-level correction; no tests/builds were run.
+
 ### World and stage identity in HUD (2026-11-27)
 - The HUD's secondary title now identifies the selected hero, current world, and zero-padded stage number together, so the player can recognize the current campaign region during play.
 - No HUD control positions, score/health fields, or gameplay behavior were changed.
