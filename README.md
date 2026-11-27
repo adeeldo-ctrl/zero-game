@@ -54,29 +54,30 @@ Enemies use original archetypes inspired by other Street Fighter-style fighters,
 - Change elemental power: C
 - EXTRA 1 / EXTRA 2 / EXTRA 3: keys 1 / 2 / 3 or the three mobile buttons above the right-side action row
 
-## Android debug APK
+## Final Android Release APK
 
-The GitHub Actions workflows are manual-only. No APK is built automatically from source pushes. The Android workflow must be started deliberately only after the approved scope is complete.
+The Android workflow produces the signed **Release APK** and is intentionally separate from ordinary development. Do not build a debug/intermediate APK while development is in progress.
+
+After all approved development is complete and the consolidated CI checks pass:
 
 1. Open the repository's Actions tab.
-2. Select **ZERO GAME Android APK**.
-3. Open a successful workflow run.
-4. Download the `zero-game-debug-apk` artifact ZIP.
-5. Extract it and install `app-debug.apk` on an Android device.
+2. Select **ZERO GAME Android APK** and use **Run workflow**.
+3. Wait for the signed Release workflow to complete successfully.
+4. Download the `zero-game-release-apk` artifact.
+5. Install `zero-game-release.apk` on an Android device.
 
-The APK is a debug build for testing, not a Play Store-signed release. For Wi-Fi co-op, the host PC still runs `npm run multiplayer`; the Android player joins using the host PC's LAN IPv4 address. The relay uses TCP port 3001.
+The workflow verifies APK alignment and signature before uploading the artifact. Automated browser checks do not replace physical Android-device testing. For Wi-Fi co-op, the host PC runs `npm run multiplayer`; the Android player joins using the host PC's LAN IPv4 address. The relay uses TCP port 3001.
 
-## Build locally
+## Build the web game locally
 
 ```powershell
-npm.cmd install
+npm.cmd ci
 npm.cmd run lint
+npm.cmd test
 npm.cmd run build
-npx cap add android
-npx cap sync android
 ```
 
-Then open the Android project in Android Studio or build the debug APK using the Gradle wrapper.
+These commands verify and build the web game only. They do not create an Android APK. Android Release assembly remains reserved for the final manual workflow after development and consolidated verification are complete.
 
 ## Accessibility and mobile use
 
