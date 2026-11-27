@@ -1090,3 +1090,18 @@ This scope supersedes the earlier shared enemy-class and mostly shared boss-pres
 - Keep the existing controls and campaign rules stable unless a change is required for the approved features. Do not add Wi-Fi/co-op or unrelated features.
 - Do not build or deliver an interim APK. Follow the user's standing instruction: complete all approved development first, run one consolidated verification after implementation is complete, fix any failures, then create one final signed Android Release APK. Do not claim physical-device testing unless it actually occurs.
 - Status at the time this scope was added: requirements recorded; implementation of this premium campaign rebuild is not yet complete. Existing three enemy sheets and five boss sheets do not satisfy the requested 45 enemy archetypes, five fully distinct boss move/animation identities, 50 stage-music identities, five exclusive boss themes, or the full platform-family/mechanic redesign.
+
+
+## Premium campaign rebuild implementation log — 2026-11-27
+
+The first integrated implementation tranche has now been pushed to `main`:
+
+- Added the 45-archetype / five-region campaign roster and assigned each normal stage its regional roster. The stage-by-stage roster introduces the region's enemy types progressively rather than using the former three generic names.
+- Created `src/assets/enemies/premium-enemy-atlas.svg`: 45 original role-based enemy silhouettes, each with four authored animation frames (180 atlas frames total). Added atlas preload, per-archetype move/strike animation registration, and runtime sprite selection by archetype ID.
+- Replaced the five boss sprite sheets with five substantially different silhouettes: armored shield guardian, boxing comet champion, winged talon duelist, radiant martial master, and floating void sovereign. Added boss-specific animation frame orders/rates; boss attack patterns and entrance treatments remain boss-style-specific.
+- Added paired boss-attendant spawning with a strict maximum of eight active attendants. Defeated attendants do not count toward a normal-stage quota; replenishment stops when the boss is defeated. Added pure encounter rules and focused tests.
+- Added 50 deterministic stage music sequences and wired stage entry to its own sequence. The five existing boss theme identities remain separately selected at boss entry.
+- Added ten platform material identities and seven special platform types. Added material-specific ornamentation and runtime effects for accelerator, spring-bounce, temporary-fade, moving, slippery-ice, and elemental-energy platforms; one-way/drop-through continues to use the existing platform rule.
+- Added focused tests for 45 unique enemy IDs/frame ranges, five unique bosses, 50 stage music sequences, and paired attendant wave sizing.
+
+**Not yet complete or verified:** stage-specific background composition still needs a deeper art pass; enemy archetype AI and signature attacks need to be differentiated beyond their current role-based AI mapping; boss-specific signature attack behavior/animation timing still needs its dedicated pass; platform layouts need their expanded shape/route pass and consolidated reachability/collision verification. The new implementation has not yet been run through the consolidated CI suite. No APK has been built, in line with the user's hold-until-complete instruction.
