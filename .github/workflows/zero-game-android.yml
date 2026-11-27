@@ -163,7 +163,7 @@ jobs:
         shell: bash
         run: |
           KEYSTORE_PASSWORD="$(openssl rand -hex 24)"
-          KEY_PASSWORD="$(openssl rand -hex 24)"
+          KEY_PASSWORD="$KEYSTORE_PASSWORD"
           echo "ZERO_GAME_KEYSTORE_PASSWORD=$KEYSTORE_PASSWORD" >> "$GITHUB_ENV"
           echo "ZERO_GAME_KEY_PASSWORD=$KEY_PASSWORD" >> "$GITHUB_ENV"
           keytool -genkeypair -v \
