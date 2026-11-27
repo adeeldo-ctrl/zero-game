@@ -1690,19 +1690,13 @@ class ZeroGameScene extends Phaser.Scene {
   spawnElementParticles(x, y, elementId = this.powerType, count = 12, scale = 1, attackVariant = "default") {
     const element = getElement(elementId || "fire");
     const colors = {
-      fire: [0xfff3a1, 0xffb02e, 0xff5428],
-      ice: [0xffffff, 0x9beaff, 0x4ebeea],
-      lightning: [0xffffff, 0xe3c6ff, 0x8b55ff],
-      water: [0xe6fbff, 0x68d7ff, 0x1689df],
-      nature: [0xe4ffc0, 0x8be86c, 0x319b4d],
-      wind: [0xffffff, 0xc4fff4, 0x66cdbd],
-      earth: [0xffe3b2, 0xc18a52, 0x79502f],
-      light: [0xffffff, 0xfff29a, 0xffc83d],
-      shadow: [0xe0d2ff, 0x9b75e8, 0x493078],
-      plasma: [0xffffff, 0xffa6d0, 0xe63f91],
+      fire: [0xfff3a1, 0xffb02e, 0xff5428], ice: [0xffffff, 0x9beaff, 0x4ebeea],
+      lightning: [0xffffff, 0xe3c6ff, 0x8b55ff], water: [0xe6fbff, 0x68d7ff, 0x1689df],
+      nature: [0xe4ffc0, 0x8be86c, 0x319b4d], wind: [0xffffff, 0xc4fff4, 0x66cdbd],
+      earth: [0xffe3b2, 0xc18a52, 0x79502f], light: [0xffffff, 0xfff29a, 0xffc83d],
+      shadow: [0xe0d2ff, 0x9b75e8, 0x493078], plasma: [0xffffff, 0xffa6d0, 0xe63f91],
     };
     const palette = colors[element.id] || colors.fire;
-    // Twenty collectible particle tiers increase density, scale, travel and linger time.
     const powerLevel = Phaser.Math.Clamp(this.particlePowerLevel || 1, 1, this.particlePowerMaxLevel || 20);
     const upgrade = (powerLevel - 1) / 19;
     const densityMultiplier = 1 + upgrade * 9;
@@ -1717,85 +1711,163 @@ class ZeroGameScene extends Phaser.Scene {
       let particle;
       switch (element.id) {
         case "fire":
-          if (attackVariant === "fan") {
-            particle = this.add.ellipse(x, y, Phaser.Math.Between(4, 7), Phaser.Math.Between(20, 30), color, 0.98).setAngle(Phaser.Math.Between(-72, 72));
-          } else if (attackVariant === "dragon-wave" || attackVariant.includes("wave")) {
-            particle = this.add.ellipse(x, y, Phaser.Math.Between(13, 23), Phaser.Math.Between(5, 9), color, 0.98).setAngle(Phaser.Math.Between(-18, 18));
-          } else if (attackVariant.includes("uppercut") || attackVariant.includes("rise")) {
-            particle = this.add.ellipse(x, y, Phaser.Math.Between(4, 8), Phaser.Math.Between(23, 34), color, 0.98).setAngle(Phaser.Math.Between(-18, 18));
-          } else if (attackVariant.includes("spin") || attackVariant.includes("cyclone")) {
-            particle = this.add.arc(x, y, Phaser.Math.Between(8, 15), 205, 335, false, color, 0.98).setStrokeStyle(4, 0xfff0b0, 0.85);
-          } else {
-            particle = this.add.ellipse(x, y, Phaser.Math.Between(5, 10), Phaser.Math.Between(11, 19), color, 0.98).setAngle(Phaser.Math.Between(-35, 35));
+          if (attackVariant === "fan") particle = this.add.ellipse(x, y, 5, Phaser.Math.Between(20, 30), color, 0.98).setAngle(Phaser.Math.Between(-72, 72));
+          else if (attackVariant.includes("wave")) particle = this.add.ellipse(x, y, 18, 7, color, 0.98).setAngle(Phaser.Math.Between(-18, 18));
+          else particle = this.add.ellipse(x, y, 7, Phaser.Math.Between(12, 22), color, 0.98).setAngle(Phaser.Math.Between(-35, 35));
+          break;
+        case "ice": {
+          particle = this.add.graphics();
+          const arm = Phaser.Math.Between(6, 11);
+          particle.lineStyle(2.2, color, 1);
+          for (let a = 0; a < 6; a++) {
+            const t = a * Math.PI / 3;
+            const ex = Math.cos(t) * arm, ey = Math.sin(t) * arm;
+            particle.lineBetween(0, 0, ex, ey);
+            particle.lineBetween(ex, ey, ex - Math.cos(t - 0.55) * 4, ey - Math.sin(t - 0.55) * 4);
+            particle.lineBetween(ex, ey, ex - Math.cos(t + 0.55) * 4, ey - Math.sin(t + 0.55) * 4);
           }
           break;
-        case "ice":
-          particle = this.add.star(x, y, 4, 2, Phaser.Math.Between(7, 12), color, 0.98);
-          break;
-        case "lightning":
-          particle = this.add.triangle(x, y, -3, -9, 5, 0, -2, 10, color, 1).setAngle(Phaser.Math.Between(-65, 65));
-          break;
+        }
+        case "lightning": {
+          particle = this.add.graphics();
+          particle.lineStyle(3, color, 1);
+          particle.beginPath(); particle.moveTo(-3, -11); particle.lineTo(4, -3); particle.lineTo(-2, 1); particle.lineTo(5, 10); particle.strokePath();
+          particle.setAngle(Phaser.Math.Between(-65, 65)); break;
+        }
         case "water":
-          particle = this.add.circle(x, y, Phaser.Math.Between(3, 7), color, 0.9).setStrokeStyle(2, 0xffffff, 0.8);
-          break;
-        case "nature":
-          particle = this.add.ellipse(x, y, 7, 15, color, 0.95).setAngle(Phaser.Math.Between(-70, 70));
-          break;
+          particle = this.add.triangle(x, y, 0, -10, 7, 4, -7, 4, color, 0.94).setStrokeStyle(1, 0xffffff, 0.85).setAngle(Phaser.Math.Between(0, 360)); break;
+        case "nature": {
+          particle = this.add.ellipse(x, y, 8, 17, color, 0.95).setAngle(Phaser.Math.Between(-70, 70));
+          const vein = this.add.graphics(); vein.lineStyle(1.3, 0xf4ffe7, 0.9); vein.lineBetween(x, y - 7, x, y + 7); vein.setDepth(26);
+          this.tweens.add({ targets: vein, alpha: 0, duration: 360, onComplete: () => vein.destroy() }); break;
+        }
         case "wind":
-          particle = this.add.ellipse(x, y, 18, 4, color, 0.9).setAngle(Phaser.Math.Between(-60, 60));
-          break;
+          particle = this.add.arc(x, y, Phaser.Math.Between(8, 17), 195, 345, false, color, 0.95).setStrokeStyle(3, color, 0.95).setAngle(Phaser.Math.Between(-80, 80)); break;
         case "earth":
-          particle = this.add.triangle(x, y, -7, 6, 0, -9, 8, 6, color, 1).setAngle(Phaser.Math.Between(0, 360));
-          break;
+          particle = this.add.polygon(x, y, [-8,-3,-2,-10,8,-4,6,6,-4,9], color, 1).setStrokeStyle(1, 0xffe4bd, 0.75).setAngle(Phaser.Math.Between(0, 360)); break;
         case "light":
-          particle = this.add.star(x, y, 5, 3, 11, color, 1);
-          break;
+          particle = this.add.star(x, y, 4, 3, Phaser.Math.Between(8, 13), color, 1).setAngle(Phaser.Math.Between(0, 360)); break;
         case "shadow":
-          particle = this.add.circle(x, y, Phaser.Math.Between(4, 8), color, 0.88).setStrokeStyle(2, 0x211438, 0.9);
-          break;
+          particle = this.add.arc(x, y, Phaser.Math.Between(7, 13), 65, 295, false, color, 0.92).setStrokeStyle(3, 0x211438, 0.95).setAngle(Phaser.Math.Between(0, 360)); break;
+        case "plasma":
+          particle = this.add.circle(x, y, Phaser.Math.Between(4, 8), color, 0.85).setStrokeStyle(2, 0xffffff, 0.95);
+          this.tweens.add({ targets: particle, scale: 1.45, duration: 160, yoyo: true }); break;
         default:
-          particle = this.add.star(x, y, 6, 3, Phaser.Math.Between(8, 13), color, 0.95).setAngle(Phaser.Math.Between(0, 360));
-          break;
+          particle = this.add.star(x, y, 6, 3, Phaser.Math.Between(8, 13), color, 0.95); break;
       }
       particle.setDepth(25).setScale(particleScale);
-      const travel = speed * (element.id === "wind" ? 1.45 : element.id === "earth" ? 0.72 : 1);
+      const travel = speed * (element.id === "wind" ? 1.65 : element.id === "earth" ? 0.72 : 1);
+      const driftX = element.id === "wind" ? Math.cos(angle + 0.8) * travel * 0.35 : Math.cos(angle) * travel;
+      const driftY = element.id === "fire" ? Math.sin(angle) * travel - Phaser.Math.Between(10, 28)
+        : element.id === "wind" ? Math.sin(angle) * travel - 8 : Math.sin(angle) * travel;
       this.tweens.add({
-        targets: particle,
-        x: x + Math.cos(angle) * travel,
-        y: y + Math.sin(angle) * travel - (element.id === "fire" ? Phaser.Math.Between(10, 28) : 0),
-        alpha: 0,
-        scaleX: element.id === "wind" ? 0.15 : 0.35,
-        scaleY: 0.25,
+        targets: particle, x: x + driftX, y: y + driftY, alpha: 0,
+        scaleX: element.id === "wind" ? 0.12 : 0.35, scaleY: element.id === "wind" ? 0.55 : 0.25,
         angle: particle.angle + Phaser.Math.Between(-180, 180),
         duration: Math.round(Phaser.Math.Between(260, 520) * particleLifetime),
-        ease: "Cubic.easeOut",
-        onComplete: () => particle.destroy(),
+        ease: "Cubic.easeOut", onComplete: () => particle.destroy(),
       });
     }
   }
 
   createElementBall(x, y, palette) {
     const ball = this.add.container(x, y).setDepth(16);
-    const outer = this.add.circle(0, 0, 27, palette.ball, 1).setStrokeStyle(5, palette.edge);
-    const innerGlow = this.add.circle(0, 0, 19, palette.glow, 0.28).setStrokeStyle(2, palette.edge, 0.85);
-    const shine = this.add.arc(0, 0, 22, 205, 320, false, palette.edge).setStrokeStyle(4, palette.edge);
+    ball.setData("elementId", palette.id);
     const details = [];
+    const ring = (radius, color, width = 4, start = 20, end = 340) =>
+      this.add.arc(0, 0, radius, start, end, false, color, 0.95).setStrokeStyle(width, color, 0.95);
     switch (palette.id) {
-      case "fire": details.push(this.add.ellipse(-8, 5, 9, 20, 0xffd05a, 0.95).setAngle(-28), this.add.ellipse(5, 3, 8, 17, 0xff7b32, 0.95).setAngle(24)); break;
-      case "ice": details.push(this.add.star(0, 0, 6, 4, 11, 0xffffff, 0.95), this.add.star(0, 0, 6, 2, 16, palette.edge, 0.8)); break;
-      case "water": details.push(this.add.circle(-9, 5, 5, 0xd8f7ff, 0.9), this.add.circle(8, -7, 4, 0xffffff, 0.95), this.add.arc(0, 2, 16, 205, 330, false, 0xc5f4ff, 0.9).setStrokeStyle(4, 0xc5f4ff)); break;
-      case "wind": details.push(this.add.arc(0, 0, 17, 15, 165, false, 0xffffff, 0.95).setStrokeStyle(4, 0xffffff), this.add.arc(0, 0, 11, 195, 345, false, palette.edge, 0.95).setStrokeStyle(3, palette.edge)); break;
-      case "lightning": { const bolt = this.add.graphics(); bolt.lineStyle(5, 0xffffff, 1); bolt.beginPath(); bolt.moveTo(-3, -17); bolt.lineTo(7, -3); bolt.lineTo(-2, 1); bolt.lineTo(5, 17); bolt.strokePath(); details.push(bolt); break; }
-      case "nature": details.push(this.add.ellipse(-8, 0, 9, 17, 0xbaff83, 0.95).setAngle(-35), this.add.ellipse(8, 2, 9, 17, 0x5de078, 0.95).setAngle(35)); break;
-      case "earth": details.push(this.add.triangle(-7, 2, 0, -11, 8, 9, 0xe9bd7b, 1), this.add.triangle(9, -3, 0, -8, 7, 8, 0x9d7047, 1)); break;
-      case "light": details.push(this.add.star(0, 0, 8, 5, 14, 0xffffff, 0.98), this.add.circle(0, 0, 4, 0xfff4a6, 1)); break;
-      case "shadow": details.push(this.add.circle(-8, -2, 10, 0x24154e, 0.9), this.add.circle(8, 5, 7, 0x9c78e8, 0.8)); break;
-      default: details.push(this.add.circle(-8, -5, 7, 0xffb1dd, 0.95), this.add.circle(8, 7, 6, 0xffffff, 0.95), this.add.star(0, 0, 6, 3, 12, palette.edge, 0.85)); break;
+      case "wind": {
+        const cyclone = this.add.graphics();
+        cyclone.lineStyle(6, palette.edge, 0.95); cyclone.beginPath();
+        cyclone.moveTo(-17, 16); cyclone.lineTo(-9, 5); cyclone.lineTo(8, -2); cyclone.lineTo(15, -17);
+        cyclone.moveTo(-12, 20); cyclone.lineTo(12, 20); cyclone.moveTo(-20, -8); cyclone.lineTo(-9, -14);
+        cyclone.strokePath();
+        details.push(ring(23, 0xffffff, 3, 15, 165), ring(16, palette.edge, 4, 190, 350), ring(9, 0xffffff, 2, 35, 300), cyclone);
+        ball.setData("motionStyle", "twister"); break;
+      }
+      case "water":
+        details.push(this.add.ellipse(0, 1, 43, 51, palette.ball, 0.84).setStrokeStyle(4, palette.edge),
+          this.add.ellipse(-7, -7, 15, 26, 0xe8fcff, 0.92).setAngle(22),
+          this.add.circle(13, 10, 7, 0x8be5ff, 0.9), this.add.circle(-18, -20, 4, 0xffffff, 1));
+        ball.setData("motionStyle", "flow"); break;
+      case "fire":
+        details.push(this.add.circle(0, 0, 24, palette.ball).setStrokeStyle(4, palette.edge),
+          this.add.ellipse(-8, 3, 13, 29, 0xffe17a).setAngle(-28),
+          this.add.ellipse(8, 1, 12, 24, 0xff6a27).setAngle(24), this.add.circle(0, 3, 8, 0xfff0a1));
+        ball.setData("motionStyle", "flame"); break;
+      case "ice": {
+        details.push(this.add.circle(0, 0, 25, palette.ball, 0.82).setStrokeStyle(4, palette.edge));
+        const snowflake = this.add.graphics(); snowflake.lineStyle(3, 0xffffff, 1);
+        for (let i = 0; i < 6; i++) {
+          const a = i * Math.PI / 3, ex = Math.cos(a) * 20, ey = Math.sin(a) * 20;
+          snowflake.lineBetween(0, 0, ex, ey);
+          snowflake.lineBetween(ex, ey, ex - Math.cos(a - 0.5) * 7, ey - Math.sin(a - 0.5) * 7);
+          snowflake.lineBetween(ex, ey, ex - Math.cos(a + 0.5) * 7, ey - Math.sin(a + 0.5) * 7);
+        }
+        details.push(snowflake); ball.setData("motionStyle", "ice-roll"); break;
+      }
+      case "lightning": {
+        const bolt = this.add.graphics(); bolt.lineStyle(7, 0xffffff, 1); bolt.beginPath();
+        bolt.moveTo(-5, -22); bolt.lineTo(7, -5); bolt.lineTo(-3, 1); bolt.lineTo(7, 22); bolt.strokePath();
+        details.push(this.add.circle(0, 0, 24, palette.ball, 0.8).setStrokeStyle(3, palette.edge), bolt, ring(29, palette.edge, 3, 25, 310));
+        ball.setData("motionStyle", "spark-dash"); break;
+      }
+      case "nature":
+        details.push(this.add.ellipse(0, 0, 40, 48, palette.ball).setStrokeStyle(4, palette.edge),
+          this.add.ellipse(-9, 0, 12, 27, 0xbaff83).setAngle(-30), this.add.ellipse(9, 0, 12, 27, 0x5de078).setAngle(30));
+        ball.setData("motionStyle", "leaf-roll"); break;
+      case "earth":
+        details.push(this.add.polygon(0, 0, [-22,-9,-8,-25,16,-17,24,5,7,24,-17,16], palette.ball).setStrokeStyle(5, palette.edge),
+          this.add.polygon(-8, -5, [-8,-8,2,-17,11,-6,1,6], 0xffd59a));
+        ball.setData("motionStyle", "rock-roll"); break;
+      case "light":
+        details.push(this.add.star(0, 0, 8, 13, 26, palette.ball).setStrokeStyle(4, palette.edge),
+          this.add.star(0, 0, 8, 5, 13, 0xffffff), this.add.circle(0, 0, 5, 0xfff4a6));
+        ball.setData("motionStyle", "radiant"); break;
+      case "shadow":
+        details.push(this.add.circle(0, 0, 25, 0x25163f).setStrokeStyle(4, palette.edge),
+          this.add.circle(10, -7, 18, palette.ball), this.add.circle(-9, 7, 7, 0x24143d, 0.95),
+          ring(30, 0xbda0ff, 3, 40, 300));
+        ball.setData("motionStyle", "shade"); break;
+      default: {
+        details.push(this.add.circle(0, 0, 24, palette.ball).setStrokeStyle(4, palette.edge),
+          this.add.circle(-8, -7, 6, 0xffffff), this.add.circle(9, 8, 6, 0xffb1dd),
+          ring(30, palette.edge, 4, 30, 325), this.add.star(0, 0, 6, 3, 13, 0xffffff));
+        ball.setData("motionStyle", "plasma"); break;
+      }
     }
-    ball.add([outer, innerGlow, ...details, shine]);
-    this.tweens.add({ targets: innerGlow, scale: 1.22, alpha: 0.12, duration: 420, yoyo: true, repeat: -1 });
+    ball.add(details);
+    this.tweens.add({ targets: details, alpha: 0.76, duration: palette.id === "wind" ? 260 : 420, yoyo: true, repeat: -1 });
     this.spawnElementParticles(x, y, palette.id, 14, 0.8);
     return ball;
+  }
+
+  spawnElementBallEffects(x, y, elementId, kind = "trail", scale = 1) {
+    const palette = getElement(elementId || "fire");
+    const count = kind === "kick" ? 24 : kind === "impact" ? 18 : 8;
+    if (palette.id === "ice") {
+      this.spawnElementParticles(x, y, "ice", count, scale, kind);
+    } else if (palette.id === "wind") {
+      for (let i = 0; i < count; i++) {
+        const arc = this.add.arc(x + Phaser.Math.Between(-12, 12), y + Phaser.Math.Between(-18, 18),
+          Phaser.Math.Between(12, 25), 190, 345, false, i % 2 ? 0xffffff : palette.edge, 0.9)
+          .setStrokeStyle(3, i % 2 ? 0xffffff : palette.edge).setDepth(29);
+        this.tweens.add({ targets: arc, x: arc.x - 28, y: arc.y - 10, angle: arc.angle + 160,
+          alpha: 0, scale: 0.35, duration: 360, onComplete: () => arc.destroy() });
+      }
+    } else if (palette.id === "water") {
+      for (let i = 0; i < count; i++) {
+        const drop = this.add.ellipse(x + Phaser.Math.Between(-8, 8), y + Phaser.Math.Between(-8, 8),
+          Phaser.Math.Between(5, 9), Phaser.Math.Between(9, 16), i % 2 ? 0xeaffff : palette.edge, 0.94)
+          .setStrokeStyle(1, 0xffffff).setDepth(29).setAngle(Phaser.Math.Between(-35, 35));
+        this.tweens.add({ targets: drop, x: drop.x + Phaser.Math.Between(-34, 34),
+          y: drop.y + Phaser.Math.Between(12, 38), scale: 0.25, alpha: 0, duration: 430,
+          onComplete: () => drop.destroy() });
+      }
+    } else {
+      this.spawnElementParticles(x, y, palette.id, count, scale, kind);
+    }
   }
 
   recordEnemyDefeat(enemy) {
@@ -2701,36 +2773,28 @@ class ZeroGameScene extends Phaser.Scene {
   }
 
   startElementBallRoll(enemy) {
-    this.audio.unlock();
-    this.audio.play("ballKick");
+    this.audio.unlock(); this.audio.play("ballKick");
     const ball = enemy.getData("elementBall");
     if (!ball?.active) return;
     const direction = this.facing;
-    enemy.setData("rolling", true);
-    enemy.setData("rollDirection", direction);
-    enemy.setData("rollHits", []);
-    enemy.setData("rollWallBounces", 0);
-    enemy.setData("rollStartedAt", this.time.now);
-    enemy.setData("rollDistanceOrigin", enemy.x);
-    enemy.setData("rollDirection", direction);
-    enemy.body.setAllowGravity(true);
-    enemy.setCollideWorldBounds(true);
-    // A kicked ball should finish on first wall contact, not rebound back into play.
-    enemy.setBounce(0, 0);
-    enemy.setDragX(0, false);
-    enemy.setMaxVelocity(700, 950);
-    enemy.setVelocity(0, 0);
-    enemy.body.setSize(54, 54);
-    enemy.body.setOffset(-1, -1);
-    enemy.setVelocityX(direction * 390);
+    const palette = enemy.getData("ballPalette") || this.getPowerPalette();
+    const elementId = palette.id || "fire";
+    enemy.setData("rolling", true); enemy.setData("rollDirection", direction);
+    enemy.setData("rollHits", []); enemy.setData("rollWallBounces", 0);
+    enemy.setData("rollStartedAt", this.time.now); enemy.setData("rollDistanceOrigin", enemy.x);
+    enemy.setData("rollElementId", elementId);
+    enemy.body.setAllowGravity(true); enemy.setCollideWorldBounds(true);
+    enemy.setBounce(0, 0); enemy.setDragX(0, false); enemy.setMaxVelocity(700, 950);
+    enemy.setVelocity(0, 0); enemy.body.setSize(54, 54); enemy.body.setOffset(-1, -1);
+    const speed = elementId === "lightning" ? 510 : elementId === "wind" ? 440 : elementId === "earth" ? 320 : elementId === "water" ? 365 : 390;
+    enemy.setVelocityX(direction * speed);
     ball.setScale(1.45);
     this.tweens.add({ targets: ball, scale: 1.7, duration: 130, yoyo: true });
-    const palette = enemy.getData("ballPalette") || this.getPowerPalette();
-    this.spawnSnowballParticles(enemy.x, enemy.y, "kick", 20, 1.15);
+    this.spawnElementBallEffects(enemy.x, enemy.y, elementId, "kick", 1.15);
     const flash = this.add.circle(enemy.x, enemy.y, 36, palette.glow, 0.8).setStrokeStyle(5, palette.edge).setDepth(20);
     this.tweens.add({ targets: flash, scale: 2.3, alpha: 0, duration: 220, onComplete: () => flash.destroy() });
     this.audio.play("ballRoll");
-    this.statusLabel.setText("ELEMENTAL BALL! CLEAR THE PATH!").setColor("#ffe17a");
+    this.statusLabel.setText(elementId === "wind" ? "TWISTER! CLEAR THE PATH!" : elementId === "water" ? "WATER SURGE! FLOW FORWARD!" : "ELEMENTAL POWER! CLEAR THE PATH!").setColor("#ffe17a");
     this.cameras.main.shake(130, 0.004);
   }
 
@@ -2763,74 +2827,62 @@ class ZeroGameScene extends Phaser.Scene {
   updateRollingBall(enemy, delta) {
     const ball = enemy.getData("elementBall");
     if (!ball?.active) { this.finishRollingBallCarrier(enemy, null, false); return; }
+    const elementId = enemy.getData("rollElementId") || ball.getData("elementId") || "fire";
     const rollAge = this.time.now - (enemy.getData("rollStartedAt") || this.time.now);
     if (rollAge >= 4200 || Math.abs(enemy.x - (enemy.getData("rollDistanceOrigin") ?? enemy.x)) >= 2600) {
-      enemy.setVelocity(0, 0);
-      enemy.body.enable = false;
-      this.finishRollingBallCarrier(enemy, ball, true);
-      return;
+      enemy.setVelocity(0, 0); enemy.body.enable = false; this.finishRollingBallCarrier(enemy, ball, true); return;
     }
     const motion = calculateRollingBallMotion({
-      velocityX: enemy.body.velocity.x,
-      direction: enemy.getData("rollDirection") || 1,
-      deltaMs: delta,
+      velocityX: enemy.body.velocity.x, direction: enemy.getData("rollDirection") || 1, deltaMs: delta,
       grounded: enemy.body.blocked.down,
       blockedLeft: enemy.body.blocked.left && this.time.now - (enemy.getData("rollLastWallImpactAt") || 0) > 170,
       blockedRight: enemy.body.blocked.right && this.time.now - (enemy.getData("rollLastWallImpactAt") || 0) > 170,
       wallBounces: enemy.getData("rollWallBounces") || 0,
     });
     if (motion.finished) {
-      enemy.setVelocity(0, 0);
-      enemy.body.enable = false;
-      this.finishRollingBallCarrier(enemy, ball, true);
-      return;
+      enemy.setVelocity(0, 0); enemy.body.enable = false; this.finishRollingBallCarrier(enemy, ball, true); return;
     }
-    enemy.setData("rollDirection", motion.direction);
-    enemy.setData("rollWallBounces", motion.wallBounces || 0);
+    enemy.setData("rollDirection", motion.direction); enemy.setData("rollWallBounces", motion.wallBounces || 0);
     if (motion.hitWall) {
-      enemy.setData("rollLastWallImpactAt", this.time.now);
-      this.cameras.main.shake(100, 0.003);
-      this.spawnSnowballParticles(enemy.x, enemy.y, "impact", 8, 0.65);
+      enemy.setData("rollLastWallImpactAt", this.time.now); this.cameras.main.shake(100, 0.003);
+      this.spawnElementBallEffects(enemy.x, enemy.y, elementId, "impact", 0.85);
       enemy.setX(Phaser.Math.Clamp(enemy.x + motion.direction * 8, 32, 928));
     }
-    enemy.setVelocityX(motion.velocityX);
-    ball.setPosition(enemy.x, enemy.y);
+    const velocityFactor = elementId === "wind" ? 1.12 : elementId === "water" ? 0.94 : elementId === "earth" ? 0.82 : 1;
+    enemy.setVelocityX(motion.velocityX * velocityFactor);
+    const bob = elementId === "wind" ? Math.sin(this.time.now * 0.018) * 5
+      : elementId === "water" ? Math.sin(this.time.now * 0.012) * 2 : 0;
+    ball.setPosition(enemy.x, enemy.y + bob);
     const nextTrailAt = enemy.getData("nextSnowTrailAt") || 0;
     if (this.time.now >= nextTrailAt) {
-      enemy.setData("nextSnowTrailAt", this.time.now + 85);
-      this.spawnSnowballParticles(enemy.x - (enemy.getData("rollDirection") || 1) * 18, enemy.y + 5, "roll", 3, 0.7);
+      enemy.setData("nextSnowTrailAt", this.time.now + (elementId === "wind" ? 55 : 85));
+      this.spawnElementBallEffects(enemy.x - (enemy.getData("rollDirection") || 1) * 18, enemy.y + 5, elementId, "trail", 0.7);
     }
-    // Spin is tied to actual travel distance, so falling and slowing look natural.
-    ball.angle += motion.rotationDelta;
+    const spin = elementId === "wind" ? 1.8 : elementId === "water" ? 0.65 : elementId === "lightning" ? 2.1 : 1;
+    ball.angle += motion.rotationDelta * spin;
+    if (elementId === "wind") ball.setScale(1.45 + Math.sin(this.time.now * 0.02) * 0.08, 1.55 + Math.cos(this.time.now * 0.02) * 0.12);
+    else if (elementId === "water") ball.setScale(1.48 + Math.sin(this.time.now * 0.015) * 0.06, 1.38 + Math.cos(this.time.now * 0.015) * 0.08);
+    else if (elementId === "fire") ball.setScale(1.48 + Math.sin(this.time.now * 0.025) * 0.08);
     const hits = enemy.getData("rollHits") || [];
     for (const target of this.enemies.getChildren()) {
       if (!target.active || target === enemy || hits.includes(target)) continue;
       if (!canRollingBallHitTarget(target.x - enemy.x, target.y - enemy.y)) continue;
-      hits.push(target);
-      enemy.setData("rollHits", hits);
-      this.audio.play("ballImpact");
-      this.spawnSnowballParticles(target.x, target.y, "impact", 18, 1.05);
+      hits.push(target); enemy.setData("rollHits", hits); this.audio.play("ballImpact");
+      this.spawnElementBallEffects(target.x, target.y, elementId, "impact", 1.05);
       if (target.getData("isBoss")) {
         this.hitBoss(target, 3 + (enemy.getData("snowballPowerTier") || 1) * 2);
         this.statusLabel.setText("BOSS HIT BY ELEMENTAL BALL!").setColor("#ffe17a");
       } else {
-        const visual = target.getData("visual");
-        if (visual?.active) visual.destroy();
-        const oldBall = target.getData("elementBall");
-        if (oldBall?.active) oldBall.destroy();
+        const visual = target.getData("visual"); if (visual?.active) visual.destroy();
+        const oldBall = target.getData("elementBall"); if (oldBall?.active) oldBall.destroy();
         const ballPalette = enemy.getData("ballPalette") || this.getPowerPalette();
         const burst = this.add.circle(target.x, target.y, 32, ballPalette.edge, 0.95).setStrokeStyle(5, 0xffffff).setDepth(22);
         this.tweens.add({ targets: burst, scale: 2.8, alpha: 0, duration: 260, onComplete: () => burst.destroy() });
-        this.spawnSnowballParticles(target.x, target.y, "impact", 22, 1.2);
-        this.dropReward(target.x, target.y);
-        this.addScore(500);
-        this.recordEnemyDefeat(target);
-        target.destroy();
+        this.spawnElementBallEffects(target.x, target.y, elementId, "impact", 1.2);
+        this.dropReward(target.x, target.y); this.addScore(500); this.recordEnemyDefeat(target); target.destroy();
       }
     }
-    if (isRollingBallOutOfBounds(enemy.x)) {
-      this.finishRollingBallCarrier(enemy, ball, false);
-    }
+    if (isRollingBallOutOfBounds(enemy.x)) this.finishRollingBallCarrier(enemy, ball, false);
   }
 
   specialMove(moveIndex = 0) {
