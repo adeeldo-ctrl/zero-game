@@ -1898,7 +1898,8 @@ class ZeroGameScene extends Phaser.Scene {
       return;
     }
     const projectilePower = projectile.getData("powerType") || this.powerType;
-    const ballElement = getElement(enemy.getData("enemyPowerType") || projectilePower);
+    // The frozen shape follows the power that hit it, not a random enemy tint.
+    const ballElement = getElement(projectilePower);
     const hitPalette = { id: ballElement.id, effect: ballElement.effect, ball: ballElement.ball,
       edge: ballElement.edge, glow: ballElement.glow, trail: ballElement.trail };
     this.audio.play("ballImpact");
@@ -1926,7 +1927,7 @@ class ZeroGameScene extends Phaser.Scene {
       this.spawnSnowballParticles(enemy.x, enemy.y, "freeze", 18, 1.1);
       const ball = this.createElementBall(enemy.x, enemy.y, palette);
       const powerTier = enemy.getData("snowballPowerTier") || 1;
-      ball.setScale(1 + powerTier * 0.12);
+      ball.setScale(1.15 + Math.min(20, powerTier) * 0.018);
       enemy.setData("elementBall", ball);
       enemy.setData("ballPalette", palette);
       this.tweens.add({ targets: ball, scale: 1.18, duration: 180, yoyo: true });
@@ -2845,7 +2846,6 @@ class ZeroGameScene extends Phaser.Scene {
     const ball = enemy.getData("elementBall");
     if (!ball?.active) { this.finishRollingBallCarrier(enemy, null, false); return; }
     const elementId = enemy.getData("rollElementId") || ball.getData("elementId") || "fire";
-    const rollAge = this.time.now - (enemy.getData("rollStartedAt") || this.time.now);
     const motion = calculateRollingBallMotion({
       velocityX: enemy.body.velocity.x, direction: enemy.getData("rollDirection") || 1, deltaMs: delta,
       grounded: enemy.body.blocked.down,
@@ -2853,14 +2853,14 @@ class ZeroGameScene extends Phaser.Scene {
       blockedRight: enemy.body.blocked.right && this.time.now - (enemy.getData("rollLastWallImpactAt") || 0) > 170,
       wallBounces: enemy.getData("rollWallBounces") || 0,
     });
-    if (motion.finished) {
-      enemy.setVelocity(0, 0); enemy.body.enable = false; this.finishRollingBallCarrier(enemy, ball, true); return;
-    }
     enemy.setData("rollDirection", motion.direction); enemy.setData("rollWallBounces", motion.wallBounces || 0);
     if (motion.hitWall) {
-      enemy.setData("rollLastWallImpactAt", this.time.now); this.cameras.main.shake(100, 0.003);
-      this.spawnElementBallEffects(enemy.x, enemy.y, elementId, "impact", 0.85);
+      enemy.setData("rollLastWallImpactAt", this.time.now); this.cameras.main.shake(150, 0.006);
+      this.spawnElementBallEffects(enemy.x, enemy.y, elementId, "impact", 1.2);
       enemy.setX(Phaser.Math.Clamp(enemy.x + motion.direction * 8, 32, 928));
+    }
+    if (motion.finished) {
+      enemy.setVelocity(0, 0); enemy.body.enable = false; this.finishRollingBallCarrier(enemy, ball, true); return;
     }
     // Keep physics speed stable; elemental feel comes from launch speed, shape,
     // bobbing, spin, trail and impact presentation rather than per-frame multipliers.
