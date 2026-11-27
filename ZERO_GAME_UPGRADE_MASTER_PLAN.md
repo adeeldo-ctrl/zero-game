@@ -554,3 +554,11 @@ The following gameplay requirements are mandatory and supersede any conflicting 
 - The rolling-ball motion rule now uses three completed bounces as its default and only resolves the carrier after the next impact. Element-specific speed, visual motion, impact effects, and score/reward bookkeeping remain unchanged.
 - Added focused regression coverage for all three surviving bounces, direction reversals, damping, and fourth-impact cleanup.
 - This is an implementation update only; the consolidated project verification remains reserved until all approved development is complete. No Android APK build is to be started before that final verification.
+
+
+## Six-tier platform routes across the full campaign — 2026-11-27
+
+- Expanded every one of the 50 stage arenas from four to six horizontal platforms, including dedicated boss arenas.
+- Each normal stage's added middle ledge is anchored to its authored lower platform, while the upper route follows that stage's authored high platform. Boss arenas receive matching side and upper routes without losing their broad central fighting floor.
+- The new ledges remain within the arena bounds and within the existing reachable vertical-step envelope. The campaign data test now checks six platforms per stage and the expanded vertical range, while retaining all 50 unique authored base layouts.
+- This development change does not trigger an Android APK build. The one consolidated verification and Release APK remain reserved for the end of all approved work.
