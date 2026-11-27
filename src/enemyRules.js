@@ -1,5 +1,5 @@
 export const GROUND_ENEMY_TYPES = Object.freeze([
-  "chaser", "runner", "jumper", "guard", "charger",
+  "chaser", "runner", "jumper", "guard", "charger", "flyer", "ambusher", "ranged", "bomber", "summoner",
 ]);
 
 export const REGULAR_ENEMY_VISUAL_SCALE = 1.2;
