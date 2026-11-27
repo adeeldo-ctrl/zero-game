@@ -87,5 +87,5 @@ These commands verify and build the web game only. They do not create an Android
 - Music and sound effects can be adjusted independently using the in-game MUSIC and SFX controls. Keyboard shortcuts M and N toggle the corresponding audio channels.
 - Audio starts after the first player interaction to comply with mobile browser/WebView audio restrictions.
 - Ambient stage/weather loops respect the device's `prefers-reduced-motion` accessibility preference; one-shot gameplay cues and transitions remain available.
-- The canvas menus do not yet provide full screen-reader navigation, which remains a known accessibility limitation.
+- The game canvas and touch-control surface expose accessible labels and concise control instructions; full screen-reader menu navigation remains a known accessibility limitation.
 
