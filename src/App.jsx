@@ -2046,7 +2046,7 @@ class ZeroGameScene extends Phaser.Scene {
       "floating-moss": { base: 0x496d56, accent: 0x9de17b, detail: 0xd7ffad },
       "starfield": { base: 0x34365f, accent: 0x9db5ff, detail: 0xffe7a4 },
     };
-    authored.forEach(({ x, y, width = 200, materialId = "polished-stone", specialType = null, specialDirection = 1 }, platformIndex) => {
+    authored.forEach(({ x, y, width = 200, materialId = "polished-stone", shapeId = "stone-block", specialType = null, specialDirection = 1 }, platformIndex) => {
       const style = materialStyles[materialId] || materialStyles["polished-stone"];
       const accent = style.accent || this.stageConfig.background.accent;
       const platform = this.platforms.create(x, y, "platform");
@@ -2093,10 +2093,80 @@ class ZeroGameScene extends Phaser.Scene {
             duration: 1150 + ((this.stageNumber + runeIndex) % 5) * 170, yoyo: true, repeat: -1, ease: "Sine.easeInOut" });
         }
       }
+      this.createPlatformShapeDecoration(x, y, width, shapeId, accent, style.detail);
       if (specialType) this.createSpecialPlatformDecoration(platform, x, y, width, specialType, accent);
     });
   }
 
+
+  createPlatformShapeDecoration(x, y, width, shapeId, accent, detail) {
+    const decor = this.add.container(x, y - 7).setDepth(4);
+    const half = width * 0.34;
+    if (shapeId === "cloud-island") {
+      decor.add([
+        this.add.ellipse(-half, 0, 48, 17, detail, 0.88),
+        this.add.ellipse(0, -4, 62, 22, detail, 0.92),
+        this.add.ellipse(half, 0, 48, 17, detail, 0.88),
+      ]);
+    } else if (shapeId === "crystal-bridge") {
+      decor.add([-1, 0, 1].map((side) =>
+        this.add.triangle(side * half, -7, 0, -24, 12, 2, -12, 2, detail, 0.92)
+          .setStrokeStyle(2, accent, 0.95)
+      ));
+    } else if (shapeId === "gear-rail") {
+      decor.add([-1, 0, 1].map((side) =>
+        this.add.star(side * half, 0, 8, 3, 7, detail, 0.95)
+          .setStrokeStyle(1, accent, 0.95)
+      ));
+      this.tweens.add({ targets: decor.list, angle: 360, duration: 6200, repeat: -1 });
+    } else if (shapeId === "vine-branch") {
+      const vine = this.add.graphics();
+      vine.lineStyle(4, accent, 0.95);
+      vine.beginPath();
+      vine.moveTo(-width * 0.42, 1);
+      vine.lineTo(-width * 0.2, -7);
+      vine.lineTo(0, 0);
+      vine.lineTo(width * 0.2, -8);
+      vine.lineTo(width * 0.42, 0);
+      vine.strokePath();
+      decor.add(vine);
+      for (let leaf = 0; leaf < 4; leaf++) {
+        const lx = -width * 0.3 + leaf * width * 0.2;
+        decor.add(this.add.ellipse(lx, -9, 13, 6, detail, 0.92).setAngle(leaf % 2 ? 28 : -28));
+      }
+    } else if (shapeId === "rune-arch") {
+      decor.add([
+        this.add.rectangle(-width * 0.3, -10, 4, 18, accent, 0.95),
+        this.add.rectangle(width * 0.3, -10, 4, 18, accent, 0.95),
+        this.add.rectangle(0, -18, width * 0.62, 4, detail, 0.95),
+        this.add.star(0, -18, 4, 3, 8, accent, 0.98),
+      ]);
+    } else if (shapeId === "candy-bubble") {
+      decor.add([-1, 0, 1].map((side) =>
+        this.add.circle(side * half, -8 - (side === 0 ? 4 : 0), side === 0 ? 9 : 6, detail, 0.86)
+          .setStrokeStyle(2, accent, 0.9)
+      ));
+    } else if (shapeId === "lava-crack") {
+      const crack = this.add.graphics();
+      crack.lineStyle(3, accent, 0.98);
+      crack.beginPath();
+      crack.moveTo(-width * 0.42, 0);
+      crack.lineTo(-width * 0.24, -9);
+      crack.lineTo(-width * 0.08, 0);
+      crack.lineTo(width * 0.08, -10);
+      crack.lineTo(width * 0.24, 0);
+      crack.lineTo(width * 0.42, -8);
+      crack.strokePath();
+      decor.add(crack);
+      this.tweens.add({ targets: crack, alpha: 0.3, duration: 430, yoyo: true, repeat: -1 });
+    } else {
+      decor.add([-1, 0, 1].map((side) =>
+        this.add.star(side * half, -8, 5, 3, 8, detail, 0.95)
+          .setStrokeStyle(1, accent, 0.95)
+      ));
+      this.tweens.add({ targets: decor.list, alpha: 0.35, duration: 980, yoyo: true, repeat: -1 });
+    }
+  }
 
   createSpecialPlatformDecoration(platform, x, y, width, specialType, accent) {
     const labels = {
