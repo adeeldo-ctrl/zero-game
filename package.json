@@ -11,8 +11,7 @@
     "preview": "vite preview",
     "multiplayer": "node server/multiplayer.js",
     "android:add": "cap add android",
-    "android:sync": "npm run build && cap sync android",
-    "android:apk": "npm run android:sync && cd android && gradlew.bat assembleDebug"
+    "android:sync": "npm run build && cap sync android"
   },
   "dependencies": {
     "phaser": "^4.2.1",
