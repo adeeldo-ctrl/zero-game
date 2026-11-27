@@ -28,6 +28,13 @@ jobs:
         with:
           ref: ${{ github.sha }}
 
+      - name: Enforce final-only delivery lock
+        run: |
+          if ! grep -qx 'FINAL_RELEASE_APPROVED: true' ZERO_GAME_FINAL_DELIVERY_LOCK.md; then
+            echo "Final Android Release APK is locked until all development and consolidated verification are complete."
+            exit 1
+          fi
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
