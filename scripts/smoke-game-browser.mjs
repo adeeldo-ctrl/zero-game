@@ -815,15 +815,19 @@ try {
     }
     scene.lastDamage = scene.time.now + 100000;
     const enemies = scene.enemies.getChildren().filter((enemy) => enemy.active && !enemy.getData("isBoss"));
-    const classes = new Set(enemies.map((enemy) => enemy.getData("enemyClass")));
-    if (!["fast", "heavy", "special"].every((enemyClass) => classes.has(enemyClass))) {
-      throw new Error(`Live stage did not spawn all three enemy classes: ${[...classes].join(",")}`);
+    const archetypes = new Set(enemies.map((enemy) => enemy.getData("enemyArchetypeId")));
+    const roles = new Set(enemies.map((enemy) => enemy.getData("enemyRole")));
+    if (archetypes.size < 2 || roles.size < 2) {
+      throw new Error(`Live stage did not spawn its distinct premium enemy archetypes: ${[...archetypes].join(",")}`);
     }
-    const profiles = new Set(enemies.map((enemy) => enemy.getData("visual")?.getData("classProfile")));
-    if (enemies.some((enemy) => !enemy.getData("visual")?.visible ||
-        !enemy.getData("visual")?.getData("classProfile")) ||
-        !["swift-scarf", "armored-bruiser", "arcane-aura"].every((profile) => profiles.has(profile))) {
-      throw new Error("A live stage enemy is still using the hidden legacy sprite instead of its visible class visual");
+    if (enemies.some((enemy) => {
+      const visual = enemy.getData("visual");
+      const sprite = visual?.getData("authoredSprite");
+      return !visual?.visible || !sprite?.active ||
+        sprite.texture?.key !== "premium-enemy-atlas" ||
+        !sprite.anims.currentAnim;
+    })) {
+      throw new Error("A live stage enemy is missing its visible archetype-specific sprite animation");
     }
     enemies.forEach((enemy, index) => enemy.setData("smokeCheckId", index));
     return {
