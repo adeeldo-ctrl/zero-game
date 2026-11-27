@@ -31,6 +31,7 @@ import { createGameAudio } from "./gameAudio";
 import { createCampaignLives, loseCampaignHeart, getStageTransitionDirection } from "./campaignRules";
 import { shouldHeroCollideWithPlatform, shouldDropThroughPlatform, getPlatformTextureScale } from "./platformRules";
 import { getBossPhase, isValidJumpStomp } from "./combatRules";
+import { getBossAttendantWaveSize, BOSS_ATTENDANT_MAX_ACTIVE } from "./bossEncounterRules";
 import { canKickElementBall, canRollingBallHitTarget, isRollingBallOutOfBounds, calculateRollingBallMotion } from "./snowballRules";
 import { getEnemyMovementSpeed, getSnowballPowerTier, REGULAR_ENEMY_VISUAL_SCALE } from "./enemyRules";
 import { MOBILE_ACTION_BUTTONS, enqueueMobileAction, consumeMobileAction } from "./mobileActionQueue";
@@ -3200,14 +3201,15 @@ class ZeroGameScene extends Phaser.Scene {
   spawnBossAttendantPair() {
     if (this.gameOver || this.bossDefeated || !this.boss?.active) return 0;
     const current = this.countBossAttendants();
-    if (current > 6) return 0;
+    const waveSize = getBossAttendantWaveSize(current);
+    if (waveSize <= 0) return 0;
     const region = getPremiumEnemyRegion(this.stageNumber);
     const eliteRoster = region.enemies.filter((entry) => entry.tier !== "common");
     const palette = getElement(this.stageConfig.boss?.element || "fire");
     const colors = [palette.color, palette.glow];
     const horns = [palette.edge, 0xffffff];
     let spawned = 0;
-    for (let slot = 0; slot < 2 && current + spawned < 8; slot++) {
+    for (let slot = 0; slot < waveSize && current + spawned < BOSS_ATTENDANT_MAX_ACTIVE; slot++) {
       const rosterIndex = (this.bossAttendantSerial || 0) % eliteRoster.length;
       const archetype = eliteRoster[rosterIndex];
       this.bossAttendantSerial = (this.bossAttendantSerial || 0) + 1;
@@ -3246,7 +3248,7 @@ class ZeroGameScene extends Phaser.Scene {
 
   replenishBossAttendants() {
     if (this.gameOver || this.bossDefeated || !this.boss?.active ||
-      this.bossAttendantSpawnQueued || this.countBossAttendants() > 6) return;
+      this.bossAttendantSpawnQueued || getBossAttendantWaveSize(this.countBossAttendants()) <= 0) return;
     this.bossAttendantSpawnQueued = true;
     this.time.delayedCall(520, () => {
       this.bossAttendantSpawnQueued = false;
