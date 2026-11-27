@@ -3640,11 +3640,6 @@ class ZeroGameScene extends Phaser.Scene {
         const attackPose = ["tell", "dash", "volley", "slam"].includes(attackState);
         const previousAttackState = authoredBossSprite.getData("lastAttackState") || "rest";
         const bossId = visual.getData("bossSheetId");
-        if (attackPose && previousAttackState !== attackState) {
-          authoredBossSprite.play(`boss-${bossId}-strike`, true);
-        } else if (!attackPose && previousAttackState !== "rest") {
-          authoredBossSprite.play(`boss-${bossId}-presence`, true);
-        }
         authoredBossSprite.setData("lastAttackState", attackState);
         const signatureTilt = bossId === "gale-talon" ? 9
           : bossId === "iron-comet" ? -4
