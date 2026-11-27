@@ -37,6 +37,12 @@
 - Source commit: `6325be309dc3a458569694f96e08c7c5662870d3`.
 - No tests/builds were run; final consolidated verification and Android APK remain deferred until development is complete.
 
+### Elemental boss entrance portal (2026-11-27)
+- Replaced the shared red entrance flash with an expanding three-layer portal/rune effect using each boss's element palette.
+- Boss spawn position, physics drop, entrance timing, camera shake, combat, and boss phase behavior are unchanged.
+- Source commit: `86426731dc1d2f288853b39ac199a2b0ef17dd08`.
+- No tests/builds were run; final consolidated verification and Android APK remain deferred until development is complete.
+
 ## Non-negotiable preservation rules
 - Preserve the currently working joystick/controller movement and touch mapping. Do not regress the approved controls.
 - Keep the game in landscape and make the playable scene fill the complete device viewport.
