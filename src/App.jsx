@@ -4758,6 +4758,33 @@ class ZeroGameScene extends Phaser.Scene {
             detail.setAlpha(0.88 + (Math.sin(et * 0.005 + index) + 1) * 0.055);
           });
         }
+        const enemyState = enemy.getData("aiState") || "";
+        if ((aiType === "runner" || aiType === "charger") && enemyState === "tell") {
+          parts.armL.rotation = -0.9;
+          parts.armR.rotation = 0.9;
+          parts.legL.rotation = -0.18;
+          parts.legR.rotation = 0.18;
+          if (parts.body?.active) parts.body.setScale(1.08, 0.9);
+        } else if ((aiType === "runner" && enemyState === "dash")
+          || (aiType === "charger" && enemyState === "charge")) {
+          parts.armL.rotation = -0.42;
+          parts.armR.rotation = 0.42;
+          parts.legL.rotation = -0.95;
+          parts.legR.rotation = 0.95;
+          if (parts.body?.active) parts.body.setScale(1.12, 0.88);
+          if (parts.fastScarf?.active && parts.fastScarf.visible) {
+            parts.fastScarf.rotation = -0.3 + Math.sin(et * 0.035) * 0.12;
+          }
+        } else if (aiType === "guard") {
+          parts.armL.rotation = 0.82;
+          parts.armR.rotation = -0.82;
+          if (parts.body?.active) parts.body.setScale(1.04, 0.98);
+        } else if (aiType === "jumper" && !enemy.body.blocked.down) {
+          parts.armL.rotation = -1.05;
+          parts.armR.rotation = 1.05;
+          parts.legL.rotation = -0.55;
+          parts.legR.rotation = 0.55;
+        }
         enemyVisual.y = enemy.y + Math.abs(swing) * -2 + visualBob;
         enemyVisual.angle = 0;
       }
