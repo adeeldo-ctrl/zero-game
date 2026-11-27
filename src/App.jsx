@@ -1550,6 +1550,7 @@ class ZeroGameScene extends Phaser.Scene {
         );
 
         visual.setScale(scale);
+        enemy.setData("visualScale", scale);
       });
     });
   }
@@ -3589,7 +3590,8 @@ class ZeroGameScene extends Phaser.Scene {
       if (enemy.x < 28) { enemy.setX(28); if (aiType === "chaser") enemy.setData("patrolDirection", 1); }
       if (enemy.x > 932) { enemy.setX(932); if (aiType === "chaser") enemy.setData("patrolDirection", -1); }
       if (enemyVisual) {
-        enemyVisual.setScale(facing, 1);
+        const visualScale = enemy.getData("visualScale") || 1;
+        enemyVisual.setScale(facing * visualScale, visualScale);
         const parts = enemyVisual.getData("parts");
         const et = (enemy.getData("animTime") || 0) + delta;
         enemy.setData("animTime", et);
