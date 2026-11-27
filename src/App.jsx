@@ -2692,7 +2692,7 @@ class ZeroGameScene extends Phaser.Scene {
       blockedRight: enemy.body.blocked.right,
       wallBounces: enemy.getData("rollWallBounces") || 0,
     });
-    if (motion.hitWall) {
+    if (motion.finished) {
       enemy.setVelocity(0, 0);
       enemy.body.enable = false;
       this.finishRollingBallCarrier(enemy, ball, true);
@@ -2703,6 +2703,7 @@ class ZeroGameScene extends Phaser.Scene {
     if (motion.hitWall) {
       this.cameras.main.shake(100, 0.003);
       this.spawnSnowballParticles(enemy.x, enemy.y, "impact", 8, 0.65);
+      enemy.setX(Phaser.Math.Clamp(enemy.x + motion.direction * 8, 32, 928));
     }
     enemy.setVelocityX(motion.velocityX);
     ball.setPosition(enemy.x, enemy.y);
