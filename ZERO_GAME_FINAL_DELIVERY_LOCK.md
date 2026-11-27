@@ -64,3 +64,8 @@ After implementation is complete:
 5. Report exact commit, verification result, APK artifact link, and clearly separate automated checks from physical Android device checks. Do not claim Redmi Note 8 physical testing unless it was actually performed.
 
 **Status:** This is a requirements/delivery lock, not evidence that implementation or APK delivery is complete.
+
+
+## One-time final build trigger
+
+The Android Release workflow may be started manually, or by adding `ZERO_GAME_FINAL_RELEASE_TRIGGER.md` to `main` after the final integrated CI run has passed. Ordinary source commits do not trigger APK builds. The marker is a deliberate final-delivery action, not a development build trigger.
