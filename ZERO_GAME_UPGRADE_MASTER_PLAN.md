@@ -19,6 +19,12 @@
 - Jump input must work reliably on touch and keyboard/controller. A held jump must not block subsequent jumps. Preserve the intended double-jump and flip/back-flip behavior, with correct landing/reset logic.
 - Keep the existing joystick behavior unchanged unless a verified defect requires a minimal targeted correction.
 
+### Enemy accessory animation follow-up (2026-11-27)
+- Added subtle per-frame motion to forehead gems, waist sashes, fast-enemy scarves, back spikes, and heavy-enemy knee guards, coordinated with each enemy's existing stride.
+- Animation is presentation-only; enemy AI, movement speed, physics, collision, hitboxes, and damage remain unchanged.
+- Source commit: `bf5b3b1f29c716f291cffccb19752dafbf5e1968`.
+- No consolidated verification or Android APK build was run; the final-build hold remains in force.
+
 ### Enemy visual identity follow-up (2026-11-27)
 - Added named-family elemental chest glyphs and softly pulsing matching halo accents for fire, ice, lightning, water, nature, wind, earth, crystal, light, shadow, and plasma themed enemies where their configured names identify the theme.
 - Kept AI, movement, collision bodies, hitboxes, damage, and spawn logic unchanged.
