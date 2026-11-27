@@ -683,6 +683,7 @@ try {
         landmarkActive: !!scene.stageVariantLandmark?.active,
         platforms: scene.platforms.getChildren().length,
         boss: !!scene.stageConfig.boss,
+        bossId: scene.stageConfig.boss?.id || null,
         bossStage: !!scene.stageConfig.isBossStage,
         bossActive: !!scene.boss?.active,
         configuredEnemyCount: scene.stageConfig.enemyCount,
@@ -702,8 +703,8 @@ try {
         campaignActive: scene.campaignActive,
       };
     });
-    if (stageState.number !== nextStage || stageState.platforms !== 7) {
-      throw new Error(`Stage ${nextStage} did not create its fixed arena, continuous floor, and six elevated platforms`);
+    if (stageState.number !== nextStage || stageState.platforms !== 5) {
+      throw new Error(`Stage ${nextStage} did not create its fixed arena, continuous floor, and four separated elevated platforms`);
     }
     if (stageState.variant !== (nextStage - 1) % 5 ||
         stageState.worldIndex !== Math.floor((nextStage - 1) / 5) ||
