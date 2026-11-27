@@ -405,3 +405,26 @@ These instructions supersede earlier project-level delivery preferences where th
 - Do not provide intermediate progress, line-by-line updates, or unnecessary test reports. Deliver only the final APK and a complete report, or identify a genuine unavoidable blocker.
 - Final Android deliverable must be a Release APK, not a Debug APK. Do not claim the game is complete or the APK is ready until source implementation, consolidated automated verification, Android Release build, and artifact verification have actually succeeded.
 - Distinguish automated CI/browser verification from physical Android-device testing. Do not claim Redmi Note 8 testing unless it has actually been performed.
+
+
+## Final completion work — 2026-11-27
+
+The following source changes are committed on `main` and covered by the integrated CI run:
+
+- **Home-screen hero presentation:** Removed triangular crest/marker-like shapes from the four hero preview designs, replacing them with rounded character details. Repositioned all four previews, wrapped each hero description in its own fixed-width area, and separated the co-op controls from the hero descriptions.
+- **Hero-selection screen:** Rebalanced the four selection cards, title/description/power/move spacing, and selection buttons so the full card fits the 960×540 game area without clipping.
+- **Twelve signature moves:** Added move-specific visual effects for all twelve hero specials. Fire wave, rising, and spin variants use distinct flame silhouettes; Mei's lightning attacks use branching bolt motifs; Volt's storm/roll/throw moves use their own burst, streak, and crescent treatments.
+- **Snowball effects:** Added separate visual families for freeze, rolling trail, kick launch, and impact fragments instead of reusing the element particle family for every snowball event.
+- **Five boss battles:** Added a dedicated armored Gatekeeper silhouette and differentiated attack sequences, movement speeds, telegraph callouts, and projectile silhouettes for the Gatekeeper, Boxer, Agile Claw fighter, Martial-Arts Master, and Final Warlord. Existing five boss milestone stages remain stages 10, 20, 30, 40, and 50.
+- **Music:** Added distinct menu, ten world, five boss, victory, and defeat melodies. Added layered harmony, bass and rhythm accents, and connected menu, boss, stage-clear, and game-over transitions to the corresponding track.
+- **Android release pipeline:** Converted the final-only Android workflow from a debug APK to a signed Release APK build. The workflow aligns and signs the release APK, verifies the APK signature, and uploads the `zero-game-release-apk` artifact. It remains manually triggered so no partial APK is produced during development.
+- **Regression coverage:** Updated Chromium smoke coverage to assert four clean hero previews, no triangular hero marker artwork, non-overlapping descriptions, and the opening patterns of all five bosses.
+
+### Integrated verification result
+
+- GitHub Actions CI run **45953202448** passed on commit `f98f76d2b146a63afb29a884435f3046fb067ca1`: automated tests, lint, Android configuration validation, web production build, and the Chromium gameplay smoke test.
+- The Chromium smoke test is automated browser verification, not physical Android-device verification.
+- The final Release APK workflow has been configured but has **not yet been dispatched**. No APK artifact is claimed by this update.
+- Physical Android installation, touch alignment, and audio behavior remain unverified on a physical handset.
+
+**Status:** The screenshot/menu, signature-effect, snowball-effect, boss-pattern, music-theme, and release-workflow changes above are implemented. Do not mark the overall project delivered until the remaining agreed acceptance scope is complete and a signed Release APK artifact has been built and verified.
