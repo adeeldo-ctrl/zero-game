@@ -2910,31 +2910,80 @@ class ZeroGameScene extends Phaser.Scene {
     if (motion.finished) {
       enemy.setVelocity(0, 0); enemy.body.enable = false; this.finishRollingBallCarrier(enemy, ball, true); return;
     }
-    // Keep physics speed stable; elemental feel comes from launch speed, shape,
-    // bobbing, spin, trail and impact presentation rather than per-frame multipliers.
+    // Keep collision physics stable while each element gets a clearly different
+    // visual motion profile. All animation is applied to the cached sprite.
     enemy.setVelocityX(motion.velocityX);
-    const bob = elementId === "wind" ? Math.sin(this.time.now * 0.018) * 5
-      : elementId === "water" ? Math.sin(this.time.now * 0.012) * 2 : 0;
-    ball.setPosition(enemy.x, enemy.y + bob);
+    const now = this.time.now;
+    const direction = enemy.getData("rollDirection") || 1;
+    const motionStyle = ball.getData("motionStyle") || elementId;
+    const phase = now * 0.001;
+    const bobProfiles = {
+      fire: Math.sin(phase * 10) * 2.5,
+      ice: Math.sin(phase * 3) * 1.2,
+      lightning: Math.sin(phase * 18) * 3.2,
+      water: Math.sin(phase * 7) * 3.5,
+      nature: Math.sin(phase * 4) * 2.2,
+      wind: Math.sin(phase * 11) * 6,
+      earth: Math.abs(Math.sin(phase * 5)) * -2.4,
+      light: Math.sin(phase * 5) * 1.5,
+      shadow: Math.sin(phase * 3) * 1.8,
+      plasma: Math.sin(phase * 13) * 3,
+    };
+    ball.setPosition(enemy.x, enemy.y + (bobProfiles[elementId] || 0));
+
+    // Element-specific trail cadence: water leaves flowing ripples, wind a
+    // continuous spiral wake, and fast elements get tighter energetic accents.
+    const trailIntervals = { fire: 310, ice: 520, lightning: 190, water: 235, nature: 430, wind: 245, earth: 480, light: 360, shadow: 470, plasma: 220 };
     const nextTrailAt = enemy.getData("nextSnowTrailAt") || 0;
-    if (this.time.now >= nextTrailAt) {
-      enemy.setData("nextSnowTrailAt", this.time.now + (elementId === "wind" ? 360 : 420));
-      this.spawnElementBallEffects(enemy.x - (enemy.getData("rollDirection") || 1) * 18, enemy.y + 5, elementId, "trail", 0.7);
+    if (now >= nextTrailAt) {
+      enemy.setData("nextSnowTrailAt", now + (trailIntervals[elementId] || 400));
+      const trailX = enemy.x - direction * (elementId === "wind" ? 24 : 19);
+      const trailY = enemy.y + (elementId === "water" ? 9 : 5);
+      this.spawnElementBallEffects(trailX, trailY, elementId, "trail", elementId === "water" || elementId === "wind" ? 0.9 : 0.7);
     }
-    const pulse = this.time.now;
-    const spinRates = { wind: 1.8, water: 0.65, lightning: 2.1, ice: 0.72, nature: 0.82, earth: 0.9, light: 1.35, shadow: 0.78, plasma: 1.55, fire: 1.15 };
+
+    const spinRates = { wind: 2.35, water: 0.16, lightning: 2.7, ice: 0.62, nature: 0.9, earth: 0.72, light: 1.5, shadow: 0.58, plasma: 1.85, fire: 1.35 };
     ball.angle += motion.rotationDelta * (spinRates[elementId] || 1);
-    const pulseRate = { fire: 0.025, ice: 0.009, lightning: 0.032, water: 0.015, nature: 0.012, wind: 0.02, earth: 0.007, light: 0.018, shadow: 0.011, plasma: 0.024 }[elementId] || 0.015;
-    const pulseAmount = Math.sin(pulse * pulseRate);
-    if (elementId === "wind") ball.setScale(1.45 + pulseAmount * 0.08, 1.55 + Math.cos(pulse * 0.02) * 0.12);
-    else if (elementId === "water") ball.setScale(1.48 + pulseAmount * 0.06, 1.38 + Math.cos(pulse * 0.015) * 0.08);
-    else if (elementId === "fire" || elementId === "plasma") ball.setScale(1.45 + pulseAmount * 0.075, 1.45 - pulseAmount * 0.035);
-    else if (elementId === "lightning") ball.setScale(1.42 + pulseAmount * 0.09, 1.42 - pulseAmount * 0.07);
-    else if (elementId === "light") ball.setScale(1.46 + pulseAmount * 0.045);
-    else if (elementId === "ice") ball.setScale(1.43 + pulseAmount * 0.025, 1.48 - pulseAmount * 0.025);
-    else if (elementId === "nature") ball.setScale(1.48 + pulseAmount * 0.04, 1.4 - pulseAmount * 0.05);
-    else if (elementId === "shadow") ball.setScale(1.48 + pulseAmount * 0.035, 1.5 - pulseAmount * 0.045);
-    else ball.setScale(1.45 + pulseAmount * 0.025);
+    const pulseRates = { fire: 0.025, ice: 0.009, lightning: 0.032, water: 0.015, nature: 0.012, wind: 0.02, earth: 0.007, light: 0.018, shadow: 0.011, plasma: 0.024 };
+    const pulse = Math.sin(now * (pulseRates[elementId] || 0.015));
+    // Stretch/squash and spin communicate the material: water flows sideways,
+    // wind forms a tall vortex, earth stays dense, and lightning snaps rapidly.
+    switch (motionStyle) {
+      case "twister":
+        ball.setScale(1.35 + pulse * 0.07, 1.72 + Math.cos(phase * 8) * 0.14);
+        ball.angle += direction * 0.9;
+        break;
+      case "flow":
+        ball.setScale(1.72 + pulse * 0.12, 1.12 + Math.cos(phase * 9) * 0.13);
+        ball.angle = Phaser.Math.Linear(ball.angle, 0, 0.16);
+        break;
+      case "spark-dash":
+        ball.setScale(1.38 + pulse * 0.13, 1.46 - pulse * 0.1);
+        ball.angle += Phaser.Math.Between(-2, 2);
+        break;
+      case "flame":
+      case "plasma":
+        ball.setScale(1.48 + pulse * 0.09, 1.42 - pulse * 0.05);
+        break;
+      case "ice-roll":
+        ball.setScale(1.43 + pulse * 0.025, 1.48 - pulse * 0.025);
+        break;
+      case "leaf-roll":
+        ball.setScale(1.52 + pulse * 0.05, 1.34 - pulse * 0.04);
+        break;
+      case "rock-roll":
+        ball.setScale(1.43 + pulse * 0.018, 1.43 - pulse * 0.018);
+        break;
+      case "radiant":
+        ball.setScale(1.48 + pulse * 0.055);
+        break;
+      case "shade":
+        ball.setScale(1.5 + pulse * 0.04, 1.53 - pulse * 0.05);
+        break;
+      default:
+        ball.setScale(1.45 + pulse * 0.03);
+        break;
+    }
     const hits = enemy.getData("rollHits") || [];
     for (const target of this.enemies.getChildren()) {
       if (!target.active || target === enemy || hits.includes(target)) continue;
