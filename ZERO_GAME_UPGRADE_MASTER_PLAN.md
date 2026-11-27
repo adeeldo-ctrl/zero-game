@@ -19,6 +19,12 @@
 - Jump input must work reliably on touch and keyboard/controller. A held jump must not block subsequent jumps. Preserve the intended double-jump and flip/back-flip behavior, with correct landing/reset logic.
 - Keep the existing joystick behavior unchanged unless a verified defect requires a minimal targeted correction.
 
+### Boss armor follow-through animation (2026-11-27)
+- Added restrained movement to the existing boss cape, crown gem, chest inset, armor ridges, and cheek markings, coordinated with the existing idle/breathing loop.
+- The animation reuses registered boss display objects; attack poses, hitboxes, physics, timing, damage, and phase transitions remain unchanged.
+- Source commit: `7dff41fab744533c84653a8c4e31745112673149`.
+- No tests/builds were run during this implementation step.
+
 ### World-matched arena floor dressing (2026-11-27)
 - Replaced the same grass-and-flower lower trim across every arena with world-aware details: forest grass/fireflies, candy orchard sweets, ice shards, desert stones, crystal growths, coral/sea grass, sky-island cloud tufts, volcano embers/obsidian, and cosmic rune-like ground accents.
 - Decoration stays behind gameplay actors and does not change platforms, floor collision, stage layout, or enemy/player logic.
