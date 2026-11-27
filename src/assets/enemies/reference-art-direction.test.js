@@ -11,7 +11,7 @@ const cropManifest = JSON.parse(
   readFileSync(new URL("./reference-crop-manifest.json", import.meta.url), "utf8"),
 );
 const availableCropRefs = new Set(
-  cropManifest.crops.map((crop) => crop.file.replace(/\\.png$/i, "")),
+  cropManifest.crops.map((crop) => crop.file.replace(/\.png$/i, "")),
 );
 
 test("enemy reference art direction covers every campaign archetype exactly once", () => {
