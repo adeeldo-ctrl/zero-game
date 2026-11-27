@@ -11,20 +11,11 @@ npm.cmd install
 npm.cmd run dev -- --host 0.0.0.0
 ```
 
-For two-player Wi-Fi co-op, start the relay on the host PC in a second PowerShell window before either player connects:
-
-```powershell
-npm.cmd run multiplayer
-```
-
-Both devices must be on the same trusted Wi-Fi network. On the host PC, choose HOST WI-FI; on the second device, choose JOIN WI-FI and enter the host PC's LAN IPv4 address. Both clients join the ZERO room, which allows two players. Allow Node.js through Windows Firewall on Private networks if prompted.
-
 ## Gameplay preserved
 
 - 50-stage action-platformer campaign and fixed single-screen arenas.
 - Existing left/right movement, jump, double-jump and charged Fire/Energy projectile.
 - Existing Super attack and elemental power selection.
-- Existing Wi-Fi co-op relay (still requires real two-device playtesting).
 
 ## Heroes and special moves
 
@@ -40,7 +31,7 @@ The three on-screen EXTRA buttons are independent and always map to the selected
 - EXTRA 2: the selected hero's second special move.
 - EXTRA 3: the selected hero's third special move.
 
-All twelve signature moves are implemented through distinct wave, uppercut, spin, rapid-strike, electric-burst, rolling-charge or throw effects. All three special buttons have unlimited use: no cooldown, countdown, power meter or limited-use counter. Existing movement, jump, double-jump, charged Fire attack, Super attack, elemental selection, stage progression and co-op systems remain in place.
+All twelve signature moves are implemented through distinct wave, uppercut, spin, rapid-strike, electric-burst, rolling-charge or throw effects. All three special buttons have unlimited use: no cooldown, countdown, power meter or limited-use counter. Existing movement, jump, double-jump, charged Fire attack, Super attack, elemental selection, stage progression remain in place.
 
 Enemies use distinct original visual families, including masked acrobats, armored bruisers, elemental sentinels and arcane guards. Their grounded AI includes chaser, runner, jumper, guard and charger behaviors, with deterministic spawn lanes authored for every normal stage. The five campaign bosses are Arena Gatekeeper, Iron Comet, Gale Talon, Suncrest Master and Void Sovereign; each has its own movement profile, telegraph sequence, elemental presentation, intro and defeat finale.
 
@@ -66,7 +57,7 @@ After all approved development is complete:
 4. Only if every check passes does it create, align and sign the Release APK.
 5. Download the `zero-game-release-apk` artifact and install `zero-game-release.apk` on an Android device.
 
-The workflow is protected by an explicit final-approval lock and cannot create an APK while development is in progress. Automated browser checks do not replace physical Android-device testing. For Wi-Fi co-op, the host PC runs `npm run multiplayer`; the Android player joins using the host PC's LAN IPv4 address. The relay uses TCP port 3001.
+The workflow is protected by an explicit final-approval lock and cannot create an APK while development is in progress. Automated browser checks do not replace physical Android-device testing.
 
 ## Build the web game locally
 
