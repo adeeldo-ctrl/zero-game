@@ -123,30 +123,50 @@ export function createGameAudio() {
     ["A3", "E4", "B4", "E4", "D4", "A4"],
     ["C3", "D#3", "G3", "B3", "C4", "G3"]
   ];
+  const worldThemes = [
+    ["C4", "E4", "G4", "B4", "A4", "G4", "E4", "D4"],
+    ["E4", "G4", "B4", "D5", "C5", "B4", "G4", "E4"],
+    ["D4", "F#4", "A4", "E5", "D5", "A4", "F#4", "E4"],
+    ["A3", "D4", "E4", "A4", "G4", "E4", "D4", "C4"],
+    ["G3", "B3", "D4", "G4", "F#4", "D4", "B3", "A3"],
+    ["C4", "D#4", "G4", "C5", "A#4", "G4", "D#4", "D4"],
+    ["F#3", "A3", "C4", "E4", "D4", "C4", "A3", "G3"],
+    ["D4", "G4", "A4", "D5", "C5", "A4", "G4", "E4"],
+    ["E3", "G3", "B3", "E4", "D4", "B3", "G3", "F#3"],
+    ["C3", "G3", "C4", "D#4", "G4", "D#4", "C4", "G3"],
+  ];
+  const menuTheme = ["C4", "G4", "E4", "A4", "G4", "E4", "D4", "G4"];
+  const victoryTheme = ["C4", "E4", "G4", "C5", "B4", "C5", "E5", "C5"];
+  const defeatTheme = ["E4", "D4", "C4", "G3", "E3", "D3", "C3", "C3"];
   const scheduleMusic = () => {
     if (!musicEnabled || !context || musicTimer) return;
     const generation = musicGeneration;
     const step = () => {
       musicTimer = null;
       if (generation !== musicGeneration || !musicEnabled || !context) return;
-      const bossIndex = Number(activeTrack.split("-")[1]);
-      const notes = activeTrack.startsWith("boss-")
-        ? bossThemes[bossIndex] || bossThemes[0]
-        : ["C4", "E4", "G4", "A4", "G4", "E4", "D4", "G4"];
+      const bossTrack = activeTrack.startsWith("boss-");
+      const worldIndex = Number(activeTrack.split("-")[1]) || 0;
+      const notes = bossTrack ? bossThemes[worldIndex] || bossThemes[0]
+        : activeTrack === "menu" ? menuTheme
+          : activeTrack === "victory" ? victoryTheme
+            : activeTrack === "defeat" ? defeatTheme
+              : worldThemes[worldIndex % worldThemes.length];
       const name = notes[musicIndex % notes.length];
       const frequency = NOTE_FREQUENCIES[name] || 130.81;
-      const bossTrack = activeTrack.startsWith("boss-");
       const beat = musicIndex % 4;
-      tone(frequency, bossTrack ? 0.29 : 0.2, bossTrack ? "sawtooth" : "triangle",
-        (bossTrack ? 0.038 : 0.03) * musicVolume);
+      const lowRoot = NOTE_FREQUENCIES[notes[0]] || NOTE_FREQUENCIES.C3;
+      const wave = bossTrack ? "sawtooth" : activeTrack === "defeat" ? "sine"
+        : activeTrack === "menu" || activeTrack === "victory" ? "triangle" : "sine";
+      const leadVolume = bossTrack ? 0.04 : activeTrack === "victory" ? 0.044 : activeTrack === "defeat" ? 0.026 : 0.032;
+      tone(frequency, bossTrack ? 0.29 : 0.22, wave, leadVolume * musicVolume);
       if (beat === 0 || beat === 2) {
-        tone(frequency * (bossTrack ? 1.5 : 1.25), bossTrack ? 0.18 : 0.13,
-          bossTrack ? "square" : "sine", 0.014 * musicVolume);
+        tone(frequency * (bossTrack ? 1.5 : 1.25), bossTrack ? 0.18 : 0.14,
+          bossTrack ? "square" : "triangle", 0.014 * musicVolume);
       }
-      if (beat === 0) tone(NOTE_FREQUENCIES.C3, 0.3, "sine", 0.024 * musicVolume);
-      if (beat === 2) tone(NOTE_FREQUENCIES.G3, 0.22, "sine", 0.016 * musicVolume);
+      if (beat === 0) tone(lowRoot / 2, 0.3, "sine", 0.022 * musicVolume);
+      if (beat === 2) tone(lowRoot * 0.75, 0.22, "sine", 0.014 * musicVolume);
       musicIndex++;
-      musicTimer = schedule(step, bossTrack ? 300 : 235);
+      musicTimer = schedule(step, bossTrack ? 300 : activeTrack === "menu" ? 320 : 255);
     };
     step();
   };
@@ -285,6 +305,9 @@ export function createGameAudio() {
     stopGameplayLoop,
     playWorldTrack,
     stopWorldTrack,
+    playMenuTheme: () => setTrack("menu"),
+    playVictoryTheme: () => setTrack("victory"),
+    playDefeatTheme: () => setTrack("defeat"),
     playWorldTheme: (worldIndex) => setTrack(`world-${Math.max(0, Math.floor(Number(worldIndex) || 0) % 10)}`),
     playBossTheme: (bossIndex) => setTrack(`boss-${Math.max(0, Math.floor(Number(bossIndex) || 0) % 5)}`)
   };
