@@ -1305,27 +1305,41 @@ class ZeroGameScene extends Phaser.Scene {
     );
 
     const classDetails = [];
+    let classCrest = null;
+    let classGuard = null;
     if (isFast) {
-      classDetails.push(
-        this.add.triangle(-17, -28, 0, 0, 30, -5, 0, 10, hornColor).setAngle(-8),
-        this.add.triangle(17, -28, 0, 0, -30, -5, 0, 10, hornColor).setAngle(8),
-        this.add.ellipse(-23, 10, 14, 8, 0xf1e9da),
-        this.add.ellipse(23, 10, 14, 8, 0xf1e9da)
-      );
+      // Agile enemies read as light, aerodynamic runners from a distance.
+      const finL = this.add.triangle(-17, -28, 0, 0, 30, -5, 0, 10, hornColor)
+        .setAngle(-8).setStrokeStyle(1, 0xffffff, 0.55);
+      const finR = this.add.triangle(17, -28, 0, 0, -30, -5, 0, 10, hornColor)
+        .setAngle(8).setStrokeStyle(1, 0xffffff, 0.55);
+      const runnerBootL = this.add.ellipse(-23, 10, 14, 8, 0xf1e9da);
+      const runnerBootR = this.add.ellipse(23, 10, 14, 8, 0xf1e9da);
+      classCrest = this.add.triangle(0, -34, -8, 9, 0, -13, 8, 9, 0xffe5a1)
+        .setStrokeStyle(1, 0xffffff, 0.85);
+      classDetails.push(finL, finR, runnerBootL, runnerBootR, classCrest);
     } else if (isHeavy) {
-      classDetails.push(
-        this.add.ellipse(-24, -8, 22, 20, 0x72523f).setStrokeStyle(3, hornColor),
-        this.add.ellipse(24, -8, 22, 20, 0x72523f).setStrokeStyle(3, hornColor),
-        this.add.rectangle(0, -15, 34, 8, 0x4b3741).setStrokeStyle(2, hornColor),
-        this.add.ellipse(0, 5, 28, 17, 0xc9a377, 0.65)
-      );
+      // Heavy enemies get a broad plated silhouette and a visible jaw guard.
+      const pauldronL = this.add.ellipse(-24, -8, 22, 20, 0x72523f).setStrokeStyle(3, hornColor);
+      const pauldronR = this.add.ellipse(24, -8, 22, 20, 0x72523f).setStrokeStyle(3, hornColor);
+      const brow = this.add.rectangle(0, -15, 34, 8, 0x4b3741).setStrokeStyle(2, hornColor);
+      classGuard = this.add.arc(0, 4, 18, 190, 350, false, 0xc9a377, 0.9)
+        .setStrokeStyle(5, hornColor, 0.95);
+      classCrest = this.add.rectangle(0, -35, 18, 7, 0x9baabd)
+        .setStrokeStyle(1, 0xffffff, 0.75);
+      classDetails.push(pauldronL, pauldronR, brow, classGuard, classCrest);
     } else {
+      // Special enemies have a floating rune crown to distinguish the caster role.
       const aura = this.add.circle(0, -3, 37, hornColor, 0.08).setStrokeStyle(3, hornColor, 0.86);
       const sigil = this.add.text(0, 1, "✦", {
         fontSize: "23px", color: `#${hornColor.toString(16).padStart(6, "0")}`,
         fontStyle: "bold", stroke: "#251f37", strokeThickness: 3
       }).setOrigin(0.5);
-      classDetails.push(aura, sigil);
+      classCrest = this.add.star(0, -39, 4, 3, 11, hornColor, 0.96)
+        .setStrokeStyle(2, 0xffffff, 0.9);
+      classGuard = this.add.arc(0, -8, 43, 205, 335, false, hornColor, 0.35)
+        .setStrokeStyle(3, hornColor, 0.85);
+      classDetails.push(aura, sigil, classCrest, classGuard);
       this.tweens.add({ targets: aura, scale: 1.25, alpha: 0.2, duration: 460, yoyo: true, repeat: -1 });
     }
 
@@ -1453,6 +1467,8 @@ class ZeroGameScene extends Phaser.Scene {
       shoulderL, shoulderR, cuffL, cuffR, eyeGlintL, eyeGlintR, cheekL, cheekR,
       backPlate, foreheadGem, waistSash, fastScarf, heavyKneeL, heavyKneeR,
       backSpikes,
+      classCrest,
+      classGuard,
       belly,
       headband,
     });
@@ -4508,6 +4524,13 @@ class ZeroGameScene extends Phaser.Scene {
         }
         if (parts.heavyKneeL?.active) parts.heavyKneeL.rotation = swing * 0.12;
         if (parts.heavyKneeR?.active) parts.heavyKneeR.rotation = -swing * 0.12;
+        if (parts.classCrest?.active) {
+          parts.classCrest.rotation = isNaN(et) ? 0 : Math.sin(et * (aiType === "runner" ? 0.018 : 0.004)) * 0.12;
+          parts.classCrest.setAlpha(0.82 + (Math.sin(et * 0.006) + 1) * 0.08);
+        }
+        if (parts.classGuard?.active && aiType === "guard") {
+          parts.classGuard.rotation = Math.sin(et * 0.003) * 0.035;
+        }
         enemyVisual.y = enemy.y + Math.abs(swing) * -2 + visualBob;
         enemyVisual.angle = 0;
       }
