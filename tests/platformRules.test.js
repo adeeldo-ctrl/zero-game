@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { shouldHeroCollideWithPlatform, shouldDropThroughPlatform } from "../src/platformRules.js";
+import { shouldHeroCollideWithPlatform, shouldDropThroughPlatform, getPlatformTextureScale } from "../src/platformRules.js";
 
 test("hero passes upward through every elevated platform", () => {
   assert.equal(shouldHeroCollideWithPlatform({
@@ -34,4 +34,11 @@ test("permanent bottom ground remains solid and cannot be dropped through", () =
   assert.equal(shouldDropThroughPlatform({
     jumpPressed: true, downHeld: true, grounded: true, isGround: true,
   }), false);
+});
+
+test("platform sprite scaling matches authored collision widths", () => {
+  assert.equal(getPlatformTextureScale(180), 1);
+  assert.equal(getPlatformTextureScale(200), 200 / 180);
+  assert.equal(getPlatformTextureScale(150), 150 / 180);
+  assert.equal(getPlatformTextureScale(0), 1);
 });
