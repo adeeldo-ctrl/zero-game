@@ -78,7 +78,8 @@ wss.on("connection", (socket) => {
       }
 
       socket.roomCode = code;
-      socket.playerId = room.players.length + 1;
+      const occupiedIds = new Set(room.players.map((peer) => peer.playerId));
+      socket.playerId = occupiedIds.has(1) ? 2 : 1;
       room.players.push(socket);
       send(socket, {
         type: "joined",
