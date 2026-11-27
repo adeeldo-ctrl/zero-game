@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="640" height="160" viewBox="0 0 640 160">
 <defs><linearGradient id="g" x2="0" y2="1"><stop stop-color="#b79aff"/><stop offset="1" stop-color="#302052"/></linearGradient></defs>
-<g transform="translate(0,0) translate(80,0) rotate(0 0 80)">
+<g transform="translate(0,0) translate(80,0) rotate(0 0 80) scale(0.62 0.78)">
 <ellipse cy="148" rx="58" ry="7" fill="#101329" opacity=".42"/>
 <ellipse cy="91" rx="72" ry="42" fill="none" stroke="#ff9bd8" stroke-width="4" transform="rotate(0)"/>
 <path d="M-49 56 Q-81 83 -58 141 Q-28 155 0 135 Q28 155 58 141 Q81 83 49 56 L30 109 L0 92 L-30 109Z" fill="#241d4d" stroke="#b79aff" stroke-width="5"/>
@@ -14,7 +14,7 @@
 <path d="M-58 88 L-91 66 L-78 121 L-49 133 M58 88 L91 66 L78 121 L49 133" fill="#241d4d" stroke="#b79aff" stroke-width="5"/>
 <path d="M-18 137 L-25 153 L-5 151 L0 136 M18 137 L25 153 L5 151 L0 136" fill="#241d4d" stroke="#d9c5ff" stroke-width="3"/>
 <circle cx="-69" cy="42" r="8" fill="#ff9bd8"/><circle cx="69" cy="42" r="8" fill="#b79aff"/>
-</g><g transform="translate(160,0) translate(80,0) rotate(3 0 80)">
+</g><g transform="translate(160,0) translate(80,0) rotate(3 0 80) scale(0.62 0.78)">
 <ellipse cy="148" rx="58" ry="7" fill="#101329" opacity=".42"/>
 <ellipse cy="91" rx="72" ry="42" fill="none" stroke="#ff9bd8" stroke-width="4" transform="rotate(12)"/>
 <path d="M-49 56 Q-81 83 -58 141 Q-28 155 0 135 Q28 155 58 141 Q81 83 49 56 L30 109 L0 92 L-30 109Z" fill="#241d4d" stroke="#b79aff" stroke-width="5"/>
@@ -28,7 +28,7 @@
 <path d="M-58 88 L-91 66 L-78 121 L-49 133 M58 88 L91 66 L78 121 L49 133" fill="#241d4d" stroke="#b79aff" stroke-width="5"/>
 <path d="M-18 137 L-25 153 L-5 151 L0 136 M18 137 L25 153 L5 151 L0 136" fill="#241d4d" stroke="#d9c5ff" stroke-width="3"/>
 <circle cx="-69" cy="42" r="8" fill="#ff9bd8"/><circle cx="69" cy="42" r="8" fill="#b79aff"/>
-</g><g transform="translate(320,0) translate(80,0) rotate(-3 0 80)">
+</g><g transform="translate(320,0) translate(80,0) rotate(-3 0 80) scale(0.62 0.78)">
 <ellipse cy="148" rx="58" ry="7" fill="#101329" opacity=".42"/>
 <ellipse cy="91" rx="72" ry="42" fill="none" stroke="#ff9bd8" stroke-width="4" transform="rotate(24)"/>
 <path d="M-49 56 Q-81 83 -58 141 Q-28 155 0 135 Q28 155 58 141 Q81 83 49 56 L30 109 L0 92 L-30 109Z" fill="#241d4d" stroke="#b79aff" stroke-width="5"/>
@@ -42,7 +42,7 @@
 <path d="M-58 88 L-91 66 L-78 121 L-49 133 M58 88 L91 66 L78 121 L49 133" fill="#241d4d" stroke="#b79aff" stroke-width="5"/>
 <path d="M-18 137 L-25 153 L-5 151 L0 136 M18 137 L25 153 L5 151 L0 136" fill="#241d4d" stroke="#d9c5ff" stroke-width="3"/>
 <circle cx="-69" cy="42" r="8" fill="#ff9bd8"/><circle cx="69" cy="42" r="8" fill="#b79aff"/>
-</g><g transform="translate(480,0) translate(80,0) rotate(2 0 80)">
+</g><g transform="translate(480,0) translate(80,0) rotate(2 0 80) scale(0.62 0.78)">
 <ellipse cy="148" rx="58" ry="7" fill="#101329" opacity=".42"/>
 <ellipse cy="91" rx="72" ry="42" fill="none" stroke="#ff9bd8" stroke-width="4" transform="rotate(36)"/>
 <path d="M-49 56 Q-81 83 -58 141 Q-28 155 0 135 Q28 155 58 141 Q81 83 49 56 L30 109 L0 92 L-30 109Z" fill="#241d4d" stroke="#b79aff" stroke-width="5"/>
