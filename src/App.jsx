@@ -2079,10 +2079,11 @@ class ZeroGameScene extends Phaser.Scene {
     }
     const attackIndex = enemy.getData("bossAttackIndex") || 0;
     const bossStyle = enemy.getData("bossStyle") || "";
-    const baseSpeed = bossStyle.includes("agile") ? 132
-      : bossStyle.includes("boxing") ? 72
-      : bossStyle.includes("master") ? 102
-      : bossStyle.includes("final") ? 126 : 82;
+    const baseSpeed = bossStyle.includes("agile") ? 148
+      : bossStyle.includes("boxing") ? 78
+      : bossStyle.includes("master") ? 104
+      : bossStyle.includes("final") ? 136
+      : bossStyle.includes("grappler") ? 64 : 82;
     const speed = this.bossPhase === 3 ? baseSpeed * 1.65 : this.bossPhase === 2 ? baseSpeed * 1.3 : baseSpeed;
     enemy.setVelocityX(attackState === "dash"
       ? (enemy.getData("bossDashDirection") || direction) * (this.bossPhase === 3 ? 500 : 390)
@@ -2162,16 +2163,27 @@ class ZeroGameScene extends Phaser.Scene {
       }
     }
     if (attackState === "rest" && this.time.now >= enemy.getData("bossAttackAt") && enemy.body.blocked.down) {
-      const attackPattern = bossStyle.includes("boxing") ? [0, 2, 0]
-        : bossStyle.includes("agile") ? [2, 1, 2]
-        : bossStyle.includes("master") ? [1, 0, 1] : [0, 1, 2];
+      const attackPattern = bossStyle.includes("boxing") ? [2, 0, 2, 1]
+        : bossStyle.includes("agile") ? [2, 2, 1, 2]
+        : bossStyle.includes("master") ? [1, 0, 1, 2]
+        : bossStyle.includes("final") ? [0, 2, 1, 0, 1, 2]
+        : bossStyle.includes("grappler") ? [0, 0, 2, 1] : [0, 1, 2];
       const nextAttack = attackPattern[attackIndex % attackPattern.length];
       enemy.setData("bossAttackIndex", attackIndex + 1);
       enemy.setData("bossAttackState", "tell");
       enemy.setData("bossAttackKind", nextAttack);
       enemy.setData("bossTellUntil", this.time.now + (this.bossPhase === 3 ? 300 : this.bossPhase === 2 ? 430 : 650));
       enemy.setVelocityX(0);
-      this.statusLabel.setText(nextAttack === 0 ? "BOSS: GROUND SLAM!" : nextAttack === 1 ? "BOSS: ENERGY VOLLEY!" : "BOSS: DASH INCOMING!");
+      const bossCallouts = bossStyle.includes("boxing")
+        ? ["IRON UPPERCUT!", "RING-SHATTER VOLLEY!", "CHAMPION RUSH!"]
+        : bossStyle.includes("agile")
+          ? ["TALON DROP!", "GALE SHARDS!", "SKY-STEP RUSH!"]
+          : bossStyle.includes("master")
+            ? ["SUNLINE CRASH!", "MASTER'S FAN!", "DISCIPLINED DASH!"]
+            : bossStyle.includes("final")
+              ? ["VOID CROWN SLAM!", "DARK STAR VOLLEY!", "SOVEREIGN BLITZ!"]
+              : ["STONE FIST CRASH!", "GATEKEEPER SHARDS!", "FORTRESS CHARGE!"];
+      this.statusLabel.setText(bossCallouts[nextAttack] || "BOSS ATTACK!");
       this.statusLabel.setColor("#ff806d");
       const warning = this.add.ellipse(this.hero.x, 478, nextAttack === 0 ? 150 : 90, 16, 0xff594f, 0.24)
         .setStrokeStyle(3, 0xffd36b).setDepth(8);
@@ -2184,8 +2196,16 @@ class ZeroGameScene extends Phaser.Scene {
       if (kind === 0) {
         this.audio.play("bossAttack");
         enemy.setData("bossAttackState", "slam");
-        enemy.setVelocityY(this.bossPhase === 3 ? -650 : this.bossPhase === 2 ? -560 : -490);
-        enemy.setVelocityX(direction * 95);
+        const slamLift = bossStyle.includes("boxing") ? 590
+          : bossStyle.includes("agile") ? 540
+            : bossStyle.includes("master") ? 565
+              : bossStyle.includes("final") ? 670
+                : bossStyle.includes("grappler") ? 455 : 490;
+        const slamDrift = bossStyle.includes("agile") ? 230
+          : bossStyle.includes("boxing") ? 155
+            : bossStyle.includes("final") ? 125 : bossStyle.includes("grappler") ? 55 : 95;
+        enemy.setVelocityY(-(slamLift + (this.bossPhase - 1) * 65));
+        enemy.setVelocityX(direction * slamDrift);
       } else if (kind === 1) {
         this.audio.play("bossAttack");
         enemy.setData("bossAttackState", "volley");
@@ -2225,6 +2245,7 @@ class ZeroGameScene extends Phaser.Scene {
     if (!this.hero?.active) return;
     const bossData = this.stageConfig.boss || {};
     const element = bossData.element || "fire";
+    const bossStyle = bossData.style || "";
     const base = Phaser.Math.Angle.Between(boss.x, boss.y - 15, this.hero.x, this.hero.y - 10);
     const count = this.bossPhase === 3 ? 7 : this.bossPhase === 2 ? 5 : 3;
     const spreadWidth = element === "lightning" ? 0.15 : element === "ice" ? 0.28 : element === "shadow" ? 0.34 : 0.22;
@@ -2235,7 +2256,15 @@ class ZeroGameScene extends Phaser.Scene {
     for (let i = 0; i < count; i++) {
       const spread = (i - (count - 1) / 2) * spreadWidth;
       const angle = base + spread;
-      const shot = this.add.circle(boss.x, boss.y - 18, radius, color, 0.95)
+      const shot = bossStyle.includes("boxing")
+        ? this.add.rectangle(boss.x, boss.y - 18, radius * 2.7, radius * 1.45, color, 0.98).setAngle(spread * 90)
+        : bossStyle.includes("agile")
+          ? this.add.star(boss.x, boss.y - 18, 5, radius * 0.55, radius * 1.55, color, 0.98)
+          : bossStyle.includes("master")
+            ? this.add.ellipse(boss.x, boss.y - 18, radius * 2.7, radius * 1.1, color, 0.98).setAngle(spread * 45)
+            : bossStyle.includes("final")
+              ? this.add.circle(boss.x, boss.y - 18, radius * 1.2, color, 0.98).setStrokeStyle(4, 0xc9b4ff, 0.95)
+              : this.add.rectangle(boss.x, boss.y - 18, radius * 2.2, radius * 1.8, color, 0.98).setAngle(45)
         .setStrokeStyle(3, 0xffffff).setDepth(18);
       this.physics.add.existing(shot);
       this.bossShots.add(shot);
