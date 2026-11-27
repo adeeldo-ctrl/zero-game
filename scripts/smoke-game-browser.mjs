@@ -448,7 +448,7 @@ try {
     }
   });
 
-  // Exercise the four requested boss visual archetypes without changing production game flow.
+  // Exercise all five campaign boss visual archetypes without changing production game flow.
   await page.evaluate(() => {
     const game = window.__ZERO_GAME_TEST__;
     const scene = game?.scene.getScene("ZeroGameScene");
