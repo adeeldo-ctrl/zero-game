@@ -97,8 +97,11 @@ assert not re.search(r"(?m)^  pull_request:", ci_trigger.group(1)), (
     "Pull requests must not start the final delivery pipeline"
 )
 assert "npm test" in ci and "npm run lint" in ci and "npm run build" in ci
-assert "assembleDebug" not in ci and "upload-artifact" not in ci, (
-    "Continuous checks must never build or upload an APK"
+assert "assembleDebug" not in ci, (
+    "Continuous checks must never build an APK"
+)
+assert "zero-game-prepared-enemy-references" in ci and "src/assets/bosses/prepared-reference/" in ci, (
+    "Art review artifacts may contain prepared enemy and boss PNGs, but no APK"
 )
 
 # Run the real icon installer against an isolated mock Capacitor manifest.
