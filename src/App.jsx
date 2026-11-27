@@ -2561,9 +2561,8 @@ class ZeroGameScene extends Phaser.Scene {
     const baseAngle = Phaser.Math.Angle.Between(enemy.x, enemy.y - 8, this.hero.x, this.hero.y - 8);
     const spreads = pattern === "triple" ? [-0.22, 0, 0.22] : [0];
     spreads.forEach((spread, index) => {
-      const shot = this.add.circle(enemy.x + direction * 24, enemy.y - 12, pattern === "triple" ? 8 : 10,
-        palette.color, 0.96).setStrokeStyle(3, palette.edge, 0.95).setDepth(18);
-      this.physics.add.existing(shot);
+      const shot = this.physics.add.image(enemy.x + direction * 24, enemy.y - 12, "shot")
+        .setTint(palette.color).setDepth(18).setScale(pattern === "triple" ? 0.62 : 0.78);
       this.bossShots.add(shot);
       shot.body.setAllowGravity(false);
       shot.body.setCircle(pattern === "triple" ? 7 : 9);
