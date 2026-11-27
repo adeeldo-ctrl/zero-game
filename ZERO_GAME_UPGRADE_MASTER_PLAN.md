@@ -251,6 +251,11 @@
 - Source commit: `241abfe9cb1d68bd11cd43c2f3cc87b9e6d9c05c`; README commit: `e2eed3d4ecd151798c66e979a214648d5e5cb5fb`.
 - No tests/builds were run; final consolidated verification remains deferred until development is complete.
 
+### Reduced-motion browser coverage (2026-11-27)
+- The Chromium smoke suite now opens a separate browser context with `prefers-reduced-motion: reduce`, verifies the scene detects it, and confirms looping ambient tweens are skipped.
+- Smoke test commit: `032d87dd6baa4d072b844eef9fd6f805d405e82e`.
+- No tests/builds were run; the new check is reserved for the single consolidated final verification.
+
 ## Non-negotiable preservation rules
 - Preserve the currently working joystick/controller movement and touch mapping. Do not regress the approved controls.
 - Keep the game in landscape and make the playable scene fill the complete device viewport.
