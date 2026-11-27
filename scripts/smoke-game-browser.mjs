@@ -339,12 +339,15 @@ try {
   await delay(700);
   await page.evaluate(() => {
     const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
-    scene.lastDamage = -10000;
+    scene.hero.setPosition(300, 450);
+    scene.hero.body.reset(300, 450);
+    scene.hero.setVelocity(0, 0);
+    scene.lastDamage = scene.time.now - 2000;
     scene.damageHero(scene.hero, window.__ZERO_GAME_LIVES_TEST_ENEMY__);
     if (scene.chances !== 2 || scene.health !== 3 || !scene.chanceLossInProgress) {
       throw new Error("Three lost hearts did not consume one chance and restore three hearts");
     }
-    scene.lastDamage = -10000;
+    scene.lastDamage = scene.time.now - 2000;
     scene.damageHero(scene.hero, window.__ZERO_GAME_LIVES_TEST_ENEMY__);
     if (scene.chances !== 2 || scene.health !== 3) {
       throw new Error("Repeated damage during chance-loss lock consumed another chance");
