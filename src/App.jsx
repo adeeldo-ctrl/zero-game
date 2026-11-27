@@ -3775,9 +3775,27 @@ class ZeroGameScene extends Phaser.Scene {
       nextLabel.on("pointerdown", () => { this.audio.play("ui"); this.advanceToNextStage(); });
       this.time.delayedCall(2300, () => this.advanceToNextStage());
     } else {
-      const ending = this.add.text(480, 380, "THE 50 STAGE QUEST IS COMPLETE", { fontSize: "18px", color: "#9feaff", fontStyle: "bold" }).setOrigin(0.5).setDepth(41);
-      const legend = this.add.text(480, 430, `${this.selectedHero.superPower.toUpperCase()} - THE KINGDOM IS SAFE!`, { fontSize: "17px", color: "#ffe17a", fontStyle: "bold" }).setOrigin(0.5).setDepth(45);
-      this.tweens.add({ targets: [ending, legend], alpha: 0.65, duration: 1100, yoyo: true, repeat: -1 });
+      const ending = this.add.text(480, 366, "THE 50 STAGE QUEST IS COMPLETE", { fontSize: "18px", color: "#9feaff", fontStyle: "bold" }).setOrigin(0.5).setDepth(41);
+      const legend = this.add.text(480, 405, `${this.selectedHero.superPower.toUpperCase()} - THE KINGDOM IS SAFE!`, { fontSize: "16px", color: "#ffe17a", fontStyle: "bold" }).setOrigin(0.5).setDepth(45);
+      this.tweens.add({ targets: [ending, legend], alpha: 0.72, duration: 1100, yoyo: true, repeat: -1 });
+      const replay = this.add.text(365, 474, "PLAY AGAIN", {
+        fontSize: "15px", color: "#ffffff", fontStyle: "bold",
+        backgroundColor: "#126d7b", padding: { x: 22, y: 11 },
+      }).setOrigin(0.5).setDepth(46).setInteractive({ useHandCursor: true });
+      const changeHero = this.add.text(595, 474, "CHANGE HERO", {
+        fontSize: "15px", color: "#ffffff", fontStyle: "bold",
+        backgroundColor: "#513f82", padding: { x: 22, y: 11 },
+      }).setOrigin(0.5).setDepth(46).setInteractive({ useHandCursor: true });
+      replay.on("pointerdown", () => {
+        this.audio.unlock();
+        this.audio.play("ui");
+        this.startNewCampaign();
+      });
+      changeHero.on("pointerdown", () => {
+        this.audio.unlock();
+        this.audio.play("ui");
+        this.showHeroSelect();
+      });
     }
     this.tweens.add({ targets: shade, alpha: 0.82, duration: 350 });
   }
