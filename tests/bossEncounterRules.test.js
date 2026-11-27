@@ -50,7 +50,11 @@ test("each boss has its own idle and strike animation frame order and timing", (
   for (const profile of profiles) {
     assert.equal(profile.idleFrames.length, 4);
     assert.equal(profile.strikeFrames.length, 4);
+    assert.ok(profile.hitFrames.length >= 3);
+    assert.equal(profile.phaseFrames.length, 4);
+    assert.equal(profile.defeatFrames.length, 4);
     assert.ok(profile.idleFrames.every((frame) => frame >= 0 && frame <= 3));
     assert.ok(profile.strikeFrames.every((frame) => frame >= 0 && frame <= 3));
+    assert.ok([...profile.hitFrames, ...profile.phaseFrames, ...profile.defeatFrames].every((frame) => frame >= 0 && frame <= 3));
   }
 });
