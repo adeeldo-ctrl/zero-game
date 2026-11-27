@@ -372,7 +372,6 @@ class ZeroGameScene extends Phaser.Scene {
 
     // Match the arena's lower trim to its world instead of repeating grass
     // and flowers in ice, desert, ocean, volcano, and cosmic stages.
-    const world = this.stageConfig.worldIndex || 0;
     const groundDetail = this.add.graphics().setDepth(-3);
     const accent = this.stageConfig.background.accent;
     if (world === 0 || world === 4) {
