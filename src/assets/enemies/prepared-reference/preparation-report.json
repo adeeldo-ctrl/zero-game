@@ -1,6 +1,6 @@
 {
   "source": "user-uploaded reference crops",
-  "generatedAt": "2026-11-27T20:35:18.191Z",
+  "generatedAt": "2026-11-27T20:39:03.470Z",
   "count": 48,
   "note": "These are automatically segmented static cutouts. Inspect edges and subject integrity before production use. No animation frames are fabricated.",
   "assets": [
