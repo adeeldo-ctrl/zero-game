@@ -1443,7 +1443,8 @@ class ZeroGameScene extends Phaser.Scene {
       this.stageTransitionActive = false;
       this.hero.setPosition(480, 450).setVelocity(0, 0);
       this.heroVisual.setPosition(480, 450).setVisible(true).setAlpha(1);
-      this.spawnEnemies(); this.spawnTreasureChest();
+      if (this.stageConfig.isBossStage) this.spawnBoss();
+      else { this.spawnEnemies(); this.spawnTreasureChest(); }
       this.sendNet({ type: "hero", heroId: this.selectedHero.id });
       this.statusLabel.setText(`${this.stageConfig.world.toUpperCase()} - STAGE ${this.stageNumber}`).setColor("#ffffff");
       const intro = this.add.text(480, 205, `STAGE ${String(this.stageNumber).padStart(2,"0")}  •  ${this.stageConfig.world.toUpperCase()}\nGET READY!`, {
@@ -1498,6 +1499,7 @@ class ZeroGameScene extends Phaser.Scene {
   }
 
   spawnEnemies() {
+    if (this.stageConfig.isBossStage || this.stageEnemyCount <= 0) return;
     const positions = Array.from({ length: this.stageEnemyCount }, (_, i) => 70 + i * (820 / Math.max(1, this.stageEnemyCount - 1)));
 
     const familyPalettes = {
@@ -1536,8 +1538,10 @@ class ZeroGameScene extends Phaser.Scene {
         enemy.setData("aiAnim", 0);
         enemy.setVisible(false);
 
-        const scale = i % 2 === 0 ? 1.12 : 1;
+        const scale = (i % 2 === 0 ? 1.12 : 1) * 1.2;
         enemy.setScale(scale);
+        enemy.setSize(52, 62);
+        enemy.setOffset(6, 2);
 
         const visual = this.createEnemyVisual(
           enemy,
@@ -1790,14 +1794,6 @@ class ZeroGameScene extends Phaser.Scene {
     if (enemy.getData("isTimeHunter")) return true;
     this.defeated = Math.min(this.stageEnemyCount, this.defeated + 1);
     this.enemyLabel?.setText(`ENEMIES: ${this.defeated}/${this.stageEnemyCount}`);
-    if (this.defeated >= this.stageEnemyCount && this.stageConfig.boss && !this.boss && !this.bossDefeated && !this.bossSpawnQueued) {
-      this.bossSpawnQueued = true;
-      this.statusLabel?.setText("WARNING! THE BOSS IS COMING!").setColor("#ff795e");
-      this.cameras.main.shake(280, 0.006);
-      this.time.delayedCall(850, () => {
-        if (!this.gameOver && !this.stageCleared && !this.boss) this.spawnBoss();
-      });
-    }
     return true;
   }
 
@@ -2510,6 +2506,21 @@ class ZeroGameScene extends Phaser.Scene {
     if (this.gameOver || this.stageCleared || this.stageTransitionActive || this.chanceLossInProgress ||
         !hero?.active || !enemy?.active || enemy.getData("frozen")) return;
     const now = this.time.now;
+    const validJumpStomp = !enemy.getData("isBoss") && hero.body?.velocity?.y > 85 &&
+      hero.body.bottom <= enemy.body.top + 26 && hero.y < enemy.y - 12;
+    if (validJumpStomp) {
+      enemy.setData("stompStunnedUntil", now + 620);
+      enemy.setVelocity(0, -95);
+      const visual = enemy.getData("visual");
+      if (visual?.active) this.tweens.add({ targets: visual, angle: 8, duration: 90, yoyo: true,
+        onComplete: () => { if (visual.active) visual.setAngle(0); } });
+      const stomp = this.add.ellipse(enemy.x, enemy.y + 18, 54, 12, 0x9feaff, 0.9)
+        .setStrokeStyle(3, 0xffffff).setDepth(24);
+      this.tweens.add({ targets: stomp, scaleX: 2.1, alpha: 0, duration: 260, onComplete: () => stomp.destroy() });
+      hero.setVelocityY(-250);
+      this.audio.play("ballImpact");
+      return;
+    }
     if (now - this.lastDamage < 1200 || this.health <= 0) return;
     this.lastDamage = now;
     this.audio.play("hit");
@@ -2611,6 +2622,7 @@ class ZeroGameScene extends Phaser.Scene {
     enemy.setData("rolling", true);
     enemy.setData("rollDirection", direction);
     enemy.setData("rollHits", []);
+    enemy.setData("rollWallBounces", 0);
     enemy.setData("rollStartedAt", this.time.now);
     enemy.setData("rollDistanceOrigin", enemy.x);
     enemy.setData("rollDirection", direction);
@@ -2678,6 +2690,7 @@ class ZeroGameScene extends Phaser.Scene {
       grounded: enemy.body.blocked.down,
       blockedLeft: enemy.body.blocked.left,
       blockedRight: enemy.body.blocked.right,
+      wallBounces: enemy.getData("rollWallBounces") || 0,
     });
     if (motion.hitWall) {
       enemy.setVelocity(0, 0);
@@ -2686,6 +2699,11 @@ class ZeroGameScene extends Phaser.Scene {
       return;
     }
     enemy.setData("rollDirection", motion.direction);
+    enemy.setData("rollWallBounces", motion.wallBounces || 0);
+    if (motion.hitWall) {
+      this.cameras.main.shake(100, 0.003);
+      this.spawnSnowballParticles(enemy.x, enemy.y, "impact", 8, 0.65);
+    }
     enemy.setVelocityX(motion.velocityX);
     ball.setPosition(enemy.x, enemy.y);
     const nextTrailAt = enemy.getData("nextSnowTrailAt") || 0;
@@ -3002,10 +3020,6 @@ class ZeroGameScene extends Phaser.Scene {
 
     if (this.stageTransitionActive) return;
     if (this.defeated >= this.stageEnemyCount && !this.stageConfig.boss && !this.stageCleared) this.completeStage();
-    if (this.stageConfig.boss && this.defeated >= this.stageEnemyCount && !this.boss && !this.bossSpawnQueued && !this.bossDefeated) {
-      this.bossSpawnQueued = true;
-      this.time.delayedCall(500, () => { if (!this.gameOver && !this.stageCleared && !this.boss) this.spawnBoss(); });
-    }
     if (this.stageCleared || this.gameOver) this.setMobileControlsVisible(false);
     if (!this.hero || !this.gameStarted || this.gameOver || this.stageCleared) return;
     const elapsedSeconds = Math.floor((time - this.stageStartedAt - (this.bonusMode ? time - this.bonusStartedAt : 0)) / 1000);
@@ -3015,7 +3029,7 @@ class ZeroGameScene extends Phaser.Scene {
       const ss = (this.stageTimeLeft % 60).toString().padStart(2, "0");
       this.timerLabel.setText(`${mm}:${ss}`).setColor(this.stageTimeLeft <= 15 ? "#ff7777" : "#ffffff");
     }
-    if (this.stageTimeLeft <= 0 && !this.timeHunterSpawned) this.spawnTimeHunter();
+    if (this.stageTimeLeft <= 0 && !this.timeHunterSpawned && !this.stageConfig.isBossStage) this.spawnTimeHunter();
     if (this.bonusMode) {
       const remaining = Math.max(0, Math.ceil((this.bonusUntil - time) / 1000));
       if (this.statusLabel?.active) this.statusLabel.setText(`BONUS ROUND: ${remaining}s`).setColor("#ff8cda");
@@ -3438,6 +3452,12 @@ class ZeroGameScene extends Phaser.Scene {
 
       if (enemy.getData("isBoss")) {
         this.updateBoss(enemy, delta);
+        return;
+      }
+
+      if (this.time.now < (enemy.getData("stompStunnedUntil") || 0)) {
+        enemy.setVelocityX(0);
+        if (enemyVisual?.active) enemyVisual.setPosition(enemy.x, enemy.y);
         return;
       }
 
