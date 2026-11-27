@@ -3540,14 +3540,27 @@ class ZeroGameScene extends Phaser.Scene {
       visual.setScale(direction * 1.15, 1.15);
       const authoredBossSprite = visual.getData("authoredSprite");
       if (authoredBossSprite?.active) {
-        const attackPose = attackState === "dash" || attackState === "volley";
+        const attackPose = ["tell", "dash", "volley", "slam"].includes(attackState);
         const previousAttackState = authoredBossSprite.getData("lastAttackState") || "rest";
+        const bossId = visual.getData("bossSheetId");
         if (attackPose && previousAttackState !== attackState) {
-          authoredBossSprite.play(`boss-${visual.getData("bossSheetId")}-strike`, true);
+          authoredBossSprite.play(`boss-${bossId}-strike`, true);
+        } else if (!attackPose && previousAttackState !== "rest") {
+          authoredBossSprite.play(`boss-${bossId}-presence`, true);
         }
         authoredBossSprite.setData("lastAttackState", attackState);
-        authoredBossSprite.setAngle(attackPose ? Math.sin(this.time.now * 0.025) * 5 : Math.sin(this.time.now * 0.004) * 1.8);
-        authoredBossSprite.setScale(attackPose ? 1.045 : 1);
+        const signatureTilt = bossId === "gale-talon" ? 9
+          : bossId === "iron-comet" ? -4
+            : bossId === "suncrest" ? 2
+              : bossId === "void-sovereign" ? Math.sin(this.time.now * 0.018) * 7 : 0;
+        const attackTilt = attackState === "slam" ? signatureTilt + 8
+          : attackState === "dash" ? signatureTilt - 10
+            : attackState === "volley" ? signatureTilt + 4 : signatureTilt;
+        authoredBossSprite.setAngle(attackPose ? attackTilt + Math.sin(this.time.now * 0.025) * 2
+          : Math.sin(this.time.now * (bossId === "void-sovereign" ? 0.009 : 0.004)) * (bossId === "gale-talon" ? 3 : 1.8));
+        authoredBossSprite.setScale(attackState === "slam" ? (bossId === "iron-comet" ? 1.12 : 1.08)
+          : attackState === "dash" ? (bossId === "gale-talon" ? 1.16 : 1.045)
+            : attackState === "volley" ? (bossId === "suncrest" ? 1.14 : 1.045) : 1);
       }
       const p = visual.getData("parts");
       const t = (enemy.getData("bossAnim") || 0) + delta;
