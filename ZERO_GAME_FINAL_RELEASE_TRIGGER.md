@@ -11,3 +11,6 @@ Final particle tier update release request: 2026-11-27. Include source commit `4
 
 
 Latest elemental particle and power-ball release request: 2026-11-27. Include source commit `1825c8747f20103974788c29add038fad72edffe`, which passed integrated CI run `45972123344` including automated tests, lint, web build, and Chromium campaign smoke test.
+
+
+Latest gameplay correction release request: 2026-11-27. Include source commit `8f808ae0d9343cc1fa6a9585ff9846806eed6afc`, which passed integrated CI run `45974674667` including all 35 automated tests, lint, Android configuration validation, web build, and Chromium campaign smoke test. This update includes the selected-element snowball silhouettes, first-wall-impact cleanup, playable five-second score collection, and reduced particle/tween load.
