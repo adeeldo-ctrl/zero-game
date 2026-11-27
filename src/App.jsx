@@ -2037,6 +2037,11 @@ class ZeroGameScene extends Phaser.Scene {
       control.glow?.setVisible(visible);
     });
     if (!visible) {
+      // Notify the React touch bridge too: hiding the overlay can prevent a
+      // later pointerup from reaching it, so its pointer-id ownership must end.
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new Event("zero-game-controls-hidden"));
+      }
       if (this.mobileActionQueue) this.mobileActionQueue.length = 0;
       if (this.touch) {
         this.touch.axis = 0;
@@ -5388,12 +5393,14 @@ export default function App() {
       }
     };
     window.addEventListener("blur", resetTouches);
+    window.addEventListener("zero-game-controls-hidden", resetTouches);
     return () => {
       overlay.removeEventListener("touchstart", onTouchStart);
       window.removeEventListener("touchmove", onWindowTouchMove);
       window.removeEventListener("touchend", onWindowTouchEnd);
       window.removeEventListener("touchcancel", onWindowTouchCancel);
       window.removeEventListener("blur", resetTouches);
+      window.removeEventListener("zero-game-controls-hidden", resetTouches);
       resetTouches();
     };
   }, [isNativeAndroid, getTouchTarget, getPlayableScene]);
