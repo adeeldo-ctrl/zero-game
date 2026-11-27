@@ -2933,7 +2933,18 @@ class ZeroGameScene extends Phaser.Scene {
       if (p.headband?.active) p.headband.rotation = swing * 0.025;
       if (p.orbitA?.active) p.orbitA.setAlpha(0.7 + (Math.sin(t * 0.004) + 1) * 0.13);
       if (p.orbitB?.active) p.orbitB.setAlpha(0.7 + (Math.cos(t * 0.004) + 1) * 0.13);
-      if (p.cape?.active) p.cape.rotation = Math.sin(t * 0.003 + swing) * 0.045;
+      const bossStyle = enemy.getData("bossStyle") || "";
+      if (p.cape?.active) {
+        const capeMotion = bossStyle.includes("agile") ? 0.075 : bossStyle.includes("final") ? 0.055 : 0.045;
+        p.cape.rotation = Math.sin(t * (bossStyle.includes("agile") ? 0.006 : 0.003) + swing) * capeMotion;
+      }
+      if (p.shadow?.active) p.shadow.setScale(1 + Math.abs(swing) * 0.055, 1 - Math.abs(swing) * 0.04);
+      if (p.footL?.active) p.footL.rotation = p.legL.rotation * 0.55;
+      if (p.footR?.active) p.footR.rotation = p.legR.rotation * 0.55;
+      if (p.fistL?.active && bossStyle.includes("boxing")) {
+        p.fistL.setScale(1 + (Math.sin(t * 0.009) + 1) * 0.035);
+        p.fistR.setScale(1 + (Math.cos(t * 0.009) + 1) * 0.035);
+      }
       if (p.crownGem?.active) {
         p.crownGem.rotation = Math.sin(t * 0.004) * 0.12;
         p.crownGem.setAlpha(0.76 + (Math.sin(t * 0.008) + 1) * 0.12);
