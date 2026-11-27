@@ -314,6 +314,7 @@ class ZeroGameScene extends Phaser.Scene {
     this.heroVisual = this.createHeroVisual(480, 450, this.selectedHero.id);
     this.applyHeroLook(this.heroVisual, this.selectedHero);
 
+    this.physics.add.overlap(this.hero, this.platforms, this.handleSpecialPlatform, null, this);
     this.heroPlatformCollider = this.physics.add.collider(this.hero, this.platforms, null,
       (hero, platform) => shouldHeroCollideWithPlatform({
         isGround: platform === this.groundPlatform,
