@@ -25,3 +25,6 @@ Latest lightweight elemental particle redesign release request: 2026-11-27. Incl
 
 
 2026-11-27 — Premium world, weather, hero, enemy and boss visual pass. Build signed Android APK from verified source commit 41b12e8884f44e549efe26b6df7dd8ea8e3fdaaf after CI run 45993784330 passed. This is a fresh release candidate; previous APK does not contain these updates.
+
+
+Final single-player Android Release APK request — 2026-11-27. Build from verified source commit `d9617dabf52475376503e26256959994e75cdcd7` plus release approval commit `65819854974ba1ed91f7827a3dc9ebda2a004c09`. Wi-Fi co-op has been removed. Consolidated CI run `46015298241` passed tests, lint, Android configuration validation, web build and Chromium 50-stage/mobile smoke checks.
