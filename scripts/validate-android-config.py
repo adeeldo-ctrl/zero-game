@@ -39,14 +39,17 @@ assert trigger_block and re.search(r"(?m)^  workflow_dispatch:\s*$", trigger_blo
 assert not re.search(r"(?m)^  workflow_run:", trigger_block.group(1)), (
     "APK builds must not start automatically after CI"
 )
-assert not re.search(r"(?m)^  push:", trigger_block.group(1)), (
-    "Source pushes must not trigger Android APK builds"
-)
 assert not re.search(r"(?m)^  pull_request:", trigger_block.group(1)), (
     "Pull requests must not trigger Android APK builds"
 )
-assert "github.event_name == 'workflow_dispatch'" in content, (
-    "The Android APK job must run only for a manual dispatch"
+assert re.search(r"(?ms)^  push:\\s*\\n(?:[ \\t]+.*\\n)*", trigger_block.group(1)), (
+    "The final APK workflow must support the one-time release marker"
+)
+assert "ZERO_GAME_FINAL_RELEASE_TRIGGER.md" in trigger_block.group(1), (
+    "Only the explicit final-release marker may trigger an APK build on push"
+)
+assert "github.event_name == 'workflow_dispatch' || github.event_name == 'push'" in content, (
+    "The APK job must run only for a manual dispatch or explicit final-release marker"
 )
 assert "workflow_run" not in content, (
     "The APK workflow must not depend on automatic workflow-run events"
