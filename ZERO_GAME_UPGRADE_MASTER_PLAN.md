@@ -1019,3 +1019,12 @@ The following gameplay requirements are mandatory and supersede any conflicting 
 - Boss idle animation polish: cape sway now reflects agile/final boss style, ground shadow subtly responds to movement, feet follow leg rotation, and boxing bosses have restrained alternating glove pulses. Boss attack timing, hitboxes, damage, AI, and phase progression are unchanged. Source commit: `e894d59ddfe773295373da0c92949df871b497a0`.
 
 - Added five lightweight animated ambient glints to Moonlit Forest, Crystal Caves, Volcano Valley, and Starfall Citadel setpieces. Each uses a world-matched tint and restrained pulse/drift, stays behind gameplay actors, and avoids the central floor/platform collision areas. Source commit: `19f101173d5aeaab3c251dfde36a6a5c30f70788`.
+
+## Dedicated enemy and boss sprite-sheet integration — 2026-11-27
+
+- Added three authored four-frame enemy sprite sheets for the fast, heavy, and special enemy classes under `src/assets/enemies/`.
+- Added five distinct four-frame boss sprite sheets for Arena Gatekeeper, Iron Comet, Gale Talon, Suncrest Master, and Void Sovereign under `src/assets/bosses/`.
+- Integrated the sheets into the Phaser preload and animation registry. The authored enemy/boss artwork is now the visible combatant presentation; the existing physics bodies, AI, damage handling, boss phases, hitboxes, and gameplay rules remain unchanged.
+- Existing procedural rig metadata is retained for compatibility with current gameplay and hit-reaction code; the authored sprite is used for the visible character presentation.
+- Source commit: `812839ba69422264ba569b6ae2ca5ae361a12cf2`.
+- **Verification:** Not run; per the user's final-only verification instruction, consolidated testing remains deferred until all approved development is complete. No APK was built.
