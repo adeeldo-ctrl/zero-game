@@ -19,6 +19,12 @@
 - Jump input must work reliably on touch and keyboard/controller. A held jump must not block subsequent jumps. Preserve the intended double-jump and flip/back-flip behavior, with correct landing/reset logic.
 - Keep the existing joystick behavior unchanged unless a verified defect requires a minimal targeted correction.
 
+### Gatekeeper boss pose follow-up (2026-11-27)
+- Added a dedicated low, braced anticipation pose and compact ground-pulse slam pose for the Gatekeeper/grappler boss style; it no longer falls through to generic boss posing for these states.
+- Boss timing, movement, attack selection, damage, hitboxes, and phase progression are unchanged.
+- Source commit: `5ec8b77e9df62dfcd9a98e8b97b9cf938513bcb1`.
+- No tests or builds were run during this implementation step.
+
 ### Enemy accessory animation follow-up (2026-11-27)
 - Added subtle per-frame motion to forehead gems, waist sashes, fast-enemy scarves, back spikes, and heavy-enemy knee guards, coordinated with each enemy's existing stride.
 - Animation is presentation-only; enemy AI, movement speed, physics, collision, hitboxes, and damage remain unchanged.
