@@ -77,8 +77,8 @@ assert "scripts/validate-android-config.py" in content and "scripts/smoke-game-b
     "Final Android workflow must run the complete consolidated verification before APK assembly"
 )
 assert "screenOrientation" in content, "Android launcher must be locked to landscape"
-assert "android.permission.INTERNET" in content, "Android co-op networking needs Internet permission"
-assert "usesCleartextTraffic" in content, "Android local Wi-Fi WebSocket access is not configured"
+assert "android.permission.INTERNET" not in content, "Single-player Android build must not request network access"
+assert "usesCleartextTraffic" not in content, "Single-player Android build must not enable cleartext network traffic"
 for flag in ("SYSTEM_UI_FLAG_IMMERSIVE_STICKY", "SYSTEM_UI_FLAG_HIDE_NAVIGATION", "SYSTEM_UI_FLAG_FULLSCREEN"):
     assert flag in content, f"Android immersive full-screen mode is missing {flag}"
 assert not (workflow_dir / "android-apk.yml").exists(), "Remove the redundant legacy APK workflow"
@@ -88,9 +88,11 @@ ci_trigger = re.search(r"(?ms)^on:\s*\n((?:[ \t]+.*\n)*)", ci)
 assert ci_trigger and re.search(r"(?m)^  workflow_dispatch:\s*$", ci_trigger.group(1)), (
     "Consolidated verification must be manually dispatchable after development"
 )
-assert not re.search(r"(?m)^  push:", ci_trigger.group(1)), (
-    "Development pushes must not start repeated full verification runs"
+assert re.search(r"(?m)^  push:", ci_trigger.group(1)), (
+    "Final source changes must start the consolidated verification run"
 )
+assert "branches:" in ci_trigger.group(1) and "- main" in ci_trigger.group(1)
+assert "src/**" in ci_trigger.group(1) and "scripts/**" in ci_trigger.group(1)
 assert not re.search(r"(?m)^  pull_request:", ci_trigger.group(1)), (
     "Pull requests must not start the final delivery pipeline"
 )
