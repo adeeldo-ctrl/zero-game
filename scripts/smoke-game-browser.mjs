@@ -812,6 +812,25 @@ try {
     return scene?.touch.axis > 0.95;
   }, undefined, { timeout: 2000 });
   await dispatchTouch("touchend", [point(7, 245, 448)], []);
+
+  // Hiding the control overlay during a stage/menu transition must release
+  // pointer ids even if the browser never sends touchend for the held fingers.
+  await dispatchTouch("touchstart", [point(8, 132, 448), point(9, 665, 340)]);
+  await nativePage.evaluate(() => {
+    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+    scene.setMobileControlsVisible(false);
+    if (scene.touch.axis !== 0 || scene.mobileActionQueue.length) {
+      throw new Error("Hiding the control overlay did not reset active input state");
+    }
+    scene.setMobileControlsVisible(true);
+  });
+  await dispatchTouch("touchstart", [point(10, 132, 448)]);
+  await dispatchTouch("touchmove", [point(10, 245, 448)]);
+  await nativePage.waitForFunction(() => {
+    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+    return scene?.touch.axis > 0.95;
+  }, undefined, { timeout: 2000 });
+  await dispatchTouch("touchend", [point(10, 245, 448)], []);
   await delay(150);
   await nativePage.evaluate((animTime) => {
     const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
