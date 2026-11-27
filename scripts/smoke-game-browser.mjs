@@ -601,6 +601,7 @@ try {
     }, nextStage, { timeout: 10000 });
     await page.waitForFunction(() => {
       const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+      if (scene?.stageConfig?.isBossStage) return !!scene.boss?.active;
       return scene?.enemies?.getChildren().some((enemy) =>
         enemy.active && !enemy.getData("isBoss") && !enemy.getData("isTimeHunter")
       );
@@ -617,6 +618,9 @@ try {
         landmarkActive: !!scene.stageVariantLandmark?.active,
         platforms: scene.platforms.getChildren().length,
         boss: !!scene.stageConfig.boss,
+        bossStage: !!scene.stageConfig.isBossStage,
+        bossActive: !!scene.boss?.active,
+        configuredEnemyCount: scene.stageConfig.enemyCount,
         enemies: scene.enemies.getChildren().filter((enemy) =>
           enemy.active && !enemy.getData("isBoss") && !enemy.getData("isTimeHunter")
         ).map((enemy) => ({
@@ -643,8 +647,14 @@ try {
       throw new Error(`Stage ${nextStage} did not create its stage-specific landmark composition`);
     }
     landmarkSignatures.add(stageState.landmarkSignature);
-    if (stageState.boss !== (nextStage % 10 === 0)) {
-      throw new Error(`Stage ${nextStage} boss milestone is incorrect`);
+    if (stageState.boss !== (nextStage % 10 === 0) ||
+        stageState.bossStage !== (nextStage % 10 === 0) ||
+        stageState.bossActive !== (nextStage % 10 === 0) ||
+        stageState.configuredEnemyCount !== (nextStage % 10 === 0 ? 0 : undefined)) {
+      throw new Error(`Stage ${nextStage} boss milestone is not a dedicated boss-only encounter`);
+    }
+    if (stageState.bossStage && stageState.enemies.length !== 0) {
+      throw new Error(`Boss stage ${nextStage} must not spawn regular enemies`);
     }
     if (stageState.heroId !== campaignIdentity.heroId ||
         stageState.chances !== campaignIdentity.chances ||
