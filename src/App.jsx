@@ -1324,6 +1324,7 @@ class ZeroGameScene extends Phaser.Scene {
 
   showStoryScreen() {
     this.setMobileControlsVisible(false);
+    this.audio.playMenuTheme?.();
     this.gameStarted = false;
     this.clearMenu();
     const shade = this.add.rectangle(480, 270, 960, 540, 0x050b19, 0.94).setDepth(60);
@@ -2435,6 +2436,7 @@ class ZeroGameScene extends Phaser.Scene {
   completeStage() {
     if (this.stageCleared) return;
     this.audio.play("stageClear");
+    this.audio.playVictoryTheme?.();
     this.stageCleared = true;
     this.hero.setVelocity(0, 0);
     this.statusLabel.setText(`STAGE ${String(this.stageNumber).padStart(2,"0")} COMPLETE!`).setColor("#ffe17a");
@@ -2521,6 +2523,7 @@ class ZeroGameScene extends Phaser.Scene {
 
   showContinueScreen() {
     this.setMobileControlsVisible(false);
+    this.audio.playDefeatTheme?.();
     const shade = this.add.rectangle(480, 270, 960, 540, 0x071426, 0.9).setDepth(50);
     const title = this.add.text(480, 175, "GAME OVER", { fontSize: "52px", color: "#ff8b9c", fontStyle: "bold", stroke: "#351b35", strokeThickness: 7 }).setOrigin(0.5).setDepth(51);
     const info = this.add.text(480, 250, "ALL THREE CHANCES HAVE BEEN USED", { fontSize: "19px", color: "#ffffff", fontStyle: "bold", align: "center" }).setOrigin(0.5).setDepth(51);
