@@ -2548,6 +2548,34 @@ class ZeroGameScene extends Phaser.Scene {
       ));
       styleDetails.push(this.add.circle(0, -8, 94, 0x7555d8, 0.08).setStrokeStyle(3, 0xc7aaff));
     }
+    const elementPalette = {
+      fire: { trim: 0xff9a52, dark: 0x73344a, glow: 0xffd06b },
+      ice: { trim: 0xb9f2ff, dark: 0x416b91, glow: 0xffffff },
+      lightning: { trim: 0xf4e17a, dark: 0x514a88, glow: 0xd9c6ff },
+      water: { trim: 0x8bdcff, dark: 0x245b83, glow: 0xe0fbff },
+      nature: { trim: 0x9ce58b, dark: 0x315f4b, glow: 0xe3ffc0 },
+      wind: { trim: 0xb5f5e8, dark: 0x3c6978, glow: 0xffffff },
+      earth: { trim: 0xe0b27a, dark: 0x684b3c, glow: 0xffe0a0 },
+      light: { trim: 0xfff0a3, dark: 0x8b713e, glow: 0xffffff },
+      shadow: { trim: 0xc7a8ff, dark: 0x38294f, glow: 0xe5d9ff },
+      plasma: { trim: 0xff9bd8, dark: 0x703d78, glow: 0xffd6f1 },
+    };
+    const palette = elementPalette[bossElement] || elementPalette.fire;
+    const cape = this.add.triangle(0, 30, -48, -8, 48, -8, 0, 118, palette.dark, 0.96)
+      .setStrokeStyle(4, palette.trim, 0.9);
+    const chestPlate = this.add.triangle(0, -2, -37, -24, 37, -24, 0, 38, palette.trim, 0.92)
+      .setStrokeStyle(3, palette.glow, 0.85);
+    const chestInset = this.add.ellipse(0, 7, 48, 42, palette.dark, 0.9)
+      .setStrokeStyle(2, palette.glow, 0.9);
+    const armorRidges = [-1, 1].map((side) =>
+      this.add.triangle(side * 49, -31, -13, 8, 0, -20, 15, 8, palette.trim)
+        .setStrokeStyle(2, palette.glow, 0.85).setAngle(side * 90)
+    );
+    const cheekMarks = [-1, 1].map((side) =>
+      this.add.triangle(side * 37, -5, -7, -5, 7, -5, 0, 13, palette.trim, 0.9)
+    );
+    const crownGem = this.add.diamond(0, -79, 18, 24, palette.glow, 0.98)
+      .setStrokeStyle(2, palette.trim, 0.95);
     const chestEmblem = this.add.star(0, 5, isFinal ? 8 : 6, isFinal ? 7 : 5, isFinal ? 25 : 18,
       isFinal ? 0xe5d5ff : 0xffd36b, 0.95).setStrokeStyle(3, bossColor, 0.95);
     const shoulderL = this.add.ellipse(-55, -25, 39, 24, isFinal ? 0x6550a6 : 0x6b5266)
@@ -2558,9 +2586,10 @@ class ZeroGameScene extends Phaser.Scene {
       .setStrokeStyle(2, 0xffd36b, 0.95);
     const beltGem = this.add.star(0, 39, 5, 4, 10, bossElement === "shadow" ? 0xc5a8ff : 0xffe17a)
       .setStrokeStyle(2, 0xffffff, 0.9);
-    c.add([aura, shadow, orbitA, orbitB, legL, legR, footL, footR, armL, armR,
-      shoulderL, shoulderR, fistL, fistR, body, belly, bellyMark, chestEmblem,
-      headband, hornL, hornR, browL, browR, eyeL, eyeR,
+    c.add([aura, shadow, cape, orbitA, orbitB, legL, legR, footL, footR, armL, armR,
+      shoulderL, shoulderR, armorRidges[0], armorRidges[1], fistL, fistR, body, belly,
+      chestPlate, chestInset, bellyMark, chestEmblem, cheekMarks[0], cheekMarks[1],
+      headband, crownGem, hornL, hornR, browL, browR, eyeL, eyeR,
       pupilL, pupilR, nose, mouth, belt, beltGem, ...styleDetails]);
     this.tweens.add({ targets: aura, scale: 1.16, alpha: 0.28, duration: bossElement === "lightning" ? 260 : 700, yoyo: true, repeat: -1 });
     this.tweens.add({ targets: orbitA, x: -86, y: -48, duration: bossElement === "ice" ? 620 : 900, yoyo: true, repeat: -1, ease: "Sine.easeInOut" });
