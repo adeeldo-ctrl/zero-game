@@ -1375,7 +1375,7 @@ class ZeroGameScene extends Phaser.Scene {
     const c = this.add.container(x, y).setDepth(10);
 
     const shadow = this.add.ellipse(
-      0, 41, 49, 12, 0x142c45, 0.25
+      0, 41, 49, 12, 0x142c45, 0.07
     );
 
     const legL = this.add.ellipse(
@@ -2272,7 +2272,8 @@ class ZeroGameScene extends Phaser.Scene {
       const card = this.add.rectangle(x, 295, 216, 390, 0x142b49, 0.98).setStrokeStyle(3, hero.accent).setDepth(61).setInteractive({ useHandCursor: true });
       const glow = this.add.circle(x, 190, 68, hero.accent, 0.1).setStrokeStyle(2, hero.accent, 0.68).setDepth(62);
       const visual = this.createHeroVisual(x, 198, hero.id);
-      this.applyHeroLook(visual, hero, true);
+      // Use each hero's authored sprite sheet in the selection cards; never expose the legacy rig.
+      this.applyHeroLook(visual, hero);
       visual.setDepth(63).setScale(0.9);
       const name = this.add.text(x, 258, hero.name.toUpperCase(), { fontSize: "20px", color: "#ffffff", fontStyle: "bold" }).setOrigin(0.5).setDepth(64);
       const title = this.add.text(x, 285, hero.title, { fontSize: "11px", color: "#9feaff", fontStyle: "bold", align: "center", wordWrap: { width: 188 }, fixedWidth: 188, fixedHeight: 30 }).setOrigin(0.5, 0).setDepth(64);
@@ -2368,7 +2369,7 @@ class ZeroGameScene extends Phaser.Scene {
   }
 
   playStageEntryTransition(direction, onComplete) {
-    const offsets = { down: { x: 0, y: -540 }, right: { x: -960, y: 0 }, left: { x: 960, y: 0 } };
+    const offsets = { up: { x: 0, y: 540 }, down: { x: 0, y: -540 }, right: { x: -960, y: 0 }, left: { x: 960, y: 0 } };
     const offset = offsets[direction] || offsets.down;
     const moving = this.children.list.filter((object) => object?.active && (object.depth ?? 0) < 20);
     const origins = moving.map((object) => ({ object, x: object.x, y: object.y }));
@@ -2903,11 +2904,12 @@ class ZeroGameScene extends Phaser.Scene {
     const bossColor = this.stageConfig.boss?.color || 0xb94770;
     const bossElement = this.stageConfig.boss?.element || "fire";
     const bossStyle = this.stageConfig.boss?.style || "";
-    const isBoxer = bossStyle.includes("boxing");
-    const isAgile = bossStyle.includes("agile");
-    const isMaster = bossStyle.includes("master");
-    const isFinal = bossStyle.includes("final");
-    const isGatekeeper = bossStyle.includes("grappler");
+    const bossId = this.stageConfig.boss?.id || "";
+    const isBoxer = bossId === "iron-comet" || bossStyle.includes("boxing");
+    const isAgile = bossId === "gale-talon" || bossStyle.includes("agile");
+    const isMaster = bossId === "suncrest" || bossStyle.includes("master");
+    const isFinal = bossId === "void-sovereign" || bossStyle.includes("final");
+    const isGatekeeper = bossId === "gatekeeper" || bossStyle.includes("grappler");
     const bossElementPalette = getElement(bossElement);
     const fistL = this.add.circle(-62, 24, isBoxer ? 23 : 17,
       isBoxer ? 0x5a2638 : bossElementPalette.color)
@@ -3015,8 +3017,8 @@ class ZeroGameScene extends Phaser.Scene {
       fistL, fistR, body, belly, pupilL, pupilR, aura, chestEmblem, chestInset,
       cape, armorRidges, crownGem, cheekMarks,
       shoulderL, shoulderR, belt, beltGem, headband, orbitA, orbitB });
-    const bossSheetId = isGatekeeper ? "gatekeeper" : isBoxer ? "iron-comet"
-      : isAgile ? "gale-talon" : isMaster ? "suncrest" : "void-sovereign";
+    const bossSheetId = bossId || (isGatekeeper ? "gatekeeper" : isBoxer ? "iron-comet"
+      : isAgile ? "gale-talon" : isMaster ? "suncrest" : "void-sovereign");
     c.list.forEach((part) => part.setVisible(part === shadow));
     const bossSprite = this.add.sprite(0, -22, `boss-sheet-${bossSheetId}`, 0)
       .setDisplaySize(142, 142);
