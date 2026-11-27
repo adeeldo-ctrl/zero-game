@@ -19,7 +19,7 @@ export function loseCampaignHeart(state) {
 }
 
 export function getStageTransitionDirection(stageNumber) {
-  const directions = ["down", "right", "left"];
+  // The player and new arena now rise into view after each five-second score window.
   const index = Math.max(0, Math.floor(Number(stageNumber) || 1) - 1);
-  return directions[index % directions.length];
+  return index >= 0 ? "up" : "up";
 }
