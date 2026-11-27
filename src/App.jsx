@@ -25,6 +25,7 @@ import worldBackdropVolcano from "./assets/backgrounds/world-volcano.svg";
 import worldBackdropCosmic from "./assets/backgrounds/world-cosmic.svg";
 import { Capacitor } from "@capacitor/core";
 import { ELEMENTS, HEROES, getElement, getStage, getHero } from "./gameData";
+import { getPremiumStageEnemyRoster } from "./premiumCampaignData";
 import { createGameAudio } from "./gameAudio";
 import { createCampaignLives, loseCampaignHeart, getStageTransitionDirection } from "./campaignRules";
 import { shouldHeroCollideWithPlatform, shouldDropThroughPlatform, getPlatformTextureScale } from "./platformRules";
@@ -2330,7 +2331,7 @@ class ZeroGameScene extends Phaser.Scene {
     this.setMobileControlsVisible(true); this.clearMenu();
     this.audio.unlock();
     this.audio.play("stage");
-    this.audio.playWorldTheme(this.stageConfig.worldIndex);
+    this.audio.playStageTheme(this.stageNumber);
     this.campaignActive = true; this.gameStarted = true; this.gameOver = false; this.stageCleared = false;
     this.stageAdvancePending = false;
     this.stageStartedAt = this.time.now; this.stageTimeLeft = this.stageConfig.timeLimit || 120;
@@ -2412,6 +2413,8 @@ class ZeroGameScene extends Phaser.Scene {
       : Array.from({ length: this.stageEnemyCount }, (_, i) =>
         70 + i * (820 / Math.max(1, this.stageEnemyCount - 1)));
 
+    const premiumRoster = this.stageConfig.enemyRoster?.length
+      ? this.stageConfig.enemyRoster : getPremiumStageEnemyRoster(this.stageNumber);
     const familyPalettes = {
       striker: { colors: [0x8b4a3e, 0x355b8a, 0x6d4b83], horns: [0xffd36b, 0x8feaff, 0xffa3a3] },
       agile: { colors: [0x356f83, 0x8a4f77, 0x4f7b55], horns: [0x9cecff, 0xffc4d2, 0xc9f28a] },
@@ -2435,14 +2438,19 @@ class ZeroGameScene extends Phaser.Scene {
         enemy.body.setAllowGravity(true);
         enemy.setData("frozen", false);
         enemy.setData("baseTexture", `enemy${i % 3}`);
-        enemy.setData("enemyName", this.stageConfig.enemyTypes[i % this.stageConfig.enemyTypes.length]);
-        const enemyClass = ["fast", "heavy", "special"][i % 3];
+        const archetype = premiumRoster[i % premiumRoster.length];
+        enemy.setData("enemyName", archetype?.name || this.stageConfig.enemyTypes[i % this.stageConfig.enemyTypes.length]);
+        enemy.setData("enemyArchetypeId", archetype?.id || "legacy-enemy");
+        enemy.setData("enemyRole", archetype?.role || "runner");
+        enemy.setData("enemyTier", archetype?.tier || "common");
+        const roleClass = { runner: "fast", leaper: "fast", flying: "fast", ambusher: "special", ranged: "special", bomber: "special", illusionist: "special", summoner: "special", shield: "heavy", heavy: "heavy", charger: "heavy" };
+        const enemyClass = roleClass[archetype?.role] || ["fast", "heavy", "special"][i % 3];
         enemy.setData("enemyClass", enemyClass);
         const enemyPowerType = this.stageConfig.enemyPowerType || "fire";
         enemy.setData("enemyPowerType", enemyPowerType);
         enemy.setData("snowballPowerTier", getSnowballPowerTier(enemyClass, enemyPowerType, this.stageNumber));
-        const aiTypes = ["chaser", "runner", "jumper", "guard", "charger", "chaser"];
-        const aiType = aiTypes[i % aiTypes.length];
+        const roleAi = { runner: "runner", leaper: "jumper", flying: "jumper", ambusher: "charger", ranged: "guard", bomber: "charger", illusionist: "runner", summoner: "guard", shield: "guard", heavy: "chaser", charger: "charger" };
+        const aiType = roleAi[archetype?.role] || ["chaser", "runner", "jumper", "guard", "charger", "chaser"][i % 6];
         enemy.setData("aiType", aiType);
         enemy.setData("aiState", aiType === "runner" || aiType === "charger" ? "tell" : aiType === "guard" ? "guard" : "patrol");
         enemy.setData("aiStateUntil", this.time.now + 900 + (i % 3) * 350);
