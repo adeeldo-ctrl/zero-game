@@ -1705,11 +1705,11 @@ class ZeroGameScene extends Phaser.Scene {
     // Twenty collectible particle tiers increase density, scale, travel and linger time.
     const powerLevel = Phaser.Math.Clamp(this.particlePowerLevel || 1, 1, this.particlePowerMaxLevel || 20);
     const upgrade = (powerLevel - 1) / 19;
-    const densityMultiplier = 1 + upgrade * 2.5;
-    const particleCount = element.id === "fire" ? Math.min(360, Math.ceil(count * 10 * (1 + upgrade * 1.5))) : Math.min(240, Math.ceil(count * densityMultiplier));
-    const particleScale = scale * (1 + upgrade * 0.8);
-    const particleSpeed = 1 + upgrade * 0.65;
-    const particleLifetime = 1 + upgrade * 0.35;
+    const densityMultiplier = 1 + upgrade * 9;
+    const particleCount = element.id === "fire" ? Math.min(1200, Math.ceil(count * 10 * densityMultiplier)) : Math.min(600, Math.ceil(count * densityMultiplier));
+    const particleScale = scale * (1 + upgrade * 1.8);
+    const particleSpeed = 1 + upgrade * 1.5;
+    const particleLifetime = 1 + upgrade * 0.75;
     for (let i = 0; i < particleCount; i++) {
       const angle = (Math.PI * 2 * i / particleCount) + Phaser.Math.FloatBetween(-0.22, 0.22);
       const speed = Phaser.Math.Between(24, 105) * scale * particleSpeed;
