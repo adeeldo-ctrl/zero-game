@@ -144,6 +144,7 @@ class ZeroGameScene extends Phaser.Scene {
     this.netRole = null;
     this.netSendAt = 0;
     this.remoteVisual = null;
+    this.remoteState = null;
     this.netStatusText = null;
   }
 
@@ -2201,6 +2202,7 @@ class ZeroGameScene extends Phaser.Scene {
         this.ensureRemoteVisual();
         this.netStatusText?.setText("PLAYER 2 CONNECTED • CO-OP READY").setColor("#62ffb4");
       } else if (msg.type === "peer-left") {
+        this.remoteState = null;
         if (this.remoteVisual?.active) this.remoteVisual.setAlpha(0.25);
         this.netStatusText?.setText("PLAYER DISCONNECTED • WAITING").setColor("#ffe17a");
       } else if (msg.type === "room-full") {
@@ -2208,8 +2210,14 @@ class ZeroGameScene extends Phaser.Scene {
         socket.close();
       } else if (msg.type === "state") {
         this.ensureRemoteVisual();
-        this.remoteVisual.setPosition(msg.x, msg.y).setAlpha(0.92);
-        this.remoteVisual.setScale(msg.facing || 1, msg.airborne ? 1.05 : 1);
+        this.remoteState = {
+          x: msg.x,
+          y: msg.y,
+          facing: msg.facing < 0 ? -1 : 1,
+          airborne: Boolean(msg.airborne),
+          moving: Boolean(msg.moving),
+        };
+        this.remoteVisual.setAlpha(0.92);
       } else if (msg.type === "hero") {
         this.applyRemoteHero(msg.heroId);
       } else if (msg.type === "shot") {
@@ -4880,10 +4888,19 @@ class ZeroGameScene extends Phaser.Scene {
 
     this.heroWasAirborne = airborne;
 
+    if (this.remoteVisual?.active && this.remoteState) {
+      const blend = 1 - Math.exp(-Math.max(0, delta) / 48);
+      this.remoteVisual.x += (this.remoteState.x - this.remoteVisual.x) * blend;
+      this.remoteVisual.y += (this.remoteState.y - this.remoteVisual.y) * blend;
+      this.remoteVisual.setScale(this.remoteState.facing, this.remoteState.airborne ? 1.05 : 1);
+      this.setHeroSpriteAnimation(this.remoteVisual,
+        this.remoteState.airborne ? "jump" : this.remoteState.moving ? "walk" : "idle");
+    }
+
     if (this.netConnected && time - this.netSendAt > 45) {
       this.netSendAt = time;
       this.sendNet({ type: "state", x: Math.round(h.x), y: Math.round(h.y),
-        facing: this.facing, airborne, heroId: this.selectedHero?.id || "ryo" });
+        facing: this.facing, airborne, moving, heroId: this.selectedHero?.id || "ryo" });
     }
 
     // Enemy AI and animation
