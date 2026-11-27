@@ -516,3 +516,23 @@ The following gameplay requirements are mandatory and supersede any conflicting 
 - Power 1–20 now scales particle density from 1x to 10x across the tier range, in addition to the existing fire baseline boost.
 - Higher tiers also scale particle size, travel speed, and lifetime. Particle counts are capped per burst to avoid unbounded object creation.
 - Latest gameplay implementation commit: `48f9bdbe0557190a2152d8c6d6ca3a7ff2937126`.
+
+## Elemental particle identities and power-shaped snowballs — 2026-11-27
+
+- Reworked the ten elemental particle families so each has a recognizable silhouette, not only a palette change:
+  - Fire: flame tongues and embers.
+  - Ice: six-armed snowflakes with branch details.
+  - Lightning: jagged bolt fragments.
+  - Water: tapered falling droplets.
+  - Nature: leaf particles with visible veins.
+  - Wind: curved, rotating air ribbons.
+  - Earth: angular rock shards.
+  - Light: radiant starbursts.
+  - Shadow: crescent-like dark fragments with contrasting rims.
+  - Plasma: glowing energy orbs.
+- Preserved the Power 1–20 particle progression, including its density, scale, speed, lifetime scaling and fire's tenfold base count.
+- Rebuilt the frozen enemy's elemental ball appearance around its selected element. Wind now forms a spiral/twister silhouette; water has a liquid droplet body; ice has a real six-armed snowflake core; fire, lightning, nature, earth, light, shadow and plasma each have their own visual construction.
+- Added element-specific kicked-ball movement presentation: distinct launch speeds, rotation response, scale/bobbing, trails and impact bursts. Wind uses a fast, lifting twister-like motion and curved air trails; water flows forward with a liquid wobble and splash droplets; lightning accelerates with sharp electrical streaks; earth moves heavier with rock fragments; remaining elements retain their own signatures.
+- Existing freeze/kick targeting and rolling-ball collision rules remain in place; these changes are visual/movement presentation for fictional arcade gameplay, not real-world weapon mechanics.
+- Source commit: `66ae063a7390075fd23b4454c18a2f8e9b1fac4e`.
+- Consolidated CI must pass before this upgrade is marked verified. A fresh signed Release APK is a separate final delivery step; physical Android testing must be reported separately.
