@@ -163,6 +163,13 @@
 - Source commits: `5c31dd8989e1255b0cfd3d27e77e028c7fe04dfa`, `1041c969290de65235278f449b719fc6d9d2ed73`, `eb164a721826883e53d6552a77cd6c21057958ff`; tests: `4b898bef8b8e9dd34028db6216ac35281af062cd`, `bb0e0a05cc252e9cd7cc05ac1e1f92454201d564`.
 - No tests/builds were run; final consolidated verification and Android Release APK remain deferred until all development is complete.
 
+### Enemy elemental identity visuals (2026-11-27)
+- Regular enemy visual rigs now display a clear element-specific glyph and pulsing halo from their assigned element, covering Fire, Ice, Lightning, Water, Nature, Wind, Earth, Light, Shadow and Plasma.
+- The element marker is part of the existing visual container and is stored with its animation parts; it does not alter enemy movement, hitboxes, AI, or attack behavior.
+- Added campaign smoke coverage requiring each live enemy's visible element marker to match its assigned stage element.
+- Source commit: `9b0c071d6b5b16d2e60a9cdeccb88dc5630270ec`; smoke coverage commit: `7f0ef91c5f5c3652bdfeeb9db821e9a1ccf08ef2`.
+- No tests/builds were run; final consolidated verification and Android Release APK remain deferred until development is complete.
+
 ## Non-negotiable preservation rules
 - Preserve the currently working joystick/controller movement and touch mapping. Do not regress the approved controls.
 - Keep the game in landscape and make the playable scene fill the complete device viewport.
