@@ -67,6 +67,12 @@
 - Source commit: `c30313105835cd9489ca5a7a9171e93dd9f246b8`.
 - No tests/builds were run; final consolidated verification and Android APK remain deferred until development is complete.
 
+### Weather-responsive arena floor accents (2026-11-27)
+- Rain stages now show soft puddle reflections; snow/blizzard stages receive small frost drifts and crystals; sand/sandstorm stages get low drifting dust; ash/ember stages get restrained ground-level ember glows.
+- These are low-count, background-only animated decorations below the playable characters and do not affect platforms, collision, or movement.
+- Source commit: `917c1b8a5bd871a54c377064233787d2afc42c30`.
+- No tests/builds were run; final consolidated verification and Android APK remain deferred until development is complete.
+
 ## Non-negotiable preservation rules
 - Preserve the currently working joystick/controller movement and touch mapping. Do not regress the approved controls.
 - Keep the game in landscape and make the playable scene fill the complete device viewport.
