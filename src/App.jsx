@@ -2623,8 +2623,11 @@ class ZeroGameScene extends Phaser.Scene {
         const roleAi = { runner: "runner", leaper: "jumper", flying: "flyer", ambusher: "ambusher", ranged: "ranged", bomber: "bomber", illusionist: "ambusher", summoner: "summoner", shield: "guard", heavy: "chaser", charger: "charger" };
         const aiType = roleAi[archetype?.role] || ["chaser", "runner", "jumper", "guard", "charger", "chaser"][i % 6];
         enemy.setData("aiType", aiType);
-        enemy.setData("aiState", aiType === "runner" || aiType === "charger" ? "tell" : aiType === "guard" ? "guard" : "patrol");
+        enemy.setData("aiState", ["runner", "charger", "ambusher", "bomber"].includes(aiType) ? "tell" : aiType === "guard" ? "guard" : "patrol");
         enemy.setData("aiStateUntil", this.time.now + 900 + (i % 3) * 350);
+        enemy.setData("nextRangedAt", this.time.now + 1500 + (i % 3) * 450);
+        enemy.setData("nextBlastAt", this.time.now + 2100 + (i % 3) * 500);
+        if (aiType === "flyer") { enemy.setPosition(x, 220 + (i % 3) * 42); enemy.body.setAllowGravity(false); }
         enemy.setData("nextHop", this.time.now + 650 + (i % 3) * 280);
         enemy.setData("patrolDirection", i % 2 ? -1 : 1);
         enemy.setData("aiAnim", 0);
@@ -3258,8 +3261,11 @@ class ZeroGameScene extends Phaser.Scene {
       const roleAi = { runner: "runner", leaper: "jumper", flying: "flyer", ambusher: "ambusher", ranged: "ranged", bomber: "bomber", illusionist: "ambusher", summoner: "summoner", shield: "guard", heavy: "chaser", charger: "charger" };
       const aiType = roleAi[archetype.role] || "charger";
       enemy.setData("aiType", aiType);
-      enemy.setData("aiState", aiType === "runner" || aiType === "charger" ? "tell" : "patrol");
+      enemy.setData("aiState", ["runner", "charger", "ambusher", "bomber"].includes(aiType) ? "tell" : "patrol");
       enemy.setData("aiStateUntil", this.time.now + 650);
+      enemy.setData("nextRangedAt", this.time.now + 1200);
+      enemy.setData("nextBlastAt", this.time.now + 1800);
+      if (aiType === "flyer") { enemy.setPosition(x, 220 + slot * 40); enemy.body.setAllowGravity(false); }
       enemy.setData("nextHop", this.time.now + 850);
       enemy.setData("patrolDirection", slot === 0 ? 1 : -1);
       enemy.setData("aiAnim", 0);
