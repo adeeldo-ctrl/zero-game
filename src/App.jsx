@@ -129,17 +129,31 @@ class ZeroGameScene extends Phaser.Scene {
         });
       }
     });
+    const enemyAnimationProfiles = {
+      runner: { move: [0, 1, 2, 3], strike: [1, 2, 3], rate: 12 },
+      shield: { move: [0, 2, 1, 3], strike: [2, 1, 3], rate: 6 },
+      leaper: { move: [0, 2, 3, 1], strike: [2, 3, 1], rate: 10 },
+      ranged: { move: [0, 1, 0, 2], strike: [1, 3, 2], rate: 7 },
+      ambusher: { move: [0, 3, 2, 1], strike: [3, 2, 1], rate: 9 },
+      flying: { move: [0, 2, 0, 3], strike: [2, 3, 1], rate: 11 },
+      heavy: { move: [0, 1, 0, 1], strike: [1, 2, 3], rate: 5 },
+      charger: { move: [0, 3, 1, 2], strike: [3, 1, 2], rate: 8 },
+      summoner: { move: [0, 1, 3, 2], strike: [1, 3, 2], rate: 6 },
+      bomber: { move: [0, 2, 1, 3], strike: [2, 1, 3], rate: 7 },
+      illusionist: { move: [0, 3, 1, 2], strike: [3, 1, 2], rate: 10 },
+    };
     PREMIUM_ENEMY_ARCHETYPES.forEach((archetype) => {
       const frameStart = getPremiumEnemyFrameIndex(archetype.id) * 4;
+      const profile = enemyAnimationProfiles[archetype.role] || enemyAnimationProfiles.runner;
       const moveKey = `enemy-${archetype.id}-move`;
       const strikeKey = `enemy-${archetype.id}-strike`;
       if (!this.anims.exists(moveKey)) {
         this.anims.create({
           key: moveKey,
           frames: this.anims.generateFrameNumbers("premium-enemy-atlas", {
-            frames: [frameStart, frameStart + 1, frameStart + 2, frameStart + 3],
+            frames: profile.move.map((frame) => frameStart + frame),
           }),
-          frameRate: archetype.tier === "elite" ? 8 : archetype.tier === "special" ? 10 : 9,
+          frameRate: profile.rate + (archetype.tier === "elite" ? 2 : 0),
           repeat: -1,
         });
       }
@@ -147,9 +161,9 @@ class ZeroGameScene extends Phaser.Scene {
         this.anims.create({
           key: strikeKey,
           frames: this.anims.generateFrameNumbers("premium-enemy-atlas", {
-            frames: [frameStart + 1, frameStart + 2, frameStart + 3],
+            frames: profile.strike.map((frame) => frameStart + frame),
           }),
-          frameRate: archetype.tier === "elite" ? 14 : 12,
+          frameRate: profile.rate + (archetype.tier === "elite" ? 6 : 4),
           repeat: 0,
         });
       }
