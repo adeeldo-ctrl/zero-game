@@ -19,6 +19,12 @@
 - Jump input must work reliably on touch and keyboard/controller. A held jump must not block subsequent jumps. Preserve the intended double-jump and flip/back-flip behavior, with correct landing/reset logic.
 - Keep the existing joystick behavior unchanged unless a verified defect requires a minimal targeted correction.
 
+### Remove legacy clear-sky layer duplication (2026-11-27)
+- Removed the older always-present sun/moon and six white-cloud layer from the base background. Those duplicated the newer stage atmosphere and could show clear-sky imagery underneath rain, snow, and storm variants.
+- The stage atmosphere is now the single owner of celestial bodies and cloud banks; world landmarks and mountains remain in the background.
+- Source commit: `b6c4a50a0cd3df5d622976418366a84ea0f29869`.
+- No tests/builds were run during this implementation step.
+
 ### Severe-weather sky treatment (2026-11-27)
 - Rain, shimmer-rain, blizzard, sandstorm, ashfall, and starfall variants now use moving overcast cloud banks and hide the clear-weather sun/moon orb.
 - Clear, sunset, moonlit, aurora, and starlight variants retain their existing celestial treatment. Weather particles and the existing brief storm-flash effect remain separate.
