@@ -2992,8 +2992,9 @@ class ZeroGameScene extends Phaser.Scene {
         parts.aura.setAlpha(0.48).setScale(1.42);
         this.tweens.add({ targets: parts.aura, alpha: 0.2, scale: 1.16, duration: 620, ease: "Cubic.easeOut" });
       }
-      const phaseFlash = this.add.circle(boss.x, boss.y - 12, 48, this.stageConfig.boss?.color || 0xb94770, 0.28)
-        .setStrokeStyle(7, 0xffffff, 0.9).setDepth(26);
+      const phasePalette = getElement(this.stageConfig.boss?.element || "fire");
+      const phaseFlash = this.add.circle(boss.x, boss.y - 12, 48, phasePalette.color, 0.28)
+        .setStrokeStyle(7, phasePalette.edge, 0.96).setDepth(26);
       this.tweens.add({ targets: phaseFlash, scale: 3.2, alpha: 0, duration: 520, onComplete: () => phaseFlash.destroy() });
       this.cameras.main.shake(260, 0.006);
       this.audio.play("bossPhase");
