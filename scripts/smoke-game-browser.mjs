@@ -615,6 +615,30 @@ try {
   const landmarkSignatures = new Set(campaignIdentity.landmarkSignatures);
   if (landmarkSignatures.size !== 2) throw new Error("Stage 1 and stage 2 landmark compositions are not unique");
 
+  // Complete the stage-2 restart before sweeping the rest of the campaign.
+  await page.evaluate(() => {
+    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+    if (!scene?.sys.isActive() || scene.stageNumber !== 2) {
+      throw new Error("Game scene unavailable at the stage-3 campaign transition");
+    }
+    scene.stageCleared = true;
+    scene.stageAdvancePending = false;
+    scene.advanceToNextStage();
+  });
+  await page.waitForFunction(() => {
+    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+    return scene?.stageNumber === 3 && scene.stageConfig?.number === 3 &&
+      scene.gameStarted && !scene.stageTransitionActive;
+  }, undefined, { timeout: 10000 });
+  await page.waitForFunction(() => {
+    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+    return scene?.stageConfig?.isBossStage
+      ? !!scene.boss?.active
+      : scene?.enemies?.getChildren().some((enemy) =>
+        enemy.active && !enemy.getData("isBoss") && !enemy.getData("isTimeHunter")
+      );
+  }, undefined, { timeout: 3000 });
+
   // Walk the actual Phaser scene-restart path through every remaining stage.
   const visitedStages = [1, 2, 3];
   for (let nextStage = 4; nextStage <= 50; nextStage++) {
