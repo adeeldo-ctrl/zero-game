@@ -105,7 +105,7 @@
         ],
         [
           "prism-trickster",
-          "custom-prism-trickster",
+          "16_blue-dragon",
           "bright magical creature; prism palette"
         ]
       ]
@@ -250,7 +250,7 @@
         ],
         [
           "nova-lancer",
-          "19_ice-robot",
+          "custom-nova-lancer",
           "fast mechanical elite; star-metal redesign"
         ],
         [
@@ -317,9 +317,9 @@
       "direction": "A floating cosmic ray with a wide diamond-shaped body, soft star markings, and trailing light ribbons."
     },
     {
-      "id": "custom-prism-trickster",
-      "enemyId": "prism-trickster",
-      "direction": "A playful prism-scaled trickster with faceted color panels and a curled tail; distinct from the dragon reference."
+      "id": "custom-nova-lancer",
+      "enemyId": "nova-lancer",
+      "direction": "A compact star-metal lancer automaton with a bright comet core, clean rounded armor, and a forward-leaning dash silhouette."
     }
   ]
 }
