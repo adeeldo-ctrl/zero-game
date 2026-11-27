@@ -136,6 +136,13 @@
 - Source commit: `4efbfc6187da559602c7b5131a7a3a8f65c37592`.
 - No tests/builds were run; final consolidated verification and Android APK remain deferred until all development is complete.
 
+### Campaign finale and mobile background input completion (2026-11-27)
+- The 50-stage ending now offers explicit PLAY AGAIN and CHANGE HERO actions instead of ending on static victory text.
+- Added a browser smoke assertion that both finale actions are present and interactive.
+- Combined with the mobile lifecycle work above, backgrounding now releases captured touch ownership and queued input; a fresh joystick touch can be accepted after resume.
+- Source commit: `aff7b7e2bdde4dc9b4741d8f683c3c24a50dbe24`; smoke coverage commit: `27602e14acbfc774a033fc879f4d60e84594347f`.
+- No tests/builds were run; consolidated verification and Android Release APK remain deferred until development is complete.
+
 ## Non-negotiable preservation rules
 - Preserve the currently working joystick/controller movement and touch mapping. Do not regress the approved controls.
 - Keep the game in landscape and make the playable scene fill the complete device viewport.
