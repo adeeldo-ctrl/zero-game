@@ -1526,10 +1526,10 @@ class ZeroGameScene extends Phaser.Scene {
         enemy.setData("frozen", false);
         enemy.setData("baseTexture", `enemy${i % 3}`);
         enemy.setData("enemyName", this.stageConfig.enemyTypes[i % this.stageConfig.enemyTypes.length]);
-        enemy.setData("enemyPowerType", this.stageConfig.enemyPowerType || "fire");
-        enemy.setData("snowballPowerTier", enemyClass === "heavy" ? 3 : enemyClass === "special" ? 2 : 1);
         const enemyClass = ["fast", "heavy", "special"][i % 3];
         enemy.setData("enemyClass", enemyClass);
+        enemy.setData("enemyPowerType", this.stageConfig.enemyPowerType || "fire");
+        enemy.setData("snowballPowerTier", enemyClass === "heavy" ? 3 : enemyClass === "special" ? 2 : 1);
         const aiTypes = ["chaser", "runner", "jumper", "guard", "charger", "chaser"];
         const aiType = aiTypes[i % aiTypes.length];
         enemy.setData("aiType", aiType);
