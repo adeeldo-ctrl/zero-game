@@ -24,3 +24,11 @@ export const BOSS_SIGNATURE_PROFILES = {
 export function getBossSignatureProfile(bossId) {
   return BOSS_SIGNATURE_PROFILES[bossId] || BOSS_SIGNATURE_PROFILES.gatekeeper;
 }
+
+export const BOSS_ANIMATION_PROFILES = {
+  gatekeeper: { idleFrames: [0, 1, 0, 1], idleRate: 4, strikeFrames: [2, 3, 2], strikeRate: 8 },
+  "iron-comet": { idleFrames: [0, 1, 2, 1], idleRate: 8, strikeFrames: [1, 2, 3, 2], strikeRate: 16 },
+  "gale-talon": { idleFrames: [0, 2, 0, 2], idleRate: 9, strikeFrames: [1, 2, 3, 1], strikeRate: 18 },
+  suncrest: { idleFrames: [0, 1, 2, 3], idleRate: 5, strikeFrames: [3, 2, 1, 2], strikeRate: 11 },
+  "void-sovereign": { idleFrames: [0, 3, 0, 3], idleRate: 4, strikeFrames: [2, 1, 3, 2], strikeRate: 14 },
+};
