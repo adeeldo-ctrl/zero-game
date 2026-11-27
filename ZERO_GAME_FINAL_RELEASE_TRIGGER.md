@@ -28,3 +28,6 @@ Latest lightweight elemental particle redesign release request: 2026-11-27. Incl
 
 
 Final single-player Android Release APK request — 2026-11-27. Build from verified source commit `d9617dabf52475376503e26256959994e75cdcd7` plus release approval commit `65819854974ba1ed91f7827a3dc9ebda2a004c09`. Wi-Fi co-op has been removed. Consolidated CI run `46015298241` passed tests, lint, Android configuration validation, web build and Chromium 50-stage/mobile smoke checks.
+
+
+Re-run release request — 2026-11-27: use the Ubuntu 24.04 runner pinned in `.github/workflows/zero-game-android.yml`; the previous ubuntu-latest image resolved to unsupported Ubuntu 26.04 for Playwright 1.56.1. Final approval remains true; all source verification already passed.
