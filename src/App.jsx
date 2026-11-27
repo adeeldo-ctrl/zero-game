@@ -823,15 +823,28 @@ class ZeroGameScene extends Phaser.Scene {
       0, -23, 6, 15, 165, false, 0x844c40
     ).setStrokeStyle(2, 0x844c40);
 
+    const shoulderTrim = this.add.graphics();
+    shoulderTrim.lineStyle(3, 0xffd36b, 0.9);
+    shoulderTrim.beginPath();
+    shoulderTrim.arc(0, -14, 22, Math.PI * 1.08, Math.PI * 1.92, false);
+    shoulderTrim.strokePath();
+    const collar = this.add.triangle(0, -17, -9, -5, 0, 8, 9, -5, 0xe8d8b8).setStrokeStyle(1, 0x263d58);
+    const waistSash = this.add.rectangle(0, 19, 39, 7, 0xb98b52).setStrokeStyle(1, 0xffdf91);
+    const buckle = this.add.star(0, 19, 4, 3, 6, 0xffe18a).setStrokeStyle(1, 0x704d37);
+    const cuffL = this.add.rectangle(-27, 13, 15, 6, 0xffd36b).setAngle(-18);
+    const cuffR = this.add.rectangle(27, 13, 15, 6, 0xffd36b).setAngle(18);
+    const capCrest = this.add.star(0, -49, 4, 2, 6, 0xffe18a).setStrokeStyle(1, 0x263b54);
+    const shoeTrimL = this.add.rectangle(-12, 38, 17, 3, 0xffd36b);
+    const shoeTrimR = this.add.rectangle(12, 38, 17, 3, 0xffd36b);
+
     c.add([
       shadow,
       legL, legR,
-      shoeL, shoeR,
-      armL, armR,
-      handL, handR,
-      kurta, waistcoat,
+      shoeL, shoeR, shoeTrimL, shoeTrimR,
+      armL, armR, handL, handR, cuffL, cuffR,
+      kurta, waistcoat, shoulderTrim, collar, waistSash, buckle,
       button1, button2, button3,
-      neck, face, hair, cap, capLine,
+      neck, face, hair, cap, capLine, capCrest,
       eyeL, eyeR, pupilL, pupilR,
       browL, browR, smile
     ]);
@@ -994,12 +1007,19 @@ class ZeroGameScene extends Phaser.Scene {
       this.tweens.add({ targets: aura, scale: 1.25, alpha: 0.2, duration: 460, yoyo: true, repeat: -1 });
     }
 
+    const chestPlate = this.add.ellipse(0, 2, isHeavy ? 43 : 34, 28, isHeavy ? 0x9aa9b8 : 0x64758f, 0.72)
+      .setStrokeStyle(3, hornColor, 0.95);
+    const chestSigil = this.add.star(0, 2, 5, 4, 8, hornColor, 0.95)
+      .setStrokeStyle(1, 0xffffff, 0.85);
+    const beltBuckle = this.add.diamond(0, 14, 10, 10, 0xffd36b).setStrokeStyle(1, 0xffffff, 0.8);
+    const bootL = this.add.rectangle(-10, 27, 19, 5, hornColor).setStrokeStyle(1, 0x30263e);
+    const bootR = this.add.rectangle(10, 27, 19, 5, hornColor).setStrokeStyle(1, 0x30263e);
     c.add([
       shadow,
-      legL, legR,
+      legL, legR, bootL, bootR,
       armL, armR,
-      body, belly,
-      headband, hornL, hornR, belt,
+      body, chestPlate, belly, chestSigil,
+      headband, hornL, hornR, belt, beltBuckle,
       eyeL, eyeR,
       pupilL, pupilR,
       ...classDetails
@@ -2190,9 +2210,20 @@ class ZeroGameScene extends Phaser.Scene {
       ));
       styleDetails.push(this.add.circle(0, -8, 94, 0x7555d8, 0.08).setStrokeStyle(3, 0xc7aaff));
     }
-    c.add([aura, shadow, orbitA, orbitB, legL, legR, footL, footR, armL, armR, fistL, fistR,
-      body, belly, bellyMark, headband, hornL, hornR, browL, browR, eyeL, eyeR,
-      pupilL, pupilR, nose, mouth, ...styleDetails]);
+    const chestEmblem = this.add.star(0, 5, isFinal ? 8 : 6, isFinal ? 7 : 5, isFinal ? 25 : 18,
+      isFinal ? 0xe5d5ff : 0xffd36b, 0.95).setStrokeStyle(3, bossColor, 0.95);
+    const shoulderL = this.add.ellipse(-55, -25, 39, 24, isFinal ? 0x6550a6 : 0x6b5266)
+      .setStrokeStyle(3, 0xffd36b, 0.9);
+    const shoulderR = this.add.ellipse(55, -25, 39, 24, isFinal ? 0x6550a6 : 0x6b5266)
+      .setStrokeStyle(3, 0xffd36b, 0.9);
+    const belt = this.add.rectangle(0, 39, 91, 10, isFinal ? 0x332b58 : 0x4c3347)
+      .setStrokeStyle(2, 0xffd36b, 0.95);
+    const beltGem = this.add.diamond(0, 39, 16, 16, bossElement === "shadow" ? 0xc5a8ff : 0xffe17a)
+      .setStrokeStyle(2, 0xffffff, 0.9);
+    c.add([aura, shadow, orbitA, orbitB, legL, legR, footL, footR, armL, armR,
+      shoulderL, shoulderR, fistL, fistR, body, belly, bellyMark, chestEmblem,
+      headband, hornL, hornR, browL, browR, eyeL, eyeR,
+      pupilL, pupilR, nose, mouth, belt, beltGem, ...styleDetails]);
     this.tweens.add({ targets: aura, scale: 1.16, alpha: 0.28, duration: bossElement === "lightning" ? 260 : 700, yoyo: true, repeat: -1 });
     this.tweens.add({ targets: orbitA, x: -86, y: -48, duration: bossElement === "ice" ? 620 : 900, yoyo: true, repeat: -1, ease: "Sine.easeInOut" });
     this.tweens.add({ targets: orbitB, x: 86, y: -48, duration: bossElement === "shadow" ? 620 : 900, yoyo: true, repeat: -1, ease: "Sine.easeInOut" });
