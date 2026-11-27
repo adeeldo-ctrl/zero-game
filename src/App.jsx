@@ -2264,9 +2264,9 @@ class ZeroGameScene extends Phaser.Scene {
           : bossStyle.includes("master")
             ? this.add.ellipse(boss.x, boss.y - 18, radius * 2.7, radius * 1.1, color, 0.98).setAngle(spread * 45)
             : bossStyle.includes("final")
-              ? this.add.circle(boss.x, boss.y - 18, radius * 1.2, color, 0.98).setStrokeStyle(4, 0xc9b4ff, 0.95)
-              : this.add.rectangle(boss.x, boss.y - 18, radius * 2.2, radius * 1.8, color, 0.98).setAngle(45)
-        .setStrokeStyle(3, 0xffffff).setDepth(18);
+              ? this.add.circle(boss.x, boss.y - 18, radius * 1.2, color, 0.98)
+              : this.add.rectangle(boss.x, boss.y - 18, radius * 2.2, radius * 1.8, color, 0.98).setAngle(45);
+      shot.setStrokeStyle(3, 0xffffff, 0.95).setDepth(18);
       this.physics.add.existing(shot);
       this.bossShots.add(shot);
       shot.body.setAllowGravity(false);
