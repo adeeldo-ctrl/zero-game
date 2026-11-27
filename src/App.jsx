@@ -6,9 +6,9 @@ import { ELEMENTS, HEROES, getElement, getStage, getHero } from "./gameData";
 import { createGameAudio } from "./gameAudio";
 import { createCampaignLives, loseCampaignHeart, getStageTransitionDirection } from "./campaignRules";
 import { shouldHeroCollideWithPlatform, shouldDropThroughPlatform } from "./platformRules";
-import { getBossPhase } from "./combatRules";
+import { getBossPhase, isValidJumpStomp } from "./combatRules";
 import { canKickElementBall, canRollingBallHitTarget, isRollingBallOutOfBounds, calculateRollingBallMotion } from "./snowballRules";
-import { getEnemyMovementSpeed } from "./enemyRules";
+import { getEnemyMovementSpeed, REGULAR_ENEMY_VISUAL_SCALE } from "./enemyRules";
 import { MOBILE_ACTION_BUTTONS, enqueueMobileAction, consumeMobileAction } from "./mobileActionQueue";
 import "./App.css";
 
@@ -1540,7 +1540,7 @@ class ZeroGameScene extends Phaser.Scene {
         enemy.setData("aiAnim", 0);
         enemy.setVisible(false);
 
-        const scale = (i % 2 === 0 ? 1.12 : 1) * 1.2;
+        const scale = (i % 2 === 0 ? 1.12 : 1) * REGULAR_ENEMY_VISUAL_SCALE;
         enemy.setScale(scale);
 
         const visual = this.createEnemyVisual(
@@ -2510,8 +2510,11 @@ class ZeroGameScene extends Phaser.Scene {
     if (this.gameOver || this.stageCleared || this.stageTransitionActive || this.chanceLossInProgress ||
         !hero?.active || !enemy?.active || enemy.getData("frozen")) return;
     const now = this.time.now;
-    const validJumpStomp = !enemy.getData("isBoss") && hero.body?.velocity?.y > 85 &&
-      hero.body.bottom <= enemy.body.top + 26 && hero.y < enemy.y - 12;
+    const validJumpStomp = isValidJumpStomp({
+      heroBottom: hero.body?.bottom ?? Infinity, enemyTop: enemy.body?.top ?? -Infinity,
+      heroY: hero.y, enemyY: enemy.y, velocityY: hero.body?.velocity?.y || 0,
+      isBoss: Boolean(enemy.getData("isBoss")),
+    });
     if (validJumpStomp) {
       enemy.setData("stompStunnedUntil", now + 620);
       enemy.setVelocity(0, -95);
