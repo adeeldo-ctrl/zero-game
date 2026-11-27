@@ -49,6 +49,12 @@
 - Source commit: `555b8d360bd09b4656b356bfb71ad4a4ef0556ef`.
 - No tests/builds were run; final consolidated verification and Android APK remain deferred until development is complete.
 
+### Elemental rolling-ball defeat finish (2026-11-27)
+- Added a distinct element-colored impact particle burst and expanding ring when a kicked enemy ball completes its rolling lifecycle.
+- The existing one-time defeat guard, stage quota counting, reward, score, and ball/enemy cleanup behavior are preserved.
+- Source commit: `3a5efc133b9362aa4f4d9bb436b3430b8c7f2d5f`.
+- No tests/builds were run; final consolidated verification and Android APK remain deferred until development is complete.
+
 ## Non-negotiable preservation rules
 - Preserve the currently working joystick/controller movement and touch mapping. Do not regress the approved controls.
 - Keep the game in landscape and make the playable scene fill the complete device viewport.
