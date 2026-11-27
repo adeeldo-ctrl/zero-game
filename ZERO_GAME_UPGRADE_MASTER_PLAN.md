@@ -748,3 +748,5 @@ The following gameplay requirements are mandatory and supersede any conflicting 
 - Continued enemy animation polish: class-specific jaw/rune guard movement, boot rotation synchronized with the stride, and subtle shadow compression while running. Visual-only; enemy AI, movement speed, collision, hitboxes and damage are unchanged. Source commit: `c63fb941004abf8afe77fbd88bb902a5a38f4e84`.
 
 - Boss idle animation polish: cape sway now reflects agile/final boss style, ground shadow subtly responds to movement, feet follow leg rotation, and boxing bosses have restrained alternating glove pulses. Boss attack timing, hitboxes, damage, AI, and phase progression are unchanged. Source commit: `e894d59ddfe773295373da0c92949df871b497a0`.
+
+- Added five lightweight animated ambient glints to Moonlit Forest, Crystal Caves, Volcano Valley, and Starfall Citadel setpieces. Each uses a world-matched tint and restrained pulse/drift, stays behind gameplay actors, and avoids the central floor/platform collision areas. Source commit: `19f101173d5aeaab3c251dfde36a6a5c30f70788`.
