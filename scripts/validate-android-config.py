@@ -81,11 +81,11 @@ assert not (workflow_dir / "android-apk.yml").exists(), "Remove the redundant le
 
 ci = (workflow_dir / "zero-game-ci.yml").read_text(encoding="utf-8")
 ci_trigger = re.search(r"(?ms)^on:\s*\n((?:[ \t]+.*\n)*)", ci)
-assert ci_trigger and re.search(r"(?m)^  push:\s*$", ci_trigger.group(1)), (
-    "Integrated verification must be manually dispatchable"
+assert ci_trigger and re.search(r"(?m)^  workflow_dispatch:\s*$", ci_trigger.group(1)), (
+    "Consolidated verification must be manually dispatchable after development"
 )
-assert re.search(r"(?m)^      - main\s*$", ci_trigger.group(1)), (
-    "Integrated verification must run only for the final main-branch commit"
+assert not re.search(r"(?m)^  push:", ci_trigger.group(1)), (
+    "Development pushes must not start repeated full verification runs"
 )
 assert not re.search(r"(?m)^  pull_request:", ci_trigger.group(1)), (
     "Pull requests must not start the final delivery pipeline"
