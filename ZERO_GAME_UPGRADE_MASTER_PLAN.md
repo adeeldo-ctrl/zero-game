@@ -1032,3 +1032,7 @@ The following gameplay requirements are mandatory and supersede any conflicting 
 - Follow-up sprite animation polish: regular enemies now hold a clean authored idle frame while stationary and resume their class-specific four-frame movement cycle when moving. Boss sprites receive restrained attack-state emphasis during dash/volley and subtle idle motion. Existing collision, AI and attack timing remain unchanged.
 - Source commit: `92467c7de0624fae05af315e7f2fe50afb43ab97`.
 - **Verification:** Not run; consolidated verification remains deferred until all development is complete. No APK was built.
+
+- Boss combat animation follow-up: each of the five authored boss sheets now has a dedicated strike sequence. Dash/volley state transitions trigger the matching one-shot strike animation, which returns to the boss's looping presence animation on completion. Existing attack timing, hitboxes, damage and AI are untouched.
+- Source commit: `438e296b495208e902c5cf57ec124cfb4223bfda`.
+- **Verification:** Not run; consolidated verification remains deferred until all development is complete. No APK was built.
