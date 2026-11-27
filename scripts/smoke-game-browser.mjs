@@ -44,6 +44,27 @@ try {
     throw new Error(`Unexpected game canvas dimensions: ${JSON.stringify(dimensions)}`);
   }
 
+  // Verify the four home-screen hero previews are clean and their descriptions do not overlap.
+  await page.evaluate(() => {
+    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+    const previews = scene?.children.list.filter((item) => item.getData?.("heroPreview")) || [];
+    const descriptions = scene?.children.list.filter((item) => item.getData?.("heroDescription")) || [];
+    if (previews.length !== 4 || descriptions.length !== 4) {
+      throw new Error("Home screen must show four separately identified hero previews and descriptions");
+    }
+    if (previews.some((visual) => (visual.getData("heroLookItems") || []).some((item) => item.type === "Triangle"))) {
+      throw new Error("Hero previews still contain unwanted triangular direction-marker artwork");
+    }
+    const bounds = descriptions.map((item) => item.getBounds());
+    for (let i = 0; i < bounds.length; i++) {
+      for (let j = i + 1; j < bounds.length; j++) {
+        const overlapX = Math.min(bounds[i].right, bounds[j].right) - Math.max(bounds[i].left, bounds[j].left);
+        const overlapY = Math.min(bounds[i].bottom, bounds[j].bottom) - Math.max(bounds[i].top, bounds[j].top);
+        if (overlapX > 0 && overlapY > 0) throw new Error("Hero descriptions overlap on the home screen");
+      }
+    }
+  });
+
   // Enter the campaign, choose one hero, and exercise live gameplay inputs.
   await page.mouse.click(480, 502);
   await delay(450);
