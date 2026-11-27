@@ -271,34 +271,8 @@ class ZeroGameScene extends Phaser.Scene {
     this.add.rectangle(480, 270, W, H, this.stageConfig.background.sky)
       .setDepth(-30);
 
-    const isNightWorld = [4, 5, 9].includes(this.stageConfig.worldIndex);
-    const skyLight = isNightWorld ? 0xc8d9ff : 0xffe7a1;
-    this.add.circle(790, 135, 75, skyLight, 0.13).setDepth(-29);
-    this.add.circle(790, 135, 43, isNightWorld ? 0xd8e4ff : 0xffe69b, 0.9).setDepth(-28);
-
-    for (let i = 0; i < 6; i++) {
-      const x = 60 + i * 175;
-      const y = 85 + (i % 2) * 40;
-
-      const cloud = this.add.container(x, y).setDepth(-25);
-
-      cloud.add([
-        this.add.ellipse(0, 12, 76, 28, 0xffffff, 0.85),
-        this.add.circle(-20, 0, 19, 0xffffff, 0.9),
-        this.add.circle(4, -10, 25, 0xffffff, 0.9),
-        this.add.circle(28, 3, 18, 0xffffff, 0.9)
-      ]);
-
-      this.tweens.add({
-        targets: cloud,
-        x: x + 12,
-        duration: 5000 + i * 500,
-        yoyo: true,
-        repeat: -1,
-        ease: "Sine.easeInOut"
-      });
-    }
-
+    // Celestial bodies and cloud banks are created by createStageAtmosphere()
+    // so rain, snow, sandstorm, and night variants do not inherit generic clear skies.
     const mountains = this.add.graphics().setDepth(-22);
 
     mountains.fillStyle(this.stageConfig.background.far, 1);
