@@ -2944,10 +2944,17 @@ class ZeroGameScene extends Phaser.Scene {
     this.bossVisual.setScale(1.15);
     this.audio.playBossTheme(Math.floor(this.stageNumber / 10) - 1);
 
-    const entrance = this.add.circle(480, 160, 55, 0xff5b43, 0.35)
-      .setStrokeStyle(5, 0xffd36b).setDepth(8);
-    this.tweens.add({ targets: entrance, scale: 3.2, alpha: 0, duration: 700,
-      onComplete: () => entrance.destroy() });
+    const entrancePalette = getElement(this.stageConfig.boss?.element || "fire");
+    const entrance = this.add.container(480, 160).setDepth(8);
+    const entranceCore = this.add.circle(0, 0, 46, entrancePalette.color, 0.24)
+      .setStrokeStyle(4, entrancePalette.edge, 0.95);
+    const entranceRing = this.add.circle(0, 0, 66, entrancePalette.glow, 0)
+      .setStrokeStyle(5, entrancePalette.edge, 0.92);
+    const entranceRune = this.add.star(0, 0, 8, 8, 23, entrancePalette.edge, 0.9)
+      .setStrokeStyle(2, 0xffffff, 0.95);
+    entrance.add([entranceRing, entranceCore, entranceRune]);
+    this.tweens.add({ targets: entrance, scale: 3.2, alpha: 0, angle: 55, duration: 700,
+      ease: "Cubic.easeOut", onComplete: () => entrance.destroy() });
     this.cameras.main.shake(500, 0.012);
   }
 
