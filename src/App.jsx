@@ -9,11 +9,11 @@ import enemyFastSheet from "./assets/enemies/enemy-fast-sheet.svg";
 import enemyHeavySheet from "./assets/enemies/enemy-heavy-sheet.svg";
 import enemySpecialSheet from "./assets/enemies/enemy-special-sheet.svg";
 import premiumEnemyAtlas from "./assets/enemies/premium-enemy-atlas.svg";
-import bossGatekeeperSheet from "./assets/bosses/boss-gatekeeper-sheet.svg";
-import bossIronCometSheet from "./assets/bosses/boss-iron-comet-sheet.svg";
-import bossGaleTalonSheet from "./assets/bosses/boss-gale-talon-sheet.svg";
-import bossSuncrestSheet from "./assets/bosses/boss-suncrest-sheet.svg";
-import bossVoidSovereignSheet from "./assets/bosses/boss-void-sovereign-sheet.svg";
+import bossGatekeeperSheet from "./assets/bosses/prepared-reference/gatekeeper.png";
+import bossIronCometSheet from "./assets/bosses/prepared-reference/iron-comet.png";
+import bossGaleTalonSheet from "./assets/bosses/prepared-reference/gale-talon.png";
+import bossSuncrestSheet from "./assets/bosses/prepared-reference/suncrest.png";
+import bossVoidSovereignSheet from "./assets/bosses/prepared-reference/void-sovereign.png";
 import worldBackdropEmerald from "./assets/backgrounds/world-emerald.svg";
 import worldBackdropCandy from "./assets/backgrounds/world-candy.svg";
 import worldBackdropFrozen from "./assets/backgrounds/world-frozen.svg";
@@ -31,7 +31,7 @@ import { createGameAudio } from "./gameAudio";
 import { createCampaignLives, loseCampaignHeart, getStageTransitionDirection } from "./campaignRules";
 import { shouldHeroCollideWithPlatform, shouldDropThroughPlatform, getPlatformTextureScale } from "./platformRules";
 import { getBossPhase, isValidJumpStomp } from "./combatRules";
-import { getBossAttendantWaveSize, BOSS_ATTENDANT_MAX_ACTIVE, getBossSignatureProfile, BOSS_ANIMATION_PROFILES } from "./bossEncounterRules";
+import { getBossAttendantWaveSize, BOSS_ATTENDANT_MAX_ACTIVE, getBossSignatureProfile } from "./bossEncounterRules";
 import { canKickElementBall, canRollingBallHitTarget, isRollingBallOutOfBounds, calculateRollingBallMotion } from "./snowballRules";
 import { getEnemyMovementSpeed, getSnowballPowerTier, REGULAR_ENEMY_VISUAL_SCALE } from "./enemyRules";
 import { MOBILE_ACTION_BUTTONS, enqueueMobileAction, consumeMobileAction } from "./mobileActionQueue";
@@ -67,16 +67,14 @@ class ZeroGameScene extends Phaser.Scene {
     this.load.spritesheet("premium-enemy-atlas", premiumEnemyAtlas, {
       frameWidth: 128, frameHeight: 128,
     });
-    const bossSheets = [
-      ["boss-sheet-gatekeeper", bossGatekeeperSheet],
-      ["boss-sheet-iron-comet", bossIronCometSheet],
-      ["boss-sheet-gale-talon", bossGaleTalonSheet],
-      ["boss-sheet-suncrest", bossSuncrestSheet],
-      ["boss-sheet-void-sovereign", bossVoidSovereignSheet],
+    const bossImages = [
+      ["boss-image-gatekeeper", bossGatekeeperSheet],
+      ["boss-image-iron-comet", bossIronCometSheet],
+      ["boss-image-gale-talon", bossGaleTalonSheet],
+      ["boss-image-suncrest", bossSuncrestSheet],
+      ["boss-image-void-sovereign", bossVoidSovereignSheet],
     ];
-    bossSheets.forEach(([key, source]) => this.load.spritesheet(key, source, {
-      frameWidth: 160, frameHeight: 160,
-    }));
+    bossImages.forEach(([key, source]) => this.load.image(key, source));
     worldBackdrops.forEach((source, index) => {
       this.load.image(`world-backdrop-${index}`, source);
     });
@@ -199,41 +197,7 @@ class ZeroGameScene extends Phaser.Scene {
         });
       }
     });
-    Object.entries(BOSS_ANIMATION_PROFILES).forEach(([kind, profile]) => {
-      const key = `boss-${kind}-presence`;
-      if (!this.anims.exists(key)) {
-        this.anims.create({
-          key,
-          frames: this.anims.generateFrameNumbers(`boss-sheet-${kind}`, { frames: profile.idleFrames }),
-          frameRate: profile.idleRate,
-          repeat: -1,
-        });
-      }
-      const strikeKey = `boss-${kind}-strike`;
-      if (!this.anims.exists(strikeKey)) {
-        this.anims.create({
-          key: strikeKey,
-          frames: this.anims.generateFrameNumbers(`boss-sheet-${kind}`, { frames: profile.strikeFrames }),
-          frameRate: profile.strikeRate,
-          repeat: 0,
-        });
-      }
-      for (const [state, frames, rate] of [
-        ["hit", profile.hitFrames, profile.strikeRate + 2],
-        ["phase", profile.phaseFrames, profile.strikeRate + 1],
-        ["defeat", profile.defeatFrames, profile.idleRate + 5],
-      ]) {
-        const stateKey = `boss-${kind}-${state}`;
-        if (!this.anims.exists(stateKey)) {
-          this.anims.create({
-            key: stateKey,
-            frames: this.anims.generateFrameNumbers(`boss-sheet-${kind}`, { frames }),
-            frameRate: rate,
-            repeat: 0,
-          });
-        }
-      }
-    });
+
   }
 
   addAmbientTween(config) {
@@ -3356,16 +3320,10 @@ class ZeroGameScene extends Phaser.Scene {
     const bossSheetId = bossId || (isGatekeeper ? "gatekeeper" : isBoxer ? "iron-comet"
       : isAgile ? "gale-talon" : isMaster ? "suncrest" : "void-sovereign");
     c.list.forEach((part) => part.setVisible(part === shadow));
-    const bossSprite = this.add.sprite(0, -22, `boss-sheet-${bossSheetId}`, 0)
-      .setDisplaySize(142, 142);
+    // Approved boss cutouts are single-frame base artwork; action motion stays in Phaser tweens.
+    const bossSprite = this.add.image(0, -22, `boss-image-${bossSheetId}`)
+      .setDisplaySize(150, 150);
     c.add(bossSprite);
-    const bossPresenceKey = `boss-${bossSheetId}-presence`;
-    const bossStrikeKey = `boss-${bossSheetId}-strike`;
-    bossSprite.play(bossPresenceKey);
-    bossSprite.on(Phaser.Animations.Events.ANIMATION_COMPLETE, (animation) => {
-      const recoverableClips = [bossStrikeKey, `boss-${bossSheetId}-hit`, `boss-${bossSheetId}-phase`];
-      if (recoverableClips.includes(animation.key) && bossSprite.active) bossSprite.play(bossPresenceKey);
-    });
     c.setData("authoredSprite", bossSprite);
     c.setData("bossSheetId", bossSheetId);
     return c;
@@ -3543,9 +3501,6 @@ class ZeroGameScene extends Phaser.Scene {
     this.bossBar.scaleX = this.bossHealth / this.bossMaxHealth;
     const v = this.bossVisual;
     if (v?.active) {
-      const bossSprite = v.getData("authoredSprite");
-      const bossHitKey = `boss-${v.getData("bossSheetId")}-hit`;
-      if (bossSprite?.active && this.anims.exists(bossHitKey)) bossSprite.play(bossHitKey, true);
       this.tweens.add({ targets: v, angle: this.facing * 9, scaleX: 1.28,
         duration: 65, yoyo: true, repeat: 1,
         onComplete: () => { if (v.active) { v.setAngle(0); v.setScale(1.15); } } });
@@ -3568,9 +3523,6 @@ class ZeroGameScene extends Phaser.Scene {
     const previousBossPhase = this.bossPhase;
     this.bossPhase = getBossPhase(this.bossHealth, this.bossMaxHealth);
     if (this.bossPhase > previousBossPhase && v?.active) {
-      const bossSprite = v.getData("authoredSprite");
-      const phaseKey = `boss-${v.getData("bossSheetId")}-phase`;
-      if (bossSprite?.active && this.anims.exists(phaseKey)) bossSprite.play(phaseKey, true);
       const parts = v.getData("parts");
       if (parts?.aura?.active) {
         parts.aura.setAlpha(0.48).setScale(1.42);
@@ -3600,9 +3552,6 @@ class ZeroGameScene extends Phaser.Scene {
       const defeatRing = this.add.circle(0, 0, 54, defeatPalette.glow, 0)
         .setStrokeStyle(5, defeatPalette.edge, 0.95);
       const defeatStyle = this.stageConfig.boss?.style || "";
-      const defeatSprite = v?.getData("authoredSprite");
-      const defeatKey = `boss-${v?.getData("bossSheetId")}-defeat`;
-      if (defeatSprite?.active && this.anims.exists(defeatKey)) defeatSprite.play(defeatKey, true);
       const finaleDetails = [];
       if (defeatStyle.includes("boxing")) {
         [-1, 1].forEach((side) => {
