@@ -1081,6 +1081,16 @@ class ZeroGameScene extends Phaser.Scene {
       this.tweens.add({ targets: aura, scale: 1.25, alpha: 0.2, duration: 460, yoyo: true, repeat: -1 });
     }
 
+    const shoulderL = this.add.ellipse(-21, -12, isHeavy ? 25 : 18, isHeavy ? 19 : 14,
+      isHeavy ? 0x75899f : 0x59657e, 0.92).setStrokeStyle(2, hornColor, 0.95);
+    const shoulderR = this.add.ellipse(21, -12, isHeavy ? 25 : 18, isHeavy ? 19 : 14,
+      isHeavy ? 0x75899f : 0x59657e, 0.92).setStrokeStyle(2, hornColor, 0.95);
+    const cuffL = this.add.rectangle(-24, 9, 15, 6, hornColor).setStrokeStyle(1, 0xffffff, 0.72);
+    const cuffR = this.add.rectangle(24, 9, 15, 6, hornColor).setStrokeStyle(1, 0xffffff, 0.72);
+    const eyeGlintL = this.add.circle(-11, -9, 2.5, 0xffffff, 0.95);
+    const eyeGlintR = this.add.circle(7, -9, 2.5, 0xffffff, 0.95);
+    const cheekL = this.add.ellipse(-16, 3, 7, 3, hornColor, 0.6);
+    const cheekR = this.add.ellipse(16, 3, 7, 3, hornColor, 0.6);
     const chestPlate = this.add.ellipse(0, 2, isHeavy ? 43 : 34, 28, isHeavy ? 0x9aa9b8 : 0x64758f, 0.72)
       .setStrokeStyle(3, hornColor, 0.95);
     const chestSigil = this.add.star(0, 2, 5, 4, 8, hornColor, 0.95)
@@ -1091,8 +1101,8 @@ class ZeroGameScene extends Phaser.Scene {
     c.add([
       shadow,
       legL, legR, bootL, bootR,
-      armL, armR,
-      body, chestPlate, belly, chestSigil,
+      armL, armR, shoulderL, shoulderR, cuffL, cuffR,
+      body, chestPlate, belly, chestSigil, eyeGlintL, eyeGlintR, cheekL, cheekR,
       headband, hornL, hornR, belt, beltBuckle,
       eyeL, eyeR,
       pupilL, pupilR,
@@ -1126,6 +1136,7 @@ class ZeroGameScene extends Phaser.Scene {
       body,
       chestPlate,
       chestSigil,
+      shoulderL, shoulderR, cuffL, cuffR, eyeGlintL, eyeGlintR, cheekL, cheekR,
       belly,
       headband,
     });
@@ -4117,6 +4128,12 @@ class ZeroGameScene extends Phaser.Scene {
           parts.chestSigil.rotation = Math.sin(et * 0.004) * 0.12;
           parts.chestSigil.setAlpha(0.78 + (Math.sin(et * 0.006) + 1) * 0.11);
         }
+        if (parts.shoulderL?.active) parts.shoulderL.rotation = -swing * 0.07;
+        if (parts.shoulderR?.active) parts.shoulderR.rotation = swing * 0.07;
+        if (parts.cuffL?.active) parts.cuffL.rotation = -swing * 0.1;
+        if (parts.cuffR?.active) parts.cuffR.rotation = swing * 0.1;
+        if (parts.eyeGlintL?.active) parts.eyeGlintL.setAlpha(0.7 + (Math.sin(et * 0.005) + 1) * 0.12);
+        if (parts.eyeGlintR?.active) parts.eyeGlintR.setAlpha(0.7 + (Math.cos(et * 0.005) + 1) * 0.12);
         if (parts.headband?.active) parts.headband.rotation = swing * 0.035;
         enemyVisual.y = enemy.y + Math.abs(swing) * -2 + visualBob;
         enemyVisual.angle = 0;
