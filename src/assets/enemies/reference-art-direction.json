@@ -40,12 +40,12 @@
         ],
         [
           "fern-glider",
-          "04_purple-bat",
+          "custom-fern-glider",
           "winged silhouette; recolor to leaf/fern palette"
         ],
         [
           "bark-bruiser",
-          "06_yeti",
+          "custom-bark-bruiser",
           "large heavy body; bark/wood surface redesign"
         ],
         [
@@ -105,7 +105,7 @@
         ],
         [
           "prism-trickster",
-          "16_blue-dragon",
+          "custom-prism-trickster",
           "bright magical creature; prism palette"
         ]
       ]
@@ -140,7 +140,7 @@
         ],
         [
           "frostwing",
-          "04_purple-bat",
+          "custom-frostwing",
           "winged icy creature"
         ],
         [
@@ -240,7 +240,7 @@
         ],
         [
           "stardust-ray",
-          "29_jellyfish",
+          "custom-stardust-ray",
           "floating ray-like silhouette; starfield palette"
         ],
         [
@@ -294,5 +294,32 @@
     "45_owl-b",
     "48_skull-cloud"
   ],
-  "note": "The source collage itself contains decorative effects and adjacent overlaps. Some source crops are alternatives or visual cues; final clean artwork must be authored as separate spritesheets."
+  "note": "The source collage itself contains decorative effects and adjacent overlaps. Some source crops are alternatives or visual cues; final clean artwork must be authored as separate spritesheets.",
+  "additionalOriginalDesigns": [
+    {
+      "id": "custom-fern-glider",
+      "enemyId": "fern-glider",
+      "direction": "A small leaf-winged forest sprite with layered fern fronds, a bright friendly face, and a gliding silhouette."
+    },
+    {
+      "id": "custom-bark-bruiser",
+      "enemyId": "bark-bruiser",
+      "direction": "A broad friendly-looking wooden guardian with chunky bark plates, moss tufts, and oversized arms."
+    },
+    {
+      "id": "custom-frostwing",
+      "enemyId": "frostwing",
+      "direction": "A compact snowbird creature with crystalline feather fans and a distinct airborne pose."
+    },
+    {
+      "id": "custom-stardust-ray",
+      "enemyId": "stardust-ray",
+      "direction": "A floating cosmic ray with a wide diamond-shaped body, soft star markings, and trailing light ribbons."
+    },
+    {
+      "id": "custom-prism-trickster",
+      "enemyId": "prism-trickster",
+      "direction": "A playful prism-scaled trickster with faceted color panels and a curled tail; distinct from the dragon reference."
+    }
+  ]
 }
