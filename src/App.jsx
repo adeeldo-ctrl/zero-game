@@ -25,7 +25,7 @@ import worldBackdropVolcano from "./assets/backgrounds/world-volcano.svg";
 import worldBackdropCosmic from "./assets/backgrounds/world-cosmic.svg";
 import { Capacitor } from "@capacitor/core";
 import { ELEMENTS, HEROES, getElement, getStage, getHero } from "./gameData";
-import { getPremiumStageEnemyRoster } from "./premiumCampaignData";
+import { getPremiumStageEnemyRoster, getPremiumEnemyRegion } from "./premiumCampaignData";
 import { createGameAudio } from "./gameAudio";
 import { createCampaignLives, loseCampaignHeart, getStageTransitionDirection } from "./campaignRules";
 import { shouldHeroCollideWithPlatform, shouldDropThroughPlatform, getPlatformTextureScale } from "./platformRules";
@@ -250,6 +250,7 @@ class ZeroGameScene extends Phaser.Scene {
     this.boss = null;
     this.bossVisual = null;
     this.bossSpawnQueued = false;
+    this.bossAttendantSpawnQueued = false;
     this.bossDefeated = false;
     this.bossHealth = this.stageConfig.boss?.hp || 24;
     this.bossMaxHealth = this.bossHealth;
@@ -2788,6 +2789,10 @@ class ZeroGameScene extends Phaser.Scene {
     enemy.setData("defeatCounted", true);
     // The time-hunter is a timed bonus threat, not part of the stage's quota.
     if (enemy.getData("isTimeHunter")) return true;
+    if (enemy.getData("isBossAttendant")) {
+      if (!this.bossDefeated) this.time.delayedCall(90, () => this.replenishBossAttendants());
+      return true;
+    }
     this.defeated = Math.min(this.stageEnemyCount, this.defeated + 1);
     this.enemyLabel?.setText(`ENEMIES: ${this.defeated}/${this.stageEnemyCount}`);
     return true;
@@ -3042,6 +3047,72 @@ class ZeroGameScene extends Phaser.Scene {
     return c;
   }
 
+
+  countBossAttendants() {
+    return this.enemies?.getChildren().filter((enemy) =>
+      enemy.active && enemy.getData("isBossAttendant") && !enemy.getData("defeatCounted")
+    ).length || 0;
+  }
+
+  spawnBossAttendantPair() {
+    if (this.gameOver || this.bossDefeated || !this.boss?.active) return 0;
+    const current = this.countBossAttendants();
+    if (current > 6) return 0;
+    const region = getPremiumEnemyRegion(this.stageNumber);
+    const eliteRoster = region.enemies.filter((entry) => entry.tier !== "common");
+    const palette = getElement(this.stageConfig.boss?.element || "fire");
+    const colors = [palette.color, palette.glow];
+    const horns = [palette.edge, 0xffffff];
+    let spawned = 0;
+    for (let slot = 0; slot < 2 && current + spawned < 8; slot++) {
+      const rosterIndex = (this.bossAttendantSerial || 0) % eliteRoster.length;
+      const archetype = eliteRoster[rosterIndex];
+      this.bossAttendantSerial = (this.bossAttendantSerial || 0) + 1;
+      const x = slot === 0 ? 235 : 725;
+      const enemy = this.enemies.create(x, -42, `enemy${(this.bossAttendantSerial + 1) % 3}`);
+      enemy.setDepth(9).setBounce(0).setCollideWorldBounds(true);
+      enemy.body.setAllowGravity(true);
+      enemy.setScale(1.42);
+      enemy.setData("isBossAttendant", true);
+      enemy.setData("enemyName", archetype.name);
+      enemy.setData("enemyArchetypeId", archetype.id);
+      enemy.setData("enemyRole", archetype.role);
+      enemy.setData("enemyTier", "boss-attendant");
+      enemy.setData("enemyClass", archetype.role === "shield" || archetype.role === "heavy" ? "heavy" : "special");
+      enemy.setData("baseTexture", `enemy${(this.bossAttendantSerial + 1) % 3}`);
+      enemy.setData("frozen", false);
+      enemy.setData("hitCount", 0);
+      enemy.setData("enemyPowerType", this.stageConfig.boss?.element || "fire");
+      enemy.setData("snowballPowerTier", 4);
+      const roleAi = { runner: "runner", leaper: "jumper", flying: "jumper", ambusher: "charger", ranged: "guard", bomber: "charger", illusionist: "runner", summoner: "guard", shield: "guard", heavy: "chaser", charger: "charger" };
+      const aiType = roleAi[archetype.role] || "charger";
+      enemy.setData("aiType", aiType);
+      enemy.setData("aiState", aiType === "runner" || aiType === "charger" ? "tell" : "patrol");
+      enemy.setData("aiStateUntil", this.time.now + 650);
+      enemy.setData("nextHop", this.time.now + 850);
+      enemy.setData("patrolDirection", slot === 0 ? 1 : -1);
+      enemy.setData("aiAnim", 0);
+      enemy.setVisible(false);
+      const visual = this.createEnemyVisual(enemy, colors[slot], horns[slot]);
+      visual.setScale(1.42);
+      enemy.setData("visualScale", 1.42);
+      spawned++;
+    }
+    return spawned;
+  }
+
+  replenishBossAttendants() {
+    if (this.gameOver || this.bossDefeated || !this.boss?.active ||
+      this.bossAttendantSpawnQueued || this.countBossAttendants() > 6) return;
+    this.bossAttendantSpawnQueued = true;
+    this.time.delayedCall(520, () => {
+      this.bossAttendantSpawnQueued = false;
+      if (this.gameOver || this.bossDefeated || !this.boss?.active) return;
+      this.spawnBossAttendantPair();
+      if (this.countBossAttendants() < 8) this.replenishBossAttendants();
+    });
+  }
+
   spawnBoss() {
     if (this.gameOver || this.boss) return;
     this.audio.play("boss");
@@ -3069,9 +3140,17 @@ class ZeroGameScene extends Phaser.Scene {
     boss.setData("bossAnim", 0);
     boss.setVisible(false);
     this.boss = boss;
+    this.bossAttendantSerial = 0;
+    this.bossAttendantSpawnQueued = false;
     this.bossVisual = this.createBossVisual(boss);
     this.bossVisual.setScale(1.15);
     this.audio.playBossTheme(Math.floor(this.stageNumber / 10) - 1);
+    this.time.delayedCall(1250, () => {
+      if (!this.bossDefeated && this.boss?.active) {
+        this.spawnBossAttendantPair();
+        this.replenishBossAttendants();
+      }
+    });
 
     const entrancePalette = getElement(this.stageConfig.boss?.element || "fire");
     const entrance = this.add.container(480, 160).setDepth(8);
@@ -3224,6 +3303,14 @@ class ZeroGameScene extends Phaser.Scene {
         onComplete: () => defeatBurst.destroy(),
       });
       this.bossDefeated = true;
+      this.bossAttendantSpawnQueued = false;
+      this.enemies.getChildren().filter((enemy) => enemy.getData("isBossAttendant")).forEach((attendant) => {
+        const attendantVisual = attendant.getData("visual");
+        if (attendantVisual?.active) attendantVisual.destroy();
+        const attendantBall = attendant.getData("elementBall");
+        if (attendantBall?.active) attendantBall.destroy();
+        attendant.destroy();
+      });
       boss.setVelocity(0, 0);
       this.tweens.add({ targets: this.bossVisual, angle: 360, scale: 0.1,
         alpha: 0, duration: 850, ease: "Back.easeIn",
