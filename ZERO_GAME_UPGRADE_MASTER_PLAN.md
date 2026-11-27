@@ -19,6 +19,12 @@
 - Jump input must work reliably on touch and keyboard/controller. A held jump must not block subsequent jumps. Preserve the intended double-jump and flip/back-flip behavior, with correct landing/reset logic.
 - Keep the existing joystick behavior unchanged unless a verified defect requires a minimal targeted correction.
 
+### World-matched arena floor dressing (2026-11-27)
+- Replaced the same grass-and-flower lower trim across every arena with world-aware details: forest grass/fireflies, candy orchard sweets, ice shards, desert stones, crystal growths, coral/sea grass, sky-island cloud tufts, volcano embers/obsidian, and cosmic rune-like ground accents.
+- Decoration stays behind gameplay actors and does not change platforms, floor collision, stage layout, or enemy/player logic.
+- Source commit: `a2bca91175f02e2561926f9db5616b00d551b90d`.
+- No tests/builds were run during this implementation step.
+
 ### Enemy class silhouette follow-up (2026-11-27)
 - Agile/fast enemies now use a lighter aerodynamic crest/fin silhouette; heavy enemies use a broader plated profile with a jaw guard; special enemies receive a floating rune crown and arcane guard arc.
 - Crest and guard details receive subtle motion in the existing visual animation loop. Enemy physics, AI, movement speeds, collision sizes, damage, and combat logic are unchanged.
