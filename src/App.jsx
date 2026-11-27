@@ -31,7 +31,7 @@ import { createGameAudio } from "./gameAudio";
 import { createCampaignLives, loseCampaignHeart, getStageTransitionDirection } from "./campaignRules";
 import { shouldHeroCollideWithPlatform, shouldDropThroughPlatform, getPlatformTextureScale } from "./platformRules";
 import { getBossPhase, isValidJumpStomp } from "./combatRules";
-import { getBossAttendantWaveSize, BOSS_ATTENDANT_MAX_ACTIVE } from "./bossEncounterRules";
+import { getBossAttendantWaveSize, BOSS_ATTENDANT_MAX_ACTIVE, getBossSignatureProfile } from "./bossEncounterRules";
 import { canKickElementBall, canRollingBallHitTarget, isRollingBallOutOfBounds, calculateRollingBallMotion } from "./snowballRules";
 import { getEnemyMovementSpeed, getSnowballPowerTier, REGULAR_ENEMY_VISUAL_SCALE } from "./enemyRules";
 import { MOBILE_ACTION_BUTTONS, enqueueMobileAction, consumeMobileAction } from "./mobileActionQueue";
@@ -3793,17 +3793,11 @@ class ZeroGameScene extends Phaser.Scene {
     const color = shotPalette.color || bossData.color || 0xff735d;
     const base = Phaser.Math.Angle.Between(boss.x, boss.y - 15, this.hero.x, this.hero.y - 10);
     const phase = this.bossPhase || 1;
-    const profiles = {
-      gatekeeper: { count: phase === 3 ? 7 : phase === 2 ? 5 : 3, spread: 0.2, speed: 225, shape: "stone", radial: false },
-      "iron-comet": { count: phase === 3 ? 5 : phase === 2 ? 4 : 3, spread: 0.11, speed: 390, shape: "punch", radial: false },
-      "gale-talon": { count: phase === 3 ? 9 : phase === 2 ? 7 : 5, spread: 0.46, speed: 320, shape: "talon", radial: false },
-      suncrest: { count: phase === 3 ? 10 : phase === 2 ? 8 : 6, spread: Math.PI * 2, speed: 245, shape: "sun", radial: true },
-      "void-sovereign": { count: phase === 3 ? 12 : phase === 2 ? 9 : 6, spread: Math.PI * 1.6, speed: 275, shape: "void", radial: true },
-    };
-    const profile = profiles[bossId] || profiles.gatekeeper;
+    const profile = getBossSignatureProfile(bossId);
+    const count = profile.counts[phase - 1] || profile.counts[0];
     this.statusLabel.setText(`${bossData.attack || "SPECIAL ATTACK"}!`);
-    for (let i = 0; i < profile.count; i++) {
-      const progress = profile.count <= 1 ? 0.5 : i / (profile.count - 1);
+    for (let i = 0; i < count; i++) {
+      const progress = count <= 1 ? 0.5 : i / (count - 1);
       const angle = profile.radial
         ? (Math.PI * 2 * i / profile.count) + (bossId === "void-sovereign" ? this.time.now * 0.00035 : -Math.PI / 2)
         : base + (progress - 0.5) * profile.spread;
