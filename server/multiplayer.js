@@ -31,6 +31,7 @@ function safeStateMessage(msg, playerId) {
     y: Math.max(0, Math.min(540, msg.y)),
     facing: msg.facing < 0 ? -1 : 1,
     airborne: msg.airborne,
+    moving: Boolean(msg.moving),
     heroId: msg.heroId,
     from: playerId,
   };
