@@ -3889,10 +3889,15 @@ class ZeroGameScene extends Phaser.Scene {
       });
     }
 
+    if (!airborne && moving && this.lastHeroSpriteFacing !== this.facing) {
+      this.heroTurnAnimUntil = time + 200;
+    }
+    this.lastHeroSpriteFacing = this.facing;
     const spriteState = time < (this.heroLandAnimUntil || 0) ? "land"
-      : this.specialPoseType ? "victory"
-        : airborne ? "jump"
-          : moving ? "walk" : "idle";
+      : time < (this.heroTurnAnimUntil || 0) && !airborne ? "turn"
+        : this.specialPoseType ? "victory"
+          : airborne ? "jump"
+            : moving ? "walk" : "idle";
     this.setHeroSpriteAnimation(visual, spriteState);
 
     this.heroWasAirborne = airborne;
