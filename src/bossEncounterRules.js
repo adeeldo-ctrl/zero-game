@@ -26,9 +26,9 @@ export function getBossSignatureProfile(bossId) {
 }
 
 export const BOSS_ANIMATION_PROFILES = {
-  gatekeeper: { idleFrames: [0, 1, 0, 1], idleRate: 4, strikeFrames: [2, 3, 2], strikeRate: 8 },
-  "iron-comet": { idleFrames: [0, 1, 2, 1], idleRate: 8, strikeFrames: [1, 2, 3, 2], strikeRate: 16 },
-  "gale-talon": { idleFrames: [0, 2, 0, 2], idleRate: 9, strikeFrames: [1, 2, 3, 1], strikeRate: 18 },
-  suncrest: { idleFrames: [0, 1, 2, 3], idleRate: 5, strikeFrames: [3, 2, 1, 2], strikeRate: 11 },
-  "void-sovereign": { idleFrames: [0, 3, 0, 3], idleRate: 4, strikeFrames: [2, 1, 3, 2], strikeRate: 14 },
+  gatekeeper: { idleFrames: [0, 1, 0, 1], idleRate: 4, strikeFrames: [2, 3, 2, 3], strikeRate: 8, hitFrames: [3, 0, 3], phaseFrames: [0, 2, 3, 1], defeatFrames: [3, 2, 1, 0] },
+  "iron-comet": { idleFrames: [0, 1, 2, 1], idleRate: 8, strikeFrames: [1, 2, 3, 2], strikeRate: 16, hitFrames: [2, 0, 2], phaseFrames: [1, 3, 2, 0], defeatFrames: [2, 3, 1, 0] },
+  "gale-talon": { idleFrames: [0, 2, 0, 2], idleRate: 9, strikeFrames: [1, 2, 3, 1], strikeRate: 18, hitFrames: [1, 3, 1], phaseFrames: [2, 0, 3, 1], defeatFrames: [1, 2, 3, 0] },
+  suncrest: { idleFrames: [0, 1, 2, 3], idleRate: 5, strikeFrames: [3, 2, 1, 2], strikeRate: 11, hitFrames: [3, 1, 3], phaseFrames: [0, 3, 2, 1], defeatFrames: [3, 1, 2, 0] },
+  "void-sovereign": { idleFrames: [0, 3, 0, 3], idleRate: 4, strikeFrames: [2, 1, 3, 2], strikeRate: 14, hitFrames: [2, 0, 2], phaseFrames: [3, 1, 0, 2], defeatFrames: [2, 1, 3, 0] },
 };
