@@ -1168,3 +1168,12 @@ The first integrated implementation tranche has now been pushed to `main`:
 - Confirmed the campaign manifest already defines the 45 enemy identities across five regions and five distinct boss profiles. This roster data is not proof that premium character artwork has been authored or integrated.
 - The requested upgrade remains an art-and-runtime integration task: replace the vector enemy/boss textures with distinct premium raster sprite sheets, define and validate real animation frames for each identity, and preserve all gameplay behavior.
 - No APK was built or released during this work, in accordance with the final-only delivery rule.
+
+### Enemy reference collage intake — 2026-11-28
+
+- Added `src/assets/enemies/reference-crop-manifest.json` with 48 approximate crop regions/names from the user's supplied Snow Bros-style enemy collage.
+- The 48 entries are reference candidates only; the collage is not a complete 48-character animation atlas. Several crop regions may contain neighboring art, decorative effects, or background overlap.
+- The reference crops retain the original blue/ice background and have zero animation frames. They must not be loaded as production enemy textures in their current state.
+- Next art pipeline steps: clean/cut out each selected character, map the best 40 distinct enemy designs to the existing 45 campaign archetypes, create five additional matching designs where needed, author missing idle/move/attack/hit/defeat frames, and create five boss sheets in the same visual style.
+- Preserve the existing five boss identities, all 50 stages, enemy AI, combat, controls, scoring, audio, and stage progression. Do not remove the current SVG fallback until replacement raster sheets are complete and runtime-verified.
+- The reference crop ZIP is prepared separately for transfer; no binary spritesheets have been committed and no APK has been built.
