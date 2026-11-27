@@ -612,7 +612,7 @@ try {
       ],
     };
   });
-  const landmarkSignatures = new Set(campaignIdentity.landmarkSignatures);
+  const landmarkSignatures = new Set([...campaignIdentity.landmarkSignatures, stageThreeLandmark]);
   if (landmarkSignatures.size !== 2) throw new Error("Stage 1 and stage 2 landmark compositions are not unique");
 
   // Complete the stage-2 restart before sweeping the rest of the campaign.
@@ -638,6 +638,14 @@ try {
         enemy.active && !enemy.getData("isBoss") && !enemy.getData("isTimeHunter")
       );
   }, undefined, { timeout: 3000 });
+
+  const stageThreeLandmark = await page.evaluate(() => {
+    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+    return scene?.stageVariantLandmark?.getData("stageLandmarkSignature");
+  });
+  if (stageThreeLandmark !== "world-0-stage-variant-2") {
+    throw new Error("Stage 3 did not register its unique world landmark composition");
+  }
 
   // Walk the actual Phaser scene-restart path through every remaining stage.
   const visitedStages = [1, 2, 3];
