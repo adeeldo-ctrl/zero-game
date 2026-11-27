@@ -615,3 +615,10 @@ The following gameplay requirements are mandatory and supersede any conflicting 
 - Bosses now have a restrained breathing loop, chest-emblem energy pulse, subtle armor follow-through, and alternating orbit accents while moving or waiting between attacks.
 - Existing attack-state poses still override the base arm/leg poses, and the same boss physics, attack timings, hitboxes, damage, and phase transitions are preserved.
 - Animation updates reuse existing display objects; no additional per-frame particles or objects are created. No APK build was triggered.
+
+
+## Elemental boss-hit impact feedback — 2026-11-27
+
+- Replaced the generic yellow boss-hit circle with a compact three-layer impact burst: an element-coloured star core, an expanding energy ring, and a brief white contact flash.
+- Impact palette follows each boss's assigned element across all ten element types, while boss damage, hit timing, score awards, knockback, and phase logic remain unchanged.
+- The effect uses one short-lived container per confirmed boss hit and does not add persistent emitters. No APK build was triggered.
