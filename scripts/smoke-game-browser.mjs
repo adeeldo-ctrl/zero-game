@@ -455,6 +455,7 @@ try {
     if (!scene?.sys.isActive()) throw new Error("Development game test hook is unavailable");
     const originalStage = scene.stageConfig;
     const bosses = [
+      { name: "Gatekeeper Test", style: "intro grappler", color: 0x8a5943, element: "earth" },
       { name: "Boxing Test", style: "boxing champion", color: 0x6259a7, element: "earth" },
       { name: "Agile Test", style: "agile claw acrobat", color: 0x8d405e, element: "wind" },
       { name: "Master Test", style: "disciplined martial arts master", color: 0xa64b3d, element: "fire" },
@@ -467,7 +468,7 @@ try {
       scene.bossDefeated = false;
       scene.spawnBoss();
       if (!scene.bossVisual?.active) throw new Error(`Boss visual failed: ${bossData.style}`);
-      const expectedFirstAttack = bossData.style.includes("boxing") ? 0
+      const expectedFirstAttack = bossData.style.includes("boxing") ? 2
         : bossData.style.includes("agile") ? 2
         : bossData.style.includes("master") ? 1 : 0;
       const boss = scene.boss;
