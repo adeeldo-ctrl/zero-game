@@ -1923,10 +1923,14 @@ class ZeroGameScene extends Phaser.Scene {
 
     // Use the original uploaded PNG as the visible combatant; retain only hidden legacy rig metadata for gameplay.
     c.list.forEach((part) => part.setVisible(part === shadow));
-    const archetypeId = enemy.getData("enemyArchetypeId");
+    const requestedArchetypeId = enemy.getData("enemyArchetypeId");
+    const requestedBaseArtId = enemy.getData("enemyArtBaseId");
+    const archetypeId = APPROVED_ENEMY_ART[requestedArchetypeId] ? requestedArchetypeId
+      : APPROVED_ENEMY_ART[requestedBaseArtId] ? requestedBaseArtId : "spirit-pouncer";
+    if (requestedArchetypeId !== archetypeId) enemy.setData("enemyArchetypeId", archetypeId);
     const hasPremiumArtwork = false;
     const idleFrame = 0;
-    const approvedArt = APPROVED_ENEMY_ART[archetypeId] || APPROVED_ENEMY_ART[enemy.getData("enemyArtBaseId")];
+    const approvedArt = APPROVED_ENEMY_ART[archetypeId];
     if (!approvedArt) throw new Error("Missing approved original PNG artwork for enemy " + archetypeId);
     const textureKey = `approved-enemy-${archetypeId}`;
     const enemySprite = this.add.sprite(0, -12, textureKey, idleFrame)
@@ -4239,9 +4243,13 @@ class ZeroGameScene extends Phaser.Scene {
     this.timeHunterSpawned = true;
     const hunter = this.enemies.create(this.hero.x < 480 ? 900 : 60, 120, "enemy2");
     hunter.setDepth(12).setCollideWorldBounds(true);
-    hunter.setTint(0x222233);
     hunter.setScale(1.8);
     hunter.setData("isTimeHunter", true);
+    hunter.setData("enemyArchetypeId", "void-licorice-sniper");
+    hunter.setData("enemyArtBaseId", "licorice-sniper");
+    hunter.setData("enemyRole", "ranged");
+    hunter.setData("enemyClass", "special");
+    hunter.setData("enemyTier", "time-hunter");
     hunter.setData("bornAt", this.time.now);
     hunter.setData("visual", this.createEnemyVisual(hunter, 0x29243f, 0xc4a5ff));
     const warning = this.add.text(480, 145, "TIME IS UP! THE SHADOW HUNTER IS HERE!", {
