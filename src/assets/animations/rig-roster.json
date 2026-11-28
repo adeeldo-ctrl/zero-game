@@ -309,7 +309,7 @@
     {
       "id": "gale-talon",
       "source": "src/assets/bosses/prepared-reference/gale-talon.png",
-      "motionProfile": "armored-reptile",
+      "motionProfile": "winged-reptile",
       "rigType": "quadruped-rig",
       "rigFile": "src/assets/animations/bosses/gale-talon.json",
       "atlas": "src/assets/animations/bosses/gale-talon.atlas",
