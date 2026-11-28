@@ -99,7 +99,12 @@ try {
           "idle-phone", "idle-scratch", "idle-comb", "idle-look-around", "idle-groom"];
       for (const clip of required) if (!clips.includes(clip)) missingClips.push(key + ":" + clip);
       if (!isBoss) {
-        for (const clip of ["idle-phone", "idle-scratch", "idle-comb", "idle-look-around", "idle-groom"]) {
+        const boneNames = data.skeleton.bones.map((bone) => bone.name);
+        const hasHands = boneNames.includes("upperarm_l") && boneNames.includes("forearm_l");
+        const applicableAmbientClips = hasHands
+          ? ["idle-phone", "idle-scratch", "idle-comb", "idle-look-around", "idle-groom"]
+          : ["idle-look-around", "idle-groom"];
+        for (const clip of applicableAmbientClips) {
           const animation = data.skeleton.animations.find((entry) => entry.name === clip);
           if (!animation || !Object.keys(animation.bones || {}).length) {
             missingClips.push(key + ":" + clip + "(empty)");
