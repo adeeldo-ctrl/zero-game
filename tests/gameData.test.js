@@ -196,9 +196,17 @@ test("campaign enemy powers rotate through all ten elemental identities", () => 
 
 test("premium campaign uses only the 32 approved regular enemies across five regions", () => {
   assert.equal(PREMIUM_ENEMY_REGIONS.length, 5);
-  for (const region of PREMIUM_ENEMY_REGIONS) {
+  for (const [index, region] of PREMIUM_ENEMY_REGIONS.entries()) {
+    assert.deepEqual(region.stages, [index * 10 + 1, (index + 1) * 10], `${region.id} owns exactly its dedicated ten-stage block`);
     assert.ok(region.enemies.length >= 4 && region.enemies.length <= 9, `${region.id} stays within the approved regional roster size`);
     assert.ok(new Set(region.enemies.map((enemy) => enemy.role)).size >= 3, `${region.id} retains varied enemy behavior roles`);
+  }
+  for (let left = 0; left < PREMIUM_ENEMY_REGIONS.length; left++) {
+    for (let right = left + 1; right < PREMIUM_ENEMY_REGIONS.length; right++) {
+      const leftIds = new Set(PREMIUM_ENEMY_REGIONS[left].enemies.map((enemy) => enemy.id));
+      assert.ok(PREMIUM_ENEMY_REGIONS[right].enemies.every((enemy) => !leftIds.has(enemy.id)),
+        "each ten-stage block has an exclusive enemy cast");
+    }
   }
   const activeEnemies = PREMIUM_ENEMY_REGIONS.flatMap((region) => region.enemies);
   const ids = activeEnemies.map((enemy) => enemy.id);
@@ -212,6 +220,8 @@ test("premium campaign uses only the 32 approved regular enemies across five reg
     const roster = getPremiumStageEnemyRoster(stage);
     assert.ok(roster.length >= 2 && roster.length <= region.enemies.length);
     assert.equal(new Set(roster.map((enemy) => enemy.id)).size, roster.length);
+    assert.ok(roster.every((enemy) => region.enemies.some((regionalEnemy) => regionalEnemy.id === enemy.id)),
+      `stage ${stage} uses only its own ten-stage enemy cast`);
     assert.equal(getStage(stage).enemyRegionId, region.id);
     if (stage % 10 === 9) assert.equal(roster.length, region.enemies.length, `stage ${stage} introduces the complete approved regional roster before its boss`);
   }
