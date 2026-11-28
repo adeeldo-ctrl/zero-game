@@ -570,7 +570,7 @@ try {
   await page.evaluate(() => {
     const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
     if (scene.hero.y < 455) throw new Error("DOWN + JUMP did not land on the permanent floor");
-    scene.hero.setPosition(480, 462);
+    scene.hero.body.reset(480, 462);
     scene.hero.setVelocity(0, 0);
     scene.jumpCount = 0;
   });
