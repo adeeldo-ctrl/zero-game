@@ -419,8 +419,7 @@ class ZeroGameScene extends Phaser.Scene {
     this.gameStarted = true;
     this.campaignActive = false;
     this.heroSelectionLocked = false;
-    this.openHeroSelectAfterRestart = this.registry.get("zeroGameOpenHeroSelectAfterRestart") === true;
-    this.registry.remove("zeroGameOpenHeroSelectAfterRestart");
+    this.openHeroSelectAfterRestart = false;
     this.chances = 3;
     this.chanceLossInProgress = false;
     this.chanceRespawnToken = 0;
@@ -469,6 +468,9 @@ class ZeroGameScene extends Phaser.Scene {
   create() {
     const W = 960;
     const H = 540;
+    // Scene Registry is accessed after Phaser has booted the scene systems.
+    this.openHeroSelectAfterRestart = this.registry.get("zeroGameOpenHeroSelectAfterRestart") === true;
+    this.registry.remove("zeroGameOpenHeroSelectAfterRestart");
 
     this.physics.world.setBounds(0, 0, W, H);
     this.cameras.main.setScroll(0, 0);
