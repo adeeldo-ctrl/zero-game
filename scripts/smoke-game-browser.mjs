@@ -77,6 +77,81 @@ try {
   if (pngArtAudit.error || pngArtAudit.missing.length || pngArtAudit.invalidImages.length) {
     throw new Error("Original PNG artwork integration failed: " + JSON.stringify(pngArtAudit));
   }
+
+  const rigAudit = await page.evaluate((ids) => {
+    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+    const cache = scene?.cache?.custom?.rigby2d;
+    const missing = [];
+    const missingClips = [];
+    const invalidMeshes = [];
+    for (const id of ids) {
+      const isBoss = ids.indexOf(id) >= 32;
+      const key = isBoss ? `boss-rig-${id}` : `enemy-rig-${id}`;
+      const data = cache?.get(key);
+      if (!data?.skeleton) {
+        missing.push(key);
+        continue;
+      }
+      const clips = data.skeleton.animations.map((animation) => animation.name);
+      const required = isBoss
+        ? ["entrance", "idle", "locomotion", "jump", "fall", "land", "hit", "phase-change", "defeat", "signature"]
+        : ["idle", "locomotion", "jump", "fall", "land", "hit", "defeat"];
+      for (const clip of required) if (!clips.includes(clip)) missingClips.push(key + ":" + clip);
+      const meshes = data.skeleton.slots.flatMap((slot) => slot.attachments || [])
+        .filter((attachment) => attachment.type === "mesh");
+      if (!meshes.some((mesh) => Array.isArray(mesh.weights) && mesh.weights.length > 0)) {
+        invalidMeshes.push(key);
+      }
+    }
+    return { missing, missingClips, invalidMeshes };
+  }, characterIds);
+  if (rigAudit.missing.length || rigAudit.missingClips.length || rigAudit.invalidMeshes.length) {
+    throw new Error("Rigby2D roster integration failed: " + JSON.stringify(rigAudit));
+  }
+
+  const movementRig = await page.evaluate(() => {
+    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+    const rig = scene.add.rigby(80, 80, "enemy-rig-spirit-pouncer", "idle");
+    rig.setVisible(false);
+    const bone = rig.skeleton.bones.find((entry) => entry.name === "pelvis")?.name || rig.skeleton.bones[1].name;
+    const before = rig.boneWorld(bone);
+    rig.play("locomotion", true, 0);
+    window.__ZERO_GAME_RIG_MOTION__ = { rig, bone, before };
+    return { bone, before };
+  });
+  await delay(180);
+  const movementAfter = await page.evaluate(() => {
+    const value = window.__ZERO_GAME_RIG_MOTION__;
+    const after = value.rig.boneWorld(value.bone);
+    value.rig.destroy();
+    delete window.__ZERO_GAME_RIG_MOTION__;
+    return after;
+  });
+  if (!movementAfter || Math.hypot(movementAfter.x - movementRig.before.x, movementAfter.y - movementRig.before.y) < 0.1) {
+    throw new Error("Rigby2D locomotion clip did not move the enemy bone mesh");
+  }
+
+  const bossSignature = await page.evaluate(() => {
+    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+    const rig = scene.add.rigby(120, 80, "boss-rig-gatekeeper", "idle");
+    rig.setVisible(false);
+    const bone = "torso";
+    const before = rig.boneWorld(bone);
+    rig.play("signature", true, 0);
+    window.__ZERO_GAME_BOSS_SIGNATURE__ = { rig, bone, before };
+    return { bone, before };
+  });
+  await delay(180);
+  const bossSignatureAfter = await page.evaluate(() => {
+    const value = window.__ZERO_GAME_BOSS_SIGNATURE__;
+    const after = value.rig.boneWorld(value.bone);
+    value.rig.destroy();
+    delete window.__ZERO_GAME_BOSS_SIGNATURE__;
+    return after;
+  });
+  if (!bossSignatureAfter || Math.abs(bossSignatureAfter.rotation - bossSignature.before.rotation) < 0.005) {
+    throw new Error("Gatekeeper signature motion did not animate its rigged torso");
+  }
   const accessibility = await page.evaluate(() => ({
     gameRole: document.querySelector("#game-container")?.getAttribute("role"),
     gameLabel: document.querySelector("#game-container")?.getAttribute("aria-label"),
