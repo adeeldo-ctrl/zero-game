@@ -51,3 +51,16 @@ This 32-regular-enemy / 5-boss scope follows the user's latest approved active r
 ## Honest completion gate
 
 The art upgrade is **not complete** merely because reference cutouts, roster data, SVG sheets, procedural details, or Phaser effects exist. The production validator must pass with exactly 32 unique regular enemy sheets and five unique boss sheets, with every required animation state represented. Do not label an APK final until this gate and the consolidated Android release build both succeed.
+
+
+## Free-resource research — 2026-11-28
+
+A source register is maintained at `assets/FREE_ASSET_SOURCE_REGISTER.json`. It records CC0 candidates and the animation coverage actually claimed by their publishers.
+
+- SpriteCanvas's four-monster CC0 pack is the strongest technical candidate: transparent PNG sheets and JSON atlases for idle, walk, attack, hurt and death. It must be visually reviewed before assigning any of those characters to the existing approved identities.
+- IsabellaP's Crypt pack provides CC0 bat, spider and mummy animation assets; the documented coverage differs by character and must not be overstated.
+- OpenGameArt's stealthix animated monsters are CC0 and include idle, walk, punch, hurt and fall sheets for three characters; visual fit still needs review.
+- Kenney's Monster Builder Pack is CC0 modular static parts, not an animation pack.
+- Kenney's Abstract Platformer is CC0 and includes static enemy variations/environment assets; it does not satisfy the character animation gate.
+
+These sources are documented as candidates, not as integrated game content. No third-party sprite is mapped into an approved character solely to increase a completion count. Before import, inspect the actual artwork, confirm that its silhouette and style fit the already-approved concept, retain the source/license notice, and verify its dimensions and atlas metadata. The active roster remains exactly 32 regular enemies and five bosses.
