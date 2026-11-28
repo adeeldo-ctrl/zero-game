@@ -3582,7 +3582,6 @@ enemy pose branch    if (state === "attack" && approvedArtSprite?.active) {
     c.list.forEach((part) => part.setVisible(part === shadow));
     const bossDefinition = rigRoster.bosses.find((entry) => entry.id === bossSheetId);
     if (!bossDefinition) throw new Error("Missing generated boss rig for " + bossSheetId);
-    const bossPoseSet = this.bossPoseTextures?.[bossSheetId];
     // Generated weighted-mesh boss rigs provide animated locomotion and combat clips.
     const bossSprite = this.add.rigby(0, -22, `boss-rig-${bossSheetId}`, "entrance");
     if (!bossSprite?.active || !bossSprite.skeleton || typeof bossSprite.play !== "function") {
