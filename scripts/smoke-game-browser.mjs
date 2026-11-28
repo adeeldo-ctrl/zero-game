@@ -52,21 +52,24 @@ try {
   const animationAudit = await page.evaluate((ids) => {
     const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
     if (!scene?.sys.isActive()) return { error: "Phaser scene is not active" };
-    const states = ["idle", "move", "attack", "hit", "defeat"];
+    const enemyStates = ["idle", "move", "attack", "hit", "defeat"];
+    const bossStates = ["entrance", "idle", "move", "attack-primary", "attack-secondary", "special", "hit", "phase-change", "defeat"];
     const missing = [];
     const invalidFrameCounts = [];
     for (const id of ids) {
+      const isBoss = ids.indexOf(id) >= 32;
+      const prefix = isBoss ? "boss" : "enemy";
+      const states = isBoss ? bossStates : enemyStates;
       const textureKey = `character-sheet-${id}`;
       const texture = scene.textures.get(textureKey);
       if (!texture || !scene.textures.exists(textureKey)) {
         missing.push(`texture:${id}`);
         continue;
       }
-      const finalFrame = texture.get(39);
+      const finalFrame = texture.get(isBoss ? 71 : 39);
       if (!finalFrame || finalFrame.width !== 128 || finalFrame.height !== 128) {
         invalidFrameCounts.push(`frames:${id}`);
       }
-      const prefix = ids.length > 32 && ids.indexOf(id) >= 32 ? "boss" : "enemy";
       for (const state of states) {
         const key = `${prefix}-${id}-${state}`;
         const animation = scene.anims.get(key);
