@@ -976,9 +976,11 @@ try {
       await page.evaluate(() => {
         const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
         scene.boss.setVelocity(0, 0);
+        scene.boss.body.blocked.down = true;
         scene.boss.setData("bossAttackState", "rest");
         scene.boss.setData("bossAttackAt", scene.time.now + 5000);
         scene.hero.setPosition(scene.boss.x, scene.boss.y);
+        scene.updateBoss(scene.boss, 16);
       });
       await page.waitForFunction(() => {
         const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
