@@ -49,6 +49,40 @@ function validateCharacter(character, isBoss) {
   }
 
   const boneNames = new Set((skeleton.bones || []).map((bone) => bone.name));
+  const bonesByName = new Map((skeleton.bones || []).map((bone) => [bone.name, bone]));
+  for (const bone of skeleton.bones || []) {
+    if (bone.name === "root") {
+      if (bone.parent) failures.push(character.id + ": root bone must not have a parent");
+    } else if (!bone.parent || !boneNames.has(bone.parent)) {
+      failures.push(character.id + ": bone " + bone.name + " has a missing or invalid parent");
+    }
+  }
+  const expectedParents = {
+    pelvis: "root", torso: "pelvis", upperarm_l: "torso", upperarm_r: "torso",
+    forearm_l: "upperarm_l", forearm_r: "upperarm_r",
+    thigh_l: "pelvis", thigh_r: "pelvis", shin_l: "thigh_l", shin_r: "thigh_r",
+    front_leg_l: "body", front_leg_r: "body", back_leg_l: "body", back_leg_r: "body",
+    wing_l: "body", wing_r: "body", tail: "body",
+    claw_l: "shell", claw_r: "shell", fin_top: "body", fin_bottom: "body",
+    crown: "core", top: "core", left: "core", right: "core", base: "core",
+    tentacle_1: "core", tentacle_2: "core", tentacle_3: "core",
+    tentacle_4: "core", tentacle_5: "core", tentacle_6: "core",
+    leg_1: "shell", leg_2: "shell", leg_3: "shell",
+    leg_4: "shell", leg_5: "shell", leg_6: "shell",
+    aura: "root",
+  };
+  for (const [joint, parent] of Object.entries(expectedParents)) {
+    if (boneNames.has(joint) && boneNames.has(parent) && bonesByName.get(joint)?.parent !== parent) {
+      failures.push(character.id + ": " + joint + " must be parented to " + parent);
+    }
+  }
+  if (boneNames.has("head")) {
+    const expectedHeadParent = boneNames.has("torso") ? "torso"
+      : boneNames.has("body") ? "body" : "core";
+    if (bonesByName.get("head")?.parent !== expectedHeadParent) {
+      failures.push(character.id + ": head must be parented to " + expectedHeadParent);
+    }
+  }
   const clipsByName = skeleton.animations || {};
   const requireJointMotion = (joint, clips) => {
     if (!boneNames.has(joint)) return;
