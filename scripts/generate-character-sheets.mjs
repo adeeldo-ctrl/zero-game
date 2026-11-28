@@ -17,7 +17,9 @@ const BOSS_DEFINITIONS = [
 
 const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
 const hexRgb = (hex) => {
-  const value = hex.replace("#", "");
+  const value = typeof hex === "number"
+    ? hex.toString(16).padStart(6, "0")
+    : String(hex).replace("#", "").padStart(6, "0");
   return [0, 2, 4].map((offset) => parseInt(value.slice(offset, offset + 2), 16));
 };
 const toHex = (rgb) => "#" + rgb.map((v) => clamp(Math.round(v), 0, 255).toString(16).padStart(2, "0")).join("");
