@@ -41,19 +41,6 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Prepare transparent enemy reference cutouts
-        run: npm run art:prepare-reference
-
-      - name: Upload prepared enemy reference cutouts
-        uses: actions/upload-artifact@v4
-        with:
-          name: zero-game-prepared-enemy-references
-          path: |
-            src/assets/enemies/prepared-reference/
-            src/assets/bosses/prepared-reference/
-          if-no-files-found: error
-          retention-days: 7
-
       - name: Run automated tests
         run: npm test
 
@@ -63,7 +50,7 @@ jobs:
       - name: Validate Android configuration without building an APK
         run: python3 scripts/validate-android-config.py
 
-      - name: Generate and validate all 37 character animation sheets
+      - name: Validate 32 unique original enemy PNGs and five separate boss PNGs
         run: npm run art:validate
 
       - name: Build web game
