@@ -169,3 +169,15 @@ The source PNGs are preserved and are not redrawn as vectors. The generated rigs
 ### Current release status
 
 `rig-assets-generated-pending-visual-gameplay-verification` is the honest current state. The 37 rig exports are generated during the build, but the final APK must remain locked until the consolidated browser/mobile verification confirms the WebGL runtime, all 37 loaded rigs, and real clip transitions in the running game. No intermediate APK is to be produced.
+
+## Ambient enemy personality and awareness (2026-11-28)
+
+Every regular enemy and boss attendant receives a type-aware awareness radius and a set of idle personality clips. While the hero is far away and the enemy is settled, it stops patrolling and performs a rotating idle activity instead of continuously tracking the hero. The activity changes on a staggered timer so nearby enemies do not all animate in sync.
+
+- Biped / humanoid profiles can use phone-checking, head-scratching, combing/grooming, and looking-around clips. Their arm, forearm, head, and torso bones are animated together.
+- Flying, quadruped, fish, tentacle, crab, and soft-bodied profiles use the same idle-action slots with anatomy-appropriate wing, tail, fin, claw, leg, tentacle, head, or core movement; they do not receive human hand gestures when their rig has no arms.
+- When the hero enters the awareness radius, the enemy exits its idle activity, turns toward the hero, and resumes its existing role-specific AI. A wider re-entry threshold prevents rapid idle/chase flicker around the boundary.
+- Enemies only settle into idle after landing (except flyers), so their spawn drop and normal jump/fall movement are not interrupted.
+- This behaviour is applied to regular enemies and boss attendants. Boss AI, hero controls, stage progression, and all existing visual effects remain outside this change.
+
+The five ambient clips are part of the enemy rig release gate: `idle-phone`, `idle-scratch`, `idle-comb`, `idle-look-around`, and `idle-groom`. These are bone-weighted mesh animations derived from each original PNG, not separate hand-painted sprite sheets. The runtime selects actions from the enemy role and anatomy profile.
