@@ -24,3 +24,29 @@ export function getStageTransitionDirection(stageNumber) {
   const directions = ["up"];
   return directions[index % directions.length];
 }
+
+export const STARTING_CAMPAIGN_TOKENS = 3;
+export const TOKEN_SCORE_THRESHOLD = 10000;
+
+export function normalizeCampaignTokens(value, fallback = STARTING_CAMPAIGN_TOKENS) {
+  const parsed = Number(value);
+  const safeFallback = Math.max(0, Math.floor(Number(fallback) || 0));
+  if (value === null || value === undefined || value === "" || !Number.isFinite(parsed)) {
+    return safeFallback;
+  }
+  return Math.max(0, Math.floor(parsed));
+}
+
+export function spendCampaignToken(balance) {
+  const tokens = normalizeCampaignTokens(balance, 0);
+  return tokens > 0
+    ? { tokens: tokens - 1, spent: true }
+    : { tokens: 0, spent: false };
+}
+
+export function getTokensEarnedForScore(previousScore, nextScore, threshold = TOKEN_SCORE_THRESHOLD) {
+  const safeThreshold = Math.max(1, Math.floor(Number(threshold) || TOKEN_SCORE_THRESHOLD));
+  const previous = Math.max(0, Math.floor(Number(previousScore) || 0));
+  const next = Math.max(previous, Math.floor(Number(nextScore) || 0));
+  return Math.max(0, Math.floor(next / safeThreshold) - Math.floor(previous / safeThreshold));
+}
