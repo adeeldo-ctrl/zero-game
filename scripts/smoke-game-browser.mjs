@@ -556,7 +556,7 @@ try {
         scenePaused: scene?.sys.isPaused(),
         timePaused: scene?.time.paused,
         timeNow: scene?.time.now,
-        respawnAt: scene?.chanceRespawnAt,
+        respawnFrames: scene?.chanceRespawnFrames,
         updateTicks: scene?.chanceRespawnUpdateTicks,
         gameStarted: scene?.gameStarted,
         stageCleared: scene?.stageCleared,
@@ -589,13 +589,11 @@ try {
       }
     }, expectedChances);
     if (expectedChances > 0) {
-      await delay(1050);
-      await page.evaluate(() => {
+      await page.waitForFunction(() => {
         const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
-        if (scene.health !== 3 || scene.chanceLossInProgress || scene.gameOver) {
-          throw new Error("A remaining chance did not restore three hearts and resume gameplay");
-        }
-      });
+        return scene?.health === 3 && !scene.chanceLossInProgress &&
+          scene.hero?.body?.enable && !scene.gameOver;
+      }, undefined, { timeout: 5000 });
     }
   }
   await page.evaluate(() => {
