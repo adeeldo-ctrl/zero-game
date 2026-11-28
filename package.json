@@ -13,10 +13,7 @@
     "android:sync": "npm run build && cap sync android",
     "art:validate": "node scripts/validate-original-png-art.mjs",
     "art:prepare-reference": "node scripts/prepare-reference-enemy-art.mjs",
-    "prebuild": "node scripts/generate-premium-character-sheets.mjs",
-    "predev": "node scripts/generate-premium-character-sheets.mjs",
-    "art:generate": "node scripts/prepare-reference-enemy-art.mjs",
-    "pretest": "node scripts/generate-premium-character-sheets.mjs"
+    "art:generate": "node scripts/validate-original-png-art.mjs"
   },
   "dependencies": {
     "phaser": "^4.2.1",
