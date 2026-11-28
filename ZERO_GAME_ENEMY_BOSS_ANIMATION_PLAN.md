@@ -152,3 +152,20 @@ src/assets/animations/rig-roster.json now records all 32 selected enemy identiti
 ### Release gate
 
 Do not trigger or deliver an APK until all 37 actual rigs have been exported, all required animation clips exist, the Phaser integration is connected to gameplay state, and the consolidated mobile verification has passed. No debug or intermediate APKs.
+## Implementation update (2026-11-28)
+
+The repository now contains a Rigby2D 0.6.1 build-time pipeline:
+
+- `scripts/generate-rigby-rigs.mjs` creates 32 enemy and 5 boss skeleton JSON exports and atlas files from the existing original transparent PNGs. It copies each unchanged source PNG into its matching `public/rigs/...` folder.
+- Each character gets a 9×9 weighted mesh (81 vertices), an anatomy-specific bone layout, and non-combat idle, locomotion, jump, fall, land, hit and defeat clips. Bosses additionally receive entrance, phase-change and an individual non-combat signature motion.
+- `scripts/fetch-rigby-runtime.mjs` downloads the pinned Phaser runtime v0.6.1 and verifies its published SHA-256 before the build imports it.
+- `src/App.jsx` registers the Rigby2D scene plugin, uses Phaser WebGL, loads the 37 skeletons, and chooses movement/reaction clips from the existing enemy and boss state.
+- `scripts/validate-rig-roster.mjs` checks all 37 JSON rigs, weighted mesh data, atlas pages and required clips. The regular build runs generation, validation, runtime download and Vite build in that order.
+
+### Artwork and animation scope
+
+The source PNGs are preserved and are not redrawn as vectors. The generated rigs use weighted mesh deformation of the original complete cutout. They are not separate hand-painted limb layers: the mesh bends according to the anatomy-specific bone weights. This is appropriate for the first rig pass, but visual review is still required to catch stretching, transparent-edge artifacts or joints that need a separately layered source part.
+
+### Current release status
+
+`rig-assets-generated-pending-visual-gameplay-verification` is the honest current state. The 37 rig exports are generated during the build, but the final APK must remain locked until the consolidated browser/mobile verification confirms the WebGL runtime, all 37 loaded rigs, and real clip transitions in the running game. No intermediate APK is to be produced.
