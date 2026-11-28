@@ -3332,21 +3332,9 @@ class ZeroGameScene extends Phaser.Scene {
     c.list.forEach((part) => part.setVisible(part === shadow));
     const bossSprite = this.add.image(0, -22, `boss-image-${bossSheetId}`)
       .setDisplaySize(150, 150);
-    const bossEntranceAnimation = `boss-${bossSheetId}-entrance`;
-    const bossIdleAnimation = `boss-${bossSheetId}-idle`;
     bossSprite.setData("entranceUntil", this.time.now + 900);
-    if (this.anims.exists(bossEntranceAnimation)) {
-      bossSprite.play(bossEntranceAnimation);
-      bossSprite.once(Phaser.Animations.Events.ANIMATION_COMPLETE, (animation) => {
-        if (animation.key === bossEntranceAnimation && bossSprite.active && this.anims.exists(bossIdleAnimation)) {
-          bossSprite.play(bossIdleAnimation, true);
-        }
-      });
-    } else if (this.anims.exists(bossIdleAnimation)) {
-      bossSprite.play(bossIdleAnimation);
-    }
     c.add(bossSprite);
-    // Subtle supplemental motion complements the boss's authored multi-state sprite sheet.
+    // Boss-state motion is applied directly to this original PNG image.
     this.tweens.add({
       targets: bossSprite,
       y: isAgile ? -27 : -25,
@@ -3536,11 +3524,7 @@ class ZeroGameScene extends Phaser.Scene {
     if (v?.active) {
       const bossId = v.getData("bossSheetId");
       const bossSprite = v.getData("authoredSprite");
-      const bossHitAnimation = `boss-${bossId}-hit`;
-      if (bossSprite?.active && this.anims.exists(bossHitAnimation)) {
-        bossSprite.setData("hitUntil", this.time.now + 460);
-        bossSprite.play(bossHitAnimation, true);
-      }
+      if (bossSprite?.active) bossSprite.setData("hitUntil", this.time.now + 460);
       this.tweens.add({ targets: v, angle: this.facing * 9, scaleX: 1.28,
         duration: 65, yoyo: true, repeat: 1,
         onComplete: () => { if (v.active) { v.setAngle(0); v.setScale(1.15); } } });
@@ -3564,11 +3548,7 @@ class ZeroGameScene extends Phaser.Scene {
     this.bossPhase = getBossPhase(this.bossHealth, this.bossMaxHealth);
     if (this.bossPhase > previousBossPhase && v?.active) {
       const phaseSprite = v.getData("authoredSprite");
-      if (phaseSprite?.active) {
-        phaseSprite.setData("phaseUntil", this.time.now + 720);
-        const phaseAnimation = `boss-${v.getData("bossSheetId")}-phase-change`;
-        if (this.anims.exists(phaseAnimation)) phaseSprite.play(phaseAnimation, true);
-      }
+      if (phaseSprite?.active) phaseSprite.setData("phaseUntil", this.time.now + 720);
       const parts = v.getData("parts");
       if (parts?.aura?.active) {
         parts.aura.setAlpha(0.48).setScale(1.42);
@@ -3647,11 +3627,7 @@ class ZeroGameScene extends Phaser.Scene {
       });
       boss.setVelocity(0, 0);
       const defeatedBossSprite = this.bossVisual?.getData("authoredSprite");
-      const defeatedBossId = this.bossVisual?.getData("bossSheetId");
-      const defeatAnimation = `boss-${defeatedBossId}-defeat`;
-      if (defeatedBossSprite?.active && this.anims.exists(defeatAnimation)) {
-        defeatedBossSprite.play(defeatAnimation, true);
-      }
+      if (defeatedBossSprite?.active) defeatedBossSprite.setData("defeatUntil", this.time.now + 950);
       this.tweens.add({ targets: this.bossVisual, angle: 360, scale: 0.1,
         alpha: 0, duration: 950, ease: "Back.easeIn",
         onComplete: () => { if (this.bossVisual?.active) this.bossVisual.destroy(); } });
@@ -3691,7 +3667,7 @@ class ZeroGameScene extends Phaser.Scene {
       if (authoredBossSprite?.active) {
         const attackPose = ["tell", "dash", "volley", "slam"].includes(attackState);
         const bossId = visual.getData("bossSheetId");
-        const bossAnimationState = this.time.now < (authoredBossSprite.getData("hitUntil") || 0)
+        const bossVisualState = this.time.now < (authoredBossSprite.getData("hitUntil") || 0)
           ? "hit"
           : this.time.now < (authoredBossSprite.getData("phaseUntil") || 0)
             ? "phase-change"
@@ -3701,11 +3677,8 @@ class ZeroGameScene extends Phaser.Scene {
                 : attackState === "volley" ? "attack-secondary"
                   : ["dash", "slam"].includes(attackState) ? "special"
                     : Math.abs(enemy.body?.velocity?.x || 0) > 18 ? "move" : "idle";
-        const bossAnimationKey = `boss-${bossId}-${bossAnimationState}`;
-        if (this.anims.exists(bossAnimationKey) && authoredBossSprite.anims.currentAnim?.key !== bossAnimationKey) {
-          authoredBossSprite.play(bossAnimationKey, true);
-        }
         authoredBossSprite.setData("lastAttackState", attackState);
+        authoredBossSprite.setData("lastVisualState", bossVisualState);
         const signatureTilt = bossId === "gale-talon" ? 9
           : bossId === "iron-comet" ? -4
             : bossId === "suncrest" ? 2
