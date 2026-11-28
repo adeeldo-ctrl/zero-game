@@ -73,7 +73,10 @@ class ZeroGameScene extends Phaser.Scene {
     // Only decode the active region's rigs. Previously all 37 rigs and 35
     // unused pose sheets were loaded together, stressing Android WebView memory.
     const activeRegion = getPremiumEnemyRegion(this.stageNumber);
-    this.activeEnemyIds = activeRegion.enemies.map(({ id }) => id);
+    this.activeEnemyIds = [...new Set([
+      ...activeRegion.enemies.map(({ id }) => id),
+      "void-licorice-sniper",
+    ])];
     this.activeEnemyIds.forEach((id) => {
       if (!rigRoster.enemies.some((entry) => entry.id === id)) {
         throw new Error("Missing Rigby2D enemy rig roster entry: " + id);
