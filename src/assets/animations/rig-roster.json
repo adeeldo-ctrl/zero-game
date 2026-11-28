@@ -26,7 +26,8 @@
     "land",
     "hit",
     "phase-change",
-    "defeat"
+    "defeat",
+    "signature"
   ],
   "enemies": [
     {
