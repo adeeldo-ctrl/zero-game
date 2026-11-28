@@ -1186,3 +1186,18 @@ The first integrated implementation tranche has now been pushed to `main`:
 - This is planning/data groundwork, not final artwork integration. The collage crop pack still retains backgrounds, and the runtime continues to use its existing SVG art until transparent raster sheets with real animation frames are ready.
 - Refined the roster to use exactly 40 distinct collage references plus five separately specified original designs (fern-glider, bark-bruiser, frostwing, stardust-ray, and nova-lancer); every mapped collage reference resolves to the 48-entry crop manifest.
 - The coverage test now checks campaign IDs, the 40+5 split, manifest resolution, reference-only crop status, zero supplied animation frames, and all five boss identities. It remains unrun until the single consolidated verification.
+
+
+## Final active character-animation scope — 2026-11-28
+
+This section supersedes earlier 45-enemy and 40+5 collage-mapping plans. The user's approved active campaign art roster is exactly **32 regular enemy identities plus five bosses**. The other 29 legacy enemy concepts remain outside the active campaign.
+
+- 32 separate regular-enemy SVG sprite sheets; each has eight frames for idle, move, attack, hit and defeat.
+- Five separate boss SVG sprite sheets; each has eight frames for entrance, idle, move, primary attack, secondary attack, special, hit, phase change and defeat.
+- 1,640 total authored vector frames across 37 unique sheets, with 128×128 frame cells.
+- Art profiles define each identity's silhouette, ornament details and palette; the five bosses use distinct silhouettes and are not enlarged copies of regular enemies.
+- `scripts/generate-premium-character-sheets.mjs` reproducibly generates the sheets before development, tests and builds. `scripts/validate-production-enemy-art.mjs` checks exact roster coverage, dimensions, unique design metadata and all state frame ranges.
+- Phaser integrates each sheet by character ID. Chromium smoke coverage waits for all character textures and checks every enemy/boss animation key and its eight frames.
+- CI run `46109609747` passed on commit `f4fd4b78c00fced37a807dc7289384c53d97dd58`, including tests, lint, Android configuration validation, sheet validation, web build and browser/mobile gameplay smoke checks.
+
+**Status:** Character animation-sheet scope is implemented and automated verification passed. The signed Android Release APK remains the final delivery action; no physical Android handset test is claimed.
