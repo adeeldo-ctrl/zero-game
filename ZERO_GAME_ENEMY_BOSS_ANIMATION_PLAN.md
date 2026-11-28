@@ -178,6 +178,8 @@ Every regular enemy and boss attendant receives a type-aware awareness radius an
 - Flying, quadruped, fish, tentacle, crab, and soft-bodied profiles use the same idle-action slots with anatomy-appropriate wing, tail, fin, claw, leg, tentacle, head, or core movement; they do not receive human hand gestures when their rig has no arms.
 - When the hero enters the awareness radius, the enemy exits its idle activity, turns toward the hero, and resumes its existing role-specific AI. A wider re-entry threshold prevents rapid idle/chase flicker around the boundary.
 - Enemies only settle into idle after landing (except flyers), so their spawn drop and normal jump/fall movement are not interrupted.
-- This behaviour is applied to regular enemies and boss attendants. Boss AI, hero controls, stage progression, and all existing visual effects remain outside this change.
+- This behaviour is applied to regular enemies and boss attendants. Bosses retain their role-specific attacks and phase logic; when settled at close range during a rest state, each boss plays its own authored signature rig clip as an idle/ready stance. Hero controls, stage progression, and all existing visual effects remain outside this change.
 
 The five ambient clips are part of the enemy rig release gate: `idle-phone`, `idle-scratch`, `idle-comb`, `idle-look-around`, and `idle-groom`. These are bone-weighted mesh animations derived from each original PNG, not separate hand-painted sprite sheets. The runtime selects actions from the enemy role and anatomy profile.
+
+- The browser smoke suite now checks that all 32 enemy rigs contain non-empty ambient clips, the enemy awareness helper enters idle at long range and resumes its role AI near the hero, and all five boss signature clips visibly move their own rig bones.
