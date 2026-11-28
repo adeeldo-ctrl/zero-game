@@ -17,7 +17,7 @@ on:
       - "ZERO_GAME_FINAL_DELIVERY_LOCK.md"
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: zero-game-ci-${{ github.ref }}
@@ -43,16 +43,6 @@ jobs:
 
       - name: Prepare transparent enemy reference cutouts
         run: npm run art:prepare-reference
-
-      - name: Commit generated transparent enemy and boss cutouts
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add src/assets/enemies/prepared-reference src/assets/bosses/prepared-reference
-          if ! git diff --cached --quiet; then
-            git commit -m "Add generated transparent enemy and enlarged boss cutouts"
-            git push
-          fi
 
       - name: Upload prepared enemy reference cutouts
         uses: actions/upload-artifact@v4
