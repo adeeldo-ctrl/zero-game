@@ -116,8 +116,6 @@ import { getEnemyMovementSpeed, getSnowballPowerTier, REGULAR_ENEMY_VISUAL_SCALE
 import { MOBILE_ACTION_BUTTONS, enqueueMobileAction, consumeMobileAction } from "./mobileActionQueue";
 import "./App.css";
 
-const GENERATED_CHARACTER_SHEETS = {};
-
 
 class ZeroGameScene extends Phaser.Scene {
   preload() {
@@ -180,69 +178,6 @@ class ZeroGameScene extends Phaser.Scene {
         });
       });
     });
-  }
-
-  createCombatantAnimations() {
-    ["fast", "heavy", "special"].forEach((kind) => {
-      const key = `enemy-${kind}-move`;
-      if (this.anims.exists(key)) return;
-      this.anims.create({
-        key,
-        frames: this.anims.generateFrameNumbers(`enemy-sheet-${kind}`, { start: 0, end: 3 }),
-        frameRate: kind === "fast" ? 9 : 6,
-        repeat: -1,
-      });
-      const strikeKey = `enemy-${kind}-strike`;
-      if (!this.anims.exists(strikeKey)) {
-        this.anims.create({
-          key: strikeKey,
-          frames: this.anims.generateFrameNumbers(`enemy-sheet-${kind}`, { frames: [1, 2, 3] }),
-          frameRate: kind === "fast" ? 13 : 9,
-          repeat: 0,
-        });
-      }
-    });
-
-    const enemyStates = [
-      { name: "idle", row: 0, frameRate: 7, repeat: -1 },
-      { name: "move", row: 1, frameRate: 11, repeat: -1 },
-      { name: "attack", row: 2, frameRate: 13, repeat: 0 },
-      { name: "hit", row: 3, frameRate: 16, repeat: 0 },
-      { name: "defeat", row: 4, frameRate: 10, repeat: 0 },
-    ];
-    const registerRows = (id, prefix, states) => {
-      const textureKey = `character-sheet-${id}`;
-      if (!this.textures.exists(textureKey)) return;
-      states.forEach(({ name, row, frameRate, repeat }) => {
-        const key = `${prefix}-${id}-${name}`;
-        if (this.anims.exists(key)) return;
-        this.anims.create({
-          key,
-          frames: this.anims.generateFrameNumbers(textureKey, {
-            start: row * 8,
-            end: row * 8 + 7,
-          }),
-          frameRate,
-          repeat,
-        });
-      });
-    };
-
-    PREMIUM_ENEMY_ARCHETYPES.forEach(({ id }) => registerRows(id, "enemy", enemyStates));
-
-    const bossStates = [
-      { name: "entrance", row: 0, frameRate: 9, repeat: 0 },
-      { name: "idle", row: 1, frameRate: 7, repeat: -1 },
-      { name: "move", row: 2, frameRate: 10, repeat: -1 },
-      { name: "attack-primary", row: 3, frameRate: 13, repeat: 0 },
-      { name: "attack-secondary", row: 4, frameRate: 12, repeat: 0 },
-      { name: "special", row: 5, frameRate: 14, repeat: 0 },
-      { name: "hit", row: 6, frameRate: 16, repeat: 0 },
-      { name: "phase-change", row: 7, frameRate: 10, repeat: 0 },
-      { name: "defeat", row: 8, frameRate: 9, repeat: 0 },
-    ];
-    ["gatekeeper", "iron-comet", "gale-talon", "suncrest", "void-sovereign"]
-      .forEach((id) => registerRows(id, "boss", bossStates));
   }
 
   addAmbientTween(config) {
