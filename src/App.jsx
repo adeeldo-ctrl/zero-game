@@ -2656,6 +2656,7 @@ class ZeroGameScene extends Phaser.Scene {
     const archetypeId = enemy.getData("enemyArchetypeId") || "";
     const profile = rigRoster.enemies.find((entry) => entry.id === archetypeId)?.motionProfile || "";
     const hasHands = /biped|humanoid|knight|rat|ogre|hopper|frog|leaper/.test(profile);
+    const role = enemy.getData("enemyRole") || aiType;
     const roleActions = {
       runner: ["idle-scratch", "idle-look-around", "idle-phone", "idle-comb"],
       charger: ["idle-scratch", "idle-look-around", "idle-comb", "idle-phone"],
