@@ -4701,15 +4701,8 @@ class ZeroGameScene extends Phaser.Scene {
         return;
       }
       this.lastDamage = this.time.now + 900;
+      this.chanceRespawnAt = this.time.now + 950;
       this.statusLabel.setText(`CHANCE LOST! ${this.chances} CHANCE(S) LEFT`).setColor("#ffe17a");
-      this.time.delayedCall(950, () => {
-        if (this.gameOver || !hero.active) return;
-        hero.body.enable = true; hero.setPosition(480, 450).setVelocity(0, 0);
-        this.heroVisual?.setPosition(480, 450).setVisible(true).setAlpha(1).setScale(1);
-        this.lastDamage = this.time.now;
-        this.chanceLossInProgress = false;
-        this.statusLabel.setText("NEW CHANCE! THREE HEARTS RESTORED").setColor("#62ffb4");
-      });
     } else {
       this.time.delayedCall(650, () => {
         if (!this.gameOver && hero.active) {
@@ -5238,6 +5231,21 @@ class ZeroGameScene extends Phaser.Scene {
   }
 
   update(time, delta) {
+    // Drive the extra-chance respawn from the active scene update loop. This
+    // remains reliable even if Phaser's delayed-event queue was cleared by a
+    // previous Game Over/restart transition.
+    if (this.chanceLossInProgress && this.chanceRespawnAt && time >= this.chanceRespawnAt) {
+      if (!this.gameOver && this.hero?.active) {
+        this.hero.body.enable = true;
+        this.hero.setPosition(480, 450).setVelocity(0, 0);
+        this.heroVisual?.setPosition(480, 450).setVisible(true).setAlpha(1).setScale(1);
+        this.lastDamage = time;
+        this.chanceLossInProgress = false;
+        this.chanceRespawnAt = 0;
+        this.statusLabel.setText("NEW CHANCE! THREE HEARTS RESTORED").setColor("#62ffb4");
+      }
+    }
+
     if (
       this.keys.restart &&
       Phaser.Input.Keyboard.JustDown(this.keys.restart) &&
