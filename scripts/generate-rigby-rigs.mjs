@@ -5,7 +5,10 @@ import { fileURLToPath } from "node:url";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const rosterPath = path.join(root, "src/assets/animations/rig-roster.json");
 const roster = JSON.parse(fs.readFileSync(rosterPath, "utf8"));
-const GRID = 9;
+// A denser deformable surface gives the independent limb bones enough vertices to
+// bend the original transparent PNG around joints instead of moving a coarse 9x9 card.
+// Keep the two-influence Spine mesh format supported by Rigby2D.
+const GRID = 17;
 
 const bone = (name, x, y, length = 0) => ({ name, x, y, length });
 
