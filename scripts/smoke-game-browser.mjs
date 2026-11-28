@@ -906,7 +906,16 @@ try {
     const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
     return scene?.campaignActive && scene?.heroSelectionLocked;
   }, undefined, { timeout: 10000 });
-  await delay(3000);
+  await nativePage.bringToFront();
+  // Wait for the actual stage spawn instead of assuming a fixed wall-clock delay.
+  // Chromium can throttle a background page, so a sleep may finish before Phaser's
+  // scene clock has executed the delayed enemy-spawn callbacks.
+  await nativePage.waitForFunction(() => {
+    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+    return scene?.enemies?.getChildren().filter((enemy) =>
+      enemy.active && !enemy.getData("isBoss")
+    ).length >= 2;
+  }, undefined, { timeout: 15000 });
 
   const point = (id, x, y) => ({ id, x, y, radiusX: 12, radiusY: 12, force: 1 });
   const dispatchTouch = (type, changedPoints, activePoints = changedPoints) => nativePage.evaluate(
