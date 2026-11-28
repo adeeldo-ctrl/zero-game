@@ -1,0 +1,131 @@
+{
+  "schemaVersion": 1,
+  "policy": "Only assets with an explicit CC0/public-domain grant or a clearly compatible permissive license may be imported. Preserve source provenance. Never treat a static image or a color-swapped image as a completed animation sheet or a unique authored character.",
+  "reviewedAt": "2026-11-28",
+  "sources": [
+    {
+      "id": "spritecanvas-cc0-monsters",
+      "title": "Free CC0 Fantasy Monster Sprites: Slime, Mushroom, Goblin, Golem",
+      "creator": "SpriteCanvas",
+      "license": "CC0-1.0",
+      "url": "https://spritecanvas.itch.io/free-cc0-monster-sprites",
+      "detailUrl": "https://spritecanvas.com/examples/monster-sprite-sheets/",
+      "contents": [
+        "slime",
+        "mushroom",
+        "goblin",
+        "stone golem"
+      ],
+      "animationStates": [
+        "idle",
+        "walk",
+        "attack",
+        "hurt",
+        "death"
+      ],
+      "formats": [
+        "transparent PNG sprite sheets",
+        "JSON Hash atlases"
+      ],
+      "status": "candidate-reviewed-not-imported",
+      "integrationNote": "Strong technical candidate for Phaser because the pack provides real animation sheets and atlas metadata. Do not map a monster to an existing approved character until its appearance is inspected against that character's approved concept."
+    },
+    {
+      "id": "isabellap-crypt-platformer-enemies",
+      "title": "Crypt Platformer Enemy Assets",
+      "creator": "IsabellaP",
+      "license": "CC0-1.0",
+      "url": "https://isabellap.itch.io/crypt-platformer-enemy-assets",
+      "contents": [
+        "bat",
+        "spider",
+        "mummy"
+      ],
+      "animationStates": [
+        "movement",
+        "death",
+        "melee",
+        "bandage attack (mummy)"
+      ],
+      "formats": [
+        "transparent PNG sprite sheets",
+        "Aseprite source"
+      ],
+      "status": "candidate-reviewed-not-imported",
+      "integrationNote": "Useful movement/attack references, but do not claim all characters have complete idle, hit, attack and defeat coverage without checking the actual sheets."
+    },
+    {
+      "id": "opengameart-animated-monsters",
+      "title": "Animated Monsters",
+      "creator": "stealthix",
+      "license": "CC0",
+      "url": "https://opengameart.org/content/animated-monsters",
+      "contents": [
+        "zombie",
+        "skeleton",
+        "witch"
+      ],
+      "animationStates": [
+        "idle",
+        "walk",
+        "punch",
+        "hurt",
+        "fall"
+      ],
+      "formats": [
+        "transparent PNG sprite sheets"
+      ],
+      "status": "candidate-reviewed-not-imported",
+      "integrationNote": "Pixel-art style and character concepts need a visual fit review before any mapping into the existing 32 approved identities."
+    },
+    {
+      "id": "kenney-monster-builder",
+      "title": "Monster Builder Pack",
+      "creator": "Kenney",
+      "license": "CC0",
+      "url": "https://kenney.nl/assets/monster-builder-pack",
+      "mirrorUrl": "https://github.com/Tiddybub/2d-assets/tree/main/characters/monster-builder-pack",
+      "contents": [
+        "modular monster body parts",
+        "eyes",
+        "arms",
+        "horns",
+        "details"
+      ],
+      "animationStates": [],
+      "formats": [
+        "transparent PNG parts"
+      ],
+      "status": "candidate-reviewed-not-imported",
+      "integrationNote": "Useful for assembling distinct visual accessories or concepts, but it is a modular static parts pack and is not itself an animation sheet."
+    },
+    {
+      "id": "kenney-abstract-platformer",
+      "title": "Abstract Platformer",
+      "creator": "Kenney",
+      "license": "CC0",
+      "url": "https://opengameart.org/content/abstract-platformer",
+      "mirrorUrl": "https://github.com/Tiddybub/2d-assets/tree/main/characters/abstract-platformer",
+      "contents": [
+        "platformer environment",
+        "static enemy variations",
+        "items",
+        "backgrounds"
+      ],
+      "animationStates": [],
+      "formats": [
+        "transparent PNG sprites",
+        "tilesheets"
+      ],
+      "status": "candidate-reviewed-not-imported",
+      "integrationNote": "Useful as a possible source of simple environment props, but the visual style and static enemy images do not satisfy the approved character animation requirement."
+    }
+  ],
+  "nonGoals": [
+    "Do not add or activate the 29 excluded legacy enemy concepts.",
+    "Do not replace the 16 approved base enemy identities with unrelated creatures.",
+    "Do not replace the five approved boss identities with unrelated boss designs.",
+    "Do not download or use packs whose licenses are unclear or non-commercial-only.",
+    "Do not treat generated recolors, CSS tints, or Phaser tweens as authored sprite-sheet frames."
+  ]
+}
