@@ -25,3 +25,6 @@ dist-ssr
 
 # Capacitor Android build output
 android/
+
+# Generated per-character vector animation sheets (recreated by prebuild/predev)
+src/assets/generated-character-sheets/
