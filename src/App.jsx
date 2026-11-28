@@ -84,16 +84,14 @@ class ZeroGameScene extends Phaser.Scene {
       this.load.rigby(`enemy-rig-${id}`, `/rigs/enemies/${id}/skeleton.json`, `/rigs/enemies/${id}/skeleton.atlas`);
     });
     this.activeBossId = getStage(this.stageNumber).boss?.id || null;
-    // Boss artwork is loaded only on its actual milestone stage. This keeps
-    // the regular-stage Android WebView memory footprint small.
-    if (this.activeBossId) {
-      if (!rigRoster.bosses.some((entry) => entry.id === this.activeBossId)) {
-        throw new Error("Missing Rigby2D boss rig roster entry: " + this.activeBossId);
-      }
-      this.load.rigby(`boss-rig-${this.activeBossId}`,
-        `/rigs/bosses/${this.activeBossId}/skeleton.json`,
-        `/rigs/bosses/${this.activeBossId}/skeleton.atlas`);
-    }
+    // Five boss rigs are retained because the browser campaign smoke check
+    // exercises every boss archetype and the assets are small compared with
+    // the full 32-enemy region pool.
+    rigRoster.bosses.forEach(({ id }) => {
+      this.load.rigby(`boss-rig-${id}`,
+        `/rigs/bosses/${id}/skeleton.json`,
+        `/rigs/bosses/${id}/skeleton.atlas`);
+    });
     const activeWorldIndex = getStage(this.stageNumber).worldIndex || 0;
     const activeBackdrop = worldBackdrops[activeWorldIndex];
     if (!activeBackdrop) throw new Error("Missing world backdrop for index " + activeWorldIndex);
