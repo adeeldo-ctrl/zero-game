@@ -53,8 +53,6 @@ const bossProfiles = {
   "void-sovereign": { shape: "void-monarch", body: "#55417d", light: "#b9a5ef", trim: "#f7e7ff", accent: "#281e4c", eyes: "#ffffff", ornament: "star-crown", name: "Void Sovereign" },
 };
 
-function esc(value) { return String(value).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;"); }
-
 function bodyMarkup(shape, c) {
   const b = c.body, l = c.light, a = c.accent, t = c.trim;
   const map = {
@@ -170,13 +168,6 @@ function makeSheet(profile, states, cellSize, isBoss) {
   return '<svg xmlns="http://www.w3.org/2000/svg" width="' + width + '" height="' + height + '" viewBox="0 0 ' + width + ' ' + height + '"><defs><linearGradient id="body" x1="0" y1="0" x2="0.85" y2="1"><stop offset="0" stop-color="' + profile.light + '"/><stop offset=".46" stop-color="' + profile.body + '"/><stop offset="1" stop-color="' + profile.accent + '"/></linearGradient><radialGradient id="aura"><stop offset="0" stop-color="' + profile.trim + '" stop-opacity=".28"/><stop offset="1" stop-color="' + profile.trim + '" stop-opacity="0"/></radialGradient></defs>' + cells.join("") + '</svg>';
 }
 
-function animationMap(states) {
-  const map = {};
-  states.forEach((state, row) => {
-    map[state] = { row, start: row * COLUMNS, end: row * COLUMNS + COLUMNS - 1, frameRate: state === "idle" ? 7 : state === "move" ? 10 : state === "defeat" ? 8 : 12, repeat: ["idle", "move"].includes(state) ? -1 : 0 };
-  });
-  return map;
-}
 
 mkdirSync(ROOT, { recursive: true });
 const manifest = {
