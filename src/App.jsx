@@ -21,11 +21,6 @@ import enemy37Turtle from "./assets/enemies/prepared-reference/37_green-turtle-a
 import enemy38Turtle from "./assets/enemies/prepared-reference/38_green-turtle-b.png";
 import enemy39Lizard from "./assets/enemies/prepared-reference/39_green-lizard.png";
 import enemy42RatGuard from "./assets/enemies/prepared-reference/42_rat-guard.png";
-import enemy02GreenIce from "./assets/enemies/prepared-reference/02_green-ice-monster.png";
-import enemy09Pumpkin from "./assets/enemies/prepared-reference/09_pumpkin.png";
-import enemy34BlueOgreA from "./assets/enemies/prepared-reference/34_blue-ogre-a.png";
-import enemy40ArmoredLizard from "./assets/enemies/prepared-reference/40_armored-lizard.png";
-import enemy47IceKnight from "./assets/enemies/prepared-reference/47_ice-knight.png";
 import enemy04PurpleBat from "./assets/enemies/prepared-reference/04_purple-bat.png";
 import enemy06Yeti from "./assets/enemies/prepared-reference/06_yeti.png";
 import enemy11IceGolem from "./assets/enemies/prepared-reference/11_ice-golem.png";
@@ -37,6 +32,11 @@ import enemy24Spider from "./assets/enemies/prepared-reference/24_spider.png";
 import enemy28IceFish from "./assets/enemies/prepared-reference/28_ice-fish.png";
 import enemy29Jellyfish from "./assets/enemies/prepared-reference/29_jellyfish.png";
 import enemy36IceCube from "./assets/enemies/prepared-reference/36_ice-cube-monster.png";
+import enemy01Snowman from "./assets/enemies/prepared-reference/01_snowman.png";
+import enemy13ChainedGhost from "./assets/enemies/prepared-reference/13_chained-ghost.png";
+import enemy41PumpkinVariant from "./assets/enemies/prepared-reference/41_pumpkin-variant.png";
+import enemy45OwlB from "./assets/enemies/prepared-reference/45_owl-b.png";
+import enemy48SkullCloud from "./assets/enemies/prepared-reference/48_skull-cloud.png";
 import bossGatekeeperSheet from "./assets/bosses/prepared-reference/gatekeeper.png";
 import bossIronCometSheet from "./assets/bosses/prepared-reference/iron-comet.png";
 import bossGaleTalonSheet from "./assets/bosses/prepared-reference/gale-talon.png";
@@ -57,6 +57,13 @@ import { ELEMENTS, HEROES, getElement, getStage, getHero } from "./gameData";
 import { getPremiumStageEnemyRoster, getPremiumEnemyRegion, PREMIUM_ENEMY_ARCHETYPES, getPremiumEnemyFrameIndex } from "./premiumCampaignData";
 import { createGameAudio } from "./gameAudio";
 
+const APPROVED_ENEMY_CROPS = {
+  "shadow-moss-scout": [18, 0, 110, 128],
+  "iron-bark-bruiser": [0, 0, 128, 112],
+  "golden-acorn-leaper": [18, 0, 110, 128],
+  "prism-jelly-vault": [18, 0, 110, 128],
+  "molten-caramel-mauler": [0, 0, 104, 128],
+};
 const APPROVED_ENEMY_ART = {
   "spirit-pouncer": enemy03RedHorn,
   "icicle-hopper": enemy05WinterChick,
@@ -90,11 +97,11 @@ const APPROVED_ENEMY_ART = {
   "void-licorice-sniper": enemy42RatGuard,
   "astral-eclipse-summoner": enemy33Mummy,
   "frost-temple-breaker": enemy35BlueOgre,
-  "shadow-moss-scout": enemy02GreenIce,
-  "iron-bark-bruiser": enemy09Pumpkin,
-  "golden-acorn-leaper": enemy34BlueOgreA,
-  "prism-jelly-vault": enemy40ArmoredLizard,
-  "molten-caramel-mauler": enemy47IceKnight,
+  "shadow-moss-scout": enemy01Snowman,
+  "iron-bark-bruiser": enemy13ChainedGhost,
+  "golden-acorn-leaper": enemy41PumpkinVariant,
+  "prism-jelly-vault": enemy45OwlB,
+  "molten-caramel-mauler": enemy48SkullCloud,
   "storm-candy-copter": enemy04PurpleBat,
   "frostfire-icicle-hopper": enemy06Yeti,
   "crystal-spore-caster": enemy11IceGolem,
@@ -1943,6 +1950,8 @@ class ZeroGameScene extends Phaser.Scene {
     const textureKey = `approved-enemy-${archetypeId}`;
     const enemySprite = this.add.sprite(0, -12, textureKey, idleFrame)
       .setDisplaySize(isHeavy ? 98 : 92, isHeavy ? 108 : 102);
+    const artworkCrop = APPROVED_ENEMY_CROPS[archetypeId];
+    if (artworkCrop) enemySprite.setCrop(...artworkCrop);
     c.add(enemySprite);
     if (approvedArt && !hasCharacterSheet) {
       enemySprite.setVisible(true);
