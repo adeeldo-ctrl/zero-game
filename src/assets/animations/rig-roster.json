@@ -1,6 +1,6 @@
 {
   "formatVersion": 1,
-  "status": "rig-assets-not-yet-created",
+  "status": "rig-assets-generated-pending-visual-gameplay-verification",
   "sourcePolicy": "Use only the original approved PNG artwork already mapped by src/App.jsx. Never replace a character with vector art or unrelated artwork.",
   "engine": {
     "name": "Phaser",
@@ -14,7 +14,6 @@
     "jump",
     "fall",
     "land",
-    "attack",
     "hit",
     "defeat"
   ],
@@ -25,8 +24,6 @@
     "jump",
     "fall",
     "land",
-    "attack",
-    "special",
     "hit",
     "phase-change",
     "defeat"
@@ -295,45 +292,45 @@
       "source": "src/assets/bosses/prepared-reference/gatekeeper.png",
       "motionProfile": "heavy-biped",
       "rigType": "layered-limb-rig",
-      "specialMove": "ground-slam",
       "rigFile": "src/assets/animations/bosses/gatekeeper.json",
-      "atlas": "src/assets/animations/bosses/gatekeeper.atlas"
+      "atlas": "src/assets/animations/bosses/gatekeeper.atlas",
+      "signatureMotion": "heavy-guard-pose"
     },
     {
       "id": "iron-comet",
       "source": "src/assets/bosses/prepared-reference/iron-comet.png",
       "motionProfile": "heavy-ogre",
       "rigType": "layered-limb-rig",
-      "specialMove": "boxing-combination",
       "rigFile": "src/assets/animations/bosses/iron-comet.json",
-      "atlas": "src/assets/animations/bosses/iron-comet.atlas"
+      "atlas": "src/assets/animations/bosses/iron-comet.atlas",
+      "signatureMotion": "weight-shift-and-flex"
     },
     {
       "id": "gale-talon",
       "source": "src/assets/bosses/prepared-reference/gale-talon.png",
       "motionProfile": "armored-reptile",
       "rigType": "quadruped-rig",
-      "specialMove": "winged-pounce",
       "rigFile": "src/assets/animations/bosses/gale-talon.json",
-      "atlas": "src/assets/animations/bosses/gale-talon.atlas"
+      "atlas": "src/assets/animations/bosses/gale-talon.atlas",
+      "signatureMotion": "wing-spread-glide"
     },
     {
       "id": "suncrest",
       "source": "src/assets/bosses/prepared-reference/suncrest.png",
       "motionProfile": "round-master",
       "rigType": "weighted-mesh-rig",
-      "specialMove": "solar-spin",
       "rigFile": "src/assets/animations/bosses/suncrest.json",
-      "atlas": "src/assets/animations/bosses/suncrest.atlas"
+      "atlas": "src/assets/animations/bosses/suncrest.atlas",
+      "signatureMotion": "solar-orbit-hover"
     },
     {
       "id": "void-sovereign",
       "source": "src/assets/bosses/prepared-reference/void-sovereign.png",
       "motionProfile": "armored-knight",
       "rigType": "layered-limb-rig",
-      "specialMove": "shadow-sweep",
       "rigFile": "src/assets/animations/bosses/void-sovereign.json",
-      "atlas": "src/assets/animations/bosses/void-sovereign.atlas"
+      "atlas": "src/assets/animations/bosses/void-sovereign.atlas",
+      "signatureMotion": "cloak-turn-and-glide"
     }
   ],
   "completionGate": {
