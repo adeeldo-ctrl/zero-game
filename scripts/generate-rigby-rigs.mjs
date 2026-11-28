@@ -144,6 +144,70 @@ function chooseAnimation(character, bones, characterHeight, isBoss) {
     if (has("wing_l")) addRotate("wing_l", [[0,-5],[0.6,5],[1.2,-5]]);
     if (has("wing_r")) addRotate("wing_r", [[0,5],[0.6,-5],[1.2,5]]);
   }));
+  // Ambient personality clips play only while the hero is outside the enemy's awareness radius.
+  // Biped rigs can visibly raise their arms; other anatomies use their own head, tail,
+  // wing, fin, claw, or tentacle bones for species-appropriate idle activity.
+  clips.push(clip("idle-phone", 1.12, () => {
+    addRotate("upperarm_l", [[0,0],[0.22,-38],[0.82,-38],[1.12,0]]);
+    addRotate("forearm_l", [[0,0],[0.22,62],[0.82,62],[1.12,0]]);
+    addRotate("head", [[0,0],[0.22,9],[0.82,9],[1.12,0]]);
+    addRotate("torso", [[0,0],[0.22,2],[0.82,2],[1.12,0]]);
+    addRotate("body", [[0,0],[0.22,2],[0.82,2],[1.12,0]]);
+    addRotate("core", [[0,0],[0.22,3],[0.82,3],[1.12,0]]);
+    if (has("tail")) addRotate("tail", [[0,-2],[0.56,3],[1.12,-2]]);
+  }));
+  clips.push(clip("idle-scratch", 1.04, () => {
+    addRotate("upperarm_r", [[0,0],[0.2,58],[0.76,58],[1.04,0]]);
+    addRotate("forearm_r", [[0,0],[0.2,-78],[0.76,-78],[1.04,0]]);
+    addRotate("head", [[0,0],[0.2,-8],[0.52,5],[0.82,-8],[1.04,0]]);
+    addRotate("torso", [[0,0],[0.2,-2],[0.76,-2],[1.04,0]]);
+    addRotate("body", [[0,0],[0.2,-2],[0.76,-2],[1.04,0]]);
+    addRotate("core", [[0,0],[0.2,-3],[0.76,-3],[1.04,0]]);
+    if (has("tail")) addRotate("tail", [[0,0],[0.52,8],[1.04,0]]);
+    if (has("wing_l")) addRotate("wing_l", [[0,-4],[0.52,8],[1.04,-4]]);
+  }));
+  clips.push(clip("idle-comb", 1.18, () => {
+    addRotate("upperarm_l", [[0,0],[0.24,-68],[0.88,-68],[1.18,0]]);
+    addRotate("forearm_l", [[0,0],[0.24,84],[0.88,84],[1.18,0]]);
+    addRotate("head", [[0,0],[0.24,12],[0.62,5],[0.92,12],[1.18,0]]);
+    addRotate("torso", [[0,0],[0.24,3],[0.88,3],[1.18,0]]);
+    addRotate("body", [[0,0],[0.24,3],[0.88,3],[1.18,0]]);
+    addRotate("core", [[0,0],[0.24,4],[0.88,4],[1.18,0]]);
+    if (has("wing_l")) addRotate("wing_l", [[0,-5],[0.59,12],[1.18,-5]]);
+    if (has("tail")) addRotate("tail", [[0,-4],[0.59,6],[1.18,-4]]);
+  }));
+  clips.push(clip("idle-look-around", 1.36, () => {
+    addRotate("head", [[0,0],[0.34,-13],[0.68,12],[1.02,-7],[1.36,0]]);
+    addRotate("crown", [[0,0],[0.34,-13],[0.68,12],[1.02,-7],[1.36,0]]);
+    addRotate("top", [[0,0],[0.34,-11],[0.68,10],[1.02,-6],[1.36,0]]);
+    addRotate("torso", [[0,0],[0.68,1.5],[1.36,0]]);
+    addRotate("body", [[0,0],[0.68,1.5],[1.36,0]]);
+    addRotate("core", [[0,0],[0.68,2],[1.36,0]]);
+    if (has("tail")) addRotate("tail", [[0,-5],[0.68,5],[1.36,-5]]);
+    if (has("wing_l")) addRotate("wing_l", [[0,-4],[0.68,4],[1.36,-4]]);
+    if (has("wing_r")) addRotate("wing_r", [[0,4],[0.68,-4],[1.36,4]]);
+  }));
+  clips.push(clip("idle-groom", 1.24, () => {
+    addRotate("head", [[0,0],[0.31,8],[0.62,-6],[0.93,8],[1.24,0]]);
+    addRotate("crown", [[0,0],[0.31,8],[0.62,-6],[0.93,8],[1.24,0]]);
+    addRotate("wing_l", [[0,-5],[0.31,-18],[0.62,-5],[0.93,-18],[1.24,-5]]);
+    addRotate("wing_r", [[0,5],[0.31,18],[0.62,5],[0.93,18],[1.24,5]]);
+    addRotate("tail", [[0,-7],[0.31,9],[0.62,-7],[0.93,9],[1.24,-7]]);
+    addRotate("fin_top", [[0,-4],[0.62,7],[1.24,-4]]);
+    addRotate("fin_bottom", [[0,4],[0.62,-7],[1.24,4]]);
+    addRotate("claw_l", [[0,-4],[0.62,12],[1.24,-4]]);
+    addRotate("claw_r", [[0,4],[0.62,-12],[1.24,4]]);
+    addRotate("tentacle_1", [[0,-5],[0.62,8],[1.24,-5]]);
+    addRotate("tentacle_2", [[0,5],[0.62,-8],[1.24,5]]);
+    addRotate("tentacle_3", [[0,-4],[0.62,7],[1.24,-4]]);
+    addRotate("tentacle_4", [[0,4],[0.62,-7],[1.24,4]]);
+    addRotate("tentacle_5", [[0,-5],[0.62,8],[1.24,-5]]);
+    addRotate("tentacle_6", [[0,5],[0.62,-8],[1.24,5]]);
+    addRotate("leg_1", [[0,-3],[0.62,5],[1.24,-3]]);
+    addRotate("leg_4", [[0,3],[0.62,-5],[1.24,3]]);
+    addRotate("front_leg_l", [[0,-3],[0.62,5],[1.24,-3]]);
+    addRotate("back_leg_r", [[0,3],[0.62,-5],[1.24,3]]);
+  }));
   clips.push(clip("locomotion", 0.56, () => {
     for (const [l,r] of limbPairs) pair(l,r, names.includes("wing_l") ? 18 : 24, 0.28);
     addTranslate(has("pelvis") ? "pelvis" : has("body") ? "body" : "core", [[0,0,0],[0.14,0,3],[0.28,0,0],[0.42,0,3],[0.56,0,0]]);
