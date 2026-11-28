@@ -603,12 +603,41 @@ try {
     }
     scene.startNewCampaign();
   });
-  await page.waitForFunction(() => {
-    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
-    return scene?.sys.isActive() && scene.stageNumber === 1 && scene.stageConfig?.number === 1 &&
-      !scene.gameStarted && !scene.gameOver && !scene.campaignActive && !scene.heroSelectionLocked &&
-      scene.chances === 3 && scene.health === 3 && scene.hero?.body?.enable === true;
-  }, undefined, { timeout: 10000 });
+  try {
+    await page.waitForFunction(() => {
+      const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+      return scene?.sys.isActive() && scene.stageNumber === 1 && scene.stageConfig?.number === 1 &&
+        !scene.gameStarted && !scene.gameOver && !scene.campaignActive && !scene.heroSelectionLocked &&
+        scene.chances === 3 && scene.health === 3 && scene.hero?.body?.enable === true;
+    }, undefined, { timeout: 10000 });
+  } catch (error) {
+    const state = await page.evaluate(() => {
+      const game = window.__ZERO_GAME_TEST__;
+      const scene = game?.scene.getScene("ZeroGameScene");
+      return {
+        canvas: !!document.querySelector("#game-container canvas"),
+        sceneExists: !!scene,
+        active: scene?.sys.isActive(),
+        scenePaused: scene?.sys.isPaused(),
+        physicsPaused: scene?.physics?.world?.isPaused,
+        stageNumber: scene?.stageNumber,
+        configuredStageNumber: scene?.stageConfig?.number,
+        gameStarted: scene?.gameStarted,
+        gameOver: scene?.gameOver,
+        campaignActive: scene?.campaignActive,
+        heroSelectionLocked: scene?.heroSelectionLocked,
+        chances: scene?.chances,
+        health: scene?.health,
+        heroExists: !!scene?.hero,
+        heroActive: scene?.hero?.active,
+        heroBodyEnabled: scene?.hero?.body?.enable,
+        registryRestartFlag: scene?.registry?.get("zeroGameOpenHeroSelectAfterRestart"),
+        status: scene?.statusLabel?.text
+      };
+    });
+    throw new Error("New campaign restart did not reach the expected hero-selection state; runtime state: " +
+      JSON.stringify(state) + "; " + error.message);
+  }
   await page.mouse.click(120, 486);
   await delay(1200);
   await page.evaluate(() => {
