@@ -2011,8 +2011,7 @@ class ZeroGameScene extends Phaser.Scene {
         "licorice-sniper": { glow: 0xc49bff, spark: 0xf3e4ff, motif: "spore" },
       };
       const variantProfile = enemy.getData("enemyVariantStyle");
-      const variantTint = enemy.getData("enemyVariantTint");
-      const profile = variantProfile ? ({
+        const profile = variantProfile ? ({
         shadow: { glow: 0x70c7ff, spark: 0xd9f5ff, motif: "storm" },
         metal: { glow: 0xb6a7ff, spark: 0xf0edff, motif: "metal" },
         solar: { glow: 0xffd65a, spark: 0xfff4b0, motif: "solar" },
@@ -2095,7 +2094,6 @@ class ZeroGameScene extends Phaser.Scene {
       c.add(adornment);
       this.tweens.add({ targets: halo, scaleX: 1.08, scaleY: 1.06,
         alpha: 0.06, duration: 760, yoyo: true, repeat: -1, ease: "Sine.easeInOut" });
-      const approvedArtKey = APPROVED_ENEMY_ART[archetypeId] ? archetypeId : enemy.getData("enemyArtBaseId");
       const approvedArtSprite = enemySprite;
       // The visible combatant remains the uploaded PNG; no generated replacement art is layered over it.
       c.setData("approvedArtSprite", approvedArtSprite);
