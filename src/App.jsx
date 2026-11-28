@@ -419,7 +419,8 @@ class ZeroGameScene extends Phaser.Scene {
     this.gameStarted = true;
     this.campaignActive = false;
     this.heroSelectionLocked = false;
-    this.openHeroSelectAfterRestart = false;
+    this.openHeroSelectAfterRestart = this.registry.get("zeroGameOpenHeroSelectAfterRestart") === true;
+    this.registry.remove("zeroGameOpenHeroSelectAfterRestart");
     this.chances = 3;
     this.chanceLossInProgress = false;
     this.chanceRespawnToken = 0;
@@ -2746,6 +2747,9 @@ class ZeroGameScene extends Phaser.Scene {
     this.stageNumber = 1; this.score = 0; this.extraLivesAwarded = 0; this.defeated = 0;
     this.chances = 3; this.health = 3; this.snowballTutorialShown = false;
     this.openHeroSelectAfterRestart = true;
+    // Scene restart re-runs init(), so persist this one-shot navigation flag
+    // in the Scene Registry rather than losing it during initialization.
+    this.registry.set("zeroGameOpenHeroSelectAfterRestart", true);
     // Rebuild stage-one physics, enemies, HUD and scene objects. This also
     // restores a disabled hero body after a previous Game Over.
     this.scene.restart();
