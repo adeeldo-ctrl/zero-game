@@ -3,10 +3,10 @@ import { useCallback, useEffect, useRef } from "react";
 import Phaser from "phaser";
 import { rigbyPhaser } from "./vendor/rigby2d-phaser-0.6.1.mjs";
 import rigRoster from "./assets/animations/rig-roster.json";
-import heroRyoSheet from "./assets/heroes/hero_ryo.png";
-import heroKairoSheet from "./assets/heroes/hero_kairo.png";
-import heroMeiSheet from "./assets/heroes/hero_mei.png";
-import heroVoltSheet from "./assets/heroes/hero_volt.png";
+import heroRyoSheet from "../new heros orignal/hero (1).jpg";
+import heroKairoSheet from "../new heros orignal/hero (3).jpg";
+import heroMeiSheet from "../new heros orignal/hero (2).jpg";
+import heroVoltSheet from "../new heros orignal/hero (4).jpg";
 import enemy03RedHorn from "./assets/enemies/prepared-reference/03_red-horn-demon.png";
 import enemy05WinterChick from "./assets/enemies/prepared-reference/05_winter-chick.png";
 import enemy07PinkOctopus from "./assets/enemies/prepared-reference/07_pink-octopus.png";
@@ -137,6 +137,13 @@ const APPROVED_ENEMY_ART = {
   "frost-temple-breaker": enemy36IceCube,
 }
 
+const HERO_POSE_SHEETS = [
+  { id: "ryo", source: heroRyoSheet, columns: 5, rows: 1 },
+  { id: "kairo", source: heroKairoSheet, columns: 5, rows: 1 },
+  { id: "mei", source: heroMeiSheet, columns: 5, rows: 1 },
+  { id: "volt", source: heroVoltSheet, columns: 5, rows: 1 },
+];
+
 const ENEMY_POSE_SHEETS = [
   enemyPoseSheet01,
   enemyPoseSheet02,
@@ -193,18 +200,7 @@ const { RigbyPlugin } = rigbyPhaser(Phaser);
 
 class ZeroGameScene extends Phaser.Scene {
   preload() {
-    const heroSheets = {
-      ryo: heroRyoSheet,
-      kairo: heroKairoSheet,
-      mei: heroMeiSheet,
-      volt: heroVoltSheet,
-    };
-    Object.entries(heroSheets).forEach(([heroId, source]) => {
-      this.load.spritesheet(`hero-sheet-${heroId}`, source, {
-        frameWidth: 210,
-        frameHeight: 212,
-      });
-    });
+    HERO_POSE_SHEETS.forEach(({ id, source }) => this.load.image(`hero-pose-source-${id}`, source));
     const worldBackdrops = [
       worldBackdropEmerald, worldBackdropCandy, worldBackdropFrozen,
       worldBackdropDesert, worldBackdropMoonlit, worldBackdropCrystal,
@@ -349,6 +345,16 @@ class ZeroGameScene extends Phaser.Scene {
       }
       this.enemyPoseTextures[archetypeId] = states;
     }
+    this.heroPoseTextures = {};
+    for (const hero of HERO_POSE_SHEETS) {
+      const sourceKey = `hero-pose-source-${hero.id}`;
+      const states = {};
+      for (const [state, frame] of [["idle", 0], ["walk", 1], ["jump", 2], ["attack", 3], ["sit", 4]]) {
+        const key = `hero-pose-${hero.id}-${state}`;
+        if (makePoseTexture(sourceKey, key, frame, hero.columns, hero.rows)) states[state] = key;
+      }
+      this.heroPoseTextures[hero.id] = states;
+    }
     this.bossPoseTextures = {};
     for (const boss of BOSS_POSE_SHEETS) {
       const sourceKey = `boss-pose-source-${boss.id}`;
@@ -362,30 +368,9 @@ class ZeroGameScene extends Phaser.Scene {
   }
 
   createHeroAnimations() {
-    const animationRanges = {
-      idle: { start: 0, end: 3, frameRate: 6, repeat: -1 },
-      land: { start: 4, end: 5, frameRate: 8, repeat: 0 },
-      walk: { start: 6, end: 11, frameRate: 11, repeat: -1 },
-      jump: { start: 12, end: 14, frameRate: 8, repeat: -1 },
-      turn: { start: 15, end: 16, frameRate: 7, repeat: 0 },
-      victory: { start: 18, end: 21, frameRate: 9, repeat: 0 },
-    };
-    ["ryo", "kairo", "mei", "volt"].forEach((heroId) => {
-      const textureKey = `hero-sheet-${heroId}`;
-      Object.entries(animationRanges).forEach(([state, range]) => {
-        const key = `hero-${heroId}-${state}`;
-        if (this.anims.exists(key)) return;
-        this.anims.create({
-          key,
-          frames: this.anims.generateFrameNumbers(textureKey, {
-            start: range.start,
-            end: range.end,
-          }),
-          frameRate: range.frameRate,
-          repeat: range.repeat,
-        });
-      });
-    });
+    // The supplied hero sheets contain authored single-pose panels. Their
+    // idle, walk, jump, attack and sitting panels are switched directly.
+    return this.heroPoseTextures;
   }
 
   addAmbientTween(config) {
@@ -399,10 +384,10 @@ class ZeroGameScene extends Phaser.Scene {
     const sprite = visual?.getData("heroSprite");
     const heroId = visual?.getData("heroSpriteId") || "ryo";
     if (!sprite?.active) return;
-    const key = `hero-${heroId}-${state}`;
-    if (this.anims.exists(key) && sprite.anims.currentAnim?.key !== key) {
-      sprite.play(key, true);
-    }
+    const poseState = ({ land: "jump", turn: "idle", victory: "attack" })[state] || state;
+    const key = this.heroPoseTextures?.[heroId]?.[poseState] || this.heroPoseTextures?.[heroId]?.idle;
+    if (key && sprite.texture.key !== key) sprite.setTexture(key);
+    visual.setData("heroPoseState", poseState);
   }
 
   constructor() {
@@ -1756,7 +1741,7 @@ class ZeroGameScene extends Phaser.Scene {
 
     // Render the authored pixel-art sprite sheet as the visible hero. The
     // legacy vector rig remains hidden so existing pose references stay safe.
-    const heroArt = this.add.sprite(0, 0, `hero-sheet-${heroId}`, 0)
+    const heroArt = this.add.sprite(0, 0, `hero-pose-${heroId}-idle`)
       .setOrigin(0.5, 0.5)
       .setScale(0.42);
     c.add(heroArt);
@@ -1783,7 +1768,7 @@ class ZeroGameScene extends Phaser.Scene {
     if (!visual?.active || !hero) return;
     const sprite = visual.getData("heroSprite");
     if (sprite && !forceRigPreview) {
-      const textureKey = `hero-sheet-${hero.id}`;
+      const textureKey = `hero-pose-${hero.id}-idle`;
       if (sprite.texture.key !== textureKey) sprite.setTexture(textureKey, 0);
       visual.setData("heroSpriteId", hero.id);
       visual.setData("heroLookId", hero.id);
@@ -1791,7 +1776,7 @@ class ZeroGameScene extends Phaser.Scene {
       return;
     }
     if (sprite && forceRigPreview) {
-      const textureKey = `hero-sheet-${hero.id}`;
+      const textureKey = `hero-pose-${hero.id}-idle`;
       if (sprite.texture.key !== textureKey) sprite.setTexture(textureKey, 0);
       visual.setData("heroSpriteId", hero.id);
       visual.setData("heroLookId", hero.id);
