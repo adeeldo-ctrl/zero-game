@@ -580,7 +580,8 @@ try {
   }, undefined, { timeout: 3000 });
   await page.evaluate(() => {
     const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
-    if (Math.abs(scene.hero.y - 462) > 8) throw new Error("Hero did not settle on the permanent floor");
+    const floorTop = scene.groundPlatform.body.top;
+    if (Math.abs(scene.hero.body.bottom - floorTop) > 8) throw new Error("Hero body did not settle on the permanent floor");
     scene.touch.down = true;
     scene.touch.jump = true;
   });
