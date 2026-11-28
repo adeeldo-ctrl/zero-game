@@ -3522,7 +3522,7 @@ class ZeroGameScene extends Phaser.Scene {
       bossSprite.play(bossIdleAnimation);
     }
     c.add(bossSprite);
-    // Living idle motion for the approved single-frame boss artwork.
+    // Subtle supplemental motion complements the boss's authored multi-state sprite sheet.
     this.tweens.add({
       targets: bossSprite,
       y: isAgile ? -27 : -25,
