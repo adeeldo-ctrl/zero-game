@@ -258,6 +258,23 @@ function chooseAnimation(character, bones, characterHeight, isBoss) {
     addScale(has("pelvis") ? "pelvis" : has("body") ? "body" : "core", [[0,1,1],[0.1,1.12,0.82],[0.3,1,1]]);
     addTranslate(has("pelvis") ? "pelvis" : has("body") ? "body" : "core", [[0,0,0],[0.1,0,-5],[0.3,0,0]]);
   }));
+  clips.push(clip("attack", 0.36, () => {
+    const body = has("torso") ? "torso" : has("body") ? "body" : "core";
+    addRotate(body, [[0,0],[0.12,-5],[0.24,8],[0.36,0]]);
+    if (has("upperarm_r")) addRotate("upperarm_r", [[0,0],[0.12,-72],[0.24,24],[0.36,0]]);
+    if (has("forearm_r")) addRotate("forearm_r", [[0,0],[0.12,88],[0.24,-26],[0.36,0]]);
+    if (has("upperarm_l")) addRotate("upperarm_l", [[0,0],[0.12,24],[0.24,-18],[0.36,0]]);
+    if (has("forearm_l")) addRotate("forearm_l", [[0,0],[0.12,-28],[0.24,18],[0.36,0]]);
+    if (has("claw_l")) addRotate("claw_l", [[0,0],[0.12,-24],[0.24,12],[0.36,0]]);
+    if (has("claw_r")) addRotate("claw_r", [[0,0],[0.12,24],[0.24,-12],[0.36,0]]);
+    if (has("wing_l")) addRotate("wing_l", [[0,-5],[0.12,-24],[0.24,12],[0.36,-5]]);
+    if (has("wing_r")) addRotate("wing_r", [[0,5],[0.12,24],[0.24,-12],[0.36,5]]);
+    if (has("tail")) addRotate("tail", [[0,0],[0.12,-18],[0.24,14],[0.36,0]]);
+    for (const name of names.filter((entry) => entry.startsWith("tentacle_"))) {
+      addRotate(name, [[0,0],[0.12,16],[0.24,-12],[0.36,0]]);
+    }
+    addTranslate(body, [[0,0,0],[0.12,0,3],[0.24,0,-1],[0.36,0,0]]);
+  }));
   clips.push(clip("hit", 0.22, () => {
     addRotate(has("torso") ? "torso" : has("body") ? "body" : "core", [[0,0],[0.08,-12],[0.22,0]]);
     addScale(has("head") ? "head" : has("crown") ? "crown" : "core", [[0,1,1],[0.08,0.94,1.06],[0.22,1,1]]);
