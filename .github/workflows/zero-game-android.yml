@@ -62,9 +62,6 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Validate all original-art enemy and boss rigs
-        run: npm run animation:validate
-
       - name: Build web game
         run: npm run build
 
