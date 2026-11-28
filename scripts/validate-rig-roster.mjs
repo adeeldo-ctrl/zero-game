@@ -58,7 +58,8 @@ function validateCharacter(character, isBoss) {
     }
   }
   const expectedParents = {
-    pelvis: "root", torso: "pelvis", upperarm_l: "torso", upperarm_r: "torso",
+    body: "root", core: "root", shell: "root", pelvis: "root",
+    torso: "pelvis", upperarm_l: "torso", upperarm_r: "torso",
     forearm_l: "upperarm_l", forearm_r: "upperarm_r",
     thigh_l: "pelvis", thigh_r: "pelvis", shin_l: "thigh_l", shin_r: "thigh_r",
     front_leg_l: "body", front_leg_r: "body", back_leg_l: "body", back_leg_r: "body",
@@ -84,6 +85,12 @@ function validateCharacter(character, isBoss) {
     }
   }
   const clipsByName = skeleton.animations || {};
+  const attackBones = clipsByName.attack?.bones || {};
+  if (!Object.values(attackBones).some((timeline) =>
+    (timeline.rotate?.length || 0) > 0 || (timeline.translate?.length || 0) > 0
+  )) {
+    failures.push(character.id + ": attack clip has no articulated motion");
+  }
   const requireJointMotion = (joint, clips) => {
     if (!boneNames.has(joint)) return;
     for (const clipName of clips) {
