@@ -159,11 +159,6 @@ function chooseAnimation(character, bones, characterHeight, isBoss) {
     addScale(has("pelvis") ? "pelvis" : has("body") ? "body" : "core", [[0,1,1],[0.1,1.12,0.82],[0.3,1,1]]);
     addTranslate(has("pelvis") ? "pelvis" : has("body") ? "body" : "core", [[0,0,0],[0.1,0,-5],[0.3,0,0]]);
   }));
-  clips.push(clip("attack", 0.48, () => {
-    const arm = has("upperarm_r") ? "upperarm_r" : has("claw_r") ? "claw_r" : has("wing_r") ? "wing_r" : has("tail") ? "tail" : has("tentacle_3") ? "tentacle_3" : "right";
-    addRotate(arm, [[0,0],[0.16,-34],[0.3,22],[0.48,0]]);
-    addRotate(has("torso") ? "torso" : has("body") ? "body" : "core", [[0,0],[0.16,9],[0.3,-5],[0.48,0]]);
-  }));
   clips.push(clip("hit", 0.22, () => {
     addRotate(has("torso") ? "torso" : has("body") ? "body" : "core", [[0,0],[0.08,-12],[0.22,0]]);
     addScale(has("head") ? "head" : has("crown") ? "crown" : "core", [[0,1,1],[0.08,0.94,1.06],[0.22,1,1]]);
@@ -177,15 +172,28 @@ function chooseAnimation(character, bones, characterHeight, isBoss) {
       addTranslate("root", [[0,0,-characterHeight * 0.5],[0.8,0,0]]);
       addScale("aura", [[0,0.65,0.65],[0.4,1.15,1.15],[0.8,1,1]]);
     }));
-    const special = character.specialMove;
-    clips.push(clip("special", 0.84, () => {
+    const signature = character.signatureMotion;
+    clips.push(clip("signature", 0.84, () => {
       const body = has("torso") ? "torso" : has("body") ? "body" : "core";
-      const limb = has("upperarm_r") ? "upperarm_r" : has("claw_r") ? "claw_r" : has("wing_r") ? "wing_r" : has("tail") ? "tail" : "right";
-      const angle = special === "ground-slam" ? 48 : special === "boxing-combination" ? 72 :
-        special === "winged-pounce" ? -52 : special === "solar-spin" ? 360 : 92;
-      addRotate(body, [[0,0],[0.25,-angle * 0.35],[0.55,angle],[0.84,0]]);
-      addRotate(limb, [[0,0],[0.25,angle],[0.55,-angle * 0.4],[0.84,0]]);
-      addScale("aura", [[0,1,1],[0.42,1.35,1.35],[0.84,1,1]]);
+      if (signature === "heavy-guard-pose") {
+        addRotate(body, [[0,0],[0.28,-4],[0.56,4],[0.84,0]]);
+        addScale("aura", [[0,1,1],[0.42,1.18,1.18],[0.84,1,1]]);
+      } else if (signature === "weight-shift-and-flex") {
+        addTranslate(body, [[0,0,0],[0.28,-4,0],[0.56,4,0],[0.84,0,0]]);
+        addRotate("upperarm_l", [[0,0],[0.42,-12],[0.84,0]]);
+        addRotate("upperarm_r", [[0,0],[0.42,12],[0.84,0]]);
+      } else if (signature === "wing-spread-glide") {
+        addRotate("wing_l", [[0,-8],[0.42,-28],[0.84,-8]]);
+        addRotate("wing_r", [[0,8],[0.42,28],[0.84,8]]);
+        addTranslate(body, [[0,0,0],[0.42,0,6],[0.84,0,0]]);
+      } else if (signature === "solar-orbit-hover") {
+        addRotate("top", [[0,0],[0.42,24],[0.84,0]]);
+        addScale("aura", [[0,1,1],[0.42,1.3,1.3],[0.84,1,1]]);
+      } else {
+        addRotate(body, [[0,0],[0.42,18],[0.84,0]]);
+        addRotate("head", [[0,0],[0.42,-8],[0.84,0]]);
+        addScale("aura", [[0,1,1],[0.42,1.12,1.12],[0.84,1,1]]);
+      }
     }));
     clips.push(clip("phase-change", 0.6, () => {
       addScale("aura", [[0,1,1],[0.3,1.5,1.5],[0.6,1,1]]);
