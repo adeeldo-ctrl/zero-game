@@ -1,44 +1,43 @@
 # ZERO GAME — Final Delivery Report
 
-**Status:** Final signed Android Release APK built and uploaded successfully.
+**Status:** One final signed Android Release APK was built and uploaded successfully.
 
 ## Source and release
 
-- Verified game source commit: `b90bb438e89299f7f50745836f86c8ede284eb9f`
-- Consolidated verification run: [46122207463](https://github.com/adeeldo-ctrl/zero-game/actions/runs/46122207463) — success
-- Final Android APK run: [46122458831](https://github.com/adeeldo-ctrl/zero-game/actions/runs/46122458831) — success
-- GitHub artifact: `zero-game-release-apk` (ID `15254267784`)
+- Hero/artwork source commit: `bf2dd777115f41089f9f6f694ede1e3f1bb10bef`
+- Final release trigger commit: `c63f68278f0849f986f514b87bf75c0a4957c132`
+- Consolidated CI run: [46133978123](https://github.com/adeeldo-ctrl/zero-game/actions/runs/46133978123)
+- Final Android Release APK run: [46134151330](https://github.com/adeeldo-ctrl/zero-game/actions/runs/46134151330) — success
+- GitHub artifact: `zero-game-release-apk` (ID `15259485145`)
 - APK file: `zero-game-release.apk`
-- APK size: 9,980,194 bytes
-- APK SHA-256: `1da7eec8703b86d3ae77725fa5f4886b0627406fbd84ab797ed584164e298f48`
+- APK size: 16,364,890 bytes
+- APK SHA-256: `bd3153e95f09d44ec26f5504adb4d713ffc9f54306880bfb96348519e8ea9c0e`
 
-## Enemy and boss animation update
+## Supplied character artwork integrated
 
-- 32 original enemy identities and five separate original boss identities are retained.
-- All 37 characters use the free, checksum-pinned Rigby2D weighted-mesh runtime and generated 9×9 weighted meshes from their original PNG artwork.
-- Enemy idle personality clips: `idle-phone`, `idle-scratch`, `idle-comb`, `idle-look-around`, and `idle-groom`.
-- Hand/arm activities are selected only for rigs with articulated arm bones. Other enemy anatomies use matching head, shell, wing, tail, fin, claw, leg, tentacle, or core movement.
-- Regular enemies stop for idle activity when the hero is beyond the 342-pixel awareness threshold, and resume role-specific AI when the hero returns inside the 258-pixel exit threshold.
-- Each of the five bosses has its own signature rig motion; a boss can settle into its signature ready stance during a close-range rest state.
-- Browser verification confirms ambient clips, hero-distance idle/awareness switching, all five boss signature rigs, campaign progression, mobile multitouch controls, and no uncaught runtime errors.
+- Four hero sheets from `new heros orignal/` are now used for Ryo, Kairo, Mei and Volt.
+- Hero pose panels are extracted into transparent runtime textures and mapped to idle, walking, jumping, attacking and sitting states. Gameplay landing, turning and special/victory states are mapped to the corresponding supplied poses.
+- Thirty supplied enemy sheets from `new enemy/` are integrated for the first 30 enemy archetypes, with idle, walking, jumping and attack poses.
+- Five supplied boss sheets from `bosses/` are integrated for all five boss identities, with idle, walking, attack and defeated poses.
+- The two remaining enemy archetypes retain their existing approved artwork because the supplied pack contains 30 enemy sheets while the active roster contains 32 enemy archetypes.
+- These sheets provide one authored image per named pose, so the runtime switches between supplied pose panels; this is not skeletal or motion-capture animation.
 
-## Verification
+## Verification and known limitation
 
-- 59 automated tests passed.
+- Automated tests passed.
 - ESLint passed.
 - Android configuration validation passed.
-- Original PNG validation passed for all 32 enemies and five bosses.
+- Existing enemy/boss artwork validation passed.
 - Production web build passed.
-- Rig structure validation and Chromium gameplay smoke passed.
-- Android Release APK assembly passed.
-- APK was zip-aligned and verified by Android `apksigner`; v1, v2, and v3 signature schemes report valid, with one signer.
+- Chromium gameplay smoke reached the EXTRA-button interaction assertion at `scripts/smoke-game-browser.mjs:350` and timed out. The same assertion had failed on the prior enemy/boss-only source before this hero-artwork change; the hero-art integration did not intentionally modify controls. This failure is recorded rather than reported as a pass.
+- Android Release APK assembly, alignment, signing and artifact upload passed.
+- No physical Android handset test is claimed.
 
-## Scope protection and animation limitation
+## Preserved scope
 
-- Existing particle/effect code was not modified in this update.
-- Hero controls, stage progression, and existing game systems were preserved.
-- Animation is weighted-mesh deformation of the supplied original PNG artwork, not separately painted limb-by-limb sprite sheets or motion capture.
+- Stages, controls, particles, projectiles and campaign rules were not intentionally changed.
+- No debug or intermediate APK was created; only the final signed Release APK was produced.
 
 ## Signing note
 
-The release workflow generated a one-time signing key for this APK and did not retain the private keystore. This APK is signed and installable, but signing a future update with the same certificate will require a preserved keystore; without it, a future build would have a different signer and Android may require uninstalling the current app before installing that build.
+The release workflow generated a one-time signing key and did not retain the private keystore. This APK is signed and installable, but a future update built with a different signing key may require uninstalling this APK before installing the update.
