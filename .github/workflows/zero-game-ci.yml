@@ -9,6 +9,7 @@ on:
     paths:
       - ".github/workflows/zero-game-ci.yml"
       - "src/**"
+      - "tests/**"
       - "scripts/**"
       - "package.json"
       - "package-lock.json"
