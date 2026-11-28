@@ -1924,8 +1924,7 @@ class ZeroGameScene extends Phaser.Scene {
     // Use the original uploaded PNG as the visible combatant; retain only hidden legacy rig metadata for gameplay.
     c.list.forEach((part) => part.setVisible(part === shadow));
     const archetypeId = enemy.getData("enemyArchetypeId");
-    const archetypeFrame = getPremiumEnemyFrameIndex(archetypeId);
-    const hasPremiumArtwork = archetypeFrame >= 0;
+    const hasPremiumArtwork = false;
     const idleFrame = 0;
     const approvedArt = APPROVED_ENEMY_ART[archetypeId] || APPROVED_ENEMY_ART[enemy.getData("enemyArtBaseId")];
     if (!approvedArt) throw new Error("Missing approved original PNG artwork for enemy " + archetypeId);
