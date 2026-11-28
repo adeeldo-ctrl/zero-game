@@ -12,9 +12,9 @@ const bone = (name, x, y, length = 0) => ({ name, x, y, length });
 function makeRigBones(character, width, height, isBoss) {
   const w = width, h = height;
   const profile = character.motionProfile || "";
-  const biped = /biped|humanoid|knight|wrapped|rat/.test(profile);
+  const biped = /biped|humanoid|knight|wrapped|rat|ogre|hopper|frog|leaper/.test(profile);
   const winged = /wing|fly|hover/.test(profile);
-  const quadruped = /quadruped|lizard|turtle|crawler|wolf/.test(profile);
+  const quadruped = /quadruped|lizard|turtle|crawler|wolf|reptile/.test(profile);
   const tentacle = /tentacle|octopus|jelly|ghost|cloud/.test(profile);
   const fish = /fish|swim/.test(profile);
   const crab = /crab|multi-leg/.test(profile);
