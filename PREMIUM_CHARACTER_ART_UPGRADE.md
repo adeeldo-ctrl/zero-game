@@ -64,3 +64,18 @@ A source register is maintained at `assets/FREE_ASSET_SOURCE_REGISTER.json`. It 
 - Kenney's Abstract Platformer is CC0 and includes static enemy variations/environment assets; it does not satisfy the character animation gate.
 
 These sources are documented as candidates, not as integrated game content. No third-party sprite is mapped into an approved character solely to increase a completion count. Before import, inspect the actual artwork, confirm that its silhouette and style fit the already-approved concept, retain the source/license notice, and verify its dimensions and atlas metadata. The active roster remains exactly 32 regular enemies and five bosses.
+
+
+## Original animated character sheets — 2026-11-28
+
+The production generator is now authored in `scripts/generate-premium-character-sheets.mjs` and runs before development, tests, and web builds.
+
+- **32 regular enemies:** one individual transparent SVG sprite sheet per approved identity. Each sheet has eight aligned frames for each of five states: idle, move, attack, hit, and defeat (40 frames per enemy).
+- **5 bosses:** one individual sheet per boss with eight frames for each of nine states: entrance, idle, move, primary attack, secondary attack, special, hit, phase change, and defeat (72 frames per boss).
+- Each enemy and boss has its own silhouette, ornament details, and palette profile. Bosses use five separate silhouettes and are not enlarged copies of the regular-enemy artwork.
+- All sheets use aligned 128×128 cells, with the enemy and boss frame rows declared in the generated manifest.
+- Phaser loads the generated sheets through the existing asset glob. Enemy and boss runtime animation keys now map to their dedicated sheet rows; boss state selection includes entrance, both attack patterns, special, hit, phase-change and defeat.
+- The art is original procedural vector artwork generated from code in this repository. No paid asset packs or unverified third-party sprite files are required. The free-source register remains a record of optional candidates, not a claim that those external packs were integrated.
+- The production validator checks all 37 identities, per-state frame counts, dimensions, unique files and distinct design metadata. Final acceptance remains pending until the consolidated CI run passes.
+
+The SVG generator is reproducible, but that alone is not proof of a passing build. Do not call the sheets verified or release the APK until CI validates the generated files and the browser smoke test passes.
