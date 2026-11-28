@@ -5430,7 +5430,6 @@ class ZeroGameScene extends Phaser.Scene {
     // Drive the visible authored sheet from the actual physics state.
     // The old procedural limbs are hidden beneath this sprite and cannot
     // substitute for a real walk/run/jump/landing animation.
-    const heroSprite = visual.getData("heroSprite");
     const previousFacing = visual.getData("heroLastFacing") ?? this.facing;
     const wasAirborne = visual.getData("heroWasAirborne") === true;
     let heroAnimation = "idle";
