@@ -17,7 +17,7 @@ test("the premium flying archetype keeps its authored speed while unknown roles 
 });
 
 test("regular enemies stay at the reduced visual scale while bosses keep their separate scene scale", () => {
-  assert.equal(REGULAR_ENEMY_VISUAL_SCALE, 0.78);
+  assert.equal(REGULAR_ENEMY_VISUAL_SCALE, 0.50);
   assert.ok(REGULAR_ENEMY_VISUAL_SCALE < 1);
 });
 
