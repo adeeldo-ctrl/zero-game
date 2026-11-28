@@ -62,6 +62,22 @@ const APPROVED_ENEMY_ART = {
   "root-burrower": enemy38Turtle,
   "mire-burrower": enemy39Lizard,
   "licorice-sniper": enemy42RatGuard,
+  "shadow-moss-scout": enemy20Hedgehog,
+  "iron-bark-bruiser": enemy10GoggleBrown,
+  "golden-acorn-leaper": enemy25Squirrel,
+  "prism-jelly-vault": enemy07PinkOctopus,
+  "molten-caramel-mauler": enemy15BrownGoggle,
+  "storm-candy-copter": enemy27Bee,
+  "frostfire-icicle-hopper": enemy05WinterChick,
+  "crystal-spore-caster": enemy14MushroomCrab,
+  "thorn-root-burrower": enemy38Turtle,
+  "ember-spirit-pouncer": enemy03RedHorn,
+  "toxic-vine-vault": enemy23GreenFrog,
+  "solar-jade-shellback": enemy37Turtle,
+  "plasma-mire-burrower": enemy39Lizard,
+  "void-licorice-sniper": enemy42RatGuard,
+  "astral-eclipse-summoner": enemy33Mummy,
+  "frost-temple-breaker": enemy35BlueOgre,
 };
 import { createCampaignLives, loseCampaignHeart, getStageTransitionDirection } from "./campaignRules";
 import { shouldHeroCollideWithPlatform, shouldDropThroughPlatform, getPlatformTextureScale } from "./platformRules";
@@ -1996,7 +2012,7 @@ class ZeroGameScene extends Phaser.Scene {
     const archetypeFrame = getPremiumEnemyFrameIndex(archetypeId);
     const hasPremiumArtwork = archetypeFrame >= 0;
     const idleFrame = hasPremiumArtwork ? archetypeFrame * 4 : 0;
-    const approvedArt = APPROVED_ENEMY_ART[archetypeId];
+    const approvedArt = APPROVED_ENEMY_ART[archetypeId] || APPROVED_ENEMY_ART[enemy.getData("enemyArtBaseId")];
     const enemySprite = this.add.sprite(0, -12,
       hasPremiumArtwork ? "premium-enemy-atlas" : `enemy-sheet-${enemyClass}`, idleFrame)
       .setDisplaySize(isHeavy ? 94 : 86, isHeavy ? 106 : 100);
@@ -2025,7 +2041,25 @@ class ZeroGameScene extends Phaser.Scene {
         "mire-burrower": { glow: 0x9edb72, spark: 0xe8ff9d, motif: "wing" },
         "licorice-sniper": { glow: 0xc49bff, spark: 0xf3e4ff, motif: "spore" },
       };
-      const profile = adornmentProfiles[archetypeId] || { glow: hornColor, spark: 0xffffff, motif: "spore" };
+      const variantProfile = enemy.getData("enemyVariantStyle");
+      const variantTint = enemy.getData("enemyVariantTint");
+      const profile = variantProfile ? ({
+        shadow: { glow: 0x70c7ff, spark: 0xd9f5ff, motif: "storm" },
+        metal: { glow: 0xb6a7ff, spark: 0xf0edff, motif: "metal" },
+        solar: { glow: 0xffd65a, spark: 0xfff4b0, motif: "solar" },
+        prism: { glow: 0xa5f4ff, spark: 0xffffff, motif: "prism" },
+        flame: { glow: 0xff7046, spark: 0xffe1a1, motif: "flame" },
+        storm: { glow: 0x76e8ff, spark: 0xf2ffff, motif: "storm" },
+        frostfire: { glow: 0xa9f5ff, spark: 0xffb16a, motif: "frostfire" },
+        crystal: { glow: 0xd7a5ff, spark: 0xf8eaff, motif: "crystal" },
+        thorn: { glow: 0x9de477, spark: 0xeaffb7, motif: "thorn" },
+        ember: { glow: 0xff8152, spark: 0xffe0a1, motif: "flame" },
+        toxic: { glow: 0xb6ee58, spark: 0xeaff9a, motif: "toxic" },
+        plasma: { glow: 0xe58cff, spark: 0xffd9ff, motif: "plasma" },
+        void: { glow: 0xa78bff, spark: 0xe5dcff, motif: "void" },
+        astral: { glow: 0xc19cff, spark: 0xf5e9ff, motif: "astral" },
+        glacier: { glow: 0x8fe8ff, spark: 0xffffff, motif: "ice" }
+      })[variantProfile] : adornmentProfiles[archetypeId] || { glow: hornColor, spark: 0xffffff, motif: "spore" };
       const adornment = this.add.container(0, -12);
       const halo = this.add.ellipse(0, 2, 108, 116, profile.glow, 0.12)
         .setStrokeStyle(3, profile.glow, 0.56);
@@ -2044,6 +2078,27 @@ class ZeroGameScene extends Phaser.Scene {
             .setStrokeStyle(2, profile.glow, 0.95).setAngle(side * 18);
           adornment.add(shard);
         });
+      } else if (["storm", "metal", "solar", "prism", "frostfire", "crystal", "thorn", "toxic", "plasma", "void", "astral"].includes(profile.motif)) {
+        const motifColors = [profile.glow, profile.spark];
+        if (profile.motif === "metal" || profile.motif === "thorn") {
+          [-1, 1].forEach((side) => {
+            const plate = this.add.triangle(side * 42, -4, 0, -22, side * 18, 8, -side * 9, 17, motifColors[0], 0.88)
+              .setStrokeStyle(3, motifColors[1], 0.95).setAngle(side * 12);
+            adornment.add(plate);
+          });
+        } else if (profile.motif === "solar" || profile.motif === "astral") {
+          const crest = this.add.star(0, -65, 8, 3, 13, motifColors[1], 0.92)
+            .setStrokeStyle(2, motifColors[0], 1);
+          adornment.add(crest);
+          this.tweens.add({ targets: crest, angle: 45, scale: 1.16, duration: 900, yoyo: true, repeat: -1 });
+        } else {
+          [-1, 1].forEach((side) => {
+            const wing = this.add.triangle(side * 47, -18, 0, -24, side * 18, 4, -side * 9, 18, motifColors[0], 0.8)
+              .setStrokeStyle(2, motifColors[1], 0.95).setAngle(side * 20);
+            adornment.add(wing);
+            this.tweens.add({ targets: wing, angle: side * 32, scaleY: 0.84, duration: 460, yoyo: true, repeat: -1 });
+          });
+        }
       } else if (profile.motif === "flame") {
         [-1, 1].forEach((side) => {
           const flame = this.add.triangle(side * 43, 12, 0, 15, side * 8, -15, -side * 8, 8, profile.spark, 0.86)
@@ -2071,8 +2126,10 @@ class ZeroGameScene extends Phaser.Scene {
       c.add(adornment);
       this.tweens.add({ targets: halo, scaleX: 1.08, scaleY: 1.06,
         alpha: 0.06, duration: 760, yoyo: true, repeat: -1, ease: "Sine.easeInOut" });
-      approvedArtSprite = this.add.image(0, -12, `approved-enemy-${archetypeId}`)
+      const approvedArtKey = APPROVED_ENEMY_ART[archetypeId] ? archetypeId : enemy.getData("enemyArtBaseId");
+      approvedArtSprite = this.add.image(0, -12, `approved-enemy-${approvedArtKey}`)
         .setDisplaySize(isHeavy ? 98 : 92, isHeavy ? 108 : 102);
+      if (variantTint) approvedArtSprite.setTint(variantTint);
       c.add(approvedArtSprite);
       c.setData("approvedArtSprite", approvedArtSprite);
       c.setData("approvedAdornment", adornment);
@@ -2818,6 +2875,9 @@ class ZeroGameScene extends Phaser.Scene {
         enemy.setData("enemyArchetypeId", archetype?.id || "legacy-enemy");
         enemy.setData("enemyRole", archetype?.role || "runner");
         enemy.setData("enemyTier", archetype?.tier || "common");
+        enemy.setData("enemyVariantStyle", archetype?.style || null);
+        enemy.setData("enemyVariantTint", archetype?.tint || null);
+        enemy.setData("enemyArtBaseId", archetype?.artBaseId || archetype?.id || null);
         const roleClass = { runner: "fast", leaper: "fast", flying: "fast", ambusher: "special", ranged: "special", bomber: "special", illusionist: "special", summoner: "special", shield: "heavy", heavy: "heavy", charger: "heavy" };
         const enemyClass = roleClass[archetype?.role] || ["fast", "heavy", "special"][i % 3];
         enemy.setData("enemyClass", enemyClass);
