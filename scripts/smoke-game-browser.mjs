@@ -260,15 +260,16 @@ try {
   if (walkingAnimation !== "hero-pose-ryo-walk") {
     throw new Error("Hero did not switch to its supplied walking pose: " + walkingAnimation);
   }
-  await page.keyboard.press("Space");
-  await delay(120);
-  const jumpAnimation = await page.evaluate(() => {
+  // Hold the key across a Phaser update tick. A synthetic press+release in
+  // one browser task can be missed by Phaser's JustDown edge detector.
+  await page.keyboard.down("Space");
+  await page.waitForFunction(() => {
     const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
-    return scene.heroVisual?.getData("heroSprite")?.texture?.key;
-  });
-  if (jumpAnimation !== "hero-pose-ryo-jump") {
-    throw new Error("Hero did not switch to its supplied jumping pose: " + jumpAnimation);
-  }
+    const sprite = scene?.heroVisual?.getData("heroSprite");
+    return scene?.hero?.body?.velocity?.y < -20 &&
+      sprite?.texture?.key === "hero-pose-ryo-jump";
+  }, undefined, { timeout: 1800 });
+  await page.keyboard.up("Space");
   await delay(500);
 
   // Exercise the actual DOM pointer layer used by the Android touch overlay.
