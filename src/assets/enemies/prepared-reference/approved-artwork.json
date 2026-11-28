@@ -22,10 +22,21 @@
     "39_green-lizard.png",
     "40_armored-lizard.png",
     "42_rat-guard.png",
-    "47_ice-knight.png"
+    "47_ice-knight.png",
+    "04_purple-bat.png",
+    "06_yeti.png",
+    "11_ice-golem.png",
+    "12_armored-penguin.png",
+    "19_ice-robot.png",
+    "21_skeleton.png",
+    "22_wolf-guard.png",
+    "24_spider.png",
+    "28_ice-fish.png",
+    "29_jellyfish.png",
+    "36_ice-cube-monster.png"
   ],
   "rejectedOrReviewRequired": "All other prepared cutouts remain reference-only and must not be integrated as final character artwork.",
-  "animation": "Approved images are static single-frame cutouts, not completed animated sprite sheets. Runtime Phaser motion supplies idle/run/charge movement, anticipation/strike poses, and squash/recoil impact reactions; genuine authored frame-by-frame animation remains outstanding.",
+  "animation": "Every uploaded enemy and boss source is a static PNG. Phaser applies role- and boss-state-specific runtime motion (idle bob, directional movement, anticipation/strike, hit recoil, phase transition and defeat motion) directly to the original image; no vector character art or fabricated hand-drawn frame sheets are used.",
   "bosses": "The five final boss identities are Gatekeeper (02 green ice monster), Iron Comet (34 blue ogre A), Gale Talon (40 armored lizard), Suncrest (09 pumpkin), and Void Sovereign (47 ice knight). Only these five bosses are in scope.",
   "enemyIntegration": "Only the 32 approved-family regular enemy identities are in the active campaign roster: 16 approved original cutouts and 16 distinct named variants. All other regular enemy concepts are excluded from active roster work. Five approved boss identities remain separate.",
   "runtimeEnemyMapping": {
@@ -44,10 +55,26 @@
     "jade-shellback": "37_green-turtle-a.png",
     "root-burrower": "38_green-turtle-b.png",
     "mire-burrower": "39_green-lizard.png",
-    "licorice-sniper": "42_rat-guard.png"
+    "licorice-sniper": "42_rat-guard.png",
+    "shadow-moss-scout": "02_green-ice-monster.png",
+    "iron-bark-bruiser": "09_pumpkin.png",
+    "golden-acorn-leaper": "34_blue-ogre-a.png",
+    "prism-jelly-vault": "40_armored-lizard.png",
+    "molten-caramel-mauler": "47_ice-knight.png",
+    "storm-candy-copter": "04_purple-bat.png",
+    "frostfire-icicle-hopper": "06_yeti.png",
+    "crystal-spore-caster": "11_ice-golem.png",
+    "thorn-root-burrower": "12_armored-penguin.png",
+    "ember-spirit-pouncer": "19_ice-robot.png",
+    "toxic-vine-vault": "21_skeleton.png",
+    "solar-jade-shellback": "22_wolf-guard.png",
+    "plasma-mire-burrower": "24_spider.png",
+    "void-licorice-sniper": "28_ice-fish.png",
+    "astral-eclipse-summoner": "29_jellyfish.png",
+    "frost-temple-breaker": "36_ice-cube-monster.png"
   },
   "runtimeAdornmentSystem": {
-    "approvedCutouts": 16,
+    "approvedCutouts": 32,
     "treatment": "Each approved regular enemy now receives an archetype-specific elemental halo, four orbiting spark particles, and a matching motif: animated wings, ice shards, flame fins, leaf details, or arcane stars.",
     "examples": {
       "candy-copter": "golden wing accents",
@@ -206,13 +233,14 @@
         "tint": "#8fe8ff"
       }
     ],
-    "note": "These are sixteen separately named, separately rostered enemy identities derived from the sixteen approved regular cutouts. They use tinted base art plus distinct silhouette accents and elemental treatments; they are not counted as mere decorative particles."
+    "note": "All sixteen separately named variant identities now use their own distinct uploaded PNG source images. Together with the sixteen base enemies, the active roster uses 32 different original enemy PNGs; variants retain their own role-specific AI and motion."
   },
   "activeScope": {
     "regularEnemyCount": 32,
-    "originalApprovedRegularEnemies": 16,
+    "originalApprovedRegularEnemies": 32,
     "distinctApprovedVariants": 16,
     "bossCount": 5,
-    "excludedRegularEnemyConcepts": "All other previously authored regular enemy concepts remain outside the active roster and are not being developed."
+    "excludedRegularEnemyConcepts": "All other previously authored regular enemy concepts remain outside the active roster and are not being developed.",
+    "uniqueOriginalPngCount": 32
   }
 }
