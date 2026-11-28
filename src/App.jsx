@@ -3773,7 +3773,7 @@ class ZeroGameScene extends Phaser.Scene {
         if (authoredBossSprite.getData("rigbySkeleton")) {
           const rigClip = bossVisualState === "move" ? "locomotion"
             : ["attack-primary", "attack-secondary", "special"].includes(bossVisualState)
-              ? (Math.abs(enemy.body?.velocity?.x || 0) > 18 ? "locomotion" : "idle")
+              ? "attack"
               : bossVisualState;
           if (authoredBossSprite.getData("rigbyCurrentClip") !== rigClip) {
             authoredBossSprite.setData("rigbyCurrentClip", rigClip);
