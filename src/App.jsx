@@ -267,22 +267,16 @@ class ZeroGameScene extends Phaser.Scene {
     const sprite = visual?.getData("heroSprite");
     const heroId = visual?.getData("heroSpriteId") || "ryo";
     if (!sprite?.active) return;
-    // Attack poses must come from the selected hero's current animation
-    // sheet. Never swap to the legacy still-image sheet, which showed the old
-    // default hero during attacks and made hero identity appear to change.
+    // Always animate the selected hero's own sheet. Never swap to legacy
+    // still-image art, which caused the old default hero to reappear.
     const animationKey = `hero-${heroId}-${state}`;
     const idleKey = `hero-${heroId}-idle`;
     const resolvedKey = this.anims.exists(animationKey) ? animationKey : idleKey;
     const sheetKey = `hero-animation-${heroId}`;
     if (sprite.texture.key !== sheetKey) sprite.setTexture(sheetKey, 0);
-    if (sprite.anims.currentAnim?.key !== resolvedKey || !sprite.anims.isPlaying) sprite.play(resolvedKey, true);
-    visual.setData("heroPoseState", state);
-    const animationKey = `hero-${heroId}-${state}`;
-    const idleKey = `hero-${heroId}-idle`;
-    const resolvedKey = this.anims.exists(animationKey) ? animationKey : idleKey;
-    const sheetKey = `hero-animation-${heroId}`;
-    if (sprite.texture.key !== sheetKey) sprite.setTexture(sheetKey, 0);
-    if (sprite.anims.currentAnim?.key !== resolvedKey || !sprite.anims.isPlaying) sprite.play(resolvedKey, true);
+    if (sprite.anims.currentAnim?.key !== resolvedKey || !sprite.anims.isPlaying) {
+      sprite.play(resolvedKey, true);
+    }
     visual.setData("heroPoseState", state);
   }
 
