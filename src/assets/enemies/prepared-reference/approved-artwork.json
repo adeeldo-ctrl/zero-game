@@ -25,7 +25,7 @@
     "47_ice-knight.png"
   ],
   "rejectedOrReviewRequired": "All other prepared cutouts remain reference-only and must not be integrated as final character artwork.",
-  "animation": "Approved images are static single-frame cutouts, not completed animated sprite sheets. Runtime Phaser motion supplies idle/run/charge movement and a squash/recoil impact reaction; genuine authored frame-by-frame animation remains outstanding.",
+  "animation": "Approved images are static single-frame cutouts, not completed animated sprite sheets. Runtime Phaser motion supplies idle/run/charge movement, anticipation/strike poses, and squash/recoil impact reactions; genuine authored frame-by-frame animation remains outstanding.",
   "bosses": "Five distinct boss base designs are now selected from approved intact cutouts: Gatekeeper (02 green ice monster), Iron Comet (34 blue ogre A), Gale Talon (40 armored lizard), Suncrest (09 pumpkin), and Void Sovereign (47 ice knight). Their transparent PNGs are integrated as boss artwork. They remain single-frame bases; existing Phaser action motion is retained, with dedicated hand-authored animation frames still outstanding.",
   "enemyIntegration": "16 approved static cutouts are integrated selectively for matching regular enemy archetypes. The five boss-exclusive designs are reserved for the five bosses to keep boss identities visually distinct. The remaining approved cutouts not assigned to regular enemies are not duplicated. Unapproved/damaged cutouts remain unused. Integrated regular enemy cutouts are single-frame artwork with Phaser motion, not hand-authored frame-by-frame animation.",
   "runtimeEnemyMapping": {
