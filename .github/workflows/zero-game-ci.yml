@@ -8,6 +8,8 @@ on:
       - main
     paths:
       - ".github/workflows/zero-game-ci.yml"
+      - ".github/workflows/zero-game-android.yml"
+      - "ZERO_GAME_FINAL_DELIVERY_LOCK.md"
       - "src/**"
       - "tests/**"
       - "scripts/**"
