@@ -3713,6 +3713,16 @@ class ZeroGameScene extends Phaser.Scene {
                     : Math.abs(enemy.body?.velocity?.x || 0) > 18 ? "move" : "idle";
         authoredBossSprite.setData("lastAttackState", attackState);
         authoredBossSprite.setData("lastVisualState", bossVisualState);
+        if (authoredBossSprite.getData("rigbySkeleton")) {
+          const rigClip = bossVisualState === "move" ? "locomotion"
+            : bossVisualState === "attack-primary" || bossVisualState === "attack-secondary" ? "attack"
+              : bossVisualState;
+          if (authoredBossSprite.getData("rigbyCurrentClip") !== rigClip) {
+            authoredBossSprite.setData("rigbyCurrentClip", rigClip);
+            const oneShot = ["entrance", "attack", "special", "hit", "phase-change"].includes(rigClip);
+            authoredBossSprite.play(rigClip, !oneShot, 0.14);
+          }
+        }
         const signatureTilt = bossId === "gale-talon" ? 9
           : bossId === "iron-comet" ? -4
             : bossId === "suncrest" ? 2
@@ -5454,6 +5464,19 @@ class ZeroGameScene extends Phaser.Scene {
 
       if (enemyVisual) {
         enemyVisual.setPosition(enemy.x, enemy.y);
+      }
+      const rigSprite = enemyVisual?.getData("authoredSprite");
+      if (rigSprite?.active && rigSprite.getData("rigbySkeleton") &&
+          time >= (enemy.getData("rigAnimationLockUntil") || 0)) {
+        const velocityX = enemy.body?.velocity?.x || 0;
+        const velocityY = enemy.body?.velocity?.y || 0;
+        const nextClip = !enemy.body?.blocked?.down
+          ? velocityY < -18 ? "jump" : "fall"
+          : Math.abs(velocityX) > 18 ? "locomotion" : "idle";
+        if (rigSprite.getData("rigbyCurrentClip") !== nextClip) {
+          rigSprite.setData("rigbyCurrentClip", nextClip);
+          rigSprite.play(nextClip, true, 0.12);
+        }
       }
 
       if (enemy.getData("rolling")) {
