@@ -44,6 +44,41 @@ import bossIronCometSheet from "./assets/bosses/prepared-reference/iron-comet.pn
 import bossGaleTalonSheet from "./assets/bosses/prepared-reference/gale-talon.png";
 import bossSuncrestSheet from "./assets/bosses/prepared-reference/suncrest.png";
 import bossVoidSovereignSheet from "./assets/bosses/prepared-reference/void-sovereign.png";
+import enemyPoseSheet01 from "../new enemy/enemy (1).jpg";
+import enemyPoseSheet02 from "../new enemy/enemy (2).jpg";
+import enemyPoseSheet03 from "../new enemy/enemy (3).jpg";
+import enemyPoseSheet04 from "../new enemy/enemy (4).jpg";
+import enemyPoseSheet05 from "../new enemy/enemy (5).jpg";
+import enemyPoseSheet06 from "../new enemy/enemy (6).jpg";
+import enemyPoseSheet07 from "../new enemy/enemy (7).jpg";
+import enemyPoseSheet08 from "../new enemy/enemy (8).jpg";
+import enemyPoseSheet09 from "../new enemy/enemy (9).jpg";
+import enemyPoseSheet10 from "../new enemy/enemy (10).jpg";
+import enemyPoseSheet11 from "../new enemy/enemy (11).jpg";
+import enemyPoseSheet12 from "../new enemy/enemy (12).jpg";
+import enemyPoseSheet13 from "../new enemy/enemy (13).jpg";
+import enemyPoseSheet14 from "../new enemy/enemy (14).jpg";
+import enemyPoseSheet15 from "../new enemy/enemy (15).jpg";
+import enemyPoseSheet16 from "../new enemy/enemy (16).jpg";
+import enemyPoseSheet17 from "../new enemy/enemy (17).jpg";
+import enemyPoseSheet18 from "../new enemy/enemy (18).jpg";
+import enemyPoseSheet19 from "../new enemy/enemy (19).jpg";
+import enemyPoseSheet20 from "../new enemy/enemy (20).jpg";
+import enemyPoseSheet21 from "../new enemy/enemy (21).jpg";
+import enemyPoseSheet22 from "../new enemy/enemy (22).jpg";
+import enemyPoseSheet23 from "../new enemy/enemy (23).jpg";
+import enemyPoseSheet24 from "../new enemy/enemy (24).jpg";
+import enemyPoseSheet25 from "../new enemy/enemy (25).jpg";
+import enemyPoseSheet26 from "../new enemy/enemy (26).jpg";
+import enemyPoseSheet27 from "../new enemy/enemy (27).jpg";
+import enemyPoseSheet28 from "../new enemy/enemy (28).jpg";
+import enemyPoseSheet29 from "../new enemy/enemy (29).jpg";
+import enemyPoseSheet30 from "../new enemy/enemy (30).jpg";
+import bossPoseSheet01 from "../bosses/boss (1).jpg";
+import bossPoseSheet02 from "../bosses/boss (2).jpg";
+import bossPoseSheet03 from "../bosses/boss (3).jpg";
+import bossPoseSheet04 from "../bosses/boss (4).jpg";
+import bossPoseSheet05 from "../bosses/boss (5).jpg";
 import worldBackdropEmerald from "./assets/backgrounds/world-emerald.svg";
 import worldBackdropCandy from "./assets/backgrounds/world-candy.svg";
 import worldBackdropFrozen from "./assets/backgrounds/world-frozen.svg";
@@ -58,6 +93,51 @@ import { Capacitor } from "@capacitor/core";
 import { ELEMENTS, HEROES, getElement, getStage, getHero } from "./gameData";
 import { getPremiumStageEnemyRoster, getPremiumEnemyRegion, PREMIUM_ENEMY_ARCHETYPES } from "./premiumCampaignData";
 import { createGameAudio } from "./gameAudio";
+
+
+const ENEMY_POSE_SHEETS = [
+  enemyPoseSheet01,
+  enemyPoseSheet02,
+  enemyPoseSheet03,
+  enemyPoseSheet04,
+  enemyPoseSheet05,
+  enemyPoseSheet06,
+  enemyPoseSheet07,
+  enemyPoseSheet08,
+  enemyPoseSheet09,
+  enemyPoseSheet10,
+  enemyPoseSheet11,
+  enemyPoseSheet12,
+  enemyPoseSheet13,
+  enemyPoseSheet14,
+  enemyPoseSheet15,
+  enemyPoseSheet16,
+  enemyPoseSheet17,
+  enemyPoseSheet18,
+  enemyPoseSheet19,
+  enemyPoseSheet20,
+  enemyPoseSheet21,
+  enemyPoseSheet22,
+  enemyPoseSheet23,
+  enemyPoseSheet24,
+  enemyPoseSheet25,
+  enemyPoseSheet26,
+  enemyPoseSheet27,
+  enemyPoseSheet28,
+  enemyPoseSheet29,
+  enemyPoseSheet30
+];
+const ENEMY_POSE_ART = Object.fromEntries(
+  Object.keys(APPROVED_ENEMY_ART).slice(0, ENEMY_POSE_SHEETS.length)
+    .map((id, index) => [id, ENEMY_POSE_SHEETS[index]])
+);
+const BOSS_POSE_SHEETS = [
+  { id: "gatekeeper", source: bossPoseSheet01, columns: 4, rows: 1 },
+  { id: "iron-comet", source: bossPoseSheet02, columns: 4, rows: 1 },
+  { id: "gale-talon", source: bossPoseSheet03, columns: 2, rows: 2 },
+  { id: "suncrest", source: bossPoseSheet04, columns: 4, rows: 1 },
+  { id: "void-sovereign", source: bossPoseSheet05, columns: 4, rows: 1 },
+];
 
 const APPROVED_ENEMY_CROPS = {
   "shadow-moss-scout": [18, 0, 110, 128],
@@ -134,6 +214,9 @@ class ZeroGameScene extends Phaser.Scene {
     Object.entries(APPROVED_ENEMY_ART).forEach(([archetypeId, source]) => {
       this.load.image(`approved-enemy-${archetypeId}`, source);
     });
+    Object.entries(ENEMY_POSE_ART).forEach(([archetypeId, source]) => {
+      this.load.image(`enemy-pose-source-${archetypeId}`, source);
+    });
     rigRoster.enemies.forEach(({ id }) => {
       this.load.rigby(`enemy-rig-${id}`, `/rigs/enemies/${id}/skeleton.json`, `/rigs/enemies/${id}/skeleton.atlas`);
     });
@@ -148,9 +231,134 @@ class ZeroGameScene extends Phaser.Scene {
       ["boss-image-void-sovereign", bossVoidSovereignSheet],
     ];
     bossImages.forEach(([key, source]) => this.load.image(key, source));
+    BOSS_POSE_SHEETS.forEach(({ id, source }) => this.load.image(`boss-pose-source-${id}`, source));
     worldBackdrops.forEach((source, index) => {
       this.load.image(`world-backdrop-${index}`, source);
     });
+  }
+
+
+  preparePoseSheetTextures() {
+    const makePoseTexture = (sourceKey, textureKey, frameIndex, columns, rows) => {
+      if (this.textures.exists(textureKey)) return true;
+      const source = this.textures.get(sourceKey)?.getSourceImage?.();
+      if (!source) return false;
+      const panelWidth = Math.floor(source.width / columns);
+      const panelHeight = Math.floor(source.height / rows);
+      if (panelWidth < 2 || panelHeight < 2) return false;
+      const column = frameIndex % columns;
+      const row = Math.floor(frameIndex / columns);
+      const scale = Math.min(1, 420 / panelWidth, 300 / panelHeight);
+      const width = Math.max(1, Math.round(panelWidth * scale));
+      const height = Math.max(1, Math.round(panelHeight * scale));
+      const panel = document.createElement("canvas");
+      panel.width = width;
+      panel.height = height;
+      const context = panel.getContext("2d", { willReadFrequently: true });
+      if (!context) return false;
+      context.drawImage(source, column * panelWidth, row * panelHeight,
+        panelWidth, panelHeight, 0, 0, width, height);
+
+      const pixels = context.getImageData(0, 0, width, height);
+      const data = pixels.data;
+      const total = width * height;
+      const seen = new Uint8Array(total);
+      const queue = new Int32Array(total);
+      let head = 0, tail = 0;
+      const nearWhite = (index) => {
+        const offset = index * 4;
+        const r = data[offset], g = data[offset + 1], b = data[offset + 2];
+        return r > 242 && g > 242 && b > 242 && Math.max(r, g, b) - Math.min(r, g, b) < 22;
+      };
+      const add = (index) => {
+        if (index < 0 || index >= total || seen[index] || !nearWhite(index)) return;
+        seen[index] = 1;
+        queue[tail++] = index;
+      };
+      for (let x = 0; x < width; x += 1) { add(x); add((height - 1) * width + x); }
+      for (let y = 0; y < height; y += 1) { add(y * width); add(y * width + width - 1); }
+      while (head < tail) {
+        const index = queue[head++];
+        const x = index % width, y = Math.floor(index / width);
+        if (x > 0) add(index - 1);
+        if (x + 1 < width) add(index + 1);
+        if (y > 0) add(index - width);
+        if (y + 1 < height) add(index + width);
+      }
+      for (let i = 0; i < total; i += 1) if (seen[i]) data[i * 4 + 3] = 0;
+      context.putImageData(pixels, 0, 0);
+
+      const componentSeen = new Uint8Array(total);
+      const componentQueue = new Int32Array(total);
+      let largest = null, largestArea = 0;
+      for (let start = 0; start < total; start += 1) {
+        if (componentSeen[start] || data[start * 4 + 3] === 0) continue;
+        let read = 0, write = 0, area = 0;
+        let minX = width, minY = height, maxX = -1, maxY = -1;
+        componentSeen[start] = 1;
+        componentQueue[write++] = start;
+        while (read < write) {
+          const index = componentQueue[read++];
+          const x = index % width, y = Math.floor(index / width);
+          area += 1;
+          minX = Math.min(minX, x); minY = Math.min(minY, y);
+          maxX = Math.max(maxX, x); maxY = Math.max(maxY, y);
+          const visit = (next) => {
+            if (next < 0 || next >= total || componentSeen[next] || data[next * 4 + 3] === 0) return;
+            componentSeen[next] = 1;
+            componentQueue[write++] = next;
+          };
+          if (x > 0) visit(index - 1);
+          if (x + 1 < width) visit(index + 1);
+          if (y > 0) visit(index - width);
+          if (y + 1 < height) visit(index + width);
+        }
+        if (area > largestArea) {
+          largestArea = area;
+          largest = { minX, minY, maxX, maxY };
+        }
+      }
+      if (!largest || largestArea < 18) return false;
+      const pad = 3;
+      const left = Math.max(0, largest.minX - pad);
+      const top = Math.max(0, largest.minY - pad);
+      const right = Math.min(width - 1, largest.maxX + pad);
+      const bottom = Math.min(height - 1, largest.maxY + pad);
+      const cropWidth = right - left + 1, cropHeight = bottom - top + 1;
+      const output = document.createElement("canvas");
+      output.width = 160;
+      output.height = 160;
+      const out = output.getContext("2d");
+      if (!out) return false;
+      const fit = Math.min(148 / cropWidth, 148 / cropHeight);
+      const drawWidth = cropWidth * fit, drawHeight = cropHeight * fit;
+      out.imageSmoothingEnabled = false;
+      out.drawImage(panel, left, top, cropWidth, cropHeight,
+        (160 - drawWidth) / 2, (160 - drawHeight) / 2, drawWidth, drawHeight);
+      this.textures.addCanvas(textureKey, output);
+      return true;
+    };
+
+    this.enemyPoseTextures = {};
+    for (const archetypeId of Object.keys(ENEMY_POSE_ART)) {
+      const sourceKey = `enemy-pose-source-${archetypeId}`;
+      const states = {};
+      for (const [state, frame] of [["idle", 0], ["walk", 1], ["jump", 2], ["attack", 3]]) {
+        const key = `enemy-pose-${archetypeId}-${state}`;
+        if (makePoseTexture(sourceKey, key, frame, 4, 1)) states[state] = key;
+      }
+      this.enemyPoseTextures[archetypeId] = states;
+    }
+    this.bossPoseTextures = {};
+    for (const boss of BOSS_POSE_SHEETS) {
+      const sourceKey = `boss-pose-source-${boss.id}`;
+      const states = {};
+      for (const [state, frame] of [["idle", 0], ["walk", 1], ["attack", 2], ["defeat", 3]]) {
+        const key = `boss-pose-${boss.id}-${state}`;
+        if (makePoseTexture(sourceKey, key, frame, boss.columns, boss.rows)) states[state] = key;
+      }
+      this.bossPoseTextures[boss.id] = states;
+    }
   }
 
   createHeroAnimations() {
@@ -295,6 +503,7 @@ class ZeroGameScene extends Phaser.Scene {
     this.bonusMode = false;
     this.createBackground();
     this.createTextures();
+    this.preparePoseSheetTextures();
     this.createHeroAnimations();
     this.createPlatforms();
 
@@ -1937,30 +2146,22 @@ class ZeroGameScene extends Phaser.Scene {
     const archetypeId = APPROVED_ENEMY_ART[requestedArchetypeId] ? requestedArchetypeId
       : APPROVED_ENEMY_ART[requestedBaseArtId] ? requestedBaseArtId : "spirit-pouncer";
     if (requestedArchetypeId !== archetypeId) enemy.setData("enemyArchetypeId", archetypeId);
-    const idleFrame = 0;
     const approvedArt = APPROVED_ENEMY_ART[archetypeId];
     if (!approvedArt) throw new Error("Missing approved original PNG artwork for enemy " + archetypeId);
-    const textureKey = `approved-enemy-${archetypeId}`;
-    const fallbackSprite = this.add.sprite(0, -12, textureKey, idleFrame)
-      .setDisplaySize(isHeavy ? 98 : 92, isHeavy ? 108 : 102);
-    const artworkCrop = APPROVED_ENEMY_CROPS[archetypeId];
-    if (artworkCrop) fallbackSprite.setCrop(...artworkCrop);
-    fallbackSprite.setVisible(false);
-    c.add(fallbackSprite);
-
-    let enemySprite = fallbackSprite;
-    try {
-      enemySprite = this.add.rigby(0, -12, `enemy-rig-${archetypeId}`, "idle")
+    const poseKey = this.enemyPoseTextures?.[archetypeId]?.idle;
+    const fallbackSprite = poseKey
+      ? this.add.image(0, -12, poseKey).setDisplaySize(isHeavy ? 98 : 92, isHeavy ? 108 : 102)
+      : this.add.sprite(0, -12, `approved-enemy-${archetypeId}`, 0)
         .setDisplaySize(isHeavy ? 98 : 92, isHeavy ? 108 : 102);
-      enemySprite.setData("rigbySkeleton", true);
-      enemySprite.setData("rigbyCurrentClip", "idle");
-      c.add(enemySprite);
-    } catch (error) {
-      fallbackSprite.setVisible(true);
-      if (import.meta.env.DEV) console.warn("Rigby2D enemy rig unavailable; using original PNG fallback", archetypeId, error);
+    if (!poseKey) {
+      const artworkCrop = APPROVED_ENEMY_CROPS[archetypeId];
+      if (artworkCrop) fallbackSprite.setCrop(...artworkCrop);
     }
-    if (approvedArt) c.setData("approvedArtSprite", enemySprite);
-    c.setData("authoredSprite", enemySprite);
+    fallbackSprite.setData("poseSheetSprite", !!poseKey);
+    c.add(fallbackSprite);
+    if (!poseKey) fallbackSprite.setVisible(true);
+    c.setData("approvedArtSprite", fallbackSprite);
+    c.setData("authoredSprite", fallbackSprite);
     enemy.setData("visual", c);
     c.setData("enemyClass", enemyClass);
     c.setData("classProfile", isFast ? "swift-scarf" : isHeavy ? "armored-bruiser" : "arcane-aura");
@@ -3114,6 +3315,14 @@ class ZeroGameScene extends Phaser.Scene {
     const key = `enemy-${archetypeId}-${state}`;
     if (!visual?.active) return null;
     visual.setVisible(true).setAlpha(1);
+    if (sprite?.active && sprite.getData("poseSheetSprite")) {
+      const pose = state === "move" ? "walk" : state === "jump" || state === "fall" ? "jump"
+        : state === "attack" ? "attack" : "idle";
+      const poseKey = this.enemyPoseTextures?.[archetypeId]?.[pose];
+      if (poseKey) sprite.setTexture(poseKey);
+      visual.setData("poseStateUntil", this.time.now + (state === "attack" ? 360 : state === "hit" ? 260 : 0));
+      return visual;
+    }
     if (state === "attack" && approvedArtSprite?.active) {
       // Give single-frame cutouts a distinct anticipation/strike pose without
       // changing enemy physics, attack timing, or collision behaviour.
@@ -3404,21 +3613,12 @@ class ZeroGameScene extends Phaser.Scene {
     const bossSheetId = bossId || (isGatekeeper ? "gatekeeper" : isBoxer ? "iron-comet"
       : isAgile ? "gale-talon" : isMaster ? "suncrest" : "void-sovereign");
     c.list.forEach((part) => part.setVisible(part === shadow));
-    const fallbackBossSprite = this.add.image(0, -22, `boss-image-${bossSheetId}`)
-      .setDisplaySize(150, 150)
-      .setVisible(false);
-    c.add(fallbackBossSprite);
-    let bossSprite = fallbackBossSprite;
-    try {
-      bossSprite = this.add.rigby(0, -22, `boss-rig-${bossSheetId}`, "idle")
-        .setDisplaySize(150, 150);
-      bossSprite.setData("rigbySkeleton", true);
-      bossSprite.setData("rigbyCurrentClip", "idle");
-      c.add(bossSprite);
-    } catch (error) {
-      fallbackBossSprite.setVisible(true);
-      if (import.meta.env.DEV) console.warn("Rigby2D boss rig unavailable; using original PNG fallback", bossSheetId, error);
-    }
+    const bossPoseKey = this.bossPoseTextures?.[bossSheetId]?.idle;
+    const bossSprite = bossPoseKey
+      ? this.add.image(0, -22, bossPoseKey).setDisplaySize(150, 150)
+      : this.add.image(0, -22, `boss-image-${bossSheetId}`).setDisplaySize(150, 150);
+    bossSprite.setData("poseSheetSprite", !!bossPoseKey);
+    c.add(bossSprite);
     bossSprite.setData("entranceUntil", this.time.now + 900);
     bossSprite.setAlpha(0);
     this.tweens.add({ targets: bossSprite, alpha: 1, duration: 420, ease: "Cubic.easeOut" });
@@ -3715,7 +3915,12 @@ class ZeroGameScene extends Phaser.Scene {
       });
       boss.setVelocity(0, 0);
       const defeatedBossSprite = this.bossVisual?.getData("authoredSprite");
-      if (defeatedBossSprite?.active) defeatedBossSprite.setData("defeatUntil", this.time.now + 950);
+      if (defeatedBossSprite?.active) {
+        const bossId = this.bossVisual?.getData("bossSheetId");
+        const defeatPose = this.bossPoseTextures?.[bossId]?.defeat;
+        if (defeatPose) defeatedBossSprite.setTexture(defeatPose);
+        defeatedBossSprite.setData("defeatUntil", this.time.now + 950);
+      }
       this.tweens.add({ targets: this.bossVisual, angle: 360, scale: 0.1,
         alpha: 0, duration: 950, ease: "Back.easeIn",
         onComplete: () => { if (this.bossVisual?.active) this.bossVisual.destroy(); } });
@@ -3774,7 +3979,12 @@ class ZeroGameScene extends Phaser.Scene {
         authoredBossSprite.setData("lastRigAttackState", attackState);
         authoredBossSprite.setData("lastAttackState", attackState);
         authoredBossSprite.setData("lastVisualState", bossVisualState);
-        if (authoredBossSprite.getData("rigbySkeleton")) {
+        if (authoredBossSprite.getData("poseSheetSprite")) {
+          const state = ["tell", "dash", "volley", "slam"].includes(attackState) ? "attack"
+            : Math.abs(enemy.body?.velocity?.x || 0) > 18 ? "walk" : "idle";
+          const poseKey = this.bossPoseTextures?.[bossId]?.[state];
+          if (poseKey && authoredBossSprite.texture.key !== poseKey) authoredBossSprite.setTexture(poseKey);
+        } else if (authoredBossSprite.getData("rigbySkeleton")) {
           const rigClip = bossVisualState === "move" ? "locomotion"
             : ["attack-primary", "attack-secondary", "special"].includes(bossVisualState)
               ? "attack"
@@ -5532,7 +5742,15 @@ class ZeroGameScene extends Phaser.Scene {
       const ambientIdleActive = !enemy.getData("isTimeHunter") && !enemy.getData("frozen") &&
         !enemy.getData("rolling") && this.updateEnemyAmbientIdle(enemy, aiType, heroDistance, time);
       const rigSprite = enemyVisual?.getData("authoredSprite");
-      if (rigSprite?.active && rigSprite.getData("rigbySkeleton") &&
+      if (rigSprite?.active && rigSprite.getData("poseSheetSprite") &&
+          time >= (enemyVisual.getData("poseStateUntil") || 0)) {
+        const vx = enemy.body?.velocity?.x || 0;
+        const vy = enemy.body?.velocity?.y || 0;
+        const state = !enemy.body?.blocked?.down ? (vy < -18 ? "jump" : "jump")
+          : Math.abs(vx) > 18 ? "walk" : "idle";
+        const key = this.enemyPoseTextures?.[enemy.getData("enemyArchetypeId")]?.[state];
+        if (key && rigSprite.texture.key !== key) rigSprite.setTexture(key);
+      } else if (rigSprite?.active && rigSprite.getData("rigbySkeleton") &&
           time >= (enemy.getData("rigAnimationLockUntil") || 0)) {
         const velocityX = enemy.body?.velocity?.x || 0;
         const velocityY = enemy.body?.velocity?.y || 0;
