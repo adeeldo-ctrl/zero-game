@@ -46,6 +46,7 @@ for source in ("zero_game_foreground.xml", "mipmap-anydpi-v26", "mipmap-anydpi")
 workflow_dir = root / ".github/workflows"
 apk_workflow = workflow_dir / "zero-game-android.yml"
 content = apk_workflow.read_text(encoding="utf-8")
+ci = (workflow_dir / "zero-game-ci.yml").read_text(encoding="utf-8")
 trigger_block = re.search(r"(?ms)^on:\s*\n((?:[ \t]+.*\n)*)", content)
 assert trigger_block and re.search(r"(?m)^  workflow_dispatch:\s*$", trigger_block.group(1)), (
     "The Android APK workflow must be manually dispatchable"
@@ -88,7 +89,6 @@ for flag in ("SYSTEM_UI_FLAG_IMMERSIVE_STICKY", "SYSTEM_UI_FLAG_HIDE_NAVIGATION"
     assert flag in content, f"Android immersive full-screen mode is missing {flag}"
 assert not (workflow_dir / "android-apk.yml").exists(), "Remove the redundant legacy APK workflow"
 
-ci = (workflow_dir / "zero-game-ci.yml").read_text(encoding="utf-8")
 ci_trigger = re.search(r"(?ms)^on:\s*\n((?:[ \t]+.*\n)*)", ci)
 assert ci_trigger and re.search(r"(?m)^  workflow_dispatch:\s*$", ci_trigger.group(1)), (
     "Consolidated verification must be manually dispatchable after development"
