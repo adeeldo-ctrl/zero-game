@@ -105,3 +105,19 @@ The work is complete only when:
 ## Honesty requirement
 
 A static PNG is source artwork, not an animation sheet. Do not claim that an enemy or boss has a complete walk/jump animation until the actual rig, mesh, or frame animation has been implemented and checked in gameplay. If any character's source image prevents a clean result, report that specific limitation rather than claiming it is finished.
+
+## Free rigging tool compatibility decision (2026-11-28)
+
+The game currently uses Phaser 4.2.1. Do not integrate a runtime that only supports Phaser 3: the official OpenBone Phaser package currently declares a Phaser peer range of >=3.60.0 and <4, so it is not compatible with this project's current engine without an engine migration.
+
+Preferred free-tool evaluation for this Phaser 4 project: **Rigby2D**. Its published project information lists Phaser 3.60+ and Phaser 4 runtimes and an MIT/Apache-2.0 open-source editor/runtime. Before integration, verify the exact released Phaser runtime package/API and export format against the repository's Phaser 4.2.1 version.
+
+Implementation sequence:
+1. Preserve all original PNG source files and create working copies for rig preparation.
+2. For each of the 32 selected enemies and five bosses, separate movable parts only where the original artwork supports clean separation; use weighted mesh deformation for soft/floating creatures or where cutting parts would visibly damage the art.
+3. Create and export real idle, locomotion, jump/fall/land, attack, hit, and defeat clips appropriate to each creature. Add a unique special-action clip to each boss.
+4. Integrate the Phaser 4-compatible runtime and connect clips to existing gameplay state without changing physics, collision, controls, stages, or hero behaviour.
+5. Inspect exported animations in the actual game at mobile resolution. Reject broken cutouts, visible holes, mismatched pivots, and animation/physics drift.
+6. Only after all 37 characters are complete, run the single consolidated verification and build the one final Android APK.
+
+No dependency migration, placeholder rigs, vector redraws, or whole-image-only motion may be presented as completed skeletal animation.
