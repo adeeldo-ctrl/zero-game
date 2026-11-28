@@ -5909,7 +5909,6 @@ class ZeroGameScene extends Phaser.Scene {
       if (rigSprite?.active && rigSprite.getData("poseSheetSprite") &&
           time >= (enemyVisual.getData("poseStateUntil") || 0)) {
         const vx = enemy.body?.velocity?.x || 0;
-        const vy = enemy.body?.velocity?.y || 0;
         const moving = Math.abs(vx) > 18;
         const walkPhase = moving ? Math.floor(time / 115) % 2 : 0;
         const state = !enemy.body?.blocked?.down ? "jump"
