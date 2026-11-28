@@ -7,14 +7,10 @@ export const PREMIUM_ENEMY_REGIONS = [
     stages: [1, 10],
     enemies: [
       ["moss-scout", "Moss Scout", "runner", "common"],
-      ["thorn-guard", "Thorn Guard", "shield", "common"],
       ["acorn-leaper", "Acorn Leaper", "leaper", "common"],
       ["spore-caster", "Spore Caster", "ranged", "special"],
       ["root-burrower", "Root Burrower", "ambusher", "special"],
-      ["fern-glider", "Fern Glider", "flying", "common"],
       ["bark-bruiser", "Bark Bruiser", "heavy", "common"],
-      ["venom-stalker", "Venom Stalker", "charger", "elite"],
-      ["ancient-wisp", "Ancient Wisp", "summoner", "elite"],
       // Distinct approved-art variant identities; each keeps its own role and palette.
       ["shadow-moss-scout", "Shadow Moss Scout", "runner", "common", { variantOf: "moss-scout", artBaseId: "moss-scout", tint: 0x70c7ff, style: "shadow" }],
       ["iron-bark-bruiser", "Ironbark Bruiser", "heavy", "special", { variantOf: "bark-bruiser", artBaseId: "bark-bruiser", tint: 0xb6a7ff, style: "metal" }],
@@ -25,15 +21,10 @@ export const PREMIUM_ENEMY_REGIONS = [
     id: "candy-orchard",
     stages: [11, 20],
     enemies: [
-      ["gumdrop-dasher", "Gumdrop Dasher", "runner", "common"],
-      ["taffy-tank", "Taffy Tank", "heavy", "common"],
       ["jelly-vault", "Jelly Vault", "leaper", "common"],
       ["licorice-sniper", "Licorice Sniper", "ranged", "special"],
-      ["sugar-shell", "Sugar Shell", "shield", "common"],
-      ["fizz-bomber", "Fizz Bomber", "bomber", "special"],
       ["candy-copter", "Candy Copter", "flying", "common"],
       ["caramel-mauler", "Caramel Mauler", "charger", "elite"],
-      ["prism-trickster", "Prism Trickster", "illusionist", "elite"],
       // Distinct approved-art variant identities; each keeps its own role and palette.
       ["prism-jelly-vault", "Prism Jelly Vault", "leaper", "special", { variantOf: "jelly-vault", artBaseId: "jelly-vault", tint: 0xa5f4ff, style: "prism" }],
       ["molten-caramel-mauler", "Molten Caramel Mauler", "charger", "elite", { variantOf: "caramel-mauler", artBaseId: "caramel-mauler", tint: 0xff7046, style: "flame" }],
@@ -44,15 +35,7 @@ export const PREMIUM_ENEMY_REGIONS = [
     id: "frost-citadel",
     stages: [21, 30],
     enemies: [
-      ["flake-runner", "Flake Runner", "runner", "common"],
-      ["glacier-sentinel", "Glacier Sentinel", "shield", "common"],
       ["icicle-hopper", "Icicle Hopper", "leaper", "common"],
-      ["blizzard-mage", "Blizzard Mage", "ranged", "special"],
-      ["snowdrift-stalker", "Snowdrift Stalker", "ambusher", "special"],
-      ["frostwing", "Frostwing", "flying", "common"],
-      ["permafrost-ogre", "Permafrost Ogre", "heavy", "common"],
-      ["hailstorm-lancer", "Hailstorm Lancer", "charger", "elite"],
-      ["glacial-oracle", "Glacial Oracle", "summoner", "elite"],
       // Distinct approved-art variant identities; each keeps its own role and palette.
       ["frostfire-icicle-hopper", "Frostfire Icicle Hopper", "leaper", "special", { variantOf: "icicle-hopper", artBaseId: "icicle-hopper", tint: 0xa9f5ff, style: "frostfire" }],
       ["crystal-spore-caster", "Crystal Spore Caster", "ranged", "special", { variantOf: "spore-caster", artBaseId: "spore-caster", tint: 0xd7a5ff, style: "crystal" }],
@@ -63,12 +46,9 @@ export const PREMIUM_ENEMY_REGIONS = [
     id: "moonlit-jungle",
     stages: [31, 40],
     enemies: [
-      ["moon-prowler", "Moon Prowler", "runner", "common"],
       ["jade-shellback", "Jade Shellback", "shield", "common"],
       ["vine-vault", "Vine Vault", "leaper", "common"],
-      ["willow-witch", "Willow Witch", "ranged", "special"],
       ["mire-burrower", "Mire Burrower", "ambusher", "special"],
-      ["night-manta", "Night Manta", "flying", "common"],
       ["temple-breaker", "Temple Breaker", "heavy", "common"],
       ["spirit-pouncer", "Spirit Pouncer", "charger", "elite"],
       ["eclipse-summoner", "Eclipse Summoner", "summoner", "elite"],
@@ -82,15 +62,6 @@ export const PREMIUM_ENEMY_REGIONS = [
     id: "starfall-realm",
     stages: [41, 50],
     enemies: [
-      ["comet-dart", "Comet Dart", "runner", "common"],
-      ["nebula-warden", "Nebula Warden", "shield", "common"],
-      ["orbit-jumper", "Orbit Jumper", "leaper", "common"],
-      ["quasar-sage", "Quasar Sage", "ranged", "special"],
-      ["rift-stalker", "Rift Stalker", "ambusher", "special"],
-      ["stardust-ray", "Stardust Ray", "flying", "common"],
-      ["meteor-colossus", "Meteor Colossus", "heavy", "common"],
-      ["nova-lancer", "Nova Lancer", "charger", "elite"],
-      ["void-architect", "Void Architect", "summoner", "elite"],
       // Distinct approved-art variant identities; each keeps its own role and palette.
       ["plasma-mire-burrower", "Plasma Mire Burrower", "ambusher", "elite", { variantOf: "mire-burrower", artBaseId: "mire-burrower", tint: 0xe58cff, style: "plasma" }],
       ["void-licorice-sniper", "Void Licorice Sniper", "ranged", "elite", { variantOf: "licorice-sniper", artBaseId: "licorice-sniper", tint: 0xa78bff, style: "void" }],
@@ -151,7 +122,7 @@ export function getPremiumStageEnemyRoster(stageNumber) {
   const stage = Math.max(1, Math.min(50, Math.floor(Number(stageNumber) || 1)));
   const region = getPremiumEnemyRegion(stage);
   const localStage = ((stage - 1) % 10) + 1;
-  // Each stage introduces/combines different members of its region's nine-type roster.
+  // Each stage introduces/combines only approved base enemies and their 16 distinct variants.
   const rosterSize = region.enemies.length;
   const availableCount = Math.min(rosterSize, 2 + Math.floor((Math.min(localStage, 9) - 1) * (rosterSize - 2) / 8));
   const rotation = (localStage - 1) % rosterSize;
