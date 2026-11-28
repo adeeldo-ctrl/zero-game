@@ -95,6 +95,48 @@ import { getPremiumStageEnemyRoster, getPremiumEnemyRegion, PREMIUM_ENEMY_ARCHET
 import { createGameAudio } from "./gameAudio";
 
 
+const APPROVED_ENEMY_CROPS = {
+  "shadow-moss-scout": [18, 0, 110, 128],
+  "iron-bark-bruiser": [0, 0, 128, 112],
+  "golden-acorn-leaper": [18, 0, 110, 128],
+  "prism-jelly-vault": [18, 0, 110, 128],
+  "molten-caramel-mauler": [0, 0, 104, 128],
+};
+const APPROVED_ENEMY_ART = {
+  "spirit-pouncer": enemy03RedHorn,
+  "icicle-hopper": enemy05WinterChick,
+  "jelly-vault": enemy07PinkOctopus,
+  "bark-bruiser": enemy10GoggleBrown,
+  "spore-caster": enemy14MushroomCrab,
+  "caramel-mauler": enemy15BrownGoggle,
+  "moss-scout": enemy20Hedgehog,
+  "vine-vault": enemy23GreenFrog,
+  "acorn-leaper": enemy25Squirrel,
+  "candy-copter": enemy27Bee,
+  "eclipse-summoner": enemy33Mummy,
+  "temple-breaker": enemy35BlueOgre,
+  "jade-shellback": enemy37Turtle,
+  "root-burrower": enemy38Turtle,
+  "mire-burrower": enemy39Lizard,
+  "licorice-sniper": enemy42RatGuard,
+  "shadow-moss-scout": enemy01Snowman,
+  "iron-bark-bruiser": enemy13ChainedGhost,
+  "golden-acorn-leaper": enemy41PumpkinVariant,
+  "prism-jelly-vault": enemy45OwlB,
+  "molten-caramel-mauler": enemy48SkullCloud,
+  "storm-candy-copter": enemy04PurpleBat,
+  "frostfire-icicle-hopper": enemy06Yeti,
+  "crystal-spore-caster": enemy11IceGolem,
+  "thorn-root-burrower": enemy12ArmoredPenguin,
+  "ember-spirit-pouncer": enemy19IceRobot,
+  "toxic-vine-vault": enemy21Skeleton,
+  "solar-jade-shellback": enemy22WolfGuard,
+  "plasma-mire-burrower": enemy24Spider,
+  "void-licorice-sniper": enemy28IceFish,
+  "astral-eclipse-summoner": enemy29Jellyfish,
+  "frost-temple-breaker": enemy36IceCube,
+}
+
 const ENEMY_POSE_SHEETS = [
   enemyPoseSheet01,
   enemyPoseSheet02,
@@ -137,49 +179,7 @@ const BOSS_POSE_SHEETS = [
   { id: "gale-talon", source: bossPoseSheet03, columns: 2, rows: 2 },
   { id: "suncrest", source: bossPoseSheet04, columns: 4, rows: 1 },
   { id: "void-sovereign", source: bossPoseSheet05, columns: 4, rows: 1 },
-];
-
-const APPROVED_ENEMY_CROPS = {
-  "shadow-moss-scout": [18, 0, 110, 128],
-  "iron-bark-bruiser": [0, 0, 128, 112],
-  "golden-acorn-leaper": [18, 0, 110, 128],
-  "prism-jelly-vault": [18, 0, 110, 128],
-  "molten-caramel-mauler": [0, 0, 104, 128],
-};
-const APPROVED_ENEMY_ART = {
-  "spirit-pouncer": enemy03RedHorn,
-  "icicle-hopper": enemy05WinterChick,
-  "jelly-vault": enemy07PinkOctopus,
-  "bark-bruiser": enemy10GoggleBrown,
-  "spore-caster": enemy14MushroomCrab,
-  "caramel-mauler": enemy15BrownGoggle,
-  "moss-scout": enemy20Hedgehog,
-  "vine-vault": enemy23GreenFrog,
-  "acorn-leaper": enemy25Squirrel,
-  "candy-copter": enemy27Bee,
-  "eclipse-summoner": enemy33Mummy,
-  "temple-breaker": enemy35BlueOgre,
-  "jade-shellback": enemy37Turtle,
-  "root-burrower": enemy38Turtle,
-  "mire-burrower": enemy39Lizard,
-  "licorice-sniper": enemy42RatGuard,
-  "shadow-moss-scout": enemy01Snowman,
-  "iron-bark-bruiser": enemy13ChainedGhost,
-  "golden-acorn-leaper": enemy41PumpkinVariant,
-  "prism-jelly-vault": enemy45OwlB,
-  "molten-caramel-mauler": enemy48SkullCloud,
-  "storm-candy-copter": enemy04PurpleBat,
-  "frostfire-icicle-hopper": enemy06Yeti,
-  "crystal-spore-caster": enemy11IceGolem,
-  "thorn-root-burrower": enemy12ArmoredPenguin,
-  "ember-spirit-pouncer": enemy19IceRobot,
-  "toxic-vine-vault": enemy21Skeleton,
-  "solar-jade-shellback": enemy22WolfGuard,
-  "plasma-mire-burrower": enemy24Spider,
-  "void-licorice-sniper": enemy28IceFish,
-  "astral-eclipse-summoner": enemy29Jellyfish,
-  "frost-temple-breaker": enemy36IceCube,
-};
+];;
 import { createCampaignLives, loseCampaignHeart, getStageTransitionDirection } from "./campaignRules";
 import { shouldHeroCollideWithPlatform, shouldDropThroughPlatform, getPlatformTextureScale } from "./platformRules";
 import { getBossPhase, isValidJumpStomp } from "./combatRules";
