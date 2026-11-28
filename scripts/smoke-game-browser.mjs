@@ -44,6 +44,25 @@ try {
   if (dimensions.width !== 960 || dimensions.height !== 540) {
     throw new Error(`Unexpected game canvas dimensions: ${JSON.stringify(dimensions)}`);
   }
+  const poseAudit = await page.evaluate(() => {
+    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+    const heroStates = Object.values(scene?.heroPoseTextures || {});
+    return {
+      heroes: heroStates.length,
+      heroStatesComplete: heroStates.every((poses) => ["idle", "walk", "jump", "attack", "sit"].every((state) => !!poses[state])),
+      enemies: Object.keys(scene?.enemyPoseTextures || {}).length,
+      enemyStatesComplete: Object.values(scene?.enemyPoseTextures || {}).every((poses) =>
+        ["idle", "walk", "jump", "attack", "defeat"].every((state) => !!poses[state])),
+      bosses: Object.keys(scene?.bossPoseTextures || {}).length,
+      bossStatesComplete: Object.values(scene?.bossPoseTextures || {}).every((poses) =>
+        ["idle", "walk", "jump", "attack", "defeat"].every((state) => !!poses[state])),
+    };
+  });
+  if (poseAudit.heroes !== 4 || !poseAudit.heroStatesComplete ||
+      poseAudit.enemies !== 30 || !poseAudit.enemyStatesComplete ||
+      poseAudit.bosses !== 5 || !poseAudit.bossStatesComplete) {
+    throw new Error("Supplied hero/enemy/boss pose artwork did not load completely: " + JSON.stringify(poseAudit));
+  }
 
   const characterIds = [
     ...PREMIUM_ENEMY_ARCHETYPES.map(({ id }) => id),
@@ -202,55 +221,46 @@ try {
   await page.waitForFunction(() => {
     const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
     return scene?.enemies?.getChildren().some((enemy) =>
-      enemy.active && !enemy.getData("isBoss") && enemy.getData("visual")?.getData("authoredSprite")?.getData("rigbySkeleton")
+      enemy.active && !enemy.getData("isBoss") && enemy.getData("visual")?.getData("authoredSprite")?.getData("poseSheetSprite")
     );
   }, undefined, { timeout: 7000 });
-  const movementRig = await page.evaluate(() => {
+  const enemyPoseMotion = await page.evaluate(() => {
     const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
     const enemy = scene.enemies.getChildren().find((entry) => entry.active && !entry.getData("isBoss"));
-    const rig = enemy?.getData("visual")?.getData("authoredSprite");
-    if (!rig?.getData("rigbySkeleton") || !rig.skeleton?.bones?.length) {
-      throw new Error("No live weighted enemy rig is available for the locomotion check");
-    }
-    const bone = rig.skeleton.bones.find((entry) => entry.name === "pelvis")?.name || rig.skeleton.bones[1].name;
-    const before = rig.boneWorld(bone);
-    rig.play("locomotion", true, 0);
-    window.__ZERO_GAME_RIG_MOTION__ = { rig, bone, before };
-    return { bone, before };
+    const sprite = enemy?.getData("visual")?.getData("authoredSprite");
+    if (!sprite?.getData("poseSheetSprite")) throw new Error("No supplied enemy pose sprite is active");
+    scene.playEnemyReactionAnimation(enemy, "move");
+    const walking = sprite.texture.key;
+    scene.playEnemyReactionAnimation(enemy, "attack");
+    const attacking = sprite.texture.key;
+    return { walking, attacking };
   });
-  await delay(180);
-  const movementAfter = await page.evaluate(() => {
-    const value = window.__ZERO_GAME_RIG_MOTION__;
-    const after = value.rig.boneWorld(value.bone);
-    delete window.__ZERO_GAME_RIG_MOTION__;
-    return after;
-  });
-  if (!movementAfter || Math.hypot(movementAfter.x - movementRig.before.x, movementAfter.y - movementRig.before.y) < 0.1) {
-    throw new Error("Rigby2D locomotion clip did not move the enemy bone mesh");
+  if (!enemyPoseMotion.walking.endsWith("-walk") || !enemyPoseMotion.attacking.endsWith("-attack")) {
+    throw new Error("Enemy did not switch to its supplied walking/attack poses: " + JSON.stringify(enemyPoseMotion));
   }
   const idleAnimation = await page.evaluate(() => {
     const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
-    return scene.heroVisual?.getData("heroSprite")?.anims?.currentAnim?.key;
+    return scene.heroVisual?.getData("heroSprite")?.texture?.key;
   });
-  if (idleAnimation !== "hero-ryo-idle") throw new Error("Hero did not start its authored idle animation");
+  if (idleAnimation !== "hero-pose-ryo-idle") throw new Error("Hero did not start with its supplied idle pose: " + idleAnimation);
   await page.keyboard.down("d");
   await delay(320);
   const walkingAnimation = await page.evaluate(() => {
     const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
-    return scene.heroVisual?.getData("heroSprite")?.anims?.currentAnim?.key;
+    return scene.heroVisual?.getData("heroSprite")?.texture?.key;
   });
   await page.keyboard.up("d");
-  if (!["hero-ryo-walk", "hero-ryo-run"].includes(walkingAnimation)) {
-    throw new Error("Hero did not play an authored walking/running cycle: " + walkingAnimation);
+  if (walkingAnimation !== "hero-pose-ryo-walk") {
+    throw new Error("Hero did not switch to its supplied walking pose: " + walkingAnimation);
   }
   await page.keyboard.press("Space");
   await delay(120);
   const jumpAnimation = await page.evaluate(() => {
     const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
-    return scene.heroVisual?.getData("heroSprite")?.anims?.currentAnim?.key;
+    return scene.heroVisual?.getData("heroSprite")?.texture?.key;
   });
-  if (!["hero-ryo-jump", "hero-ryo-fall", "hero-ryo-land"].includes(jumpAnimation)) {
-    throw new Error("Hero did not play an authored jump/airborne cycle: " + jumpAnimation);
+  if (jumpAnimation !== "hero-pose-ryo-jump") {
+    throw new Error("Hero did not switch to its supplied jumping pose: " + jumpAnimation);
   }
   await delay(500);
 
@@ -948,9 +958,9 @@ try {
           y: enemy.y,
           element: enemy.getData("enemyPowerType"),
           visualElement: enemy.getData("visual")?.getData("elementId"),
-          rigged: enemy.getData("visual")?.getData("authoredSprite")?.getData("rigbySkeleton") === true,
+          poseSheet: enemy.getData("visual")?.getData("authoredSprite")?.getData("poseSheetSprite") === true,
         })),
-        bossRigged: scene.bossVisual?.getData("authoredSprite")?.getData("rigbySkeleton") === true,
+        bossPoseSheet: scene.bossVisual?.getData("authoredSprite")?.getData("poseSheetSprite") === true,
         heroId: scene.selectedHero?.id,
         chances: scene.chances,
         hearts: scene.health,
@@ -980,14 +990,14 @@ try {
     if (stageState.bossStage && stageState.enemies.length !== 0) {
       throw new Error(`Boss stage ${nextStage} must not spawn regular enemies`);
     }
-    if (stageState.enemies.some((enemy) => !enemy.rigged) || (stageState.bossStage && !stageState.bossRigged)) {
-      throw new Error(`Stage ${nextStage} did not render all active characters through weighted rigs`);
+    if (stageState.enemies.some((enemy) => !enemy.poseSheet) || (stageState.bossStage && !stageState.bossPoseSheet)) {
+      throw new Error(`Stage ${nextStage} did not render active characters from the supplied pose artwork`);
     }
     if (stageState.bossStage) {
       await page.waitForFunction(() => {
         const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
-        const rig = scene?.bossVisual?.getData("authoredSprite");
-        return rig?.getData("rigbySkeleton") && scene.time.now >= (rig.getData("entranceUntil") || 0);
+        const sprite = scene?.bossVisual?.getData("authoredSprite");
+        return sprite?.getData("poseSheetSprite") && scene.time.now >= (sprite.getData("entranceUntil") || 0);
       }, undefined, { timeout: 4000 });
       await page.evaluate(() => {
         const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
@@ -1002,27 +1012,16 @@ try {
       });
       await page.waitForFunction(() => {
         const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
-        return scene?.bossVisual?.getData("authoredSprite")?.getData("rigbyCurrentClip") === "signature";
+        const sprite = scene?.bossVisual?.getData("authoredSprite");
+        return sprite?.getData("poseSheetSprite") && sprite.texture.key.endsWith("-attack");
       }, undefined, { timeout: 3000 });
-      const before = await page.evaluate(() => {
+      const bossPose = await page.evaluate(() => {
         const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
-        const rig = scene.bossVisual.getData("authoredSprite");
-        return rig.skeleton.bones.filter((bone) => bone.name !== "root")
-          .map((bone) => ({ name: bone.name, ...rig.boneWorld(bone.name) }));
+        return scene.bossVisual.getData("authoredSprite").texture.key;
       });
-      await delay(220);
-      const after = await page.evaluate(() => {
-        const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
-        const rig = scene.bossVisual.getData("authoredSprite");
-        return rig.skeleton.bones.filter((bone) => bone.name !== "root")
-          .map((bone) => ({ name: bone.name, ...rig.boneWorld(bone.name) }));
-      });
-      const signatureMoved = after.some((bone, index) =>
-        Math.abs((bone.x || 0) - (before[index].x || 0)) > 0.1 ||
-        Math.abs((bone.y || 0) - (before[index].y || 0)) > 0.1 ||
-        Math.abs((bone.rotation || 0) - (before[index].rotation || 0)) > 0.005
-      );
-      if (!signatureMoved) throw new Error(`Boss ${stageState.bossId} did not animate its live rig`);
+      if (bossPose !== `boss-pose-${stageState.bossId}-attack`) {
+        throw new Error(`Boss ${stageState.bossId} did not switch to its supplied attack pose: ${bossPose}`);
+      }
       // The signature check temporarily places the hero beside the boss.
       // Restore a safe, grounded test position before advancing the campaign.
       await page.evaluate(() => {
@@ -1143,13 +1142,12 @@ try {
     if (enemies.some((enemy) => {
       const visual = enemy.getData("visual");
       const sprite = visual?.getData("authoredSprite");
-      const hasOriginalWeightedRig = sprite?.getData("rigbySkeleton") === true &&
-        Array.isArray(sprite.skeleton?.bones) && sprite.skeleton.bones.length > 1 &&
-        typeof sprite.play === "function";
-      return !visual?.visible || !sprite?.active || !hasOriginalWeightedRig ||
+      const hasSuppliedPoseArt = sprite?.getData("poseSheetSprite") === true &&
+        typeof sprite.texture?.key === "string" && sprite.texture.key.startsWith("enemy-pose-");
+      return !visual?.visible || !sprite?.active || !hasSuppliedPoseArt ||
         visual.getData("approvedArtSprite") !== sprite || !sprite.visible;
     })) {
-      throw new Error("A live stage enemy is missing its visible original weighted animation rig");
+      throw new Error("A live stage enemy is missing its visible supplied pose artwork");
     }
     enemies.forEach((enemy, index) => enemy.setData("smokeCheckId", index));
     return {
