@@ -44,6 +44,10 @@ function makeRigBones(character, width, height, isBoss) {
       bone("back_leg_l", -w * 0.23, -h * 0.2, h * 0.22),
       bone("back_leg_r", -w * 0.08, -h * 0.2, h * 0.22),
       bone("tail", -w * 0.38, h * 0.04, h * 0.2),
+      ...(winged ? [
+        bone("wing_l", -w * 0.28, h * 0.2, w * 0.32),
+        bone("wing_r", w * 0.28, h * 0.2, w * 0.32),
+      ] : []),
     ];
   } else if (winged) {
     parts = [
