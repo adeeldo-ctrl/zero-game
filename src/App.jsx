@@ -81,14 +81,13 @@ class ZeroGameScene extends Phaser.Scene {
       this.load.rigby(`enemy-rig-${id}`, `/rigs/enemies/${id}/skeleton.json`, `/rigs/enemies/${id}/skeleton.atlas`);
     });
     this.activeBossId = getStage(this.stageNumber).boss?.id || null;
-    if (this.activeBossId) {
-      if (!rigRoster.bosses.some((entry) => entry.id === this.activeBossId)) {
-        throw new Error("Missing Rigby2D boss rig roster entry: " + this.activeBossId);
-      }
-      this.load.rigby(`boss-rig-${this.activeBossId}`,
-        `/rigs/bosses/${this.activeBossId}/skeleton.json`,
-        `/rigs/bosses/${this.activeBossId}/skeleton.atlas`);
-    }
+    // Five boss rigs are small and are also used by the campaign's dedicated
+    // boss encounter validation; enemy rigs remain limited to the current region.
+    rigRoster.bosses.forEach(({ id }) => {
+      this.load.rigby(`boss-rig-${id}`,
+        `/rigs/bosses/${id}/skeleton.json`,
+        `/rigs/bosses/${id}/skeleton.atlas`);
+    });
     worldBackdrops.forEach((source, index) => this.load.image(`world-backdrop-${index}`, source));
   }
 
@@ -3500,9 +3499,8 @@ class ZeroGameScene extends Phaser.Scene {
       chestPlate, chestInset, bellyMark, chestEmblem, cheekMarks[0], cheekMarks[1],
       headband, crownGem, hornL, hornR, browL, browR, eyeL, eyeR,
       pupilL, pupilR, nose, mouth, belt, beltGem, ...styleDetails]);
-    this.tweens.add({ targets: aura, scale: 1.16, alpha: 0.28, duration: bossElement === "lightning" ? 260 : 700, yoyo: true, repeat: -1 });
-    this.tweens.add({ targets: orbitA, x: -86, y: -48, duration: bossElement === "ice" ? 620 : 900, yoyo: true, repeat: -1, ease: "Sine.easeInOut" });
-    this.tweens.add({ targets: orbitB, x: 86, y: -48, duration: bossElement === "shadow" ? 620 : 900, yoyo: true, repeat: -1, ease: "Sine.easeInOut" });
+    // Legacy vector aura parts are hidden behind the weighted boss artwork;
+    // do not keep three invisible infinite tweens running for them.
     c.setData("parts", { shadow, legL, legR, footL, footR, armL, armR,
       fistL, fistR, body, belly, pupilL, pupilR, aura, chestEmblem, chestInset,
       cape, armorRidges, crownGem, cheekMarks, styleDetails,
@@ -3526,17 +3524,8 @@ class ZeroGameScene extends Phaser.Scene {
     bossSprite.setAlpha(0);
     bossSprite.play("entrance", false, 0.14);
     this.tweens.add({ targets: bossSprite, alpha: 1, duration: 420, ease: "Cubic.easeOut" });
-    // Boss-state motion is applied directly to this original PNG image.
-    this.tweens.add({
-      targets: bossSprite,
-      y: isAgile ? -27 : -25,
-      scaleX: isFinal ? 1.045 : 1.025,
-      scaleY: isFinal ? 0.975 : 0.985,
-      duration: isBoxer ? 520 : isAgile ? 430 : isFinal ? 820 : 680,
-      yoyo: true,
-      repeat: -1,
-      ease: "Sine.easeInOut",
-    });
+    // The weighted rig supplies its own locomotion and signature movement;
+    // updateBoss owns positioning and avoids a competing floating tween.
     c.setData("authoredSprite", bossSprite);
     c.setData("bossSheetId", bossSheetId);
     return c;
