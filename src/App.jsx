@@ -1750,7 +1750,7 @@ class ZeroGameScene extends Phaser.Scene {
     // legacy vector rig remains hidden so existing pose references stay safe.
     const heroArt = this.add.sprite(0, 0, `hero-pose-${heroId}-idle`)
       .setOrigin(0.5, 0.5)
-      .setScale(0.42);
+      .setScale(0.84); // Double the visible hero size.
     c.add(heroArt);
     c.list.forEach((child) => {
       if (child !== shadow && child !== heroArt) child.setVisible(false);
@@ -4614,10 +4614,29 @@ class ZeroGameScene extends Phaser.Scene {
           this.stageCollectionActive = false;
           this.physics.world.pause();
           this.setMobileControlsVisible(false);
-          this.time.delayedCall(250, () => {
-            if (countdown.active) countdown.destroy();
-            this.showVictory();
-          });
+          if (countdown.active) countdown.destroy();
+
+          // After the five-second score window, give the hero a clear upward
+          // exit animation before the victory screen appears.
+          const hero = this.hero;
+          const visual = this.heroVisual;
+          if (hero?.active && hero.body) {
+            hero.setVelocity(0, 0);
+            hero.body.enable = false;
+            hero.body.setAllowGravity(false);
+          }
+          if (visual?.active) {
+            visual.setPosition(hero?.x ?? visual.x, hero?.y ?? visual.y);
+            this.tweens.add({
+              targets: [hero, visual].filter(Boolean),
+              y: "-=300",
+              duration: 900,
+              ease: "Cubic.easeIn",
+              onComplete: () => this.showVictory(),
+            });
+          } else {
+            this.time.delayedCall(900, () => this.showVictory());
+          }
         }
       }});
     });
@@ -5373,6 +5392,13 @@ class ZeroGameScene extends Phaser.Scene {
       this.facing = moveAxis < 0 ? -1 : 1;
     } else {
       this.hero.setVelocityX(0);
+    }
+
+    // Walking forward into a nearby frozen enemy automatically kicks its
+    // elemental ball into a roll; the attack button remains an alternate trigger.
+    if (Math.abs(moveAxis) > 0.16 && time >= (this.nextAutoBallKickAt || 0)) {
+      this.facing = moveAxis < 0 ? -1 : 1;
+      if (this.kickNearestElementBall()) this.nextAutoBallKickAt = time + 450;
     }
 
     if (this.hero.body.blocked.down) this.jumpCount = 0;
