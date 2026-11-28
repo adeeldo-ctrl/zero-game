@@ -1,42 +1,50 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { existsSync, readFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { PREMIUM_ENEMY_ARCHETYPES, PREMIUM_BOSSES } from "../src/premiumCampaignData.js";
 
-const root = resolve("src/assets/generated-character-sheets");
-const manifest = JSON.parse(readFileSync(resolve(root, "manifest.json"), "utf8"));
-const enemyStates = ["idle", "move", "attack", "hit", "defeat"];
-const bossStates = ["entrance", "idle", "move", "attack-primary", "attack-secondary", "special", "hit", "phase-change", "defeat"];
+const assetsRoot = resolve("src/assets");
+const approval = JSON.parse(readFileSync(resolve(assetsRoot, "enemies/prepared-reference/approved-artwork.json"), "utf8"));
+const enemyFiles = approval.runtimeEnemyMapping;
+const bossFiles = {
+  gatekeeper: "bosses/prepared-reference/gatekeeper.png",
+  "iron-comet": "bosses/prepared-reference/iron-comet.png",
+  "gale-talon": "bosses/prepared-reference/gale-talon.png",
+  suncrest: "bosses/prepared-reference/suncrest.png",
+  "void-sovereign": "bosses/prepared-reference/void-sovereign.png",
+};
 
-test("all 32 approved enemy identities have their own complete animation sheet", () => {
-  const enemies = manifest.characters.filter((entry) => entry.kind === "enemy");
-  assert.equal(enemies.length, 32);
-  assert.deepEqual(enemies.map((entry) => entry.id).sort(), PREMIUM_ENEMY_ARCHETYPES.map((entry) => entry.id).sort());
-  assert.equal(new Set(enemies.map((entry) => entry.id)).size, 32);
-  for (const entry of enemies) {
-    const file = resolve(root, entry.file);
-    assert.ok(existsSync(file), entry.id + " sheet is missing");
-    const svg = readFileSync(file, "utf8");
-    assert.equal((svg.match(/data-frame="/g) || []).length, 40, entry.id + " must contain 40 frames");
-    for (const state of enemyStates) {
-      assert.equal((svg.match(new RegExp('data-state="' + state + '"', "g")) || []).length, 8, entry.id + " " + state);
-    }
-  }
+function assertOriginalPng(relativePath) {
+  const bytes = readFileSync(resolve(assetsRoot, relativePath));
+  assert.ok(bytes.length > 24, relativePath + " is empty or truncated");
+  assert.deepEqual(
+    [...bytes.subarray(0, 8)],
+    [137, 80, 78, 71, 13, 10, 26, 10],
+    relativePath + " must be a PNG file",
+  );
+  assert.ok(bytes.readUInt32BE(16) >= 32, relativePath + " width is too small");
+  assert.ok(bytes.readUInt32BE(20) >= 32, relativePath + " height is too small");
+}
+
+test("all 32 enemy identities map one-to-one to different original PNG images", () => {
+  const expectedIds = PREMIUM_ENEMY_ARCHETYPES.map(({ id }) => id).sort();
+  const mappedIds = Object.keys(enemyFiles).sort();
+  const mappedFiles = Object.values(enemyFiles);
+  assert.deepEqual(mappedIds, expectedIds);
+  assert.equal(mappedFiles.length, 32);
+  assert.equal(new Set(mappedFiles).size, 32);
+  assert.equal(approval.approved.length, 32);
+  assert.deepEqual([...mappedFiles].sort(), [...approval.approved].sort());
+  for (const file of mappedFiles) assertOriginalPng("enemies/prepared-reference/" + file);
 });
 
-test("all five bosses have distinct nine-state animation sheets", () => {
-  const bosses = manifest.characters.filter((entry) => entry.kind === "boss");
-  assert.equal(bosses.length, 5);
-  assert.deepEqual(bosses.map((entry) => entry.id).sort(), PREMIUM_BOSSES.map((entry) => entry.id).sort());
-  assert.equal(new Set(bosses.map((entry) => entry.id)).size, 5);
-  for (const entry of bosses) {
-    const file = resolve(root, entry.file);
-    assert.ok(existsSync(file), entry.id + " sheet is missing");
-    const svg = readFileSync(file, "utf8");
-    assert.equal((svg.match(/data-frame="/g) || []).length, 72, entry.id + " must contain 72 frames");
-    for (const state of bossStates) {
-      assert.equal((svg.match(new RegExp('data-state="' + state + '"', "g")) || []).length, 8, entry.id + " " + state);
-    }
+test("all five bosses use separate original PNG artwork, not regular enemy images", () => {
+  const expectedIds = PREMIUM_BOSSES.map(({ id }) => id).sort();
+  assert.deepEqual(Object.keys(bossFiles).sort(), expectedIds);
+  const enemySources = new Set(Object.values(enemyFiles));
+  for (const [bossId, file] of Object.entries(bossFiles)) {
+    assert.ok(!enemySources.has(file.split("/").pop()), bossId + " must not reuse an enemy PNG");
+    assertOriginalPng(file);
   }
 });
