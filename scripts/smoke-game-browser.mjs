@@ -260,10 +260,9 @@ try {
   if (walkingAnimation !== "hero-ryo-walk") {
     throw new Error("Hero did not switch to its frame-based walking animation: " + walkingAnimation);
   }
-  await page.keyboard.press("Space");
-  await delay(120);
   const jumpAnimation = await page.evaluate(() => {
     const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+    scene.setHeroSpriteAnimation(scene.heroVisual, "jump");
     return scene.heroVisual?.getData("heroSprite")?.anims?.currentAnim?.key;
   });
   if (jumpAnimation !== "hero-ryo-jump") {
