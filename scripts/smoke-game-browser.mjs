@@ -95,8 +95,17 @@ try {
       const clips = data.skeleton.animations.map((animation) => animation.name);
       const required = isBoss
         ? ["entrance", "idle", "locomotion", "jump", "fall", "land", "hit", "phase-change", "defeat", "signature"]
-        : ["idle", "locomotion", "jump", "fall", "land", "hit", "defeat"];
+        : ["idle", "locomotion", "jump", "fall", "land", "hit", "defeat",
+          "idle-phone", "idle-scratch", "idle-comb", "idle-look-around", "idle-groom"];
       for (const clip of required) if (!clips.includes(clip)) missingClips.push(key + ":" + clip);
+      if (!isBoss) {
+        for (const clip of ["idle-phone", "idle-scratch", "idle-comb", "idle-look-around", "idle-groom"]) {
+          const animation = data.skeleton.animations.find((entry) => entry.name === clip);
+          if (!animation || !Object.keys(animation.bones || {}).length) {
+            missingClips.push(key + ":" + clip + "(empty)");
+          }
+        }
+      }
       const meshes = data.skeleton.slots.flatMap((slot) => slot.attachments || [])
         .filter((attachment) => attachment.type === "mesh");
       if (!meshes.some((mesh) => Array.isArray(mesh.weights) && mesh.weights.length > 0)) {
@@ -152,6 +161,69 @@ try {
   if (!bossSignatureAfter || Math.abs(bossSignatureAfter.rotation - bossSignature.before.rotation) < 0.005) {
     throw new Error("Gatekeeper signature motion did not animate its rigged torso");
   }
+  const ambientAwareness = await page.evaluate(() => {
+    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+    const values = new Map();
+    const fake = {
+      data: values,
+      body: { blocked: { down: true } },
+      setData(key, value) { values.set(key, value); return this; },
+      getData(key) { return values.get(key); },
+      setVelocityX(value) { this.velocityX = value; },
+    };
+    fake.setData("enemyArchetypeId", "spirit-pouncer");
+    fake.setData("enemyRole", "runner");
+    scene.initializeEnemyAmbientIdle(fake, "runner", 7);
+    const idleFarAway = scene.updateEnemyAmbientIdle(fake, "runner", 500, scene.time.now + 1200);
+    const selectedClip = fake.getData("ambientIdleClip");
+    const idleStopsNearHero = scene.updateEnemyAmbientIdle(fake, "runner", 100, scene.time.now + 1400);
+    return {
+      idleFarAway,
+      selectedClip,
+      stoppedNearHero: !idleStopsNearHero,
+      resumedAi: fake.getData("aiState") === "tell",
+      idleStoppedVelocity: fake.velocityX === 0,
+    };
+  });
+  if (!ambientAwareness.idleFarAway ||
+      !["idle-phone", "idle-scratch", "idle-comb", "idle-look-around"].includes(ambientAwareness.selectedClip) ||
+      !ambientAwareness.stoppedNearHero || !ambientAwareness.resumedAi || !ambientAwareness.idleStoppedVelocity) {
+    throw new Error("Enemy ambient personality/hero-awareness behaviour failed: " + JSON.stringify(ambientAwareness));
+  }
+
+  const allBossSignatures = await page.evaluate((bossIds) => {
+    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+    const entries = bossIds.map((id) => {
+      const rig = scene.add.rigby(140, 90, `boss-rig-${id}`, "idle");
+      rig.setVisible(false);
+      const bones = rig.skeleton.bones.filter((bone) => bone.name !== "root");
+      const before = bones.map((bone) => ({ name: bone.name, ...rig.boneWorld(bone.name) }));
+      rig.play("signature", true, 0);
+      return { id, rig, before };
+    });
+    window.__ZERO_GAME_ALL_BOSS_SIGNATURES__ = entries;
+    return entries.map(({ id, before }) => ({ id, boneCount: before.length }));
+  }, characterIds.slice(32));
+  await delay(220);
+  const allBossSignaturesAfter = await page.evaluate(() => {
+    const entries = window.__ZERO_GAME_ALL_BOSS_SIGNATURES__;
+    const result = entries.map(({ id, rig, before }) => {
+      const after = before.map((bone) => ({ name: bone.name, ...rig.boneWorld(bone.name) }));
+      const moved = after.some((bone, index) =>
+        Math.abs((bone.x || 0) - (before[index].x || 0)) > 0.1 ||
+        Math.abs((bone.y || 0) - (before[index].y || 0)) > 0.1 ||
+        Math.abs((bone.rotation || 0) - (before[index].rotation || 0)) > 0.005
+      );
+      rig.destroy();
+      return { id, moved };
+    });
+    delete window.__ZERO_GAME_ALL_BOSS_SIGNATURES__;
+    return result;
+  });
+  if (allBossSignaturesAfter.some((entry) => !entry.moved)) {
+    throw new Error("A boss signature clip did not move its rigged mesh: " + JSON.stringify(allBossSignaturesAfter));
+  }
+
   const accessibility = await page.evaluate(() => ({
     gameRole: document.querySelector("#game-container")?.getAttribute("role"),
     gameLabel: document.querySelector("#game-container")?.getAttribute("aria-label"),
@@ -1069,7 +1141,7 @@ try {
   if (runtimeErrors.length) {
     throw new Error(`Browser runtime errors:\n${runtimeErrors.join("\n")}`);
   }
-  console.log("Browser smoke test passed: campaign and stage regression coverage, all three live enemy class visuals, restored shot/platform textures, joystick + Extra 1 + POWER via three simultaneous Android Touch identifiers, joystick movement beyond its touch zone, repeated presses, clean release, gameplay update continuity, boss and stage progression, and no uncaught runtime errors.");
+  console.log("Browser smoke test passed: campaign/stage regression, 32 enemy ambient clips and hero-awareness state changes, all five boss signature rigs, original enemy visuals, mobile multitouch controls, boss/stage progression, and no uncaught runtime errors.");
 } finally {
   if (browser) await browser.close();
   if (server.exitCode === null) {
