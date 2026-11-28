@@ -5,10 +5,6 @@ import heroRyoSheet from "./assets/heroes/hero_ryo.png";
 import heroKairoSheet from "./assets/heroes/hero_kairo.png";
 import heroMeiSheet from "./assets/heroes/hero_mei.png";
 import heroVoltSheet from "./assets/heroes/hero_volt.png";
-import enemyFastSheet from "./assets/enemies/enemy-fast-sheet.svg";
-import enemyHeavySheet from "./assets/enemies/enemy-heavy-sheet.svg";
-import enemySpecialSheet from "./assets/enemies/enemy-special-sheet.svg";
-import premiumEnemyAtlas from "./assets/enemies/premium-enemy-atlas.svg";
 import enemy03RedHorn from "./assets/enemies/prepared-reference/03_red-horn-demon.png";
 import enemy05WinterChick from "./assets/enemies/prepared-reference/05_winter-chick.png";
 import enemy07PinkOctopus from "./assets/enemies/prepared-reference/07_pink-octopus.png";
@@ -120,17 +116,6 @@ class ZeroGameScene extends Phaser.Scene {
       worldBackdropDesert, worldBackdropMoonlit, worldBackdropCrystal,
       worldBackdropCoral, worldBackdropSky, worldBackdropVolcano, worldBackdropCosmic,
     ];
-    const enemySheets = [
-      ["enemy-sheet-fast", enemyFastSheet],
-      ["enemy-sheet-heavy", enemyHeavySheet],
-      ["enemy-sheet-special", enemySpecialSheet],
-    ];
-    enemySheets.forEach(([key, source]) => this.load.spritesheet(key, source, {
-      frameWidth: 128, frameHeight: 128,
-    }));
-    this.load.spritesheet("premium-enemy-atlas", premiumEnemyAtlas, {
-      frameWidth: 128, frameHeight: 128,
-    });
 
     Object.entries(APPROVED_ENEMY_ART).forEach(([archetypeId, source]) => {
       this.load.image(`approved-enemy-${archetypeId}`, source);
@@ -354,7 +339,6 @@ class ZeroGameScene extends Phaser.Scene {
     this.createBackground();
     this.createTextures();
     this.createHeroAnimations();
-    this.createCombatantAnimations();
     this.createPlatforms();
 
     // Invisible physics body for the currently selected hero
@@ -1994,17 +1978,17 @@ class ZeroGameScene extends Phaser.Scene {
     c.list.forEach((part) => part.setVisible(part === shadow));
     const archetypeId = enemy.getData("enemyArchetypeId");
     const archetypeFrame = getPremiumEnemyFrameIndex(archetypeId);
-    const hasCharacterSheet = this.textures.exists(`character-sheet-${archetypeId}`);
-    const hasPremiumArtwork = hasCharacterSheet || archetypeFrame >= 0;
-    const idleFrame = hasPremiumArtwork && !hasCharacterSheet ? archetypeFrame * 4 : 0;
+    const hasCharacterSheet = false;
+    const hasPremiumArtwork = archetypeFrame >= 0;
+    const idleFrame = 0;
     const approvedArt = APPROVED_ENEMY_ART[archetypeId] || APPROVED_ENEMY_ART[enemy.getData("enemyArtBaseId")];
-    const textureKey = hasCharacterSheet ? `character-sheet-${archetypeId}`
-      : hasPremiumArtwork ? "premium-enemy-atlas" : `enemy-sheet-${enemyClass}`;
+    if (!approvedArt) throw new Error("Missing approved original PNG artwork for enemy " + archetypeId);
+    const textureKey = `approved-enemy-${archetypeId}`;
     const enemySprite = this.add.sprite(0, -12, textureKey, idleFrame)
-      .setDisplaySize(isHeavy ? 94 : 86, isHeavy ? 106 : 100);
+      .setDisplaySize(isHeavy ? 98 : 92, isHeavy ? 108 : 102);
     c.add(enemySprite);
     if (approvedArt && !hasCharacterSheet) {
-      enemySprite.setVisible(false);
+      enemySprite.setVisible(true);
       // Give every approved cutout a small, archetype-specific signature:
       // elemental halo + orbiting sparks, with wings/fins on airborne creatures.
       // These are layered behind the character and never touch its physics body.
@@ -2112,10 +2096,8 @@ class ZeroGameScene extends Phaser.Scene {
       this.tweens.add({ targets: halo, scaleX: 1.08, scaleY: 1.06,
         alpha: 0.06, duration: 760, yoyo: true, repeat: -1, ease: "Sine.easeInOut" });
       const approvedArtKey = APPROVED_ENEMY_ART[archetypeId] ? archetypeId : enemy.getData("enemyArtBaseId");
-      const approvedArtSprite = this.add.image(0, -12, `approved-enemy-${approvedArtKey}`)
-        .setDisplaySize(isHeavy ? 98 : 92, isHeavy ? 108 : 102);
-      // Preserve the uploaded PNG colours; enemy variants are differentiated by gameplay role and motion.
-      c.add(approvedArtSprite);
+      const approvedArtSprite = enemySprite;
+      // The visible combatant remains the uploaded PNG; no generated replacement art is layered over it.
       c.setData("approvedArtSprite", approvedArtSprite);
       c.setData("approvedAdornment", adornment);
     }
@@ -2123,7 +2105,7 @@ class ZeroGameScene extends Phaser.Scene {
     const enemyMoveKey = hasPremiumArtwork ? `enemy-${archetypeId}-move` : `enemy-${enemyClass}-move`;
     const enemyAttackKey = hasPremiumArtwork ? `enemy-${archetypeId}-attack` : `enemy-${enemyClass}-strike`;
     enemySprite.setData("idleFrame", idleFrame);
-    enemySprite.play(enemyIdleKey || enemyMoveKey);
+    if (this.anims.exists(enemyIdleKey || enemyMoveKey)) enemySprite.play(enemyIdleKey || enemyMoveKey);
     enemySprite.on(Phaser.Animations.Events.ANIMATION_COMPLETE, (animation) => {
       if (animation.key !== enemyAttackKey || !enemySprite.active) return;
       if (Math.abs(enemy.body?.velocity?.x || 0) > 18) enemySprite.play(enemyMoveKey);
