@@ -65,6 +65,9 @@ jobs:
       - name: Run automated game-data tests
         run: npm test
 
+      - name: Validate all 32 enemy and five boss animation sheets
+        run: npm run art:validate
+
       - name: Run lint
         run: npm run lint
 
