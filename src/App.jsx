@@ -5520,7 +5520,7 @@ if (state === "attack" && approvedArtSprite?.active) {
     visual.setData("heroLastFacing", this.facing);
 
     if (time >= (this.heroEntryUntil || 0)) visual.setPosition(h.x, h.y);
-    visual.setScale(this.facing, 1);
+    visual.setScale(this.facing * 0.5, 0.5);
 
     // Restore every articulated part to its authored anchor before posing.
     // This prevents hand/foot offsets from one special move leaking into later
