@@ -123,7 +123,6 @@ function chooseAnimation(character, bones, characterHeight, isBoss) {
     addRotate(right, [[0, amount], [t, -amount], [t * 2, amount]]);
   };
   const soft = /floating|cloud|jelly|tentacle|fish|hover/.test(profile);
-  const round = /round|cube|soft/.test(profile);
   const limbPairs = names.includes("thigh_l") ? [["thigh_l","thigh_r"],["upperarm_l","upperarm_r"]] :
     names.includes("front_leg_l") ? [["front_leg_l","back_leg_r"],["front_leg_r","back_leg_l"]] :
     names.includes("wing_l") ? [["wing_l","wing_r"]] :
