@@ -1,0 +1,58 @@
+import { existsSync, readFileSync } from "node:fs";
+import { resolve } from "node:path";
+
+const root = resolve("src/assets");
+const enemyFiles = [
+  "enemies/prepared-reference/02_green-ice-monster.png",
+  "enemies/prepared-reference/03_red-horn-demon.png",
+  "enemies/prepared-reference/05_winter-chick.png",
+  "enemies/prepared-reference/07_pink-octopus.png",
+  "enemies/prepared-reference/09_pumpkin.png",
+  "enemies/prepared-reference/10_goggle-brown-creature.png",
+  "enemies/prepared-reference/14_mushroom-crab.png",
+  "enemies/prepared-reference/15_brown-goggle-creature.png",
+  "enemies/prepared-reference/20_spiky-hedgehog.png",
+  "enemies/prepared-reference/23_green-frog.png",
+  "enemies/prepared-reference/25_squirrel.png",
+  "enemies/prepared-reference/27_bee.png",
+  "enemies/prepared-reference/33_mummy.png",
+  "enemies/prepared-reference/34_blue-ogre-a.png",
+  "enemies/prepared-reference/35_blue-ogre-b.png",
+  "enemies/prepared-reference/37_green-turtle-a.png",
+  "enemies/prepared-reference/38_green-turtle-b.png",
+  "enemies/prepared-reference/39_green-lizard.png",
+  "enemies/prepared-reference/40_armored-lizard.png",
+  "enemies/prepared-reference/42_rat-guard.png",
+  "enemies/prepared-reference/47_ice-knight.png",
+];
+const bossFiles = [
+  "bosses/prepared-reference/gatekeeper.png",
+  "bosses/prepared-reference/iron-comet.png",
+  "bosses/prepared-reference/gale-talon.png",
+  "bosses/prepared-reference/suncrest.png",
+  "bosses/prepared-reference/void-sovereign.png",
+];
+const errors = [];
+for (const relative of [...enemyFiles, ...bossFiles]) {
+  const file = resolve(root, relative);
+  if (!existsSync(file)) {
+    errors.push("Missing original PNG: " + relative);
+    continue;
+  }
+  const bytes = readFileSync(file);
+  const signature = Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]);
+  if (bytes.length < 24 || !bytes.subarray(0, 8).equals(signature)) {
+    errors.push("Invalid PNG file: " + relative);
+    continue;
+  }
+  const width = bytes.readUInt32BE(16);
+  const height = bytes.readUInt32BE(20);
+  if (width < 32 || height < 32) errors.push("PNG dimensions are too small: " + relative);
+}
+if (enemyFiles.length !== 21 || bossFiles.length !== 5) errors.push("Expected 21 distinct approved enemy source PNGs and five boss PNGs.");
+if (errors.length) {
+  console.error("Original PNG artwork validation failed:");
+  errors.forEach((error) => console.error("- " + error));
+  process.exit(1);
+}
+console.log("Original PNG artwork validated: 21 approved distinct enemy source images and five boss PNGs. No vector sprite-sheet generation is required.");
