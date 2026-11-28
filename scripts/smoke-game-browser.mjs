@@ -44,6 +44,13 @@ try {
   if (dimensions.width !== 960 || dimensions.height !== 540) {
     throw new Error(`Unexpected game canvas dimensions: ${JSON.stringify(dimensions)}`);
   }
+  await page.waitForFunction(() => {
+    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+    return scene?.sys.isActive() &&
+      Object.keys(scene.heroPoseTextures || {}).length === 4 &&
+      Object.keys(scene.enemyPoseTextures || {}).length === 32 &&
+      Object.keys(scene.bossPoseTextures || {}).length === 5;
+  }, undefined, { timeout: 15000 });
   const poseAudit = await page.evaluate(() => {
     const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
     const heroStates = Object.values(scene?.heroPoseTextures || {});
