@@ -6035,27 +6035,21 @@ class ZeroGameScene extends Phaser.Scene {
           const vy = enemy.body?.velocity?.y || 0;
           const grounded = !!enemy.body?.blocked?.down;
           const previousGrounded = enemy.getData("rigWasGrounded");
-          const lockedUntil = enemy.getData("rigAnimationLockUntil") || 0;
-          let rigClip = "idle";
-          if (this.time.now < lockedUntil) {
-            rigClip = authoredSprite.getData("rigbyCurrentClip") || "attack";
-          } else if (!grounded && vy < -24 && enemy.body?.allowGravity !== false) {
-            rigClip = "jump";
-          } else if (!grounded && vy > 24 && enemy.body?.allowGravity !== false) {
-            rigClip = "fall";
-          } else if (grounded && previousGrounded === false) {
-            rigClip = "land";
-            enemy.setData("rigAnimationLockUntil", this.time.now + 180);
-          } else if (Math.abs(vx) > 18) {
-            rigClip = "locomotion";
-          } else {
-            rigClip = "idle";
+          const animationLocked = this.time.now < (enemy.getData("rigAnimationLockUntil") || 0);
+          if (!animationLocked) {
+            let rigClip = "idle";
+            if (!grounded && vy < -24 && enemy.body?.allowGravity !== false) rigClip = "jump";
+            else if (!grounded && vy > 24 && enemy.body?.allowGravity !== false) rigClip = "fall";
+            else if (grounded && previousGrounded === false) {
+              rigClip = "land";
+              enemy.setData("rigAnimationLockUntil", this.time.now + 180);
+            } else if (Math.abs(vx) > 18) rigClip = "locomotion";
+            if (authoredSprite.getData("rigbyCurrentClip") !== rigClip) {
+              authoredSprite.setData("rigbyCurrentClip", rigClip);
+              authoredSprite.play(rigClip, !["jump", "fall", "land"].includes(rigClip), 0.12);
+            }
           }
           enemy.setData("rigWasGrounded", grounded);
-          if (authoredSprite.getData("rigbyCurrentClip") !== rigClip) {
-            authoredSprite.setData("rigbyCurrentClip", rigClip);
-            authoredSprite.play(rigClip, !["jump", "fall", "land"].includes(rigClip), 0.12);
-          }
           // Preserve each rig's authored body proportions while the parent
           // container handles left/right facing and the role-specific gait.
           const base = authoredSprite.getData("baseVisualScale") || (enemy.getData("enemyClass") === "heavy" ? 0.78 : 0.72);
