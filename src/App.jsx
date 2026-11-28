@@ -327,7 +327,10 @@ class ZeroGameScene extends Phaser.Scene {
       : state === "jump" || state === "fall" || state === "land" ? "jump"
         : state === "attack" ? "attack"
           : state === "victory" ? "sit" : "idle";
-    const poseKey = this.heroPoseTextures?.[heroId]?.[poseName];
+    const walking = poseName === "walk";
+    const walkPhase = walking ? Math.floor(this.time.now / 115) % 2 : 0;
+    const activePoseName = walking && walkPhase === 0 ? "idle" : poseName;
+    const poseKey = this.heroPoseTextures?.[heroId]?.[activePoseName];
     sprite.setVisible(true).setAlpha(1);
     (visual.getData("heroRigParts") || []).forEach((part) => {
       if (part?.active) part.setVisible(false);
@@ -1712,7 +1715,7 @@ class ZeroGameScene extends Phaser.Scene {
     // legacy vector rig remains hidden so existing pose references stay safe.
     const heroArt = this.add.sprite(0, -12, `hero-animation-${heroId}`, 0)
       .setOrigin(0.5, 0.5)
-      .setScale(1.0); // 160px cropped source pose matches the former 210px animation frame size.
+      .setScale(1.0); // Parent visual scale below controls the final 50% character size.
     c.add(heroArt);
     c.list.forEach((child) => {
       if (child !== shadow && child !== heroArt) child.setVisible(false);
@@ -2110,7 +2113,7 @@ class ZeroGameScene extends Phaser.Scene {
     }
     // The parent container applies REGULAR_ENEMY_VISUAL_SCALE once. The
     // cropped 160px source poses are enlarged here to keep enemy silhouettes readable.
-    const enemyBaseScale = enemyPoseSet?.idle ? (isHeavy ? 1.5 : 1.4) : (isHeavy ? 1.08 : 1.0);
+    const enemyBaseScale = (enemyPoseSet?.idle ? (isHeavy ? 1.5 : 1.4) : (isHeavy ? 1.08 : 1.0)) * 0.5;
     enemyRig.setScale(enemyBaseScale);
     enemyRig.setData("baseVisualScale", enemyBaseScale);
     enemyRig.setData("rigbySkeleton", !enemyPoseSet?.idle);
@@ -3604,7 +3607,7 @@ class ZeroGameScene extends Phaser.Scene {
     if (!bossSprite?.active || (!bossPoseSet?.idle && (!bossSprite.skeleton || typeof bossSprite.play !== "function"))) {
       throw new Error("Boss artwork or animation did not initialize for " + bossSheetId);
     }
-    const bossBaseScale = bossPoseSet?.idle ? 1.35 : 1.17;
+    const bossBaseScale = (bossPoseSet?.idle ? 1.35 : 1.17) * 0.5;
     bossSprite.setScale(bossBaseScale);
     bossSprite.setData("baseVisualScale", bossBaseScale);
     bossSprite.setData("rigbySkeleton", !bossPoseSet?.idle);
@@ -3969,8 +3972,10 @@ class ZeroGameScene extends Phaser.Scene {
         authoredBossSprite.setData("lastAttackState", attackState);
         authoredBossSprite.setData("lastVisualState", bossVisualState);
         if (authoredBossSprite.getData("poseSheetSprite")) {
+          const bossMoving = Math.abs(enemy.body?.velocity?.x || 0) > 18;
+          const bossWalkPhase = bossMoving ? Math.floor(this.time.now / 115) % 2 : 0;
           const state = ["tell", "dash", "volley", "slam"].includes(attackState) ? "attack"
-            : Math.abs(enemy.body?.velocity?.x || 0) > 18 ? "walk" : "idle";
+            : bossMoving ? (bossWalkPhase === 0 ? "idle" : "walk") : "idle";
           const poseKey = this.bossPoseTextures?.[bossId]?.[state];
           if (poseKey && authoredBossSprite.texture.key !== poseKey) authoredBossSprite.setTexture(poseKey);
         } else if (authoredBossSprite.getData("rigbySkeleton")) {
@@ -5801,7 +5806,7 @@ class ZeroGameScene extends Phaser.Scene {
       this.specialImpactTriggered = false;
       visual.setPosition(h.x, h.y);
       visual.setAngle(0);
-      visual.setScale(this.facing, 1);
+      visual.setScale(this.facing * 0.5, 0.5);
       if (p.handL?.active) p.handL.setPosition(-24, 27);
       if (p.handR?.active) p.handR.setPosition(24, 27);
       if (p.shoeL?.active) p.shoeL.setPosition(-12, 39);
@@ -5905,8 +5910,10 @@ class ZeroGameScene extends Phaser.Scene {
           time >= (enemyVisual.getData("poseStateUntil") || 0)) {
         const vx = enemy.body?.velocity?.x || 0;
         const vy = enemy.body?.velocity?.y || 0;
-        const state = !enemy.body?.blocked?.down ? (vy < -18 ? "jump" : "jump")
-          : Math.abs(vx) > 18 ? "walk" : "idle";
+        const moving = Math.abs(vx) > 18;
+        const walkPhase = moving ? Math.floor(time / 115) % 2 : 0;
+        const state = !enemy.body?.blocked?.down ? "jump"
+          : moving ? (walkPhase === 0 ? "idle" : "walk") : "idle";
         const key = this.enemyPoseTextures?.[enemy.getData("enemyArchetypeId")]?.[state];
         if (key && rigSprite.texture.key !== key) rigSprite.setTexture(key);
       } else if (rigSprite?.active && rigSprite.getData("rigbySkeleton") &&
