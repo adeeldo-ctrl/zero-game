@@ -466,6 +466,7 @@ class ZeroGameScene extends Phaser.Scene {
 
     // Animated visual character
     this.heroVisual = this.createHeroVisual(480, 450, this.selectedHero.id);
+    this.heroVisual.setScale(0.5);
     this.applyHeroLook(this.heroVisual, this.selectedHero);
 
     this.physics.add.overlap(this.hero, this.platforms, this.handleSpecialPlatform, null, this);
