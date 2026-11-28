@@ -1201,3 +1201,16 @@ This section supersedes earlier 45-enemy and 40+5 collage-mapping plans. The use
 - CI run `46109609747` passed on commit `f4fd4b78c00fced37a807dc7289384c53d97dd58`, including tests, lint, Android configuration validation, sheet validation, web build and browser/mobile gameplay smoke checks.
 
 **Status:** Character animation-sheet scope is implemented and automated verification passed. The signed Android Release APK remains the final delivery action; no physical Android handset test is claimed.
+
+### User-approved follow-up — tokens, real locomotion and Android hang reduction (2026-11-28)
+
+This follow-up is now part of the active delivery scope and supersedes any older statement that the hero/enemy/boss movement is complete based only on static pose swaps.
+
+- **Token economy:** a new save starts with three campaign tokens. Spending one starts a campaign with three chances and three hearts per chance. When all chances are lost, a dedicated Continue screen offers to spend one token and restore the full 3×3 lives pool while keeping the selected hero and current stage. Completing a stage awards one token; each 10,000 score threshold awards one token. The token balance is persisted locally and shown on the title, hero-select, and gameplay HUD.
+- **Hero locomotion:** use the four existing authored multi-frame hero sheets, not single still-image swaps. Idle, walk, faster run, jump, falling, landing, turning and victory states are selected from live movement/physics state. The hero's enlarged on-screen size and existing stage-exit/ball-roll behavior must remain intact.
+- **Enemy and boss locomotion:** instantiate the generated Rigby2D weighted skeletons using each character's own original PNG art and motion profile. All 32 active enemy identities and all five boss identities must use live skeleton clips for idle, locomotion, jump/fall/land, attack, hit, phase/signature and defeat as applicable. Do not report animation completion from roster JSON alone; verify live game objects and moving bones.
+- **Hang/performance correction:** do not decode every enemy/boss still-pose sheet or load all enemy rigs at game startup. Load only the current ten-stage region's enemy rigs, plus the five small boss rigs needed by the dedicated boss encounters. Remove invisible, competing boss animation loops. Keep the 50-stage scene-restart path and original character art intact.
+- **Consolidated verification:** one final CI run must cover token start/continue and persistence, the hero's actual idle/walk/run/jump clips, live enemy rig rendering, each boss's live signature motion on its own milestone stage, the full 50-stage progression, and the existing mobile-input regression checks. Do not run repeated audit/test cycles or create an APK before this consolidated verification passes.
+- **Delivery:** after the single consolidated verification passes, create one final signed Android Release APK only. No debug, preview, or intermediate APKs.
+
+**Status:** implementation is in progress; automated verification and the final-only APK build are pending.
