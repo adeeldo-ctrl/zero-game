@@ -6,17 +6,12 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const rosterPath = path.join(root, "src/assets/animations/rig-roster.json");
 const roster = JSON.parse(fs.readFileSync(rosterPath, "utf8"));
 const GRID = 9;
-const TAU = Math.PI * 2;
 
-const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
-const point = (x, y) => ({ x, y });
 const bone = (name, x, y, length = 0) => ({ name, x, y, length });
-const radians = (degrees) => degrees * Math.PI / 180;
 
 function makeRigBones(character, width, height, isBoss) {
   const w = width, h = height;
   const profile = character.motionProfile || "";
-  const heavy = /heavy|ogre|breaker|bruiser/.test(profile);
   const biped = /biped|humanoid|knight|wrapped|rat/.test(profile);
   const winged = /wing|fly|hover/.test(profile);
   const quadruped = /quadruped|lizard|turtle|crawler|wolf/.test(profile);
@@ -97,7 +92,7 @@ function makeRigBones(character, width, height, isBoss) {
   return [bone("root", 0, 0), ...parts];
 }
 
-function chooseAnimation(character, bones, duration, isBoss) {
+function chooseAnimation(character, bones, characterHeight, isBoss) {
   const profile = character.motionProfile || "";
   const names = bones.map((b) => b.name);
   const has = (n) => names.includes(n);
@@ -180,7 +175,7 @@ function chooseAnimation(character, bones, duration, isBoss) {
   }));
   if (isBoss) {
     clips.push(clip("entrance", 0.8, () => {
-      addTranslate("root", [[0,0,-heightOf(character) * 0.5],[0.8,0,0]]);
+      addTranslate("root", [[0,0,-characterHeight * 0.5],[0.8,0,0]]);
       addScale("aura", [[0,0.65,0.65],[0.4,1.15,1.15],[0.8,1,1]]);
     }));
     const special = character.specialMove;
@@ -201,9 +196,6 @@ function chooseAnimation(character, bones, duration, isBoss) {
   return clips;
 }
 
-function heightOf(character) {
-  return character.isBoss ? 160 : 128;
-}
 
 function buildMesh(width, height, bones) {
   const uv = [], triangles = [], vertices = [];
@@ -245,7 +237,7 @@ function createSkeleton(character, width, height, isBoss) {
     ...(b.y ? { y:b.y } : {}),
   }));
   const animations = {};
-  for(const animation of chooseAnimation(character,bones,1,isBoss)){
+  for(const animation of chooseAnimation(character,bones,height,isBoss)){
     const {name,...definition}=animation;
     animations[name]=definition;
   }
@@ -265,7 +257,6 @@ function writeCharacter(character,isBoss) {
   const outDir = path.join(root,"public/rigs",isBoss?"bosses":"enemies",character.id);
   fs.mkdirSync(outDir,{recursive:true});
   fs.copyFileSync(source,path.join(outDir,"art.png"));
-  const bones = makeRigBones(character,dimensions,dimensions,isBoss);
   const skeleton = createSkeleton(character,dimensions,dimensions,isBoss);
   fs.writeFileSync(path.join(outDir,"skeleton.json"),JSON.stringify(skeleton,null,2)+"\n");
   fs.writeFileSync(path.join(outDir,"skeleton.atlas"),[
