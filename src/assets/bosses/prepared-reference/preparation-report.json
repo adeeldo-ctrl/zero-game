@@ -1,7 +1,7 @@
 {
   "source": "user-uploaded enemy references",
   "count": 5,
-  "note": "Five visually approved enemy cutouts enlarged into dedicated 160x160 transparent boss base cutouts. These remain static base artwork; existing boss animation/gameplay is preserved until genuine boss animation frames are authored.",
+  "note": "Five separate original boss PNG cutouts are used directly by the runtime. Each is static source artwork; boss entrance, idle, movement, attack, hit, phase and defeat motion is applied by Phaser at runtime. No vector boss artwork or fabricated hand-drawn frames are used.",
   "assets": [
     {
       "id": "gatekeeper",
@@ -9,7 +9,7 @@
       "output": "gatekeeper.png",
       "size": "160x160",
       "removedBackdropRatio": 0.598,
-      "status": "enlarged-static-boss-base-review-required"
+      "status": "approved-static-boss-png-runtime-motion"
     },
     {
       "id": "iron-comet",
@@ -17,7 +17,7 @@
       "output": "iron-comet.png",
       "size": "160x160",
       "removedBackdropRatio": 0.68,
-      "status": "enlarged-static-boss-base-review-required"
+      "status": "approved-static-boss-png-runtime-motion"
     },
     {
       "id": "gale-talon",
@@ -25,7 +25,7 @@
       "output": "gale-talon.png",
       "size": "160x160",
       "removedBackdropRatio": 0.662,
-      "status": "enlarged-static-boss-base-review-required"
+      "status": "approved-static-boss-png-runtime-motion"
     },
     {
       "id": "suncrest",
@@ -33,7 +33,7 @@
       "output": "suncrest.png",
       "size": "160x160",
       "removedBackdropRatio": 0.684,
-      "status": "enlarged-static-boss-base-review-required"
+      "status": "approved-static-boss-png-runtime-motion"
     },
     {
       "id": "void-sovereign",
@@ -41,7 +41,7 @@
       "output": "void-sovereign.png",
       "size": "160x160",
       "removedBackdropRatio": 0.722,
-      "status": "enlarged-static-boss-base-review-required"
+      "status": "approved-static-boss-png-runtime-motion"
     }
   ]
 }
