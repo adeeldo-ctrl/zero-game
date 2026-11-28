@@ -1015,6 +1015,18 @@ try {
         Math.abs((bone.rotation || 0) - (before[index].rotation || 0)) > 0.005
       );
       if (!signatureMoved) throw new Error(`Boss ${stageState.bossId} did not animate its live rig`);
+      // The signature check temporarily places the hero beside the boss.
+      // Restore a safe, grounded test position before advancing the campaign.
+      await page.evaluate(() => {
+        const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+        scene.hero.setPosition(480, 462);
+        scene.hero.body.reset(480, 462);
+        scene.hero.setVelocity(0, 0);
+        scene.boss.setPosition(820, 210);
+        scene.boss.body.reset(820, 210);
+        scene.boss.setVelocity(0, 0);
+        scene.lastDamage = scene.time.now;
+      });
     }
     if (stageState.enemies.some((enemy) => !enemy.element || enemy.visualElement !== enemy.element)) {
       throw new Error(`Stage ${nextStage} enemy elemental visuals do not match their assigned power`);
