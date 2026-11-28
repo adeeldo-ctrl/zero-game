@@ -3866,12 +3866,34 @@ class ZeroGameScene extends Phaser.Scene {
       const t = (enemy.getData("bossAnim") || 0) + delta;
       enemy.setData("bossAnim", t);
       const swing = Math.sin(t * (this.bossPhase === 2 ? 0.014 : 0.009));
-      p.legL.rotation = swing * 0.32;
-      p.legR.rotation = -swing * 0.32;
-      p.footL.y = 44 + Math.max(0, swing) * -5;
-      p.footR.y = 44 + Math.max(0, -swing) * -5;
-      p.armL.rotation = -0.22 + swing * 0.24;
-      p.armR.rotation = 0.22 - swing * 0.24;
+      const bossId = enemy.getData("bossId") || this.stageConfig.boss?.id || "";
+      const signatureMotion = {
+        gatekeeper: { cadence: 0.006, stride: 0.18, hover: 0, guard: 0.42, aura: 0.018 },
+        "iron-comet": { cadence: 0.011, stride: 0.42, hover: 0, guard: 0.12, aura: 0.009 },
+        "gale-talon": { cadence: 0.017, stride: 0.56, hover: 5.5, guard: 0.08, aura: 0.014 },
+        suncrest: { cadence: 0.009, stride: 0.3, hover: 1.5, guard: 0.2, aura: 0.025 },
+        "void-sovereign": { cadence: 0.012, stride: 0.36, hover: 4, guard: 0.16, aura: 0.032 },
+      }[bossId] || { cadence: 0.009, stride: 0.32, hover: 0, guard: 0.18, aura: 0.012 };
+      const bossStride = Math.sin(t * signatureMotion.cadence);
+      p.legL.rotation = bossStride * signatureMotion.stride;
+      p.legR.rotation = -bossStride * signatureMotion.stride;
+      p.footL.y = 44 + Math.max(0, bossStride) * -(bossId === "gale-talon" ? 9 : 5);
+      p.footR.y = 44 + Math.max(0, -bossStride) * -(bossId === "gale-talon" ? 9 : 5);
+      p.armL.rotation = -0.22 + swing * (bossId === "iron-comet" ? 0.42 : 0.24);
+      p.armR.rotation = 0.22 - swing * (bossId === "iron-comet" ? 0.42 : 0.24);
+      if (bossId === "gatekeeper") {
+        p.armL.rotation -= signatureMotion.guard;
+        p.armR.rotation += signatureMotion.guard;
+      } else if (bossId === "gale-talon") {
+        p.armL.rotation -= bossStride * 0.24;
+        p.armR.rotation += bossStride * 0.24;
+      } else if (bossId === "suncrest") {
+        p.armL.rotation = -0.28 + Math.sin(t * 0.007) * 0.38;
+        p.armR.rotation = 0.28 - Math.sin(t * 0.007 + 1.2) * 0.38;
+      } else if (bossId === "void-sovereign") {
+        p.armL.rotation = -0.42 + Math.sin(t * 0.006) * 0.26;
+        p.armR.rotation = 0.42 - Math.sin(t * 0.006 + 1.5) * 0.26;
+      }
       const breath = Math.sin(t * 0.0032);
       const powerPulse = 0.82 + (Math.sin(t * 0.007) + 1) * 0.09;
       p.fistL.y = 24 + Math.sin(t * 0.006) * 3;
@@ -3915,7 +3937,20 @@ class ZeroGameScene extends Phaser.Scene {
           if (mark?.active) mark.setAlpha(0.7 + (Math.sin(t * 0.006) + 1) * 0.12);
         });
       }
-      visual.y = enemy.y + Math.abs(swing) * -2;
+      visual.y = enemy.y + Math.abs(swing) * -2 - Math.abs(Math.sin(t * signatureMotion.cadence)) * signatureMotion.hover;
+      if (p.aura?.active) {
+        p.aura.setScale(1.12 + Math.sin(t * signatureMotion.aura) * (bossId === "void-sovereign" ? 0.2 : 0.09));
+        p.aura.setAlpha(bossId === "gatekeeper" ? 0.16 + (Math.sin(t * 0.003) + 1) * 0.08
+          : bossId === "suncrest" ? 0.2 + (Math.sin(t * 0.008) + 1) * 0.12
+            : bossId === "void-sovereign" ? 0.24 + (Math.sin(t * 0.01) + 1) * 0.14 : 0.14 + (Math.sin(t * 0.006) + 1) * 0.1);
+      }
+      if (Array.isArray(p.styleDetails)) {
+        p.styleDetails.forEach((detail, index) => {
+          if (!detail?.active) return;
+          detail.rotation += Math.sin(t * (bossId === "gale-talon" ? 0.014 : 0.005) + index) * 0.012;
+          detail.setAlpha(0.78 + (Math.sin(t * 0.007 + index * 0.9) + 1) * 0.1);
+        });
+      }
 
       // Bosses now use readable, style-specific anticipation and attack poses.
       // These are visual-only poses layered over the shared physics movement.
@@ -5734,25 +5769,45 @@ class ZeroGameScene extends Phaser.Scene {
           const moving = Math.abs(vx) > 18;
           const charging = Math.abs(vx) > 180;
           if (Math.abs(vx) > 2) approvedArtSprite.setFlipX(vx < 0);
-          const motionPhase = et * (moving ? 0.026 : 0.009);
-          const bob = Math.sin(motionPhase) * (moving ? 2.8 : 1.4);
-          const stridePulse = Math.sin(et * 0.042);
-          const squash = charging ? 0.94 : moving ? 1 + Math.abs(stridePulse) * 0.035 : 1;
+          const archetype = PREMIUM_ENEMY_ARCHETYPES.find((entry) => entry.id === enemy.getData("enemyArchetypeId"));
+          const role = archetype?.role || aiType;
+          const variantStyle = enemy.getData("enemyVariantStyle") || archetype?.style || "";
+          const gait = {
+            runner: { rate: 0.044, bob: 3.8, lean: 8, squash: 0.055 },
+            charger: { rate: 0.036, bob: 2.2, lean: 13, squash: 0.09 },
+            leaper: { rate: 0.052, bob: 5.2, lean: 5, squash: 0.07 },
+            flying: { rate: 0.031, bob: 6.5, lean: 4, squash: 0.035 },
+            ranged: { rate: 0.022, bob: 1.5, lean: 2, squash: 0.018 },
+            ambusher: { rate: 0.034, bob: 2.6, lean: 10, squash: 0.065 },
+            heavy: { rate: 0.018, bob: 1.2, lean: 3, squash: 0.025 },
+            shield: { rate: 0.019, bob: 1.1, lean: 2, squash: 0.02 },
+            summoner: { rate: 0.025, bob: 3.1, lean: 3, squash: 0.025 },
+          }[role] || { rate: 0.026, bob: 2.8, lean: 4, squash: 0.035 };
+          const motionPhase = et * (moving ? gait.rate : 0.008);
+          const roleBob = role === "flying" || role === "summoner"
+            ? Math.sin(motionPhase) * (moving ? gait.bob : gait.bob * 0.72)
+            : Math.sin(motionPhase) * (moving ? gait.bob : gait.bob * 0.28);
+          const stridePulse = Math.sin(et * gait.rate * 1.55);
+          const squash = charging ? 0.91 : moving ? 1 + Math.abs(stridePulse) * gait.squash : 1;
           const attackStartedAt = enemyVisual.getData("approvedAttackStartedAt") || 0;
           const attackUntil = enemyVisual.getData("approvedAttackUntil") || 0;
           const attackActive = this.time.now < attackUntil;
           const attackProgress = attackActive ? Phaser.Math.Clamp((this.time.now - attackStartedAt) / 280, 0, 1) : 0;
           const attackPulse = attackActive ? Math.sin(attackProgress * Math.PI) : 0;
           const facingDirection = Math.abs(vx) > 2 ? (vx < 0 ? -1 : 1) : (this.hero.x < enemy.x ? -1 : 1);
-          approvedArtSprite.setPosition(attackActive ? facingDirection * attackPulse * 5 : 0,
-            -12 + (attackActive ? -attackPulse * 4 : bob));
+          const roleAttackLean = attackActive ? attackPulse * (gait.lean + (variantStyle ? 2 : 0)) : 0;
+          const variantPulse = variantStyle === "storm" || variantStyle === "plasma" || variantStyle === "astral"
+            ? 1 + Math.sin(et * 0.012) * 0.025 : 1;
+          approvedArtSprite.setPosition(attackActive ? facingDirection * attackPulse * (role === "heavy" ? 3 : 7) : 0,
+            -12 + (attackActive ? -attackPulse * (role === "leaper" ? 9 : 4) : roleBob));
           approvedArtSprite.setScale(
-            attackActive ? (1 + attackPulse * 0.1) : charging ? 1.08 : squash,
-            attackActive ? (1 - attackPulse * 0.09) : charging ? 0.92 : moving ? 1 - Math.abs(stridePulse) * 0.025 : 1
+            (attackActive ? (1 + attackPulse * (role === "heavy" ? 0.06 : 0.1)) : charging ? 1.1 : squash) * variantPulse,
+            attackActive ? (1 - attackPulse * 0.12) : charging ? 0.88 : moving ? 1 - Math.abs(stridePulse) * gait.squash * 0.55 : 1
           );
-          approvedArtSprite.setAngle(attackActive ? facingDirection * attackPulse * 11
-            : charging ? (vx < 0 ? -9 : 9)
-              : moving ? Math.sin(et * 0.024) * 2.4 : Math.sin(et * 0.008) * 1.1);
+          approvedArtSprite.setAngle(attackActive ? facingDirection * roleAttackLean
+            : charging ? (vx < 0 ? -gait.lean : gait.lean)
+              : moving ? Math.sin(et * gait.rate) * (role === "flying" ? 4 : role === "heavy" ? 1.2 : 2.8)
+                : Math.sin(et * 0.008) * (role === "ranged" || role === "shield" ? 0.45 : 1.4));
         }
         if (authoredSprite?.active) {
           const enemyKind = enemy.getData("enemyClass") || "special";
