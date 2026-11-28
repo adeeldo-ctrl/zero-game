@@ -26,6 +26,17 @@ import enemy09Pumpkin from "./assets/enemies/prepared-reference/09_pumpkin.png";
 import enemy34BlueOgreA from "./assets/enemies/prepared-reference/34_blue-ogre-a.png";
 import enemy40ArmoredLizard from "./assets/enemies/prepared-reference/40_armored-lizard.png";
 import enemy47IceKnight from "./assets/enemies/prepared-reference/47_ice-knight.png";
+import enemy04PurpleBat from "./assets/enemies/prepared-reference/04_purple-bat.png";
+import enemy06Yeti from "./assets/enemies/prepared-reference/06_yeti.png";
+import enemy11IceGolem from "./assets/enemies/prepared-reference/11_ice-golem.png";
+import enemy12ArmoredPenguin from "./assets/enemies/prepared-reference/12_armored-penguin.png";
+import enemy19IceRobot from "./assets/enemies/prepared-reference/19_ice-robot.png";
+import enemy21Skeleton from "./assets/enemies/prepared-reference/21_skeleton.png";
+import enemy22WolfGuard from "./assets/enemies/prepared-reference/22_wolf-guard.png";
+import enemy24Spider from "./assets/enemies/prepared-reference/24_spider.png";
+import enemy28IceFish from "./assets/enemies/prepared-reference/28_ice-fish.png";
+import enemy29Jellyfish from "./assets/enemies/prepared-reference/29_jellyfish.png";
+import enemy36IceCube from "./assets/enemies/prepared-reference/36_ice-cube-monster.png";
 import bossGatekeeperSheet from "./assets/bosses/prepared-reference/gatekeeper.png";
 import bossIronCometSheet from "./assets/bosses/prepared-reference/iron-comet.png";
 import bossGaleTalonSheet from "./assets/bosses/prepared-reference/gale-talon.png";
@@ -84,6 +95,17 @@ const APPROVED_ENEMY_ART = {
   "golden-acorn-leaper": enemy34BlueOgreA,
   "prism-jelly-vault": enemy40ArmoredLizard,
   "molten-caramel-mauler": enemy47IceKnight,
+  "storm-candy-copter": enemy04PurpleBat,
+  "frostfire-icicle-hopper": enemy06Yeti,
+  "crystal-spore-caster": enemy11IceGolem,
+  "thorn-root-burrower": enemy12ArmoredPenguin,
+  "ember-spirit-pouncer": enemy19IceRobot,
+  "toxic-vine-vault": enemy21Skeleton,
+  "solar-jade-shellback": enemy22WolfGuard,
+  "plasma-mire-burrower": enemy24Spider,
+  "void-licorice-sniper": enemy28IceFish,
+  "astral-eclipse-summoner": enemy29Jellyfish,
+  "frost-temple-breaker": enemy36IceCube,
 };
 import { createCampaignLives, loseCampaignHeart, getStageTransitionDirection } from "./campaignRules";
 import { shouldHeroCollideWithPlatform, shouldDropThroughPlatform, getPlatformTextureScale } from "./platformRules";
