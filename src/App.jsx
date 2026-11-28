@@ -1926,7 +1926,6 @@ class ZeroGameScene extends Phaser.Scene {
     c.list.forEach((part) => part.setVisible(part === shadow));
     const archetypeId = enemy.getData("enemyArchetypeId");
     const archetypeFrame = getPremiumEnemyFrameIndex(archetypeId);
-    const hasCharacterSheet = false;
     const hasPremiumArtwork = archetypeFrame >= 0;
     const idleFrame = 0;
     const approvedArt = APPROVED_ENEMY_ART[archetypeId] || APPROVED_ENEMY_ART[enemy.getData("enemyArtBaseId")];
