@@ -4,11 +4,9 @@ import { resolve } from "node:path";
 const root = resolve("src/assets");
 const errors = [];
 const enemyFiles = [
-  "enemies/prepared-reference/02_green-ice-monster.png",
   "enemies/prepared-reference/03_red-horn-demon.png",
   "enemies/prepared-reference/05_winter-chick.png",
   "enemies/prepared-reference/07_pink-octopus.png",
-  "enemies/prepared-reference/09_pumpkin.png",
   "enemies/prepared-reference/10_goggle-brown-creature.png",
   "enemies/prepared-reference/14_mushroom-crab.png",
   "enemies/prepared-reference/15_brown-goggle-creature.png",
@@ -17,14 +15,11 @@ const enemyFiles = [
   "enemies/prepared-reference/25_squirrel.png",
   "enemies/prepared-reference/27_bee.png",
   "enemies/prepared-reference/33_mummy.png",
-  "enemies/prepared-reference/34_blue-ogre-a.png",
   "enemies/prepared-reference/35_blue-ogre-b.png",
   "enemies/prepared-reference/37_green-turtle-a.png",
   "enemies/prepared-reference/38_green-turtle-b.png",
   "enemies/prepared-reference/39_green-lizard.png",
-  "enemies/prepared-reference/40_armored-lizard.png",
   "enemies/prepared-reference/42_rat-guard.png",
-  "enemies/prepared-reference/47_ice-knight.png",
   "enemies/prepared-reference/04_purple-bat.png",
   "enemies/prepared-reference/06_yeti.png",
   "enemies/prepared-reference/11_ice-golem.png",
@@ -36,6 +31,11 @@ const enemyFiles = [
   "enemies/prepared-reference/28_ice-fish.png",
   "enemies/prepared-reference/29_jellyfish.png",
   "enemies/prepared-reference/36_ice-cube-monster.png",
+  "enemies/prepared-reference/01_snowman.png",
+  "enemies/prepared-reference/13_chained-ghost.png",
+  "enemies/prepared-reference/41_pumpkin-variant.png",
+  "enemies/prepared-reference/45_owl-b.png",
+  "enemies/prepared-reference/48_skull-cloud.png",
 ];
 const approvalPath = resolve(root, "enemies/prepared-reference/approved-artwork.json");
 if (!existsSync(approvalPath)) {
