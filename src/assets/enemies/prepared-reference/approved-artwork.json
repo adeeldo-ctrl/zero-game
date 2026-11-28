@@ -27,7 +27,7 @@
   "rejectedOrReviewRequired": "All other prepared cutouts remain reference-only and must not be integrated as final character artwork.",
   "animation": "Approved images are static single-frame cutouts, not completed animated sprite sheets. Runtime Phaser motion supplies idle/run/charge movement, anticipation/strike poses, and squash/recoil impact reactions; genuine authored frame-by-frame animation remains outstanding.",
   "bosses": "Five distinct boss base designs are now selected from approved intact cutouts: Gatekeeper (02 green ice monster), Iron Comet (34 blue ogre A), Gale Talon (40 armored lizard), Suncrest (09 pumpkin), and Void Sovereign (47 ice knight). Their transparent PNGs are integrated as boss artwork. They remain single-frame bases; existing Phaser action motion is retained, with dedicated hand-authored animation frames still outstanding.",
-  "enemyIntegration": "16 approved static cutouts are integrated selectively for matching regular enemy archetypes. The five boss-exclusive designs are reserved for the five bosses to keep boss identities visually distinct. The remaining approved cutouts not assigned to regular enemies are not duplicated. Unapproved/damaged cutouts remain unused. Integrated regular enemy cutouts are single-frame artwork with Phaser motion, not hand-authored frame-by-frame animation.",
+  "enemyIntegration": "16 original approved regular enemies plus 16 separately rostered elemental/armored variants = 32 approved-family enemy identities. The full 5-region campaign roster now contains 61 regular enemy identities (45 original + 16 variants). Five boss identities remain separate.",
   "runtimeEnemyMapping": {
     "spirit-pouncer": "03_red-horn-demon.png",
     "icicle-hopper": "05_winter-chick.png",
@@ -56,5 +56,156 @@
       "eclipse-summoner": "arcane star accents"
     },
     "gameplayImpact": "Purely decorative Phaser container layers; no changes to enemy physics, AI, attack timing, collision, damage, or stage quotas."
+  },
+  "enemyVariants": {
+    "count": 16,
+    "totalApprovedFamilyIdentities": 32,
+    "variants": [
+      {
+        "id": "shadow-moss-scout",
+        "name": "Shadow Moss Scout",
+        "variantOf": "moss-scout",
+        "role": "runner",
+        "tier": "common",
+        "style": "shadow",
+        "tint": "#70c7ff"
+      },
+      {
+        "id": "iron-bark-bruiser",
+        "name": "Ironbark Bruiser",
+        "variantOf": "bark-bruiser",
+        "role": "heavy",
+        "tier": "special",
+        "style": "metal",
+        "tint": "#b6a7ff"
+      },
+      {
+        "id": "golden-acorn-leaper",
+        "name": "Golden Acorn Leaper",
+        "variantOf": "acorn-leaper",
+        "role": "leaper",
+        "tier": "common",
+        "style": "solar",
+        "tint": "#ffd65a"
+      },
+      {
+        "id": "prism-jelly-vault",
+        "name": "Prism Jelly Vault",
+        "variantOf": "jelly-vault",
+        "role": "leaper",
+        "tier": "special",
+        "style": "prism",
+        "tint": "#a5f4ff"
+      },
+      {
+        "id": "molten-caramel-mauler",
+        "name": "Molten Caramel Mauler",
+        "variantOf": "caramel-mauler",
+        "role": "charger",
+        "tier": "elite",
+        "style": "flame",
+        "tint": "#ff7046"
+      },
+      {
+        "id": "storm-candy-copter",
+        "name": "Storm Candy Copter",
+        "variantOf": "candy-copter",
+        "role": "flying",
+        "tier": "special",
+        "style": "storm",
+        "tint": "#76e8ff"
+      },
+      {
+        "id": "frostfire-icicle-hopper",
+        "name": "Frostfire Icicle Hopper",
+        "variantOf": "icicle-hopper",
+        "role": "leaper",
+        "tier": "special",
+        "style": "frostfire",
+        "tint": "#a9f5ff"
+      },
+      {
+        "id": "crystal-spore-caster",
+        "name": "Crystal Spore Caster",
+        "variantOf": "spore-caster",
+        "role": "ranged",
+        "tier": "special",
+        "style": "crystal",
+        "tint": "#d7a5ff"
+      },
+      {
+        "id": "thorn-root-burrower",
+        "name": "Thorn Root Burrower",
+        "variantOf": "root-burrower",
+        "role": "ambusher",
+        "tier": "elite",
+        "style": "thorn",
+        "tint": "#9de477"
+      },
+      {
+        "id": "ember-spirit-pouncer",
+        "name": "Ember Spirit Pouncer",
+        "variantOf": "spirit-pouncer",
+        "role": "charger",
+        "tier": "elite",
+        "style": "ember",
+        "tint": "#ff8152"
+      },
+      {
+        "id": "toxic-vine-vault",
+        "name": "Toxic Vine Vault",
+        "variantOf": "vine-vault",
+        "role": "leaper",
+        "tier": "special",
+        "style": "toxic",
+        "tint": "#b6ee58"
+      },
+      {
+        "id": "solar-jade-shellback",
+        "name": "Solar Jade Shellback",
+        "variantOf": "jade-shellback",
+        "role": "shield",
+        "tier": "special",
+        "style": "solar",
+        "tint": "#ffe16b"
+      },
+      {
+        "id": "plasma-mire-burrower",
+        "name": "Plasma Mire Burrower",
+        "variantOf": "mire-burrower",
+        "role": "ambusher",
+        "tier": "elite",
+        "style": "plasma",
+        "tint": "#e58cff"
+      },
+      {
+        "id": "void-licorice-sniper",
+        "name": "Void Licorice Sniper",
+        "variantOf": "licorice-sniper",
+        "role": "ranged",
+        "tier": "elite",
+        "style": "void",
+        "tint": "#a78bff"
+      },
+      {
+        "id": "astral-eclipse-summoner",
+        "name": "Astral Eclipse Summoner",
+        "variantOf": "eclipse-summoner",
+        "role": "summoner",
+        "tier": "elite",
+        "style": "astral",
+        "tint": "#c19cff"
+      },
+      {
+        "id": "frost-temple-breaker",
+        "name": "Frost Temple Breaker",
+        "variantOf": "temple-breaker",
+        "role": "heavy",
+        "tier": "elite",
+        "style": "glacier",
+        "tint": "#8fe8ff"
+      }
+    ],
+    "note": "These are sixteen separately named, separately rostered enemy identities derived from the sixteen approved regular cutouts. They use tinted base art plus distinct silhouette accents and elemental treatments; they are not counted as mere decorative particles."
   }
 }
