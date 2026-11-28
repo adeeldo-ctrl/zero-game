@@ -1,104 +1,16 @@
 import { existsSync, readFileSync } from "node:fs";
+import { createHash } from "node:crypto";
 import { dirname, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
-import {
-  PREMIUM_ENEMY_ARCHETYPES,
-  PREMIUM_BOSSES,
-} from "../src/premiumCampaignData.js";
+import { PREMIUM_ENEMY_ARCHETYPES, PREMIUM_BOSSES } from "../src/premiumCampaignData.js";
 
-const root = resolve(dirname(fileURLToPath(import.meta.url)), "../src/assets/enemies/production");
+const root = resolve(dirname(fileURLToPath(import.meta.url)), "../src/assets/generated-character-sheets");
 const manifestPath = resolve(root, "manifest.json");
 const errors = [];
-
-function fail(message) {
-  errors.push(message);
-}
-
-function readPng(filePath, label) {
-  if (!existsSync(filePath)) {
-    fail(`${label}: missing PNG ${filePath}`);
-    return null;
-  }
-
-  const bytes = readFileSync(filePath);
-  const signature = Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]);
-  if (bytes.length < 33 || !bytes.subarray(0, 8).equals(signature)) {
-    fail(`${label}: file is not a valid PNG`);
-    return null;
-  }
-  if (bytes.toString("ascii", 12, 16) !== "IHDR") {
-    fail(`${label}: PNG is missing its IHDR header`);
-    return null;
-  }
-
-  const width = bytes.readUInt32BE(16);
-  const height = bytes.readUInt32BE(20);
-  const bitDepth = bytes[24];
-  const colorType = bytes[25];
-  if (!width || !height) fail(`${label}: PNG dimensions must be positive`);
-  if (bitDepth !== 8) fail(`${label}: expected 8-bit PNG, got bit depth ${bitDepth}`);
-  if (colorType !== 6) fail(`${label}: expected transparent RGBA PNG (color type 6), got ${colorType}`);
-  return { width, height };
-}
-
-function validateSheet(entry, label, expectedFrameSize, requiredStates, seenIds, seenFiles) {
-  if (!entry || typeof entry !== "object") {
-    fail(`${label}: entry must be an object`);
-    return;
-  }
-  if (typeof entry.id !== "string" || !entry.id.trim()) fail(`${label}: missing id`);
-  else if (seenIds.has(entry.id)) fail(`${label}: duplicate id ${entry.id}`);
-  else seenIds.add(entry.id);
-
-  if (typeof entry.file !== "string" || !entry.file.endsWith(".png")) {
-    fail(`${label}: file must be a relative .png path`);
-    return;
-  }
-  const filePath = resolve(root, entry.file);
-  if (!filePath.startsWith(root + sep)) {
-    fail(`${label}: file path escapes the production art folder`);
-    return;
-  }
-  if (seenFiles.has(entry.file)) fail(`${label}: PNG is reused by multiple characters (${entry.file})`);
-  else seenFiles.add(entry.file);
-
-  const frameWidth = entry.frameWidth;
-  const frameHeight = entry.frameHeight;
-  const columns = entry.columns;
-  const rows = entry.rows;
-  if (![frameWidth, frameHeight, columns, rows].every((value) => Number.isInteger(value) && value > 0)) {
-    fail(`${label}: frameWidth, frameHeight, columns and rows must be positive integers`);
-    return;
-  }
-  if (frameWidth !== expectedFrameSize || frameHeight !== expectedFrameSize) {
-    fail(`${label}: expected ${expectedFrameSize}x${expectedFrameSize} frames`);
-  }
-
-  const png = readPng(filePath, label);
-  if (png && (png.width !== frameWidth * columns || png.height !== frameHeight * rows)) {
-    fail(`${label}: PNG is ${png.width}x${png.height}; expected ${frameWidth * columns}x${frameHeight * rows}`);
-  }
-
-  const frameCount = columns * rows;
-  if (!entry.animations || typeof entry.animations !== "object") {
-    fail(`${label}: animations object is required`);
-    return;
-  }
-  for (const state of requiredStates) {
-    const frames = entry.animations[state];
-    if (!Array.isArray(frames) || frames.length === 0) {
-      fail(`${label}: missing animation frames for "${state}"`);
-      continue;
-    }
-    if (frames.some((frame) => !Number.isInteger(frame) || frame < 0 || frame >= frameCount)) {
-      fail(`${label}: "${state}" contains a frame outside 0..${frameCount - 1}`);
-    }
-  }
-}
+const fail = (message) => errors.push(message);
 
 if (!existsSync(manifestPath)) {
-  console.error("Production enemy art is not installed: src/assets/enemies/production/manifest.json is missing.");
-  console.error("Add the transparent animated PNG sheets and manifest, then run: npm run art:validate");
+  console.error("Generated character sheets are missing. Run npm run art:generate first.");
   process.exit(1);
 }
 
@@ -106,45 +18,75 @@ let manifest;
 try {
   manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
 } catch (error) {
-  console.error(`Cannot parse production art manifest: ${error.message}`);
+  console.error(`Cannot parse generated character sheet manifest: ${error.message}`);
   process.exit(1);
 }
-
-if (manifest.version !== 1) fail("manifest.version must be 1");
-if (!Array.isArray(manifest.enemies)) fail("manifest.enemies must be an array");
-if (!Array.isArray(manifest.bosses)) fail("manifest.bosses must be an array");
 
 const expectedEnemyIds = PREMIUM_ENEMY_ARCHETYPES.map(({ id }) => id).sort();
 const expectedBossIds = PREMIUM_BOSSES.map(({ id }) => id).sort();
-const enemyIds = new Set();
-const bossIds = new Set();
-const files = new Set();
-const enemyStates = ["idle", "move", "attack", "hit", "defeat"];
-const bossStates = PREMIUM_BOSSES[0].animations;
+const characters = Array.isArray(manifest.characters) ? manifest.characters : [];
+const enemies = characters.filter((entry) => entry.kind === "enemy");
+const bosses = characters.filter((entry) => entry.kind === "boss");
+const requiredStates = ["idle", "move", "attack", "hit", "defeat"];
+const seenIds = new Set();
+const seenSignatures = new Set();
+const seenContent = new Set();
 
-for (const entry of manifest.enemies || []) {
-  validateSheet(entry, `enemy ${entry?.id || "(unknown)"}`, 128, enemyStates, enemyIds, files);
-}
-for (const entry of manifest.bosses || []) {
-  validateSheet(entry, `boss ${entry?.id || "(unknown)"}`, 160, bossStates, bossIds, files);
+if (manifest.sheet?.width !== 1024 || manifest.sheet?.height !== 640) fail("sheet canvas must be exactly 1024x640");
+if (manifest.sheet?.frameWidth !== 128 || manifest.sheet?.frameHeight !== 128) fail("each animation frame must be 128x128");
+if (manifest.sheet?.columns !== 8 || manifest.sheet?.rows !== 5) fail("sheet must contain an 8-column by 5-row layout");
+if (manifest.sheet?.framesPerState !== 8) fail("each animation state must have eight frames");
+if (JSON.stringify([...manifest.states].sort()) !== JSON.stringify([...requiredStates].sort())) fail("manifest must include idle, move, attack, hit and defeat states");
+if (enemies.length !== 32) fail(`expected exactly 32 regular enemy sheets, found ${enemies.length}`);
+if (bosses.length !== 5) fail(`expected exactly five boss sheets, found ${bosses.length}`);
+if (PREMIUM_ENEMY_ARCHETYPES.length !== 32) fail("campaign data must contain exactly 32 active regular enemy identities");
+
+for (const entry of characters) {
+  if (!entry || typeof entry.id !== "string" || !entry.id.trim()) {
+    fail("every character sheet must have a non-empty id");
+    continue;
+  }
+  if (seenIds.has(entry.id)) fail(`duplicate character id: ${entry.id}`);
+  seenIds.add(entry.id);
+  if (typeof entry.file !== "string" || !entry.file.endsWith(".svg")) {
+    fail(`${entry.id}: file must be a relative SVG path`);
+    continue;
+  }
+  const filePath = resolve(root, entry.file);
+  if (!filePath.startsWith(root + sep)) {
+    fail(`${entry.id}: file path escapes generated character sheet folder`);
+    continue;
+  }
+  if (!existsSync(filePath)) {
+    fail(`${entry.id}: missing generated SVG ${entry.file}`);
+    continue;
+  }
+  const svg = readFileSync(filePath, "utf8");
+  if (!svg.startsWith('<svg xmlns="http://www.w3.org/2000/svg"')) fail(`${entry.id}: invalid SVG root`);
+  if (!svg.includes('width="1024" height="640" viewBox="0 0 1024 640"')) fail(`${entry.id}: wrong SVG dimensions`);
+  const frameCount = (svg.match(/<g transform="translate\\(\\d+ \\d+\\)">/g) || []).length;
+  if (frameCount !== 40) fail(`${entry.id}: expected 40 separate frames, found ${frameCount}`);
+  const contentHash = createHash("sha256").update(svg).digest("hex");
+  if (seenContent.has(contentHash)) fail(`${entry.id}: sprite sheet duplicates another character sheet`);
+  seenContent.add(contentHash);
+  if (!Number.isInteger(entry.visualSignature) || seenSignatures.has(entry.visualSignature)) {
+    fail(`${entry.id}: visual signature is missing or duplicated`);
+  }
+  seenSignatures.add(entry.visualSignature);
+  if (!entry.stateRanges || requiredStates.some((state) => {
+    const range = entry.stateRanges[state];
+    return !Array.isArray(range) || range.length !== 2 || range[1] - range[0] !== 7;
+  })) fail(`${entry.id}: every animation state must map to eight frames`);
 }
 
-const actualEnemyIds = [...enemyIds].sort();
-const actualBossIds = [...bossIds].sort();
-if (expectedEnemyIds.length !== 32) fail(`active campaign must contain exactly 32 approved regular enemy identities, got ${expectedEnemyIds.length}`);
-if (JSON.stringify(actualEnemyIds) !== JSON.stringify(expectedEnemyIds)) {
-  fail("production art must match the 32 active campaign enemy identities exactly");
-}
-if (JSON.stringify(actualBossIds) !== JSON.stringify(expectedBossIds)) {
-  fail("boss roster must match all five campaign bosses exactly");
-}
-if ((manifest.enemies || []).length !== 32) fail("manifest must contain exactly 32 regular enemy sheets");
-if ((manifest.bosses || []).length !== 5) fail("manifest must contain exactly five boss sheets");
+const actualEnemyIds = enemies.map(({ id }) => id).sort();
+const actualBossIds = bosses.map(({ id }) => id).sort();
+if (JSON.stringify(actualEnemyIds) !== JSON.stringify(expectedEnemyIds)) fail("regular enemy sheets must match the approved 32 campaign identities exactly");
+if (JSON.stringify(actualBossIds) !== JSON.stringify(expectedBossIds)) fail("boss sheets must match all five campaign bosses exactly");
 
 if (errors.length) {
-  console.error(`Production enemy art validation failed with ${errors.length} issue(s):`);
-  for (const error of errors) console.error(`- ${error}`);
+  console.error(`Generated character sheet validation failed with ${errors.length} issue(s):`);
+  errors.forEach((error) => console.error(`- ${error}`));
   process.exit(1);
 }
-
-console.log("Production enemy art pack is valid: 32 unique enemies, five unique bosses, transparent PNG sheets, and all required animation states.");
+console.log("Character art pack validated: 32 unique enemy sheets + 5 unique boss sheets; 40 frames each; five animation states per character.");
