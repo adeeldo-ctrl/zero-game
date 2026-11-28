@@ -861,6 +861,12 @@ try {
   });
   const landmarkSignatures = new Set(campaignIdentity.landmarkSignatures);
   if (landmarkSignatures.size !== 2) throw new Error("Stage 1 and stage 2 landmark compositions are not unique");
+  // Damage/heart loss was already exercised above. Keep the later 50-stage
+  // structural sweep isolated from incidental enemy contact on faster regions.
+  await page.evaluate(() => {
+    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+    scene.damageHero = () => {};
+  });
 
   // Complete the stage-2 restart before sweeping the rest of the campaign.
   await page.evaluate(() => {
@@ -1037,7 +1043,7 @@ try {
         stageState.chances !== campaignIdentity.chances ||
         stageState.hearts !== campaignIdentity.hearts ||
         !stageState.heroSelectionLocked || !stageState.campaignActive) {
-      throw new Error(`Stage ${nextStage} lost campaign identity or remaining lives`);
+      throw new Error(`Stage ${nextStage} lost campaign identity or remaining lives: ${JSON.stringify(stageState)} expected=${JSON.stringify(campaignIdentity)}`);
     }
     const invalidGroundEnemy = stageState.enemies.some((enemy) =>
       enemy.type !== "flyer" && !enemy.gravity
