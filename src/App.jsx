@@ -2004,10 +2004,78 @@ class ZeroGameScene extends Phaser.Scene {
     let approvedArtSprite = null;
     if (approvedArt) {
       enemySprite.setVisible(false);
+      // Give every approved cutout a small, archetype-specific signature:
+      // elemental halo + orbiting sparks, with wings/fins on airborne creatures.
+      // These are layered behind the character and never touch its physics body.
+      const adornmentProfiles = {
+        "spirit-pouncer": { glow: 0xff633d, spark: 0xffc16d, motif: "flame" },
+        "icicle-hopper": { glow: 0x9beaff, spark: 0xffffff, motif: "ice" },
+        "jelly-vault": { glow: 0xff86d6, spark: 0xffd5f1, motif: "wing" },
+        "bark-bruiser": { glow: 0x9dcb69, spark: 0xe0f4a1, motif: "leaf" },
+        "spore-caster": { glow: 0xb98be8, spark: 0xf3d5ff, motif: "spore" },
+        "caramel-mauler": { glow: 0xffb35d, spark: 0xffe2a8, motif: "flame" },
+        "moss-scout": { glow: 0x8bd47a, spark: 0xd9ff9d, motif: "leaf" },
+        "vine-vault": { glow: 0x75d99a, spark: 0xc6ffd0, motif: "leaf" },
+        "acorn-leaper": { glow: 0xd69a55, spark: 0xffe0a0, motif: "leaf" },
+        "candy-copter": { glow: 0xffd45e, spark: 0xffffff, motif: "wing" },
+        "eclipse-summoner": { glow: 0xb38cff, spark: 0xf0d9ff, motif: "spore" },
+        "temple-breaker": { glow: 0x78c9ff, spark: 0xd8f2ff, motif: "ice" },
+        "jade-shellback": { glow: 0x78d6a1, spark: 0xc8ffd8, motif: "leaf" },
+        "root-burrower": { glow: 0x8bcf83, spark: 0xe2ffb0, motif: "leaf" },
+        "mire-burrower": { glow: 0x9edb72, spark: 0xe8ff9d, motif: "wing" },
+        "licorice-sniper": { glow: 0xc49bff, spark: 0xf3e4ff, motif: "spore" },
+      };
+      const profile = adornmentProfiles[archetypeId] || { glow: hornColor, spark: 0xffffff, motif: "spore" };
+      const adornment = this.add.container(0, -12);
+      const halo = this.add.ellipse(0, 2, 108, 116, profile.glow, 0.12)
+        .setStrokeStyle(3, profile.glow, 0.56);
+      adornment.add(halo);
+      if (profile.motif === "wing") {
+        [-1, 1].forEach((side) => {
+          const wing = this.add.ellipse(side * 48, -24, 29, 43, profile.glow, 0.62)
+            .setStrokeStyle(2, profile.spark, 0.9).setAngle(side * 24);
+          adornment.add(wing);
+          this.tweens.add({ targets: wing, scaleY: 0.78, angle: side * 34,
+            duration: 360, yoyo: true, repeat: -1, ease: "Sine.easeInOut" });
+        });
+      } else if (profile.motif === "ice") {
+        [-1, 1].forEach((side) => {
+          const shard = this.add.triangle(side * 48, -30, 0, -17, side * 11, 8, -side * 10, 8, profile.spark, 0.82)
+            .setStrokeStyle(2, profile.glow, 0.95).setAngle(side * 18);
+          adornment.add(shard);
+        });
+      } else if (profile.motif === "flame") {
+        [-1, 1].forEach((side) => {
+          const flame = this.add.triangle(side * 43, 12, 0, 15, side * 8, -15, -side * 8, 8, profile.spark, 0.86)
+            .setStrokeStyle(1, profile.glow, 0.9).setAngle(side * 18);
+          adornment.add(flame);
+          this.tweens.add({ targets: flame, scaleY: 1.3, alpha: 0.48,
+            duration: 240, yoyo: true, repeat: -1 });
+        });
+      } else {
+        [-1, 1].forEach((side) => {
+          const detail = profile.motif === "leaf"
+            ? this.add.ellipse(side * 48, -12, 13, 27, profile.spark, 0.78).setAngle(side * 35)
+            : this.add.star(side * 48, -28, 4, 3, 8, profile.spark, 0.9);
+          detail.setStrokeStyle(1, profile.glow, 0.9);
+          adornment.add(detail);
+        });
+      }
+      [[-38, -52], [39, -43], [-45, 31], [43, 35]].forEach(([x, y], index) => {
+        const spark = this.add.circle(x, y, index % 2 ? 3 : 4, profile.spark, 0.9);
+        adornment.add(spark);
+        this.tweens.add({ targets: spark, alpha: 0.28, scale: 0.55,
+          duration: 420 + index * 95, yoyo: true, repeat: -1, delay: index * 80 });
+      });
+      adornment.setDepth(0);
+      c.add(adornment);
+      this.tweens.add({ targets: halo, scaleX: 1.08, scaleY: 1.06,
+        alpha: 0.06, duration: 760, yoyo: true, repeat: -1, ease: "Sine.easeInOut" });
       approvedArtSprite = this.add.image(0, -12, `approved-enemy-${archetypeId}`)
         .setDisplaySize(isHeavy ? 98 : 92, isHeavy ? 108 : 102);
       c.add(approvedArtSprite);
       c.setData("approvedArtSprite", approvedArtSprite);
+      c.setData("approvedAdornment", adornment);
     }
     const enemyIdleKey = hasPremiumArtwork ? `enemy-${archetypeId}-idle` : null;
     const enemyMoveKey = hasPremiumArtwork ? `enemy-${archetypeId}-move` : `enemy-${enemyClass}-move`;
