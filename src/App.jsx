@@ -3768,6 +3768,10 @@ class ZeroGameScene extends Phaser.Scene {
                   : ["dash", "slam"].includes(attackState) ? "special"
                     : bossSettled ? "signature"
                       : Math.abs(enemy.body?.velocity?.x || 0) > 18 ? "move" : "idle";
+        const previousRigAttackState = authoredBossSprite.getData("lastRigAttackState");
+        const isBossAttackState = ["tell", "dash", "volley", "slam"].includes(attackState);
+        const bossAttackTransition = isBossAttackState && attackState !== previousRigAttackState;
+        authoredBossSprite.setData("lastRigAttackState", attackState);
         authoredBossSprite.setData("lastAttackState", attackState);
         authoredBossSprite.setData("lastVisualState", bossVisualState);
         if (authoredBossSprite.getData("rigbySkeleton")) {
@@ -3775,7 +3779,7 @@ class ZeroGameScene extends Phaser.Scene {
             : ["attack-primary", "attack-secondary", "special"].includes(bossVisualState)
               ? "attack"
               : bossVisualState;
-          if (authoredBossSprite.getData("rigbyCurrentClip") !== rigClip) {
+          if (authoredBossSprite.getData("rigbyCurrentClip") !== rigClip || (rigClip === "attack" && bossAttackTransition)) {
             authoredBossSprite.setData("rigbyCurrentClip", rigClip);
             const oneShot = ["attack", "entrance", "hit", "phase-change"].includes(rigClip);
             authoredBossSprite.play(rigClip, !oneShot, 0.14);
