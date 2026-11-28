@@ -104,30 +104,6 @@ try {
     throw new Error("Rigby2D roster integration failed: " + JSON.stringify(rigAudit));
   }
 
-  const movementRig = await page.evaluate(() => {
-    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
-    const enemy = scene.enemies.getChildren().find((entry) => entry.active && !entry.getData("isBoss"));
-    const rig = enemy?.getData("visual")?.getData("authoredSprite");
-    if (!rig?.getData("rigbySkeleton") || !rig.skeleton?.bones?.length) {
-      throw new Error("No live weighted enemy rig is available for the locomotion check");
-    }
-    const bone = rig.skeleton.bones.find((entry) => entry.name === "pelvis")?.name || rig.skeleton.bones[1].name;
-    const before = rig.boneWorld(bone);
-    rig.play("locomotion", true, 0);
-    window.__ZERO_GAME_RIG_MOTION__ = { rig, bone, before };
-    return { bone, before };
-  });
-  await delay(180);
-  const movementAfter = await page.evaluate(() => {
-    const value = window.__ZERO_GAME_RIG_MOTION__;
-    const after = value.rig.boneWorld(value.bone);
-    delete window.__ZERO_GAME_RIG_MOTION__;
-    return after;
-  });
-  if (!movementAfter || Math.hypot(movementAfter.x - movementRig.before.x, movementAfter.y - movementRig.before.y) < 0.1) {
-    throw new Error("Rigby2D locomotion clip did not move the enemy bone mesh");
-  }
-
   const ambientAwareness = await page.evaluate(() => {
     const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
     const values = new Map();
@@ -220,6 +196,29 @@ try {
     return scene?.campaignActive && scene.heroSelectionLocked && scene.chances === 3 &&
       scene.health === 3 && scene.getTokenBalance() === 2;
   }, undefined, { timeout: 5000 });
+  const movementRig = await page.evaluate(() => {
+    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+    const enemy = scene.enemies.getChildren().find((entry) => entry.active && !entry.getData("isBoss"));
+    const rig = enemy?.getData("visual")?.getData("authoredSprite");
+    if (!rig?.getData("rigbySkeleton") || !rig.skeleton?.bones?.length) {
+      throw new Error("No live weighted enemy rig is available for the locomotion check");
+    }
+    const bone = rig.skeleton.bones.find((entry) => entry.name === "pelvis")?.name || rig.skeleton.bones[1].name;
+    const before = rig.boneWorld(bone);
+    rig.play("locomotion", true, 0);
+    window.__ZERO_GAME_RIG_MOTION__ = { rig, bone, before };
+    return { bone, before };
+  });
+  await delay(180);
+  const movementAfter = await page.evaluate(() => {
+    const value = window.__ZERO_GAME_RIG_MOTION__;
+    const after = value.rig.boneWorld(value.bone);
+    delete window.__ZERO_GAME_RIG_MOTION__;
+    return after;
+  });
+  if (!movementAfter || Math.hypot(movementAfter.x - movementRig.before.x, movementAfter.y - movementRig.before.y) < 0.1) {
+    throw new Error("Rigby2D locomotion clip did not move the enemy bone mesh");
+  }
   const idleAnimation = await page.evaluate(() => {
     const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
     return scene.heroVisual?.getData("heroSprite")?.anims?.currentAnim?.key;
