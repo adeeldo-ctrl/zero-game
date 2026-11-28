@@ -6064,7 +6064,10 @@ class ZeroGameScene extends Phaser.Scene {
               : moving ? Math.sin(et * gait.rate) * (role === "flying" ? 4 : role === "heavy" ? 1.2 : 2.8)
                 : Math.sin(et * 0.008) * (role === "ranged" || role === "shield" ? 0.45 : 1.4));
         }
-        if (authoredSprite?.active) {
+        // Pose-sheet Images and RigbySkeleton objects do not expose Phaser's
+        // Sprite AnimationState. Their animation is handled by the dedicated
+        // pose-sheet / Rigby branches above, so only run legacy Sprite logic here.
+        if (authoredSprite?.active && authoredSprite.anims) {
           const enemyKind = enemy.getData("enemyClass") || "special";
           const archetypeId = enemy.getData("enemyArchetypeId");
           const hasPremiumArtwork = false;
