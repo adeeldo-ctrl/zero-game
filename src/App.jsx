@@ -3597,7 +3597,7 @@ if (state === "attack" && approvedArtSprite?.active) {
     c.add(bossSprite);
     bossSprite.setData("entranceUntil", this.time.now + 900);
     bossSprite.setAlpha(0);
-    if (!bossPoseSet?.idle) bossSprite.play("entrance", false, 0.14);
+    bossSprite.play("entrance", false, 0.14);
     this.tweens.add({ targets: bossSprite, alpha: 1, duration: 420, ease: "Cubic.easeOut" });
     // The weighted rig supplies its own locomotion and signature movement;
     // updateBoss owns positioning and avoids a competing floating tween.
