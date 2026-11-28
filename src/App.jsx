@@ -5233,12 +5233,15 @@ class ZeroGameScene extends Phaser.Scene {
   update(time, delta) {
     this.chanceRespawnUpdateTicks = (this.chanceRespawnUpdateTicks || 0) + 1;
     // Drive the extra-chance respawn from the active scene update loop.
-    if (this.chanceLossInProgress && this.chanceRespawnAt && time >= this.chanceRespawnAt) {
+    // Phaser's scene clock is the same clock used when chanceRespawnAt is set
+    // in damageHero. The update callback's time argument can use a different
+    // game-loop time origin, so compare against this.time.now consistently.
+    if (this.chanceLossInProgress && this.chanceRespawnAt && this.time.now >= this.chanceRespawnAt) {
       if (!this.gameOver && this.hero?.active) {
         this.hero.body.enable = true;
         this.hero.setPosition(480, 450).setVelocity(0, 0);
         this.heroVisual?.setPosition(480, 450).setVisible(true).setAlpha(1).setScale(1);
-        this.lastDamage = time;
+        this.lastDamage = this.time.now;
         this.chanceLossInProgress = false;
         this.chanceRespawnAt = 0;
         this.statusLabel.setText("NEW CHANCE! THREE HEARTS RESTORED").setColor("#62ffb4");
