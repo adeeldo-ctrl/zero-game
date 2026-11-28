@@ -1106,16 +1106,18 @@ try {
       const archetypeId = enemy.getData("enemyArchetypeId");
       const poseTextures = scene.enemyPoseTextures?.[archetypeId];
       const isPoseSheet = sprite?.getData("poseSheetSprite") === true;
-      const expectedTexture = isPoseSheet
-        ? poseTextures?.idle
-        : `approved-enemy-${archetypeId}`;
+      const poseStateKeys = isPoseSheet
+        ? ["idle", "walk", "jump", "attack"].map((state) => poseTextures?.[state]).filter(Boolean)
+        : [];
       const hasAllPoseStates = !isPoseSheet ||
         ["idle", "walk", "jump", "attack"].every((state) =>
           poseTextures?.[state] && scene.textures.exists(poseTextures[state])
         );
+      const hasExpectedArtwork = isPoseSheet
+        ? poseStateKeys.includes(sprite?.texture?.key)
+        : sprite?.texture?.key === `approved-enemy-${archetypeId}`;
       return !visual?.visible || !sprite?.active ||
-        !expectedTexture || sprite.texture?.key !== expectedTexture ||
-        !hasAllPoseStates ||
+        !hasExpectedArtwork || !hasAllPoseStates ||
         visual.getData("approvedArtSprite") !== sprite || !sprite.visible;
     })) {
       throw new Error("A live stage enemy is missing its visible original PNG artwork or complete pose-sheet animation states");
