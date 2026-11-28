@@ -2,14 +2,14 @@
   "source": "user-uploaded reference crops",
   "generatedAt": "2026-11-28T04:38:34.112Z",
   "count": 48,
-  "note": "These are automatically segmented static cutouts. Inspect edges and subject integrity before production use. No animation frames are fabricated.",
+  "note": "48 original reference crops are preserved. The 32 named PNGs in approved-artwork.json are the selected regular-enemy source images; the remaining crops are reference-only. All are static images, not fabricated animation frames.",
   "assets": [
     {
       "source": "01_snowman.png",
       "output": "01_snowman.png",
       "size": "128x128",
       "removedBackdropRatio": 0.935,
-      "status": "static-cutout-review-required"
+      "status": "approved-original-static-png"
     },
     {
       "source": "02_green-ice-monster.png",
@@ -23,35 +23,35 @@
       "output": "03_red-horn-demon.png",
       "size": "128x128",
       "removedBackdropRatio": 0.568,
-      "status": "static-cutout-review-required"
+      "status": "approved-original-static-png"
     },
     {
       "source": "04_purple-bat.png",
       "output": "04_purple-bat.png",
       "size": "128x128",
       "removedBackdropRatio": 0.989,
-      "status": "static-cutout-review-required"
+      "status": "approved-original-static-png"
     },
     {
       "source": "05_winter-chick.png",
       "output": "05_winter-chick.png",
       "size": "128x128",
       "removedBackdropRatio": 0.622,
-      "status": "static-cutout-review-required"
+      "status": "approved-original-static-png"
     },
     {
       "source": "06_yeti.png",
       "output": "06_yeti.png",
       "size": "128x128",
       "removedBackdropRatio": 0.948,
-      "status": "static-cutout-review-required"
+      "status": "approved-original-static-png"
     },
     {
       "source": "07_pink-octopus.png",
       "output": "07_pink-octopus.png",
       "size": "128x128",
       "removedBackdropRatio": 0.602,
-      "status": "static-cutout-review-required"
+      "status": "approved-original-static-png"
     },
     {
       "source": "08_snow-skull.png",
@@ -72,42 +72,42 @@
       "output": "10_goggle-brown-creature.png",
       "size": "128x128",
       "removedBackdropRatio": 0.725,
-      "status": "static-cutout-review-required"
+      "status": "approved-original-static-png"
     },
     {
       "source": "11_ice-golem.png",
       "output": "11_ice-golem.png",
       "size": "128x128",
       "removedBackdropRatio": 0.972,
-      "status": "static-cutout-review-required"
+      "status": "approved-original-static-png"
     },
     {
       "source": "12_armored-penguin.png",
       "output": "12_armored-penguin.png",
       "size": "128x128",
       "removedBackdropRatio": 0.872,
-      "status": "static-cutout-review-required"
+      "status": "approved-original-static-png"
     },
     {
       "source": "13_chained-ghost.png",
       "output": "13_chained-ghost.png",
       "size": "128x128",
       "removedBackdropRatio": 0.988,
-      "status": "static-cutout-review-required"
+      "status": "approved-original-static-png"
     },
     {
       "source": "14_mushroom-crab.png",
       "output": "14_mushroom-crab.png",
       "size": "128x128",
       "removedBackdropRatio": 0.525,
-      "status": "static-cutout-review-required"
+      "status": "approved-original-static-png"
     },
     {
       "source": "15_brown-goggle-creature.png",
       "output": "15_brown-goggle-creature.png",
       "size": "128x128",
       "removedBackdropRatio": 0.638,
-      "status": "static-cutout-review-required"
+      "status": "approved-original-static-png"
     },
     {
       "source": "16_blue-dragon.png",
@@ -135,49 +135,49 @@
       "output": "19_ice-robot.png",
       "size": "128x128",
       "removedBackdropRatio": 0.91,
-      "status": "static-cutout-review-required"
+      "status": "approved-original-static-png"
     },
     {
       "source": "20_spiky-hedgehog.png",
       "output": "20_spiky-hedgehog.png",
       "size": "128x128",
       "removedBackdropRatio": 0.54,
-      "status": "static-cutout-review-required"
+      "status": "approved-original-static-png"
     },
     {
       "source": "21_skeleton.png",
       "output": "21_skeleton.png",
       "size": "128x128",
       "removedBackdropRatio": 0.928,
-      "status": "static-cutout-review-required"
+      "status": "approved-original-static-png"
     },
     {
       "source": "22_wolf-guard.png",
       "output": "22_wolf-guard.png",
       "size": "128x128",
       "removedBackdropRatio": 0.818,
-      "status": "static-cutout-review-required"
+      "status": "approved-original-static-png"
     },
     {
       "source": "23_green-frog.png",
       "output": "23_green-frog.png",
       "size": "128x128",
       "removedBackdropRatio": 0.758,
-      "status": "static-cutout-review-required"
+      "status": "approved-original-static-png"
     },
     {
       "source": "24_spider.png",
       "output": "24_spider.png",
       "size": "128x128",
       "removedBackdropRatio": 0.947,
-      "status": "static-cutout-review-required"
+      "status": "approved-original-static-png"
     },
     {
       "source": "25_squirrel.png",
       "output": "25_squirrel.png",
       "size": "128x128",
       "removedBackdropRatio": 0.429,
-      "status": "static-cutout-review-required"
+      "status": "approved-original-static-png"
     },
     {
       "source": "26_rock-creature.png",
@@ -191,21 +191,21 @@
       "output": "27_bee.png",
       "size": "128x128",
       "removedBackdropRatio": 0.691,
-      "status": "static-cutout-review-required"
+      "status": "approved-original-static-png"
     },
     {
       "source": "28_ice-fish.png",
       "output": "28_ice-fish.png",
       "size": "128x128",
       "removedBackdropRatio": 0.848,
-      "status": "static-cutout-review-required"
+      "status": "approved-original-static-png"
     },
     {
       "source": "29_jellyfish.png",
       "output": "29_jellyfish.png",
       "size": "128x128",
       "removedBackdropRatio": 0.87,
-      "status": "static-cutout-review-required"
+      "status": "approved-original-static-png"
     },
     {
       "source": "30_purple-demon.png",
@@ -233,7 +233,7 @@
       "output": "33_mummy.png",
       "size": "128x128",
       "removedBackdropRatio": 0.599,
-      "status": "static-cutout-review-required"
+      "status": "approved-original-static-png"
     },
     {
       "source": "34_blue-ogre-a.png",
@@ -247,35 +247,35 @@
       "output": "35_blue-ogre-b.png",
       "size": "128x128",
       "removedBackdropRatio": 0.676,
-      "status": "static-cutout-review-required"
+      "status": "approved-original-static-png"
     },
     {
       "source": "36_ice-cube-monster.png",
       "output": "36_ice-cube-monster.png",
       "size": "128x128",
       "removedBackdropRatio": 0.946,
-      "status": "static-cutout-review-required"
+      "status": "approved-original-static-png"
     },
     {
       "source": "37_green-turtle-a.png",
       "output": "37_green-turtle-a.png",
       "size": "128x128",
       "removedBackdropRatio": 0.749,
-      "status": "static-cutout-review-required"
+      "status": "approved-original-static-png"
     },
     {
       "source": "38_green-turtle-b.png",
       "output": "38_green-turtle-b.png",
       "size": "128x128",
       "removedBackdropRatio": 0.566,
-      "status": "static-cutout-review-required"
+      "status": "approved-original-static-png"
     },
     {
       "source": "39_green-lizard.png",
       "output": "39_green-lizard.png",
       "size": "128x128",
       "removedBackdropRatio": 0.609,
-      "status": "static-cutout-review-required"
+      "status": "approved-original-static-png"
     },
     {
       "source": "40_armored-lizard.png",
@@ -289,14 +289,14 @@
       "output": "41_pumpkin-variant.png",
       "size": "128x128",
       "removedBackdropRatio": 0.603,
-      "status": "static-cutout-review-required"
+      "status": "approved-original-static-png"
     },
     {
       "source": "42_rat-guard.png",
       "output": "42_rat-guard.png",
       "size": "128x128",
       "removedBackdropRatio": 0.636,
-      "status": "static-cutout-review-required"
+      "status": "approved-original-static-png"
     },
     {
       "source": "43_fire-effect.png",
@@ -317,7 +317,7 @@
       "output": "45_owl-b.png",
       "size": "128x128",
       "removedBackdropRatio": 0.828,
-      "status": "static-cutout-review-required"
+      "status": "approved-original-static-png"
     },
     {
       "source": "46_blue-slime.png",
@@ -338,7 +338,7 @@
       "output": "48_skull-cloud.png",
       "size": "128x128",
       "removedBackdropRatio": 0.849,
-      "status": "static-cutout-review-required"
+      "status": "approved-original-static-png"
     }
   ]
 }
