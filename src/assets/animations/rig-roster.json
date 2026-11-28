@@ -10,6 +10,7 @@
   },
   "requiredClips": [
     "idle",
+    "attack",
     "locomotion",
     "jump",
     "fall",
@@ -25,6 +26,7 @@
   "bossRequiredClips": [
     "entrance",
     "idle",
+    "attack",
     "locomotion",
     "jump",
     "fall",
