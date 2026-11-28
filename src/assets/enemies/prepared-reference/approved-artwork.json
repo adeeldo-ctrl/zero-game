@@ -45,5 +45,16 @@
     "root-burrower": "38_green-turtle-b.png",
     "mire-burrower": "39_green-lizard.png",
     "licorice-sniper": "42_rat-guard.png"
+  },
+  "runtimeAdornmentSystem": {
+    "approvedCutouts": 16,
+    "treatment": "Each approved regular enemy now receives an archetype-specific elemental halo, four orbiting spark particles, and a matching motif: animated wings, ice shards, flame fins, leaf details, or arcane stars.",
+    "examples": {
+      "candy-copter": "golden wing accents",
+      "spirit-pouncer": "warm flame fins",
+      "icicle-hopper": "ice crystal shards",
+      "eclipse-summoner": "arcane star accents"
+    },
+    "gameplayImpact": "Purely decorative Phaser container layers; no changes to enemy physics, AI, attack timing, collision, damage, or stage quotas."
   }
 }
