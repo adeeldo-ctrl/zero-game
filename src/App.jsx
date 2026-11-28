@@ -422,6 +422,7 @@ class ZeroGameScene extends Phaser.Scene {
     this.openHeroSelectAfterRestart = false;
     this.chances = 3;
     this.chanceLossInProgress = false;
+    this.chanceRespawnToken = 0;
     this.stageTransitionActive = false;
     this.pendingStageTransitionDirection = null;
     this.snowballTutorialShown = false;
@@ -2737,6 +2738,7 @@ class ZeroGameScene extends Phaser.Scene {
   startNewCampaign() {
     this.clearMenu();
     this.gameOver = false; this.stageCleared = false; this.campaignActive = false; this.heroSelectionLocked = false;
+    this.chanceRespawnToken = (this.chanceRespawnToken || 0) + 1;
     this.chanceLossInProgress = false;
     this.stageTransitionActive = false;
     this.pendingStageTransitionDirection = null;
@@ -4703,6 +4705,20 @@ class ZeroGameScene extends Phaser.Scene {
       // Use active update cycles rather than wall-clock time: browser throttling
       // can advance Phaser's scene clock much more slowly than its update loop.
       this.chanceRespawnFrames = 30;
+      const respawnToken = ++this.chanceRespawnToken;
+      // Headless browsers can stop delivering scene updates while the page is
+      // waiting on automation. Keep a browser timer as an independent fallback.
+      setTimeout(() => {
+        if (this.chanceRespawnToken !== respawnToken || !this.chanceLossInProgress ||
+            this.gameOver || !this.sys.isActive() || !this.hero?.active) return;
+        this.hero.body.enable = true;
+        this.hero.setPosition(480, 450).setVelocity(0, 0);
+        this.heroVisual?.setPosition(480, 450).setVisible(true).setAlpha(1).setScale(1);
+        this.lastDamage = this.time.now;
+        this.chanceLossInProgress = false;
+        this.chanceRespawnFrames = 0;
+        this.statusLabel.setText("NEW CHANCE! THREE HEARTS RESTORED").setColor("#62ffb4");
+      }, 950);
       this.statusLabel.setText(`CHANCE LOST! ${this.chances} CHANCE(S) LEFT`).setColor("#ffe17a");
     } else {
       this.time.delayedCall(650, () => {
@@ -4715,6 +4731,8 @@ class ZeroGameScene extends Phaser.Scene {
   }
 
   showContinueScreen() {
+    this.chanceRespawnToken = (this.chanceRespawnToken || 0) + 1;
+    this.chanceLossInProgress = false;
     // Stop the active arena simulation before displaying Game Over. This
     // prevents leftover enemy physics, spawn timers and animation tweens from
     // continuing to consume resources behind the restart screen.
