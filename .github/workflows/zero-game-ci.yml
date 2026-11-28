@@ -63,6 +63,9 @@ jobs:
       - name: Validate Android configuration without building an APK
         run: python3 scripts/validate-android-config.py
 
+      - name: Generate and validate all 37 character animation sheets
+        run: npm run art:validate
+
       - name: Build web game
         run: npm run build
 
