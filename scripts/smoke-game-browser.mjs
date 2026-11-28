@@ -2,7 +2,7 @@ import { spawn } from "node:child_process";
 import { once } from "node:events";
 import { setTimeout as delay } from "node:timers/promises";
 import { chromium } from "playwright";
-import { PREMIUM_ENEMY_ARCHETYPES, PREMIUM_BOSSES } from "../src/premiumCampaignData.js";
+import { PREMIUM_ENEMY_ARCHETYPES, PREMIUM_BOSSES, getPremiumEnemyRegion } from "../src/premiumCampaignData.js";
 
 const server = spawn(process.execPath, ["node_modules/vite/bin/vite.js", "--host", "127.0.0.1", "--port", "4173", "--strictPort"], {
   cwd: process.cwd(),
@@ -49,36 +49,17 @@ try {
     ...PREMIUM_ENEMY_ARCHETYPES.map(({ id }) => id),
     ...PREMIUM_BOSSES.map(({ id }) => id),
   ];
-  await page.waitForFunction(() => {
-    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
-    return scene?.sys.isActive() &&
-      scene.textures.exists("approved-enemy-spirit-pouncer") &&
-      scene.textures.exists("approved-enemy-frost-temple-breaker") &&
-      scene.textures.exists("boss-image-void-sovereign");
-  }, undefined, { timeout: 15000 });
-  const pngArtAudit = await page.evaluate((ids) => {
-    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
-    if (!scene?.sys.isActive()) return { error: "Phaser scene is not active" };
-    const missing = [];
-    const invalidImages = [];
-    for (const id of ids) {
-      const isBoss = ids.indexOf(id) >= 32;
-      const textureKey = isBoss ? `boss-image-${id}` : `approved-enemy-${id}`;
-      const texture = scene.textures.get(textureKey);
-      if (!texture || !scene.textures.exists(textureKey)) {
-        missing.push(`png-texture:${id}`);
-        continue;
-      }
-      const source = texture.getSourceImage();
-      if (!source || source.width < 32 || source.height < 32) invalidImages.push(`image:${id}`);
-    }
-    return { missing, invalidImages };
-  }, characterIds);
-  if (pngArtAudit.error || pngArtAudit.missing.length || pngArtAudit.invalidImages.length) {
-    throw new Error("Original PNG artwork integration failed: " + JSON.stringify(pngArtAudit));
+  const activeEnemyIds = getPremiumEnemyRegion(1).enemies.map(({ id }) => id);
+  if (characterIds.length !== 37 || new Set(characterIds).size !== 37) {
+    throw new Error("Expected 32 enemy rigs and five boss rigs in the full roster");
   }
-
-  const rigAudit = await page.evaluate((ids) => {
+  await page.waitForFunction((ids) => {
+    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+    const cache = scene?.cache?.custom?.rigby2d;
+    return scene?.sys.isActive() && scene.activeEnemyIds?.length === ids.length &&
+      ids.every((id) => !!cache?.get(`enemy-rig-${id}`));
+  }, activeEnemyIds, { timeout: 15000 });
+  const rigAudit = await page.evaluate((ids) => {  const rigAudit = await page.evaluate((ids) => {
     const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
     const cache = scene?.cache?.custom?.rigby2d;
     const missing = [];
@@ -118,7 +99,7 @@ try {
       }
     }
     return { missing, missingClips, invalidMeshes };
-  }, characterIds);
+  }, activeEnemyIds);
   if (rigAudit.missing.length || rigAudit.missingClips.length || rigAudit.invalidMeshes.length) {
     throw new Error("Rigby2D roster integration failed: " + JSON.stringify(rigAudit));
   }
@@ -145,27 +126,6 @@ try {
     throw new Error("Rigby2D locomotion clip did not move the enemy bone mesh");
   }
 
-  const bossSignature = await page.evaluate(() => {
-    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
-    const rig = scene.add.rigby(120, 80, "boss-rig-gatekeeper", "idle");
-    rig.setVisible(false);
-    const bone = "torso";
-    const before = rig.boneWorld(bone);
-    rig.play("signature", true, 0);
-    window.__ZERO_GAME_BOSS_SIGNATURE__ = { rig, bone, before };
-    return { bone, before };
-  });
-  await delay(180);
-  const bossSignatureAfter = await page.evaluate(() => {
-    const value = window.__ZERO_GAME_BOSS_SIGNATURE__;
-    const after = value.rig.boneWorld(value.bone);
-    value.rig.destroy();
-    delete window.__ZERO_GAME_BOSS_SIGNATURE__;
-    return after;
-  });
-  if (!bossSignatureAfter || Math.abs(bossSignatureAfter.rotation - bossSignature.before.rotation) < 0.005) {
-    throw new Error("Gatekeeper signature motion did not animate its rigged torso");
-  }
   const ambientAwareness = await page.evaluate(() => {
     const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
     const values = new Map();
@@ -194,39 +154,6 @@ try {
       !["idle-phone", "idle-scratch", "idle-comb", "idle-look-around"].includes(ambientAwareness.selectedClip) ||
       !ambientAwareness.stoppedNearHero || !ambientAwareness.resumedAi || !ambientAwareness.idleStoppedVelocity) {
     throw new Error("Enemy ambient personality/hero-awareness behaviour failed: " + JSON.stringify(ambientAwareness));
-  }
-
-  const allBossSignatures = await page.evaluate((bossIds) => {
-    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
-    const entries = bossIds.map((id) => {
-      const rig = scene.add.rigby(140, 90, `boss-rig-${id}`, "idle");
-      rig.setVisible(false);
-      const bones = rig.skeleton.bones.filter((bone) => bone.name !== "root");
-      const before = bones.map((bone) => ({ name: bone.name, ...rig.boneWorld(bone.name) }));
-      rig.play("signature", true, 0);
-      return { id, rig, before };
-    });
-    window.__ZERO_GAME_ALL_BOSS_SIGNATURES__ = entries;
-    return entries.map(({ id, before }) => ({ id, boneCount: before.length }));
-  }, characterIds.slice(32));
-  await delay(220);
-  const allBossSignaturesAfter = await page.evaluate(() => {
-    const entries = window.__ZERO_GAME_ALL_BOSS_SIGNATURES__;
-    const result = entries.map(({ id, rig, before }) => {
-      const after = before.map((bone) => ({ name: bone.name, ...rig.boneWorld(bone.name) }));
-      const moved = after.some((bone, index) =>
-        Math.abs((bone.x || 0) - (before[index].x || 0)) > 0.1 ||
-        Math.abs((bone.y || 0) - (before[index].y || 0)) > 0.1 ||
-        Math.abs((bone.rotation || 0) - (before[index].rotation || 0)) > 0.005
-      );
-      rig.destroy();
-      return { id, moved };
-    });
-    delete window.__ZERO_GAME_ALL_BOSS_SIGNATURES__;
-    return result;
-  });
-  if (allBossSignaturesAfter.some((entry) => !entry.moved)) {
-    throw new Error("A boss signature clip did not move its rigged mesh: " + JSON.stringify(allBossSignaturesAfter));
   }
 
   const accessibility = await page.evaluate(() => ({
@@ -286,9 +213,36 @@ try {
   await page.mouse.click(480, 502);
   await delay(450);
   await page.mouse.click(132, 468);
-  await delay(2600);
+  await page.waitForFunction(() => {
+    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+    return scene?.campaignActive && scene.heroSelectionLocked && scene.chances === 3 &&
+      scene.health === 3 && scene.getTokenBalance() === 2;
+  }, undefined, { timeout: 5000 });
+  const idleAnimation = await page.evaluate(() => {
+    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+    return scene.heroVisual?.getData("heroSprite")?.anims?.currentAnim?.key;
+  });
+  if (idleAnimation !== "hero-ryo-idle") throw new Error("Hero did not start its authored idle animation");
+  await page.keyboard.down("d");
+  await delay(320);
+  const walkingAnimation = await page.evaluate(() => {
+    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+    return scene.heroVisual?.getData("heroSprite")?.anims?.currentAnim?.key;
+  });
+  await page.keyboard.up("d");
+  if (!["hero-ryo-walk", "hero-ryo-run"].includes(walkingAnimation)) {
+    throw new Error("Hero did not play an authored walking/running cycle: " + walkingAnimation);
+  }
   await page.keyboard.press("Space");
-  await delay(700);
+  await delay(120);
+  const jumpAnimation = await page.evaluate(() => {
+    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+    return scene.heroVisual?.getData("heroSprite")?.anims?.currentAnim?.key;
+  });
+  if (!["hero-ryo-jump", "hero-ryo-fall", "hero-ryo-land"].includes(jumpAnimation)) {
+    throw new Error("Hero did not play an authored jump/airborne cycle: " + jumpAnimation);
+  }
+  await delay(500);
 
   // Exercise the actual DOM pointer layer used by the Android touch overlay.
   await page.evaluate(() => {
@@ -601,14 +555,26 @@ try {
     if (!scene.gameOver || scene.chances !== 0 || scene.health !== 0) {
       throw new Error("The third lost chance did not end the campaign");
     }
-    scene.startNewCampaign();
+    const continueButton = scene.menuObjects.find((item) => item.text?.includes("CONTINUE"));
+    if (!continueButton?.input?.enabled || scene.getTokenBalance() !== 2) {
+      throw new Error("Game Over did not show an enabled token-based Continue option");
+    }
   });
+  await page.mouse.click(330, 370);
+  await page.waitForFunction(() => {
+    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+    return scene?.sys.isActive() && scene.stageNumber === 1 && scene.gameStarted &&
+      scene.campaignActive && scene.heroSelectionLocked && scene.chances === 3 &&
+      scene.health === 3 && scene.getTokenBalance() === 1;
+  }, undefined, { timeout: 10000 });
+  await page.evaluate(() => window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene").startNewCampaign());
   try {
     await page.waitForFunction(() => {
       const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
       return scene?.sys.isActive() && scene.stageNumber === 1 && scene.stageConfig?.number === 1 &&
         !scene.gameStarted && !scene.gameOver && !scene.campaignActive && !scene.heroSelectionLocked &&
-        scene.chances === 3 && scene.health === 3 && scene.hero?.body?.enable === true;
+        scene.chances === 3 && scene.health === 3 && scene.getTokenBalance() === 1 &&
+        scene.hero?.body?.enable === true;
     }, undefined, { timeout: 10000 });
   } catch (error) {
     const state = await page.evaluate(() => {
@@ -966,7 +932,9 @@ try {
           y: enemy.y,
           element: enemy.getData("enemyPowerType"),
           visualElement: enemy.getData("visual")?.getData("elementId"),
+          rigged: enemy.getData("visual")?.getData("authoredSprite")?.getData("rigbySkeleton") === true,
         })),
+        bossRigged: scene.bossVisual?.getData("authoredSprite")?.getData("rigbySkeleton") === true,
         heroId: scene.selectedHero?.id,
         chances: scene.chances,
         hearts: scene.health,
@@ -995,6 +963,37 @@ try {
     }
     if (stageState.bossStage && stageState.enemies.length !== 0) {
       throw new Error(`Boss stage ${nextStage} must not spawn regular enemies`);
+    }
+    if (stageState.enemies.some((enemy) => !enemy.rigged) || (stageState.bossStage && !stageState.bossRigged)) {
+      throw new Error(`Stage ${nextStage} did not render all active characters through weighted rigs`);
+    }
+    if (stageState.bossStage) {
+      await page.waitForFunction(() => {
+        const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+        const rig = scene?.bossVisual?.getData("authoredSprite");
+        return rig?.getData("rigbySkeleton") && scene.time.now >= (rig.getData("entranceUntil") || 0);
+      }, undefined, { timeout: 4000 });
+      const before = await page.evaluate(() => {
+        const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+        scene.boss.setVelocity(0, 0);
+        scene.hero.setPosition(scene.boss.x, scene.boss.y);
+        const rig = scene.bossVisual.getData("authoredSprite");
+        return rig.skeleton.bones.filter((bone) => bone.name !== "root")
+          .map((bone) => ({ name: bone.name, ...rig.boneWorld(bone.name) }));
+      });
+      await delay(220);
+      const after = await page.evaluate(() => {
+        const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+        const rig = scene.bossVisual.getData("authoredSprite");
+        return rig.skeleton.bones.filter((bone) => bone.name !== "root")
+          .map((bone) => ({ name: bone.name, ...rig.boneWorld(bone.name) }));
+      });
+      const signatureMoved = after.some((bone, index) =>
+        Math.abs((bone.x || 0) - (before[index].x || 0)) > 0.1 ||
+        Math.abs((bone.y || 0) - (before[index].y || 0)) > 0.1 ||
+        Math.abs((bone.rotation || 0) - (before[index].rotation || 0)) > 0.005
+      );
+      if (!signatureMoved) throw new Error(`Boss ${stageState.bossId} did not animate its live rig`);
     }
     if (stageState.enemies.some((enemy) => !enemy.element || enemy.visualElement !== enemy.element)) {
       throw new Error(`Stage ${nextStage} enemy elemental visuals do not match their assigned power`);
@@ -1104,20 +1103,10 @@ try {
       const visual = enemy.getData("visual");
       const sprite = visual?.getData("authoredSprite");
       const archetypeId = enemy.getData("enemyArchetypeId");
-      const poseTextures = scene.enemyPoseTextures?.[archetypeId];
-      const isPoseSheet = sprite?.getData("poseSheetSprite") === true;
-      const poseStateKeys = isPoseSheet
-        ? ["idle", "walk", "jump", "attack"].map((state) => poseTextures?.[state]).filter(Boolean)
-        : [];
-      const hasAllPoseStates = !isPoseSheet ||
-        ["idle", "walk", "jump", "attack"].every((state) =>
-          poseTextures?.[state] && scene.textures.exists(poseTextures[state])
-        );
-      const hasExpectedArtwork = isPoseSheet
-        ? poseStateKeys.includes(sprite?.texture?.key)
-        : sprite?.texture?.key === `approved-enemy-${archetypeId}`;
-      return !visual?.visible || !sprite?.active ||
-        !hasExpectedArtwork || !hasAllPoseStates ||
+      const hasOriginalWeightedRig = sprite?.getData("rigbySkeleton") === true &&
+        Array.isArray(sprite.skeleton?.bones) && sprite.skeleton.bones.length > 1 &&
+        typeof sprite.play === "function";
+      return !visual?.visible || !sprite?.active || !hasOriginalWeightedRig ||
         visual.getData("approvedArtSprite") !== sprite || !sprite.visible;
     })) {
       throw new Error("A live stage enemy is missing its visible original PNG artwork or complete pose-sheet animation states");
