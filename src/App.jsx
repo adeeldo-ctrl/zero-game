@@ -5427,6 +5427,26 @@ class ZeroGameScene extends Phaser.Scene {
       this.touch.attack ||
       this.keys.attack.isDown;
 
+    // Drive the visible authored sheet from the actual physics state.
+    // The old procedural limbs are hidden beneath this sprite and cannot
+    // substitute for a real walk/run/jump/landing animation.
+    const heroSprite = visual.getData("heroSprite");
+    const previousFacing = visual.getData("heroLastFacing") ?? this.facing;
+    const wasAirborne = visual.getData("heroWasAirborne") === true;
+    let heroAnimation = "idle";
+    if (attacking) heroAnimation = "attack";
+    else if (airborne) heroAnimation = h.body.velocity.y < -24 ? "jump" : "fall";
+    else if (wasAirborne) {
+      heroAnimation = "land";
+      visual.setData("heroLandUntil", time + 150);
+    } else if (time < (visual.getData("heroLandUntil") || 0)) heroAnimation = "land";
+    else if (Math.abs(h.body.velocity.x) > 205) heroAnimation = "run";
+    else if (moving) heroAnimation = "walk";
+    else if (previousFacing !== this.facing) heroAnimation = "turn";
+    this.setHeroSpriteAnimation(visual, heroAnimation);
+    visual.setData("heroWasAirborne", airborne);
+    visual.setData("heroLastFacing", this.facing);
+
     if (time >= (this.heroEntryUntil || 0)) visual.setPosition(h.x, h.y);
     visual.setScale(this.facing, 1);
 
@@ -6011,6 +6031,38 @@ class ZeroGameScene extends Phaser.Scene {
         parts.legR.rotation = -swing * limbProfile.leg;
         const authoredSprite = enemyVisual.getData("authoredSprite");
         const approvedArtSprite = enemyVisual.getData("approvedArtSprite");
+        if (authoredSprite?.active && authoredSprite.getData("rigbySkeleton")) {
+          const vx = enemy.body?.velocity?.x || 0;
+          const vy = enemy.body?.velocity?.y || 0;
+          const grounded = !!enemy.body?.blocked?.down;
+          const previousGrounded = enemy.getData("rigWasGrounded");
+          const lockedUntil = enemy.getData("rigAnimationLockUntil") || 0;
+          let rigClip = "idle";
+          if (this.time.now < lockedUntil) {
+            rigClip = authoredSprite.getData("rigbyCurrentClip") || "attack";
+          } else if (!grounded && vy < -24 && enemy.body?.allowGravity !== false) {
+            rigClip = "jump";
+          } else if (!grounded && vy > 24 && enemy.body?.allowGravity !== false) {
+            rigClip = "fall";
+          } else if (grounded && previousGrounded === false) {
+            rigClip = "land";
+            enemy.setData("rigAnimationLockUntil", this.time.now + 180);
+          } else if (Math.abs(vx) > 18) {
+            rigClip = "locomotion";
+          } else {
+            rigClip = "idle";
+          }
+          enemy.setData("rigWasGrounded", grounded);
+          if (authoredSprite.getData("rigbyCurrentClip") !== rigClip) {
+            authoredSprite.setData("rigbyCurrentClip", rigClip);
+            authoredSprite.play(rigClip, !["jump", "fall", "land"].includes(rigClip), 0.12);
+          }
+          // Preserve each rig's authored body proportions while the parent
+          // container handles left/right facing and the role-specific gait.
+          const base = authoredSprite.getData("baseVisualScale") || (enemy.getData("enemyClass") === "heavy" ? 0.78 : 0.72);
+          const gait = Math.abs(vx) > 180 ? 1.025 : Math.abs(vx) > 18 ? 1 : 0.985;
+          authoredSprite.setScale(base * gait, base * (grounded ? 1 : 1.035));
+        }
         if (approvedArtSprite?.active) {
           const vx = enemy.body?.velocity?.x || 0;
           const moving = Math.abs(vx) > 18;
