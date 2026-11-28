@@ -59,7 +59,7 @@ try {
     return scene?.sys.isActive() && scene.activeEnemyIds?.length === ids.length &&
       ids.every((id) => !!cache?.get(`enemy-rig-${id}`));
   }, activeEnemyIds, { timeout: 15000 });
-  const rigAudit = await page.evaluate((ids) => {  const rigAudit = await page.evaluate((ids) => {
+  const rigAudit = await page.evaluate((ids) => {
     const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
     const cache = scene?.cache?.custom?.rigby2d;
     const missing = [];
@@ -973,10 +973,19 @@ try {
         const rig = scene?.bossVisual?.getData("authoredSprite");
         return rig?.getData("rigbySkeleton") && scene.time.now >= (rig.getData("entranceUntil") || 0);
       }, undefined, { timeout: 4000 });
-      const before = await page.evaluate(() => {
+      await page.evaluate(() => {
         const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
         scene.boss.setVelocity(0, 0);
+        scene.boss.setData("bossAttackState", "rest");
+        scene.boss.setData("bossAttackAt", scene.time.now + 5000);
         scene.hero.setPosition(scene.boss.x, scene.boss.y);
+      });
+      await page.waitForFunction(() => {
+        const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+        return scene?.bossVisual?.getData("authoredSprite")?.getData("rigbyCurrentClip") === "signature";
+      }, undefined, { timeout: 3000 });
+      const before = await page.evaluate(() => {
+        const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
         const rig = scene.bossVisual.getData("authoredSprite");
         return rig.skeleton.bones.filter((bone) => bone.name !== "root")
           .map((bone) => ({ name: bone.name, ...rig.boneWorld(bone.name) }));
@@ -1102,14 +1111,13 @@ try {
     if (enemies.some((enemy) => {
       const visual = enemy.getData("visual");
       const sprite = visual?.getData("authoredSprite");
-      const archetypeId = enemy.getData("enemyArchetypeId");
       const hasOriginalWeightedRig = sprite?.getData("rigbySkeleton") === true &&
         Array.isArray(sprite.skeleton?.bones) && sprite.skeleton.bones.length > 1 &&
         typeof sprite.play === "function";
       return !visual?.visible || !sprite?.active || !hasOriginalWeightedRig ||
         visual.getData("approvedArtSprite") !== sprite || !sprite.visible;
     })) {
-      throw new Error("A live stage enemy is missing its visible original PNG artwork or complete pose-sheet animation states");
+      throw new Error("A live stage enemy is missing its visible original weighted animation rig");
     }
     enemies.forEach((enemy, index) => enemy.setData("smokeCheckId", index));
     return {
@@ -1222,7 +1230,7 @@ try {
   if (runtimeErrors.length) {
     throw new Error(`Browser runtime errors:\n${runtimeErrors.join("\n")}`);
   }
-  console.log("Browser smoke test passed: campaign/stage regression, 32 enemy ambient clips and hero-awareness state changes, all five boss signature rigs, original enemy visuals, mobile multitouch controls, boss/stage progression, and no uncaught runtime errors.");
+  console.log("Browser smoke test passed: token start/continue, hero locomotion, live enemy/boss rigs across all stages, campaign progression, mobile controls, and no uncaught runtime errors.");
 } finally {
   if (browser) await browser.close();
   if (server.exitCode === null) {
