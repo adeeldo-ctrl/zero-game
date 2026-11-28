@@ -84,14 +84,22 @@ class ZeroGameScene extends Phaser.Scene {
       this.load.rigby(`enemy-rig-${id}`, `/rigs/enemies/${id}/skeleton.json`, `/rigs/enemies/${id}/skeleton.atlas`);
     });
     this.activeBossId = getStage(this.stageNumber).boss?.id || null;
-    // Five boss rigs are small and are also used by the campaign's dedicated
-    // boss encounter validation; enemy rigs remain limited to the current region.
-    rigRoster.bosses.forEach(({ id }) => {
-      this.load.rigby(`boss-rig-${id}`,
-        `/rigs/bosses/${id}/skeleton.json`,
-        `/rigs/bosses/${id}/skeleton.atlas`);
-    });
-    worldBackdrops.forEach((source, index) => this.load.image(`world-backdrop-${index}`, source));
+    // Boss artwork is loaded only on its actual milestone stage. This keeps
+    // the regular-stage Android WebView memory footprint small.
+    if (this.activeBossId) {
+      if (!rigRoster.bosses.some((entry) => entry.id === this.activeBossId)) {
+        throw new Error("Missing Rigby2D boss rig roster entry: " + this.activeBossId);
+      }
+      this.load.rigby(`boss-rig-${this.activeBossId}`,
+        `/rigs/bosses/${this.activeBossId}/skeleton.json`,
+        `/rigs/bosses/${this.activeBossId}/skeleton.atlas`);
+    }
+    const activeWorldIndex = getStage(this.stageNumber).worldIndex || 0;
+    const activeBackdrop = worldBackdrops[activeWorldIndex];
+    if (!activeBackdrop) throw new Error("Missing world backdrop for index " + activeWorldIndex);
+    if (!this.textures.exists(`world-backdrop-${activeWorldIndex}`)) {
+      this.load.image(`world-backdrop-${activeWorldIndex}`, activeBackdrop);
+    }
   }
 
   preparePoseSheetTextures() {
