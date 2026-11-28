@@ -5231,9 +5231,8 @@ class ZeroGameScene extends Phaser.Scene {
   }
 
   update(time, delta) {
-    // Drive the extra-chance respawn from the active scene update loop. This
-    // remains reliable even if Phaser's delayed-event queue was cleared by a
-    // previous Game Over/restart transition.
+    this.chanceRespawnUpdateTicks = (this.chanceRespawnUpdateTicks || 0) + 1;
+    // Drive the extra-chance respawn from the active scene update loop.
     if (this.chanceLossInProgress && this.chanceRespawnAt && time >= this.chanceRespawnAt) {
       if (!this.gameOver && this.hero?.active) {
         this.hero.body.enable = true;
