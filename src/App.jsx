@@ -3110,10 +3110,18 @@ class ZeroGameScene extends Phaser.Scene {
   playEnemyReactionAnimation(enemy, state) {
     const visual = enemy?.getData("visual");
     const sprite = visual?.getData("authoredSprite");
+    const approvedArtSprite = visual?.getData("approvedArtSprite");
     const archetypeId = enemy?.getData("enemyArchetypeId");
     const key = `enemy-${archetypeId}-${state}`;
-    if (!visual?.active || !sprite?.active || !this.anims.exists(key)) return null;
+    if (!visual?.active) return null;
     visual.setVisible(true).setAlpha(1);
+    if (state === "attack" && approvedArtSprite?.active) {
+      // Give single-frame cutouts a distinct anticipation/strike pose without
+      // changing enemy physics, attack timing, or collision behaviour.
+      visual.setData("approvedAttackStartedAt", this.time.now);
+      visual.setData("approvedAttackUntil", this.time.now + 280);
+    }
+    if (!sprite?.active || !this.anims.exists(key)) return approvedArtSprite?.active ? visual : null;
     sprite.play(key, true);
     return visual;
   }
@@ -5602,9 +5610,21 @@ class ZeroGameScene extends Phaser.Scene {
           const bob = Math.sin(motionPhase) * (moving ? 2.8 : 1.4);
           const stridePulse = Math.sin(et * 0.042);
           const squash = charging ? 0.94 : moving ? 1 + Math.abs(stridePulse) * 0.035 : 1;
-          approvedArtSprite.setPosition(0, -12 + bob);
-          approvedArtSprite.setScale(charging ? 1.08 : squash, charging ? 0.92 : moving ? 1 - Math.abs(stridePulse) * 0.025 : 1);
-          approvedArtSprite.setAngle(charging ? (vx < 0 ? -9 : 9) : moving ? Math.sin(et * 0.024) * 2.4 : Math.sin(et * 0.008) * 1.1);
+          const attackStartedAt = enemyVisual.getData("approvedAttackStartedAt") || 0;
+          const attackUntil = enemyVisual.getData("approvedAttackUntil") || 0;
+          const attackActive = this.time.now < attackUntil;
+          const attackProgress = attackActive ? Phaser.Math.Clamp((this.time.now - attackStartedAt) / 280, 0, 1) : 0;
+          const attackPulse = attackActive ? Math.sin(attackProgress * Math.PI) : 0;
+          const facingDirection = Math.abs(vx) > 2 ? (vx < 0 ? -1 : 1) : (this.hero.x < enemy.x ? -1 : 1);
+          approvedArtSprite.setPosition(attackActive ? facingDirection * attackPulse * 5 : 0,
+            -12 + (attackActive ? -attackPulse * 4 : bob));
+          approvedArtSprite.setScale(
+            attackActive ? (1 + attackPulse * 0.1) : charging ? 1.08 : squash,
+            attackActive ? (1 - attackPulse * 0.09) : charging ? 0.92 : moving ? 1 - Math.abs(stridePulse) * 0.025 : 1
+          );
+          approvedArtSprite.setAngle(attackActive ? facingDirection * attackPulse * 11
+            : charging ? (vx < 0 ? -9 : 9)
+              : moving ? Math.sin(et * 0.024) * 2.4 : Math.sin(et * 0.008) * 1.1);
         }
         if (authoredSprite?.active) {
           const enemyKind = enemy.getData("enemyClass") || "special";
