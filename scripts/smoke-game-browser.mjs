@@ -565,7 +565,7 @@ try {
     if (!scene.gameOver || scene.chances !== 0 || scene.health !== 0) {
       throw new Error("The third lost chance did not end the campaign");
     }
-    const continueButton = scene.menuObjects.find((item) => item.text?.includes("CONTINUE"));
+    const continueButton = scene.menuObjects.find((item) => item.text?.startsWith("CONTINUE —"));
     if (!continueButton?.input?.enabled || scene.getTokenBalance() !== 2) {
       throw new Error("Game Over did not show an enabled token-based Continue option");
     }
