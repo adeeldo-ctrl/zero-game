@@ -49,6 +49,14 @@ try {
     ...PREMIUM_ENEMY_ARCHETYPES.map(({ id }) => id),
     ...PREMIUM_BOSSES.map(({ id }) => id),
   ];
+  await page.waitForFunction(() => {
+    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+    return scene?.sys.isActive() &&
+      scene.textures.exists("character-sheet-spirit-pouncer") &&
+      scene.anims.exists("enemy-spirit-pouncer-idle") &&
+      scene.textures.exists("character-sheet-void-sovereign") &&
+      scene.anims.exists("boss-void-sovereign-phase-change");
+  }, undefined, { timeout: 15000 });
   const animationAudit = await page.evaluate((ids) => {
     const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
     if (!scene?.sys.isActive()) return { error: "Phaser scene is not active" };
@@ -872,7 +880,7 @@ try {
       const visual = enemy.getData("visual");
       const sprite = visual?.getData("authoredSprite");
       return !visual?.visible || !sprite?.active ||
-        sprite.texture?.key !== "premium-enemy-atlas" ||
+        sprite.texture?.key !== `character-sheet-${enemy.getData("enemyArchetypeId")}` ||
         !sprite.anims.currentAnim;
     })) {
       throw new Error("A live stage enemy is missing its visible archetype-specific sprite animation");
