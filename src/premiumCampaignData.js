@@ -15,6 +15,10 @@ export const PREMIUM_ENEMY_REGIONS = [
       ["bark-bruiser", "Bark Bruiser", "heavy", "common"],
       ["venom-stalker", "Venom Stalker", "charger", "elite"],
       ["ancient-wisp", "Ancient Wisp", "summoner", "elite"],
+      // Distinct approved-art variant identities; each keeps its own role and palette.
+      ["shadow-moss-scout", "Shadow Moss Scout", "runner", "common", { variantOf: "moss-scout", artBaseId: "moss-scout", tint: 0x70c7ff, style: "shadow" }],
+      ["iron-bark-bruiser", "Ironbark Bruiser", "heavy", "special", { variantOf: "bark-bruiser", artBaseId: "bark-bruiser", tint: 0xb6a7ff, style: "metal" }],
+      ["golden-acorn-leaper", "Golden Acorn Leaper", "leaper", "common", { variantOf: "acorn-leaper", artBaseId: "acorn-leaper", tint: 0xffd65a, style: "solar" }],
     ],
   },
   {
@@ -30,6 +34,10 @@ export const PREMIUM_ENEMY_REGIONS = [
       ["candy-copter", "Candy Copter", "flying", "common"],
       ["caramel-mauler", "Caramel Mauler", "charger", "elite"],
       ["prism-trickster", "Prism Trickster", "illusionist", "elite"],
+      // Distinct approved-art variant identities; each keeps its own role and palette.
+      ["prism-jelly-vault", "Prism Jelly Vault", "leaper", "special", { variantOf: "jelly-vault", artBaseId: "jelly-vault", tint: 0xa5f4ff, style: "prism" }],
+      ["molten-caramel-mauler", "Molten Caramel Mauler", "charger", "elite", { variantOf: "caramel-mauler", artBaseId: "caramel-mauler", tint: 0xff7046, style: "flame" }],
+      ["storm-candy-copter", "Storm Candy Copter", "flying", "special", { variantOf: "candy-copter", artBaseId: "candy-copter", tint: 0x76e8ff, style: "storm" }],
     ],
   },
   {
@@ -45,6 +53,10 @@ export const PREMIUM_ENEMY_REGIONS = [
       ["permafrost-ogre", "Permafrost Ogre", "heavy", "common"],
       ["hailstorm-lancer", "Hailstorm Lancer", "charger", "elite"],
       ["glacial-oracle", "Glacial Oracle", "summoner", "elite"],
+      // Distinct approved-art variant identities; each keeps its own role and palette.
+      ["frostfire-icicle-hopper", "Frostfire Icicle Hopper", "leaper", "special", { variantOf: "icicle-hopper", artBaseId: "icicle-hopper", tint: 0xa9f5ff, style: "frostfire" }],
+      ["crystal-spore-caster", "Crystal Spore Caster", "ranged", "special", { variantOf: "spore-caster", artBaseId: "spore-caster", tint: 0xd7a5ff, style: "crystal" }],
+      ["thorn-root-burrower", "Thorn Root Burrower", "ambusher", "elite", { variantOf: "root-burrower", artBaseId: "root-burrower", tint: 0x9de477, style: "thorn" }],
     ],
   },
   {
@@ -60,6 +72,10 @@ export const PREMIUM_ENEMY_REGIONS = [
       ["temple-breaker", "Temple Breaker", "heavy", "common"],
       ["spirit-pouncer", "Spirit Pouncer", "charger", "elite"],
       ["eclipse-summoner", "Eclipse Summoner", "summoner", "elite"],
+      // Distinct approved-art variant identities; each keeps its own role and palette.
+      ["ember-spirit-pouncer", "Ember Spirit Pouncer", "charger", "elite", { variantOf: "spirit-pouncer", artBaseId: "spirit-pouncer", tint: 0xff8152, style: "ember" }],
+      ["toxic-vine-vault", "Toxic Vine Vault", "leaper", "special", { variantOf: "vine-vault", artBaseId: "vine-vault", tint: 0xb6ee58, style: "toxic" }],
+      ["solar-jade-shellback", "Solar Jade Shellback", "shield", "special", { variantOf: "jade-shellback", artBaseId: "jade-shellback", tint: 0xffe16b, style: "solar" }],
     ],
   },
   {
@@ -75,12 +91,17 @@ export const PREMIUM_ENEMY_REGIONS = [
       ["meteor-colossus", "Meteor Colossus", "heavy", "common"],
       ["nova-lancer", "Nova Lancer", "charger", "elite"],
       ["void-architect", "Void Architect", "summoner", "elite"],
+      // Distinct approved-art variant identities; each keeps its own role and palette.
+      ["plasma-mire-burrower", "Plasma Mire Burrower", "ambusher", "elite", { variantOf: "mire-burrower", artBaseId: "mire-burrower", tint: 0xe58cff, style: "plasma" }],
+      ["void-licorice-sniper", "Void Licorice Sniper", "ranged", "elite", { variantOf: "licorice-sniper", artBaseId: "licorice-sniper", tint: 0xa78bff, style: "void" }],
+      ["astral-eclipse-summoner", "Astral Eclipse Summoner", "summoner", "elite", { variantOf: "eclipse-summoner", artBaseId: "eclipse-summoner", tint: 0xc19cff, style: "astral" }],
+      ["frost-temple-breaker", "Frost Temple Breaker", "heavy", "elite", { variantOf: "temple-breaker", artBaseId: "temple-breaker", tint: 0x8fe8ff, style: "glacier" }],
     ],
   },
 ].map((region) => ({
   ...region,
-  enemies: region.enemies.map(([id, name, role, tier]) => ({
-    id, name, role, tier,
+  enemies: region.enemies.map(([id, name, role, tier, variant = null]) => ({
+    id, name, role, tier, ...(variant || {}),
     spriteKey: `enemy-${id}`,
     animations: ["idle", "move", "attack", "hit", "defeat"],
   })),
@@ -131,8 +152,9 @@ export function getPremiumStageEnemyRoster(stageNumber) {
   const region = getPremiumEnemyRegion(stage);
   const localStage = ((stage - 1) % 10) + 1;
   // Each stage introduces/combines different members of its region's nine-type roster.
-  const availableCount = Math.min(9, 2 + Math.floor((Math.min(localStage, 9) - 1) * 7 / 8));
-  const rotation = (localStage - 1) % 9;
+  const rosterSize = region.enemies.length;
+  const availableCount = Math.min(rosterSize, 2 + Math.floor((Math.min(localStage, 9) - 1) * (rosterSize - 2) / 8));
+  const rotation = (localStage - 1) % rosterSize;
   return Array.from({ length: availableCount }, (_, index) =>
     region.enemies[(rotation + index) % region.enemies.length]
   );
