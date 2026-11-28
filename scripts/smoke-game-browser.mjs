@@ -33,7 +33,7 @@ try {
   page.setDefaultTimeout(15000);
   page.setDefaultNavigationTimeout(15000);
   const runtimeErrors = [];
-  page.on("pageerror", (error) => runtimeErrors.push(error.message));
+  page.on("pageerror", (error) => runtimeErrors.push(error.stack || error.message));
   page.on("console", (message) => {
     if (message.type() === "error") runtimeErrors.push(message.text());
   });
