@@ -2668,7 +2668,7 @@ class ZeroGameScene extends Phaser.Scene {
       flying: ["idle-groom", "idle-look-around", "idle-scratch"],
     };
     const actions = hasHands
-      ? (roleActions[enemy.getData("enemyRole")] || ["idle-look-around", "idle-scratch", "idle-comb", "idle-phone"])
+      ? (roleActions[role] || ["idle-look-around", "idle-scratch", "idle-comb", "idle-phone"])
       : ["idle-groom", "idle-look-around"];
     const seed = [...archetypeId].reduce((value, char) => value + char.charCodeAt(0), rosterIndex * 17);
     enemy.setData("ambientIdleActions", actions);
@@ -3732,6 +3732,7 @@ class ZeroGameScene extends Phaser.Scene {
   updateBoss(enemy, delta) {
     if (this.bossDefeated || !enemy.active) return;
     const direction = this.hero.x >= enemy.x ? 1 : -1;
+    const heroDistance = Phaser.Math.Distance.Between(enemy.x, enemy.y, this.hero.x, this.hero.y);
     const attackState = enemy.getData("bossAttackState") || "rest";
     if (attackState === "volley" && this.time.now >= (enemy.getData("bossVolleyUntil") || 0)) {
       enemy.setData("bossAttackState", "rest");
@@ -3744,7 +3745,8 @@ class ZeroGameScene extends Phaser.Scene {
       : bossStyle.includes("final") ? 136
       : bossStyle.includes("grappler") ? 64 : 82;
     const speed = this.bossPhase === 3 ? baseSpeed * 1.65 : this.bossPhase === 2 ? baseSpeed * 1.3 : baseSpeed;
-    enemy.setVelocityX(attackState === "dash"
+    const bossSettled = attackState === "rest" && heroDistance < 148;
+    enemy.setVelocityX(bossSettled ? 0 : attackState === "dash"
       ? (enemy.getData("bossDashDirection") || direction) * (this.bossPhase === 3 ? 500 : 390)
       : attackState === "volley" ? 0 : direction * speed);
     const visual = this.bossVisual;
@@ -3764,7 +3766,8 @@ class ZeroGameScene extends Phaser.Scene {
               : attackState === "tell" ? "attack-primary"
                 : attackState === "volley" ? "attack-secondary"
                   : ["dash", "slam"].includes(attackState) ? "special"
-                    : Math.abs(enemy.body?.velocity?.x || 0) > 18 ? "move" : "idle";
+                    : bossSettled ? "signature"
+                      : Math.abs(enemy.body?.velocity?.x || 0) > 18 ? "move" : "idle";
         authoredBossSprite.setData("lastAttackState", attackState);
         authoredBossSprite.setData("lastVisualState", bossVisualState);
         if (authoredBossSprite.getData("rigbySkeleton")) {
