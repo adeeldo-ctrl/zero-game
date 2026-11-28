@@ -96,6 +96,12 @@ function validateCharacter(character, isBoss) {
   for (const joint of ["forearm_l", "forearm_r", "shin_l", "shin_r"]) {
     requireJointMotion(joint, ["locomotion", "jump", "fall"]);
   }
+  for (const [left, right] of [["claw_l", "claw_r"], ["fin_top", "fin_bottom"]]) {
+    if (boneNames.has(left) && boneNames.has(right)) {
+      requireJointMotion(left, ["locomotion", "jump", "fall"]);
+      requireJointMotion(right, ["locomotion", "jump", "fall"]);
+    }
+  }
 
   if (skeleton.skeleton?.spine !== "4.2.0") {
     failures.push(character.id + ": expected Rigby2D skeleton JSON 4.2.0");
