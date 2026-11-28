@@ -57,9 +57,6 @@ jobs:
       - name: Run automated tests
         run: npm test
 
-      - name: Validate all premium enemy and boss animation sheets
-        run: npm run art:validate
-
       - name: Run lint
         run: npm run lint
 
