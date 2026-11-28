@@ -88,7 +88,7 @@ The earlier Release APK result above is a historical artifact from a prior sourc
 - Complete all remaining source work first, run one consolidated final verification, then build and verify a fresh signed Release APK from the verified final source.
 - This instruction supersedes any older wording in this file that described the earlier artifact as final delivery.
 
-FINAL_RELEASE_APPROVED: true
+FINAL_RELEASE_APPROVED: false
 
 
 ## User scope change — 2026-11-27
@@ -110,3 +110,10 @@ Wi-Fi co-op is removed from the final product at the user's request. It is not p
 - Fixed the action-state visual swap that hid the selected hero sprite and exposed the shared legacy vector rig during attacks, special moves, and hit reactions.
 - The selected hero's own authored sprite now remains visible across all button-triggered actions; legacy rig parts remain hidden.
 - Consolidated CI must pass on the fix before generating the fresh signed Android Release APK.
+
+
+## Latest active roster clarification — 2026-11-28
+
+The user's latest approved active scope is exactly 32 regular enemy identities (16 approved original designs plus 16 separately named variants) and five distinct bosses. Each ten-stage region must use only its own exclusive enemy pool. The older 45-enemy art-direction archive is reference-only and must not expand the active campaign. Do not develop or activate the other 29 legacy enemy concepts.
+
+The production art pack is still incomplete: the 32 unique regular-enemy sheets and five boss sheets with genuine required animation frames have not been delivered. The 48 prepared transparent reference cutouts are static review assets, not production animation sheets. Therefore `FINAL_RELEASE_APPROVED` is set to `false`; this keeps the Android Release workflow locked until the art pack and final integrated acceptance are complete.
