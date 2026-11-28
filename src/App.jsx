@@ -2536,8 +2536,19 @@ class ZeroGameScene extends Phaser.Scene {
       enqueueMobileAction(this.mobileActionQueue, "jump");
       return;
     }
-    if (["super", "special1", "special2", "special3", "cyclePower"].includes(action)) {
-      enqueueMobileAction(this.mobileActionQueue, action);
+    // Fire one-shot mobile actions immediately on pointer-down. Queuing these
+    // actions until the next scene update can lose rapid taps during scene
+    // transitions; the DOM overlay already guarantees one dispatch per press.
+    if (action === "special1" || action === "special2" || action === "special3") {
+      this.specialMove(Number(action.slice(-1)) - 1);
+      return;
+    }
+    if (action === "super") {
+      this.superAttack();
+      return;
+    }
+    if (action === "cyclePower") {
+      this.cyclePower();
       return;
     }
     this.touch[action] = true;
