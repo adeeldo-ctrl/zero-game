@@ -28,7 +28,25 @@ import { createGameAudio } from "./gameAudio";
 
 
 const APPROVED_ENEMY_ART = Object.fromEntries(rigRoster.enemies.map(({ id }) => [id, true]));
-const HERO_POSE_SHEETS = [];
+const heroPoseFiles = import.meta.glob("../new heros orignal/*.jpg", { eager: true, query: "?url", import: "default" });
+const enemyPoseFiles = import.meta.glob("../new enemy/*.jpg", { eager: true, query: "?url", import: "default" });
+const bossPoseFiles = import.meta.glob("../bosses/*.jpg", { eager: true, query: "?url", import: "default" });
+const orderedPoseAssets = (assets) => Object.entries(assets).sort(([a], [b]) => {
+  const numberOf = (path) => Number(path.match(/\((\d+)\)\.jpg$/)?.[1] || 0);
+  return numberOf(a) - numberOf(b);
+});
+const HERO_POSE_SHEETS = [
+  { id: "ryo", source: heroPoseFiles["../new heros orignal/hero (1).jpg"], columns: 5, rows: 1 },
+  { id: "mei", source: heroPoseFiles["../new heros orignal/hero (2).jpg"], columns: 5, rows: 1 },
+  { id: "kairo", source: heroPoseFiles["../new heros orignal/hero (3).jpg"], columns: 5, rows: 1 },
+  { id: "volt", source: heroPoseFiles["../new heros orignal/hero (4).jpg"], columns: 5, rows: 1 },
+];
+const ENEMY_POSE_SHEETS = orderedPoseAssets(enemyPoseFiles).slice(0, 30)
+  .map(([, source], index) => ({ id: rigRoster.enemies[index]?.id, source, columns: 4, rows: 1 }))
+  .filter(({ id, source }) => id && source);
+const BOSS_POSE_SHEETS = orderedPoseAssets(bossPoseFiles).slice(0, 5)
+  .map(([, source], index) => ({ id: rigRoster.bosses[index]?.id, source, columns: 4, rows: 1 }))
+  .filter(({ id, source }) => id && source);
 const HERO_ANIMATION_SHEETS = [
   { id: "ryo", source: heroRyoAnimationSheet, data: heroRyoAnimationData },
   { id: "kairo", source: heroKairoAnimationSheet, data: heroKairoAnimationData },
@@ -49,7 +67,11 @@ const { RigbyPlugin } = rigbyPhaser(Phaser);
 
 class ZeroGameScene extends Phaser.Scene {
   preload() {
-    HERO_POSE_SHEETS.forEach(({ id, source }) => this.load.image(`hero-pose-source-${id}`, source));
+    HERO_POSE_SHEETS.forEach(({ id, source }) => {
+      if (source) this.load.image(`hero-pose-source-${id}`, source);
+    });
+    ENEMY_POSE_SHEETS.forEach(({ id, source }) => this.load.image(`enemy-pose-source-${id}`, source));
+    BOSS_POSE_SHEETS.forEach(({ id, source }) => this.load.image(`boss-pose-source-${id}`, source));
     HERO_ANIMATION_SHEETS.forEach(({ id, source, data }) => {
       this.load.spritesheet(`hero-animation-${id}`, source, {
         frameWidth: data.frameWidth,
@@ -207,15 +229,43 @@ class ZeroGameScene extends Phaser.Scene {
       return true;
     };
 
-    // Only four hero attack stills are retained. All character movement
-    // is driven by the original multi-frame hero sheets or weighted rigs.
+    // Each supplied hero strip has five authored poses: idle, walk, jump,
+    // attack and sit. Use the same character art continuously for every state.
     this.heroPoseTextures = {};
+    const heroFrames = { idle: 0, walk: 1, jump: 2, attack: 3, sit: 4 };
     for (const hero of HERO_POSE_SHEETS) {
       const sourceKey = `hero-pose-source-${hero.id}`;
       const states = {};
-      const key = `hero-pose-${hero.id}-attack`;
-      if (makePoseTexture(sourceKey, key, 3, hero.columns, hero.rows)) states.attack = key;
+      for (const [state, frame] of Object.entries(heroFrames)) {
+        const key = `hero-pose-${hero.id}-${state}`;
+        if (makePoseTexture(sourceKey, key, frame, hero.columns, hero.rows)) states[state] = key;
+      }
       this.heroPoseTextures[hero.id] = states;
+    }
+
+    // The 30 supplied enemy sheets and five boss sheets each contain
+    // idle, walk, attack and defeated poses in that order.
+    this.enemyPoseTextures = {};
+    const combatFrames = { idle: 0, walk: 1, jump: 1, attack: 2, hit: 0, defeat: 3 };
+    for (const enemy of ENEMY_POSE_SHEETS) {
+      const sourceKey = `enemy-pose-source-${enemy.id}`;
+      const states = {};
+      for (const [state, frame] of Object.entries(combatFrames)) {
+        const key = `enemy-pose-${enemy.id}-${state}`;
+        if (makePoseTexture(sourceKey, key, frame, enemy.columns, enemy.rows)) states[state] = key;
+      }
+      this.enemyPoseTextures[enemy.id] = states;
+    }
+
+    this.bossPoseTextures = {};
+    for (const boss of BOSS_POSE_SHEETS) {
+      const sourceKey = `boss-pose-source-${boss.id}`;
+      const states = {};
+      for (const [state, frame] of Object.entries(combatFrames)) {
+        const key = `boss-pose-${boss.id}-${state}`;
+        if (makePoseTexture(sourceKey, key, frame, boss.columns, boss.rows)) states[state] = key;
+      }
+      this.bossPoseTextures[boss.id] = states;
     }
   }
 
@@ -267,13 +317,11 @@ class ZeroGameScene extends Phaser.Scene {
     const sprite = visual?.getData("heroSprite");
     const heroId = visual?.getData("heroSpriteId") || "ryo";
     if (!sprite?.active) return;
-    // Always animate the selected hero's own sheet. Never swap to legacy
-    // still-image art, which caused the old default hero to reappear.
-    const animationKey = `hero-${heroId}-${state}`;
-    const idleKey = `hero-${heroId}-idle`;
-    const resolvedKey = this.anims.exists(animationKey) ? animationKey : idleKey;
-    const sheetKey = `hero-animation-${heroId}`;
-    if (sprite.texture.key !== sheetKey) sprite.setTexture(sheetKey, 0);
+    const poseName = state === "walk" || state === "run" ? "walk"
+      : state === "jump" || state === "fall" || state === "land" ? "jump"
+        : state === "attack" ? "attack"
+          : state === "victory" ? "sit" : "idle";
+    const poseKey = this.heroPoseTextures?.[heroId]?.[poseName];
     sprite.setVisible(true).setAlpha(1);
     (visual.getData("heroRigParts") || []).forEach((part) => {
       if (part?.active) part.setVisible(false);
@@ -281,8 +329,16 @@ class ZeroGameScene extends Phaser.Scene {
     (visual.getData("heroLookItems") || []).forEach((part) => {
       if (part?.active) part.setVisible(false);
     });
-    if (sprite.anims.currentAnim?.key !== resolvedKey || !sprite.anims.isPlaying) {
-      sprite.play(resolvedKey, true);
+    if (poseKey) {
+      sprite.anims?.stop();
+      if (sprite.texture.key !== poseKey) sprite.setTexture(poseKey);
+    } else {
+      const animationKey = `hero-${heroId}-${state}`;
+      const idleKey = `hero-${heroId}-idle`;
+      const resolvedKey = this.anims.exists(animationKey) ? animationKey : idleKey;
+      const sheetKey = `hero-animation-${heroId}`;
+      if (sprite.texture.key !== sheetKey) sprite.setTexture(sheetKey, 0);
+      if (sprite.anims.currentAnim?.key !== resolvedKey || !sprite.anims.isPlaying) sprite.play(resolvedKey, true);
     }
     visual.setData("heroPoseState", state);
   }
@@ -1650,7 +1706,7 @@ class ZeroGameScene extends Phaser.Scene {
     // legacy vector rig remains hidden so existing pose references stay safe.
     const heroArt = this.add.sprite(0, -12, `hero-animation-${heroId}`, 0)
       .setOrigin(0.5, 0.5)
-      .setScale(0.72); // Increase the authored sprite to a readable gameplay size.
+      .setScale(1.0); // 160px cropped source pose matches the former 210px animation frame size.
     c.add(heroArt);
     c.list.forEach((child) => {
       if (child !== shadow && child !== heroArt) child.setVisible(false);
@@ -2039,17 +2095,20 @@ class ZeroGameScene extends Phaser.Scene {
     if (!approvedArt) throw new Error("Missing approved original PNG artwork for enemy " + archetypeId);
     const rigDefinition = rigRoster.enemies.find((entry) => entry.id === archetypeId);
     if (!rigDefinition) throw new Error("Missing generated character rig for " + archetypeId);
-    const enemyRig = this.add.rigby(0, -12, `enemy-rig-${archetypeId}`, "idle");
-    if (!enemyRig?.skeleton || typeof enemyRig.play !== "function") {
-      throw new Error("Rigby2D enemy animation did not initialize for " + archetypeId);
+    const enemyPoseSet = this.enemyPoseTextures?.[archetypeId];
+    const enemyRig = enemyPoseSet?.idle
+      ? this.add.image(0, -12, enemyPoseSet.idle)
+      : this.add.rigby(0, -12, `enemy-rig-${archetypeId}`, "idle");
+    if (!enemyRig?.active || (!enemyPoseSet?.idle && (!enemyRig.skeleton || typeof enemyRig.play !== "function"))) {
+      throw new Error("Enemy artwork or animation did not initialize for " + archetypeId);
     }
-    // The parent visual container already applies REGULAR_ENEMY_VISUAL_SCALE.
-    // Keep the rig at its authored unit scale here; scaling both levels made
-    // every original enemy appear roughly half-size on mobile.
-    enemyRig.setScale(isHeavy ? 1.08 : 1.0);
-    enemyRig.setData("baseVisualScale", isHeavy ? 1.08 : 1.0);
-    enemyRig.setData("rigbySkeleton", true);
-    enemyRig.setData("poseSheetSprite", false);
+    // The parent container applies REGULAR_ENEMY_VISUAL_SCALE once. The
+    // cropped 160px source poses are enlarged here to keep enemy silhouettes readable.
+    const enemyBaseScale = enemyPoseSet?.idle ? (isHeavy ? 1.5 : 1.4) : (isHeavy ? 1.08 : 1.0);
+    enemyRig.setScale(enemyBaseScale);
+    enemyRig.setData("baseVisualScale", enemyBaseScale);
+    enemyRig.setData("rigbySkeleton", !enemyPoseSet?.idle);
+    enemyRig.setData("poseSheetSprite", !!enemyPoseSet?.idle);
     enemyRig.setData("rigbyCurrentClip", "idle");
     c.add(enemyRig);
     c.setData("approvedArtSprite", enemyRig);
@@ -3235,7 +3294,7 @@ class ZeroGameScene extends Phaser.Scene {
     visual.setVisible(true).setAlpha(1);
     if (sprite?.active && sprite.getData("poseSheetSprite")) {
       const pose = state === "move" ? "walk" : state === "jump" || state === "fall" ? "jump"
-        : state === "attack" ? "attack" : "idle";
+        : state === "attack" ? "attack" : state === "defeat" ? "defeat" : "idle";
       const poseKey = this.enemyPoseTextures?.[archetypeId]?.[pose];
       if (poseKey) sprite.setTexture(poseKey);
       visual.setData("poseStateUntil", this.time.now + (state === "attack" ? 360 : state === "hit" ? 260 : 0));
@@ -3532,19 +3591,23 @@ class ZeroGameScene extends Phaser.Scene {
     c.list.forEach((part) => part.setVisible(part === shadow));
     const bossDefinition = rigRoster.bosses.find((entry) => entry.id === bossSheetId);
     if (!bossDefinition) throw new Error("Missing generated boss rig for " + bossSheetId);
-    const bossSprite = this.add.rigby(0, -22, `boss-rig-${bossSheetId}`, "entrance");
-    if (!bossSprite?.skeleton || typeof bossSprite.play !== "function") {
-      throw new Error("Rigby2D boss animation did not initialize for " + bossSheetId);
+    const bossPoseSet = this.bossPoseTextures?.[bossSheetId];
+    const bossSprite = bossPoseSet?.idle
+      ? this.add.image(0, -22, bossPoseSet.idle)
+      : this.add.rigby(0, -22, `boss-rig-${bossSheetId}`, "entrance");
+    if (!bossSprite?.active || (!bossPoseSet?.idle && (!bossSprite.skeleton || typeof bossSprite.play !== "function"))) {
+      throw new Error("Boss artwork or animation did not initialize for " + bossSheetId);
     }
-    bossSprite.setScale(1.17);
-    bossSprite.setData("baseVisualScale", 1.17);
-    bossSprite.setData("rigbySkeleton", true);
-    bossSprite.setData("poseSheetSprite", false);
+    const bossBaseScale = bossPoseSet?.idle ? 1.35 : 1.17;
+    bossSprite.setScale(bossBaseScale);
+    bossSprite.setData("baseVisualScale", bossBaseScale);
+    bossSprite.setData("rigbySkeleton", !bossPoseSet?.idle);
+    bossSprite.setData("poseSheetSprite", !!bossPoseSet?.idle);
     bossSprite.setData("rigbyCurrentClip", "entrance");
     c.add(bossSprite);
     bossSprite.setData("entranceUntil", this.time.now + 900);
     bossSprite.setAlpha(0);
-    bossSprite.play("entrance", false, 0.14);
+    if (!bossPoseSet?.idle) bossSprite.play("entrance", false, 0.14);
     this.tweens.add({ targets: bossSprite, alpha: 1, duration: 420, ease: "Cubic.easeOut" });
     // The weighted rig supplies its own locomotion and signature movement;
     // updateBoss owns positioning and avoids a competing floating tween.
