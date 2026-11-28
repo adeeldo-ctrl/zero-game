@@ -33,7 +33,15 @@ const esc = (value) => String(value).replace(/[&<>"']/g, (char) => ({
 })[char]);
 
 function getSilhouette(id, role, boss = false) {
-  if (boss) return "boss";
+  if (boss) {
+    return ({
+      gatekeeper: "armored",
+      "iron-comet": "brute",
+      "gale-talon": "winged",
+      suncrest: "imp",
+      "void-sovereign": "orb",
+    })[id] || "boss";
+  }
   if (/jelly|spore|plasma|astral|eclipse/.test(id)) return "orb";
   if (/shellback|turtle|bark|iron-bark|temple|breaker/.test(id)) return "armored";
   if (/copter|bee|talon|wing|scout/.test(id)) return "winged";
