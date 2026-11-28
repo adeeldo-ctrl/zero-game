@@ -1,12 +1,16 @@
 # Final ZERO GAME Release Build
 
-This one-time marker requests the **single final signed Android Release APK** from the verified PNG-only source. This update is the final-delivery trigger; it is not a development build.
+This marker requests the single final signed Android Release APK for the user's narrowed scope: the 30 supplied enemy pose sheets and five supplied boss pose sheets.
 
-- Verified game-code commit: `d3bd335adff9e85ddddfdac8bfe580ef8234447b` (release metadata-only follow-up: `60c48d2b6c872e2a8fcb91d2a2c29d7f294e8425`)
-- Consolidated CI run: `46124423959` — success.
-- Verification included: 59 automated tests, lint, Android configuration validation, 32 unique original enemy PNGs and five separate boss PNGs, production Vite build, all 37 weighted-mesh rigs, independent forearm/shin motion timelines, attack clips, anatomy-appropriate idle clips (phone, scratch, comb, look-around, grooming), hero-distance idle/awareness switching, runtime enemy locomotion, all five boss signature rig motions, 50-stage campaign/mobile gameplay smoke, boss/stage progression, multitouch controls and no uncaught browser runtime errors.
-- Artwork scope: 32 distinct original enemy PNGs and five separate original boss PNGs. No vector enemy/boss character replacements.
-- Animation honesty: the original PNG artwork is driven by generated weighted-mesh rigs and Phaser runtime clips. This is not claimed as separately painted frame-by-frame limb animation or motion capture. Existing particles/effects were not modified in this animation update.
-- The release workflow performs Android packaging, signing, signature verification and artifact upload only; it does not rerun the test suite.
-
-Build exactly one signed Release APK. Do not create debug or intermediate APKs.
+- Source commit: `f82078bb4999bb8de11b5e89c5a82c47416e2ca9`.
+- Consolidated CI run: `46132627952`.
+- Automated tests: passed.
+- Lint: passed.
+- Android configuration validation: passed.
+- Existing enemy/boss PNG validation: passed.
+- Production web build: passed.
+- Chromium smoke: failed in the pre-existing EXTRA-button hero-control assertion at `scripts/smoke-game-browser.mjs:350`; this is outside the requested enemy/boss-only scope and no hero gameplay code was changed.
+- New artwork integration: 30 enemy sheets mapped to 30 active enemy identities; 5 boss sheets mapped to the 5 boss identities. Enemy poses include idle, walking, jumping, and attack. Boss poses include idle, walking, attack, and defeated. Source panels are extracted into transparent runtime textures.
+- Heroes, stages, controls, particles, projectiles, and gameplay rules were not intentionally changed.
+- No debug or intermediate APK has been created. This is the one final signed Release APK build request.
+- No physical Android handset test is claimed.
