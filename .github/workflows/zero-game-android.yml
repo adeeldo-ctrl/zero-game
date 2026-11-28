@@ -1,7 +1,7 @@
 name: ZERO GAME Android APK
 
 on:
-  # APK assembly is final-only: manual dispatch or the one-time marker added after integrated CI passes.
+  # APK assembly is final-only. The one consolidated CI run must pass before the one-time marker is added; this workflow only assembles and signs that verified source.
   workflow_dispatch:
   push:
     branches:
@@ -62,37 +62,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run automated game-data tests
-        run: npm test
-
-      - name: Validate original PNG enemy and boss artwork
-        run: npm run art:validate
-
-      - name: Run lint
-        run: npm run lint
-
-      - name: Validate Android configuration
-        run: python3 scripts/validate-android-config.py
-
       - name: Build web game
         run: npm run build
-
-      - name: Cache Playwright browsers
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-chromium-1.56.1
-          restore-keys: |
-            ${{ runner.os }}-playwright-chromium-
-
-      - name: Install headless browser test runner
-        run: npm install --no-save --package-lock=false playwright@1.56.1
-
-      - name: Install Chromium browser
-        run: npx playwright install --with-deps chromium
-
-      - name: Smoke test all campaign stages and mobile controls
-        run: node scripts/smoke-game-browser.mjs
 
       - name: Create Android project when absent
         run: |
