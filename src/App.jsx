@@ -3294,7 +3294,7 @@ class ZeroGameScene extends Phaser.Scene {
         });
       }
       if (hitVisual) {
-        this.time.delayedCall(230, () => {
+        this.time.delayedCall(440, () => {
           if (enemy.active && hitVisual.active && enemy.getData("frozen")) hitVisual.setVisible(false);
         });
       } else if (visual?.active) visual.setVisible(false);
@@ -3332,7 +3332,7 @@ class ZeroGameScene extends Phaser.Scene {
         this.audio.play("defeat");
         const defeatVisual = this.playEnemyReactionAnimation(enemy, "defeat");
         if (defeatVisual) {
-          this.tweens.add({ targets: defeatVisual, alpha: 0, scale: 0.42, angle: 18, duration: 320,
+          this.tweens.add({ targets: defeatVisual, alpha: 0, scale: 0.42, angle: 18, duration: 760,
             onComplete: () => { if (defeatVisual.active) defeatVisual.destroy(); } });
         }
         this.dropReward(enemy.x, enemy.y); this.addScore(500); this.recordEnemyDefeat(enemy); enemy.destroy();
