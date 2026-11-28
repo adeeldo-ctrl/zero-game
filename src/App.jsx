@@ -274,6 +274,13 @@ class ZeroGameScene extends Phaser.Scene {
     const resolvedKey = this.anims.exists(animationKey) ? animationKey : idleKey;
     const sheetKey = `hero-animation-${heroId}`;
     if (sprite.texture.key !== sheetKey) sprite.setTexture(sheetKey, 0);
+    sprite.setVisible(true).setAlpha(1);
+    (visual.getData("heroRigParts") || []).forEach((part) => {
+      if (part?.active) part.setVisible(false);
+    });
+    (visual.getData("heroLookItems") || []).forEach((part) => {
+      if (part?.active) part.setVisible(false);
+    });
     if (sprite.anims.currentAnim?.key !== resolvedKey || !sprite.anims.isPlaying) {
       sprite.play(resolvedKey, true);
     }
@@ -1641,9 +1648,9 @@ class ZeroGameScene extends Phaser.Scene {
 
     // Render the authored pixel-art sprite sheet as the visible hero. The
     // legacy vector rig remains hidden so existing pose references stay safe.
-    const heroArt = this.add.sprite(0, 0, `hero-animation-${heroId}`, 0)
+    const heroArt = this.add.sprite(0, -12, `hero-animation-${heroId}`, 0)
       .setOrigin(0.5, 0.5)
-      .setScale(0.54); // Balanced in-game size; avoid oversized hero presentation.
+      .setScale(0.72); // Increase the authored sprite to a readable gameplay size.
     c.add(heroArt);
     c.list.forEach((child) => {
       if (child !== shadow && child !== heroArt) child.setVisible(false);
@@ -1670,7 +1677,9 @@ class ZeroGameScene extends Phaser.Scene {
     if (sprite) {
       visual.setData("heroSpriteId", hero.id);
       visual.setData("heroLookId", hero.id);
-      sprite.setVisible(true);
+      const selectedSheet = `hero-animation-${hero.id}`;
+      if (sprite.texture.key !== selectedSheet) sprite.setTexture(selectedSheet, 0);
+      sprite.setVisible(true).setAlpha(1);
       (visual.getData("heroRigParts") || []).forEach((part) => {
         if (part?.active) part.setVisible(false);
       });
@@ -2034,8 +2043,11 @@ class ZeroGameScene extends Phaser.Scene {
     if (!enemyRig?.skeleton || typeof enemyRig.play !== "function") {
       throw new Error("Rigby2D enemy animation did not initialize for " + archetypeId);
     }
-    enemyRig.setScale(isHeavy ? 0.78 : 0.72);
-    enemyRig.setData("baseVisualScale", isHeavy ? 0.78 : 0.72);
+    // The parent visual container already applies REGULAR_ENEMY_VISUAL_SCALE.
+    // Keep the rig at its authored unit scale here; scaling both levels made
+    // every original enemy appear roughly half-size on mobile.
+    enemyRig.setScale(isHeavy ? 1.08 : 1.0);
+    enemyRig.setData("baseVisualScale", isHeavy ? 1.08 : 1.0);
     enemyRig.setData("rigbySkeleton", true);
     enemyRig.setData("poseSheetSprite", false);
     enemyRig.setData("rigbyCurrentClip", "idle");
@@ -5413,6 +5425,9 @@ class ZeroGameScene extends Phaser.Scene {
 
     // Hero animation
     const h = this.hero;
+    // The Arcade sprite is collision-only. Keep the legacy "ryo" texture
+    // invisible so it can never appear over the selected authored hero.
+    h.setVisible(false);
     const visual = this.heroVisual;
     const p = visual.getData("parts");
 
