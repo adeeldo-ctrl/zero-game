@@ -15,78 +15,6 @@ import heroRyoAnimationData from "./assets/heroes/hero_ryo_anim.json";
 import heroKairoAnimationData from "./assets/heroes/hero_kairo_anim.json";
 import heroMeiAnimationData from "./assets/heroes/hero_mei_anim.json";
 import heroVoltAnimationData from "./assets/heroes/hero_volt_anim.json";
-import enemy03RedHorn from "./assets/enemies/prepared-reference/03_red-horn-demon.png";
-import enemy05WinterChick from "./assets/enemies/prepared-reference/05_winter-chick.png";
-import enemy07PinkOctopus from "./assets/enemies/prepared-reference/07_pink-octopus.png";
-import enemy10GoggleBrown from "./assets/enemies/prepared-reference/10_goggle-brown-creature.png";
-import enemy14MushroomCrab from "./assets/enemies/prepared-reference/14_mushroom-crab.png";
-import enemy15BrownGoggle from "./assets/enemies/prepared-reference/15_brown-goggle-creature.png";
-import enemy20Hedgehog from "./assets/enemies/prepared-reference/20_spiky-hedgehog.png";
-import enemy23GreenFrog from "./assets/enemies/prepared-reference/23_green-frog.png";
-import enemy25Squirrel from "./assets/enemies/prepared-reference/25_squirrel.png";
-import enemy27Bee from "./assets/enemies/prepared-reference/27_bee.png";
-import enemy33Mummy from "./assets/enemies/prepared-reference/33_mummy.png";
-import enemy35BlueOgre from "./assets/enemies/prepared-reference/35_blue-ogre-b.png";
-import enemy37Turtle from "./assets/enemies/prepared-reference/37_green-turtle-a.png";
-import enemy38Turtle from "./assets/enemies/prepared-reference/38_green-turtle-b.png";
-import enemy39Lizard from "./assets/enemies/prepared-reference/39_green-lizard.png";
-import enemy42RatGuard from "./assets/enemies/prepared-reference/42_rat-guard.png";
-import enemy04PurpleBat from "./assets/enemies/prepared-reference/04_purple-bat.png";
-import enemy06Yeti from "./assets/enemies/prepared-reference/06_yeti.png";
-import enemy11IceGolem from "./assets/enemies/prepared-reference/11_ice-golem.png";
-import enemy12ArmoredPenguin from "./assets/enemies/prepared-reference/12_armored-penguin.png";
-import enemy19IceRobot from "./assets/enemies/prepared-reference/19_ice-robot.png";
-import enemy21Skeleton from "./assets/enemies/prepared-reference/21_skeleton.png";
-import enemy22WolfGuard from "./assets/enemies/prepared-reference/22_wolf-guard.png";
-import enemy24Spider from "./assets/enemies/prepared-reference/24_spider.png";
-import enemy28IceFish from "./assets/enemies/prepared-reference/28_ice-fish.png";
-import enemy29Jellyfish from "./assets/enemies/prepared-reference/29_jellyfish.png";
-import enemy36IceCube from "./assets/enemies/prepared-reference/36_ice-cube-monster.png";
-import enemy01Snowman from "./assets/enemies/prepared-reference/01_snowman.png";
-import enemy13ChainedGhost from "./assets/enemies/prepared-reference/13_chained-ghost.png";
-import enemy41PumpkinVariant from "./assets/enemies/prepared-reference/41_pumpkin-variant.png";
-import enemy45OwlB from "./assets/enemies/prepared-reference/45_owl-b.png";
-import enemy48SkullCloud from "./assets/enemies/prepared-reference/48_skull-cloud.png";
-import bossGatekeeperSheet from "./assets/bosses/prepared-reference/gatekeeper.png";
-import bossIronCometSheet from "./assets/bosses/prepared-reference/iron-comet.png";
-import bossGaleTalonSheet from "./assets/bosses/prepared-reference/gale-talon.png";
-import bossSuncrestSheet from "./assets/bosses/prepared-reference/suncrest.png";
-import bossVoidSovereignSheet from "./assets/bosses/prepared-reference/void-sovereign.png";
-import enemyPoseSheet01 from "../new enemy/enemy (1).jpg";
-import enemyPoseSheet02 from "../new enemy/enemy (2).jpg";
-import enemyPoseSheet03 from "../new enemy/enemy (3).jpg";
-import enemyPoseSheet04 from "../new enemy/enemy (4).jpg";
-import enemyPoseSheet05 from "../new enemy/enemy (5).jpg";
-import enemyPoseSheet06 from "../new enemy/enemy (6).jpg";
-import enemyPoseSheet07 from "../new enemy/enemy (7).jpg";
-import enemyPoseSheet08 from "../new enemy/enemy (8).jpg";
-import enemyPoseSheet09 from "../new enemy/enemy (9).jpg";
-import enemyPoseSheet10 from "../new enemy/enemy (10).jpg";
-import enemyPoseSheet11 from "../new enemy/enemy (11).jpg";
-import enemyPoseSheet12 from "../new enemy/enemy (12).jpg";
-import enemyPoseSheet13 from "../new enemy/enemy (13).jpg";
-import enemyPoseSheet14 from "../new enemy/enemy (14).jpg";
-import enemyPoseSheet15 from "../new enemy/enemy (15).jpg";
-import enemyPoseSheet16 from "../new enemy/enemy (16).jpg";
-import enemyPoseSheet17 from "../new enemy/enemy (17).jpg";
-import enemyPoseSheet18 from "../new enemy/enemy (18).jpg";
-import enemyPoseSheet19 from "../new enemy/enemy (19).jpg";
-import enemyPoseSheet20 from "../new enemy/enemy (20).jpg";
-import enemyPoseSheet21 from "../new enemy/enemy (21).jpg";
-import enemyPoseSheet22 from "../new enemy/enemy (22).jpg";
-import enemyPoseSheet23 from "../new enemy/enemy (23).jpg";
-import enemyPoseSheet24 from "../new enemy/enemy (24).jpg";
-import enemyPoseSheet25 from "../new enemy/enemy (25).jpg";
-import enemyPoseSheet26 from "../new enemy/enemy (26).jpg";
-import enemyPoseSheet27 from "../new enemy/enemy (27).jpg";
-import enemyPoseSheet28 from "../new enemy/enemy (28).jpg";
-import enemyPoseSheet29 from "../new enemy/enemy (29).jpg";
-import enemyPoseSheet30 from "../new enemy/enemy (30).jpg";
-import bossPoseSheet01 from "../bosses/boss (1).jpg";
-import bossPoseSheet02 from "../bosses/boss (2).jpg";
-import bossPoseSheet03 from "../bosses/boss (3).jpg";
-import bossPoseSheet04 from "../bosses/boss (4).jpg";
-import bossPoseSheet05 from "../bosses/boss (5).jpg";
 import worldBackdropEmerald from "./assets/backgrounds/world-emerald.svg";
 import worldBackdropCandy from "./assets/backgrounds/world-candy.svg";
 import worldBackdropFrozen from "./assets/backgrounds/world-frozen.svg";
@@ -103,48 +31,7 @@ import { getPremiumStageEnemyRoster, getPremiumEnemyRegion, PREMIUM_ENEMY_ARCHET
 import { createGameAudio } from "./gameAudio";
 
 
-const APPROVED_ENEMY_CROPS = {
-  "shadow-moss-scout": [18, 0, 110, 128],
-  "iron-bark-bruiser": [0, 0, 128, 112],
-  "golden-acorn-leaper": [18, 0, 110, 128],
-  "prism-jelly-vault": [18, 0, 110, 128],
-  "molten-caramel-mauler": [0, 0, 104, 128],
-};
-const APPROVED_ENEMY_ART = {
-  "spirit-pouncer": enemy03RedHorn,
-  "icicle-hopper": enemy05WinterChick,
-  "jelly-vault": enemy07PinkOctopus,
-  "bark-bruiser": enemy10GoggleBrown,
-  "spore-caster": enemy14MushroomCrab,
-  "caramel-mauler": enemy15BrownGoggle,
-  "moss-scout": enemy20Hedgehog,
-  "vine-vault": enemy23GreenFrog,
-  "acorn-leaper": enemy25Squirrel,
-  "candy-copter": enemy27Bee,
-  "eclipse-summoner": enemy33Mummy,
-  "temple-breaker": enemy35BlueOgre,
-  "jade-shellback": enemy37Turtle,
-  "root-burrower": enemy38Turtle,
-  "mire-burrower": enemy39Lizard,
-  "licorice-sniper": enemy42RatGuard,
-  "shadow-moss-scout": enemy01Snowman,
-  "iron-bark-bruiser": enemy13ChainedGhost,
-  "golden-acorn-leaper": enemy41PumpkinVariant,
-  "prism-jelly-vault": enemy45OwlB,
-  "molten-caramel-mauler": enemy48SkullCloud,
-  "storm-candy-copter": enemy04PurpleBat,
-  "frostfire-icicle-hopper": enemy06Yeti,
-  "crystal-spore-caster": enemy11IceGolem,
-  "thorn-root-burrower": enemy12ArmoredPenguin,
-  "ember-spirit-pouncer": enemy19IceRobot,
-  "toxic-vine-vault": enemy21Skeleton,
-  "solar-jade-shellback": enemy22WolfGuard,
-  "plasma-mire-burrower": enemy24Spider,
-  "void-licorice-sniper": enemy28IceFish,
-  "astral-eclipse-summoner": enemy29Jellyfish,
-  "frost-temple-breaker": enemy36IceCube,
-}
-
+const APPROVED_ENEMY_ART = Object.fromEntries(rigRoster.enemies.map(({ id }) => [id, true]));
 const HERO_POSE_SHEETS = [
   { id: "ryo", source: heroRyoSheet, columns: 5, rows: 1 },
   { id: "kairo", source: heroKairoSheet, columns: 5, rows: 1 },
@@ -158,49 +45,6 @@ const HERO_ANIMATION_SHEETS = [
   { id: "volt", source: heroVoltAnimationSheet, data: heroVoltAnimationData },
 ];
 
-const ENEMY_POSE_SHEETS = [
-  enemyPoseSheet01,
-  enemyPoseSheet02,
-  enemyPoseSheet03,
-  enemyPoseSheet04,
-  enemyPoseSheet05,
-  enemyPoseSheet06,
-  enemyPoseSheet07,
-  enemyPoseSheet08,
-  enemyPoseSheet09,
-  enemyPoseSheet10,
-  enemyPoseSheet11,
-  enemyPoseSheet12,
-  enemyPoseSheet13,
-  enemyPoseSheet14,
-  enemyPoseSheet15,
-  enemyPoseSheet16,
-  enemyPoseSheet17,
-  enemyPoseSheet18,
-  enemyPoseSheet19,
-  enemyPoseSheet20,
-  enemyPoseSheet21,
-  enemyPoseSheet22,
-  enemyPoseSheet23,
-  enemyPoseSheet24,
-  enemyPoseSheet25,
-  enemyPoseSheet26,
-  enemyPoseSheet27,
-  enemyPoseSheet28,
-  enemyPoseSheet29,
-  enemyPoseSheet30
-];
-const ENEMY_POSE_ART = Object.fromEntries(
-  Object.keys(APPROVED_ENEMY_ART).slice(0, ENEMY_POSE_SHEETS.length)
-    .map((id, index) => [id, ENEMY_POSE_SHEETS[index]])
-);
-const BOSS_POSE_SHEETS = [
-  { id: "gatekeeper", source: bossPoseSheet01, columns: 4, rows: 1 },
-  { id: "iron-comet", source: bossPoseSheet02, columns: 4, rows: 1 },
-  { id: "gale-talon", source: bossPoseSheet03, columns: 2, rows: 2 },
-  { id: "suncrest", source: bossPoseSheet04, columns: 4, rows: 1 },
-  { id: "void-sovereign", source: bossPoseSheet05, columns: 4, rows: 1 },
-];;
 import { createCampaignLives, loseCampaignHeart, getStageTransitionDirection, STARTING_CAMPAIGN_TOKENS, normalizeCampaignTokens, spendCampaignToken, getTokensEarnedForScore } from "./campaignRules";
 import { shouldHeroCollideWithPlatform, shouldDropThroughPlatform, getPlatformTextureScale } from "./platformRules";
 import { getBossPhase, isValidJumpStomp } from "./combatRules";
@@ -226,33 +70,27 @@ class ZeroGameScene extends Phaser.Scene {
       worldBackdropDesert, worldBackdropMoonlit, worldBackdropCrystal,
       worldBackdropCoral, worldBackdropSky, worldBackdropVolcano, worldBackdropCosmic,
     ];
-
-    Object.entries(APPROVED_ENEMY_ART).forEach(([archetypeId, source]) => {
-      this.load.image(`approved-enemy-${archetypeId}`, source);
-    });
-    Object.entries(ENEMY_POSE_ART).forEach(([archetypeId, source]) => {
-      this.load.image(`enemy-pose-source-${archetypeId}`, source);
-    });
-    rigRoster.enemies.forEach(({ id }) => {
+    // Only decode the active region's rigs. Previously all 37 rigs and 35
+    // unused pose sheets were loaded together, stressing Android WebView memory.
+    const activeRegion = getPremiumEnemyRegion(this.stageNumber);
+    this.activeEnemyIds = activeRegion.enemies.map(({ id }) => id);
+    this.activeEnemyIds.forEach((id) => {
+      if (!rigRoster.enemies.some((entry) => entry.id === id)) {
+        throw new Error("Missing Rigby2D enemy rig roster entry: " + id);
+      }
       this.load.rigby(`enemy-rig-${id}`, `/rigs/enemies/${id}/skeleton.json`, `/rigs/enemies/${id}/skeleton.atlas`);
     });
-    rigRoster.bosses.forEach(({ id }) => {
-      this.load.rigby(`boss-rig-${id}`, `/rigs/bosses/${id}/skeleton.json`, `/rigs/bosses/${id}/skeleton.atlas`);
-    });
-    const bossImages = [
-      ["boss-image-gatekeeper", bossGatekeeperSheet],
-      ["boss-image-iron-comet", bossIronCometSheet],
-      ["boss-image-gale-talon", bossGaleTalonSheet],
-      ["boss-image-suncrest", bossSuncrestSheet],
-      ["boss-image-void-sovereign", bossVoidSovereignSheet],
-    ];
-    bossImages.forEach(([key, source]) => this.load.image(key, source));
-    BOSS_POSE_SHEETS.forEach(({ id, source }) => this.load.image(`boss-pose-source-${id}`, source));
-    worldBackdrops.forEach((source, index) => {
-      this.load.image(`world-backdrop-${index}`, source);
-    });
+    this.activeBossId = getStage(this.stageNumber).boss?.id || null;
+    if (this.activeBossId) {
+      if (!rigRoster.bosses.some((entry) => entry.id === this.activeBossId)) {
+        throw new Error("Missing Rigby2D boss rig roster entry: " + this.activeBossId);
+      }
+      this.load.rigby(`boss-rig-${this.activeBossId}`,
+        `/rigs/bosses/${this.activeBossId}/skeleton.json`,
+        `/rigs/bosses/${this.activeBossId}/skeleton.atlas`);
+    }
+    worldBackdrops.forEach((source, index) => this.load.image(`world-backdrop-${index}`, source));
   }
-
 
   preparePoseSheetTextures() {
     const makePoseTexture = (sourceKey, textureKey, frameIndex, columns, rows) => {
@@ -355,16 +193,8 @@ class ZeroGameScene extends Phaser.Scene {
       return true;
     };
 
-    this.enemyPoseTextures = {};
-    for (const archetypeId of Object.keys(ENEMY_POSE_ART)) {
-      const sourceKey = `enemy-pose-source-${archetypeId}`;
-      const states = {};
-      for (const [state, frame] of [["idle", 0], ["walk", 1], ["jump", 2], ["attack", 3]]) {
-        const key = `enemy-pose-${archetypeId}-${state}`;
-        if (makePoseTexture(sourceKey, key, frame, 4, 1)) states[state] = key;
-      }
-      this.enemyPoseTextures[archetypeId] = states;
-    }
+    // Only four hero attack stills are retained. All character movement
+    // is driven by the original multi-frame hero sheets or weighted rigs.
     this.heroPoseTextures = {};
     for (const hero of HERO_POSE_SHEETS) {
       const sourceKey = `hero-pose-source-${hero.id}`;
@@ -372,16 +202,6 @@ class ZeroGameScene extends Phaser.Scene {
       const key = `hero-pose-${hero.id}-attack`;
       if (makePoseTexture(sourceKey, key, 3, hero.columns, hero.rows)) states.attack = key;
       this.heroPoseTextures[hero.id] = states;
-    }
-    this.bossPoseTextures = {};
-    for (const boss of BOSS_POSE_SHEETS) {
-      const sourceKey = `boss-pose-source-${boss.id}`;
-      const states = {};
-      for (const [state, frame] of [["idle", 0], ["walk", 1], ["attack", 2], ["defeat", 3]]) {
-        const key = `boss-pose-${boss.id}-${state}`;
-        if (makePoseTexture(sourceKey, key, frame, boss.columns, boss.rows)) states[state] = key;
-      }
-      this.bossPoseTextures[boss.id] = states;
     }
   }
 
@@ -2199,20 +2019,21 @@ class ZeroGameScene extends Phaser.Scene {
     if (requestedArchetypeId !== archetypeId) enemy.setData("enemyArchetypeId", archetypeId);
     const approvedArt = APPROVED_ENEMY_ART[archetypeId];
     if (!approvedArt) throw new Error("Missing approved original PNG artwork for enemy " + archetypeId);
-    const poseKey = this.enemyPoseTextures?.[archetypeId]?.idle;
-    const fallbackSprite = poseKey
-      ? this.add.image(0, -12, poseKey).setDisplaySize(isHeavy ? 98 : 92, isHeavy ? 108 : 102)
-      : this.add.sprite(0, -12, `approved-enemy-${archetypeId}`, 0)
-        .setDisplaySize(isHeavy ? 98 : 92, isHeavy ? 108 : 102);
-    if (!poseKey) {
-      const artworkCrop = APPROVED_ENEMY_CROPS[archetypeId];
-      if (artworkCrop) fallbackSprite.setCrop(...artworkCrop);
+    const rigDefinition = rigRoster.enemies.find((entry) => entry.id === archetypeId);
+    if (!rigDefinition) throw new Error("Missing generated character rig for " + archetypeId);
+    const enemyRig = this.add.rigby(0, -12, `enemy-rig-${archetypeId}`, "idle");
+    if (!enemyRig?.skeleton || typeof enemyRig.play !== "function") {
+      throw new Error("Rigby2D enemy animation did not initialize for " + archetypeId);
     }
-    fallbackSprite.setData("poseSheetSprite", !!poseKey);
-    c.add(fallbackSprite);
-    if (!poseKey) fallbackSprite.setVisible(true);
-    c.setData("approvedArtSprite", fallbackSprite);
-    c.setData("authoredSprite", fallbackSprite);
+    enemyRig.setScale(isHeavy ? 0.78 : 0.72);
+    enemyRig.setData("baseVisualScale", isHeavy ? 0.78 : 0.72);
+    enemyRig.setData("rigbySkeleton", true);
+    enemyRig.setData("poseSheetSprite", false);
+    enemyRig.setData("rigbyCurrentClip", "idle");
+    c.add(enemyRig);
+    c.setData("approvedArtSprite", enemyRig);
+    c.setData("authoredSprite", enemyRig);
+    c.setData("rigbyMotionProfile", rigDefinition.motionProfile);
     enemy.setData("visual", c);
     c.setData("enemyClass", enemyClass);
     c.setData("classProfile", isFast ? "swift-scarf" : isHeavy ? "armored-bruiser" : "arcane-aura");
@@ -3689,14 +3510,21 @@ class ZeroGameScene extends Phaser.Scene {
     const bossSheetId = bossId || (isGatekeeper ? "gatekeeper" : isBoxer ? "iron-comet"
       : isAgile ? "gale-talon" : isMaster ? "suncrest" : "void-sovereign");
     c.list.forEach((part) => part.setVisible(part === shadow));
-    const bossPoseKey = this.bossPoseTextures?.[bossSheetId]?.idle;
-    const bossSprite = bossPoseKey
-      ? this.add.image(0, -22, bossPoseKey).setDisplaySize(150, 150)
-      : this.add.image(0, -22, `boss-image-${bossSheetId}`).setDisplaySize(150, 150);
-    bossSprite.setData("poseSheetSprite", !!bossPoseKey);
+    const bossDefinition = rigRoster.bosses.find((entry) => entry.id === bossSheetId);
+    if (!bossDefinition) throw new Error("Missing generated boss rig for " + bossSheetId);
+    const bossSprite = this.add.rigby(0, -22, `boss-rig-${bossSheetId}`, "entrance");
+    if (!bossSprite?.skeleton || typeof bossSprite.play !== "function") {
+      throw new Error("Rigby2D boss animation did not initialize for " + bossSheetId);
+    }
+    bossSprite.setScale(1.17);
+    bossSprite.setData("baseVisualScale", 1.17);
+    bossSprite.setData("rigbySkeleton", true);
+    bossSprite.setData("poseSheetSprite", false);
+    bossSprite.setData("rigbyCurrentClip", "entrance");
     c.add(bossSprite);
     bossSprite.setData("entranceUntil", this.time.now + 900);
     bossSprite.setAlpha(0);
+    bossSprite.play("entrance", false, 0.14);
     this.tweens.add({ targets: bossSprite, alpha: 1, duration: 420, ease: "Cubic.easeOut" });
     // Boss-state motion is applied directly to this original PNG image.
     this.tweens.add({
@@ -3996,7 +3824,10 @@ class ZeroGameScene extends Phaser.Scene {
       if (defeatedBossSprite?.active) {
         const bossId = this.bossVisual?.getData("bossSheetId");
         const defeatPose = this.bossPoseTextures?.[bossId]?.defeat;
-        if (defeatPose) defeatedBossSprite.setTexture(defeatPose);
+        if (defeatedBossSprite.getData("rigbySkeleton")) {
+          defeatedBossSprite.setData("rigbyCurrentClip", "defeat");
+          defeatedBossSprite.play("defeat", false, 0.14);
+        } else if (defeatPose) defeatedBossSprite.setTexture(defeatPose);
         defeatedBossSprite.setData("defeatUntil", this.time.now + 950);
       }
       this.tweens.add({ targets: this.bossVisual, angle: 360, scale: 0.1,
@@ -4064,9 +3895,9 @@ class ZeroGameScene extends Phaser.Scene {
           if (poseKey && authoredBossSprite.texture.key !== poseKey) authoredBossSprite.setTexture(poseKey);
         } else if (authoredBossSprite.getData("rigbySkeleton")) {
           const rigClip = bossVisualState === "move" ? "locomotion"
-            : ["attack-primary", "attack-secondary", "special"].includes(bossVisualState)
+            : ["attack-primary", "attack-secondary"].includes(bossVisualState)
               ? "attack"
-              : bossVisualState;
+              : bossVisualState === "special" ? "signature" : bossVisualState;
           if (authoredBossSprite.getData("rigbyCurrentClip") !== rigClip || (rigClip === "attack" && bossAttackTransition)) {
             authoredBossSprite.setData("rigbyCurrentClip", rigClip);
             const oneShot = ["attack", "entrance", "hit", "phase-change"].includes(rigClip);
@@ -4083,11 +3914,12 @@ class ZeroGameScene extends Phaser.Scene {
         const reactionTilt = bossVisualState === "hit" ? -9 : bossVisualState === "phase-change" ? 8 : bossVisualState === "entrance" ? -5 : 0;
         authoredBossSprite.setAngle(attackPose ? attackTilt + Math.sin(this.time.now * 0.025) * 2 + reactionTilt
           : Math.sin(this.time.now * (bossId === "void-sovereign" ? 0.009 : 0.004)) * (bossId === "gale-talon" ? 3 : 1.8) + reactionTilt);
-        authoredBossSprite.setScale(bossVisualState === "hit" ? 0.94
+        const bossPoseScale = bossVisualState === "hit" ? 0.94
           : bossVisualState === "phase-change" ? 1.12
             : attackState === "slam" ? (bossId === "iron-comet" ? 1.16 : bossId === "gatekeeper" ? 1.12 : 1.08)
               : attackState === "dash" ? (bossId === "gale-talon" ? 1.2 : bossId === "void-sovereign" ? 1.14 : 1.045)
-                : attackState === "volley" ? (bossId === "suncrest" ? 1.17 : bossId === "void-sovereign" ? 1.12 : 1.045) : 1);
+                : attackState === "volley" ? (bossId === "suncrest" ? 1.17 : bossId === "void-sovereign" ? 1.12 : 1.045) : 1;
+        authoredBossSprite.setScale((authoredBossSprite.getData("baseVisualScale") || 1) * bossPoseScale);
         if (bossId === "gale-talon") authoredBossSprite.y = attackState === "dash" ? -35 : -25 + Math.sin(this.time.now * 0.012) * 3;
         else if (bossId === "iron-comet") authoredBossSprite.y = attackState === "slam" ? -12 : -25;
         else if (bossId === "void-sovereign") authoredBossSprite.y = -27 + Math.sin(this.time.now * 0.009) * 5;
@@ -6194,7 +6026,7 @@ class ZeroGameScene extends Phaser.Scene {
           const vx = enemy.body?.velocity?.x || 0;
           const moving = Math.abs(vx) > 18;
           const charging = Math.abs(vx) > 180;
-          if (Math.abs(vx) > 2) approvedArtSprite.setFlipX(vx < 0);
+          // Parent container handles facing; avoid double-flipping the skinned mesh.
           const archetype = PREMIUM_ENEMY_ARCHETYPES.find((entry) => entry.id === enemy.getData("enemyArchetypeId"));
           const role = archetype?.role || aiType;
           const variantStyle = enemy.getData("enemyVariantStyle") || archetype?.style || "";
@@ -6226,9 +6058,10 @@ class ZeroGameScene extends Phaser.Scene {
             ? 1 + Math.sin(et * 0.012) * 0.025 : 1;
           approvedArtSprite.setPosition(attackActive ? facingDirection * attackPulse * (role === "heavy" ? 3 : 7) : 0,
             -12 + (attackActive ? -attackPulse * (role === "leaper" ? 9 : 4) : roleBob));
+          const baseVisualScale = approvedArtSprite.getData("baseVisualScale") || 1;
           approvedArtSprite.setScale(
-            (attackActive ? (1 + attackPulse * (role === "heavy" ? 0.06 : 0.1)) : charging ? 1.1 : squash) * variantPulse,
-            attackActive ? (1 - attackPulse * 0.12) : charging ? 0.88 : moving ? 1 - Math.abs(stridePulse) * gait.squash * 0.55 : 1
+            baseVisualScale * (attackActive ? (1 + attackPulse * (role === "heavy" ? 0.06 : 0.1)) : charging ? 1.1 : squash) * variantPulse,
+            baseVisualScale * (attackActive ? (1 - attackPulse * 0.12) : charging ? 0.88 : moving ? 1 - Math.abs(stridePulse) * gait.squash * 0.55 : 1)
           );
           approvedArtSprite.setAngle(attackActive ? facingDirection * roleAttackLean
             : charging ? (vx < 0 ? -gait.lean : gait.lean)
