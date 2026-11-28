@@ -2,6 +2,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 const root = resolve("src/assets");
+const errors = [];
 const enemyFiles = [
   "enemies/prepared-reference/02_green-ice-monster.png",
   "enemies/prepared-reference/03_red-horn-demon.png",
@@ -57,7 +58,6 @@ const bossFiles = [
   "bosses/prepared-reference/suncrest.png",
   "bosses/prepared-reference/void-sovereign.png",
 ];
-const errors = [];
 for (const relative of [...enemyFiles, ...bossFiles]) {
   const file = resolve(root, relative);
   if (!existsSync(file)) {
