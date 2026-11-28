@@ -2652,6 +2652,60 @@ class ZeroGameScene extends Phaser.Scene {
     });
   }
 
+  initializeEnemyAmbientIdle(enemy, aiType, rosterIndex = 0) {
+    const archetypeId = enemy.getData("enemyArchetypeId") || "";
+    const profile = rigRoster.enemies.find((entry) => entry.id === archetypeId)?.motionProfile || "";
+    const hasHands = /biped|humanoid|knight|rat|ogre|hopper|frog|leaper/.test(profile);
+    const roleActions = {
+      runner: ["idle-scratch", "idle-look-around", "idle-phone", "idle-comb"],
+      charger: ["idle-scratch", "idle-look-around", "idle-comb", "idle-phone"],
+      leaper: ["idle-comb", "idle-look-around", "idle-scratch", "idle-phone"],
+      ranged: ["idle-phone", "idle-look-around", "idle-comb", "idle-scratch"],
+      summoner: ["idle-phone", "idle-groom", "idle-look-around", "idle-comb"],
+      shield: ["idle-look-around", "idle-scratch", "idle-phone", "idle-comb"],
+      heavy: ["idle-scratch", "idle-look-around", "idle-phone", "idle-comb"],
+      ambusher: ["idle-comb", "idle-look-around", "idle-groom", "idle-scratch"],
+      flying: ["idle-groom", "idle-look-around", "idle-scratch"],
+    };
+    const actions = hasHands
+      ? (roleActions[enemy.getData("enemyRole")] || ["idle-look-around", "idle-scratch", "idle-comb", "idle-phone"])
+      : ["idle-groom", "idle-look-around"];
+    const seed = [...archetypeId].reduce((value, char) => value + char.charCodeAt(0), rosterIndex * 17);
+    enemy.setData("ambientIdleActions", actions);
+    enemy.setData("ambientIdleActionIndex", seed % actions.length);
+    enemy.setData("ambientIdleClip", actions[seed % actions.length]);
+    enemy.setData("ambientIdleNextAt", this.time.now + 2600 + (seed % 1700));
+    enemy.setData("ambientIdleActive", false);
+  }
+
+  updateEnemyAmbientIdle(enemy, aiType, distance, time) {
+    const wasIdle = Boolean(enemy.getData("ambientIdleActive"));
+    const canSettle = Boolean(enemy.body?.blocked?.down) || aiType === "flyer";
+    const shouldIdle = canSettle && (wasIdle ? distance > 258 : distance > 342);
+    if (shouldIdle !== wasIdle) {
+      enemy.setData("ambientIdleActive", shouldIdle);
+      if (shouldIdle) {
+        enemy.setVelocityX(0);
+        enemy.setData("aiState", "idle");
+        enemy.setData("ambientIdleNextAt", time + 900);
+      } else {
+        const defaultState = ["runner", "charger", "ambusher", "bomber"].includes(aiType)
+          ? "tell" : aiType === "guard" ? "guard" : "patrol";
+        enemy.setData("aiState", defaultState);
+        enemy.setData("aiStateUntil", time + 360);
+      }
+    }
+    if (shouldIdle && time >= (enemy.getData("ambientIdleNextAt") || 0)) {
+      const actions = enemy.getData("ambientIdleActions") || ["idle-look-around"];
+      const currentIndex = enemy.getData("ambientIdleActionIndex") || 0;
+      const nextIndex = (currentIndex + 1 + (Math.floor(time / 1000) % Math.max(1, actions.length - 1))) % actions.length;
+      enemy.setData("ambientIdleActionIndex", nextIndex);
+      enemy.setData("ambientIdleClip", actions[nextIndex] || "idle-look-around");
+      enemy.setData("ambientIdleNextAt", time + 4300 + ((nextIndex * 733 + Math.floor(enemy.x)) % 2400));
+    }
+    return shouldIdle;
+  }
+
   spawnEnemies() {
     if (this.stageConfig.isBossStage || this.stageEnemyCount <= 0) return;
     const authoredPositions = this.stageConfig.enemySpawnPositions;
@@ -2702,6 +2756,7 @@ class ZeroGameScene extends Phaser.Scene {
         const roleAi = { runner: "runner", leaper: "jumper", flying: "flyer", ambusher: "ambusher", ranged: "ranged", bomber: "bomber", illusionist: "ambusher", summoner: "summoner", shield: "guard", heavy: "chaser", charger: "charger" };
         const aiType = roleAi[archetype?.role] || ["chaser", "runner", "jumper", "guard", "charger", "chaser"][i % 6];
         enemy.setData("aiType", aiType);
+        this.initializeEnemyAmbientIdle(enemy, aiType, i);
         enemy.setData("aiState", ["runner", "charger", "ambusher", "bomber"].includes(aiType) ? "tell" : aiType === "guard" ? "guard" : "patrol");
         enemy.setData("aiStateUntil", this.time.now + 900 + (i % 3) * 350);
         enemy.setData("nextRangedAt", this.time.now + 1500 + (i % 3) * 450);
@@ -3424,6 +3479,7 @@ class ZeroGameScene extends Phaser.Scene {
       const roleAi = { runner: "runner", leaper: "jumper", flying: "flyer", ambusher: "ambusher", ranged: "ranged", bomber: "bomber", illusionist: "ambusher", summoner: "summoner", shield: "guard", heavy: "chaser", charger: "charger" };
       const aiType = roleAi[archetype.role] || "charger";
       enemy.setData("aiType", aiType);
+      this.initializeEnemyAmbientIdle(enemy, aiType, this.bossAttendantSerial || slot);
       enemy.setData("aiState", ["runner", "charger", "ambusher", "bomber"].includes(aiType) ? "tell" : "patrol");
       enemy.setData("aiStateUntil", this.time.now + 650);
       enemy.setData("nextRangedAt", this.time.now + 1200);
@@ -5464,14 +5520,20 @@ class ZeroGameScene extends Phaser.Scene {
       if (enemyVisual) {
         enemyVisual.setPosition(enemy.x, enemy.y);
       }
+      const aiType = enemy.getData("aiType") || "chaser";
+      const heroDistance = Phaser.Math.Distance.Between(enemy.x, enemy.y, this.hero.x, this.hero.y);
+      const ambientIdleActive = !enemy.getData("isTimeHunter") && !enemy.getData("frozen") &&
+        !enemy.getData("rolling") && this.updateEnemyAmbientIdle(enemy, aiType, heroDistance, time);
       const rigSprite = enemyVisual?.getData("authoredSprite");
       if (rigSprite?.active && rigSprite.getData("rigbySkeleton") &&
           time >= (enemy.getData("rigAnimationLockUntil") || 0)) {
         const velocityX = enemy.body?.velocity?.x || 0;
         const velocityY = enemy.body?.velocity?.y || 0;
-        const nextClip = !enemy.body?.blocked?.down
-          ? velocityY < -18 ? "jump" : "fall"
-          : Math.abs(velocityX) > 18 ? "locomotion" : "idle";
+        const nextClip = ambientIdleActive
+          ? (enemy.getData("ambientIdleClip") || "idle-look-around")
+          : !enemy.body?.blocked?.down
+            ? velocityY < -18 ? "jump" : "fall"
+            : Math.abs(velocityX) > 18 ? "locomotion" : "idle";
         if (rigSprite.getData("rigbyCurrentClip") !== nextClip) {
           rigSprite.setData("rigbyCurrentClip", nextClip);
           rigSprite.play(nextClip, true, 0.12);
@@ -5500,13 +5562,17 @@ class ZeroGameScene extends Phaser.Scene {
         }
         return;
       }
-      const aiType = enemy.getData("aiType") || "chaser";
       const direction = this.hero.x > enemy.x ? 1 : -1;
       const elapsed = this.time.now;
       let speed = 58;
       let visualBob = 0;
       let facing = direction;
-      if (aiType === "chaser") {
+      if (ambientIdleActive) {
+        speed = 0;
+        facing = direction;
+        if (aiType === "flyer") enemy.setVelocityY(0);
+        visualBob = Math.sin(elapsed * 0.0024 + (enemy.getData("animTime") || 0)) * 1.8;
+      } else if (aiType === "chaser") {
         const state = enemy.getData("aiState") || "patrol";
         if (state === "patrol" && elapsed >= enemy.getData("aiStateUntil")) {
           enemy.setData("aiState", "chase");
