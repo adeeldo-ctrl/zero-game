@@ -542,11 +542,34 @@ try {
   });
   // Phaser's delayedCall advances on the scene clock; wait for its actual
   // completion instead of assuming a fixed wall-clock delay in headless CI.
-  await page.waitForFunction(() => {
-    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
-    return scene?.chances === 2 && scene.health === 3 && !scene.chanceLossInProgress &&
-      scene.hero?.body?.enable && scene.stageNumber === 1 && !scene.gameOver;
-  }, undefined, { timeout: 5000 });
+  try {
+    await page.waitForFunction(() => {
+      const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+      return scene?.chances === 2 && scene.health === 3 && !scene.chanceLossInProgress &&
+        scene.hero?.body?.enable && scene.stageNumber === 1 && !scene.gameOver;
+    }, undefined, { timeout: 5000 });
+  } catch (error) {
+    const state = await page.evaluate(() => {
+      const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+      return {
+        active: scene?.sys.isActive(),
+        scenePaused: scene?.sys.isPaused(),
+        timePaused: scene?.time.paused,
+        timeNow: scene?.time.now,
+        pendingTimers: scene?.time.getPendingEvents?.().length,
+        physicsPaused: scene?.physics.world.isPaused,
+        chances: scene?.chances,
+        health: scene?.health,
+        chanceLossInProgress: scene?.chanceLossInProgress,
+        gameOver: scene?.gameOver,
+        stageNumber: scene?.stageNumber,
+        heroActive: scene?.hero?.active,
+        heroBodyEnabled: scene?.hero?.body?.enable,
+        status: scene?.statusLabel?.text,
+      };
+    });
+    throw new Error("Campaign respawn did not complete; runtime state: " + JSON.stringify(state) + "; " + error.message);
+  }
 
   // Use the remaining two chances in the live scene and verify the true Game Over boundary.
   for (const expectedChances of [1, 0]) {
