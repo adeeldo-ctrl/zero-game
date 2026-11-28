@@ -100,8 +100,11 @@ assert "npm test" in ci and "npm run lint" in ci and "npm run build" in ci
 assert "assembleDebug" not in ci, (
     "Continuous checks must never build an APK"
 )
-assert "zero-game-prepared-enemy-references" in ci and "src/assets/bosses/prepared-reference/" in ci, (
-    "Art review artifacts may contain prepared enemy and boss PNGs, but no APK"
+assert "npm run art:validate" in ci and "validate-original-png-art.mjs" in ci, (
+    "Consolidated verification must validate the 32 unique enemy PNGs and five boss PNGs"
+)
+assert "generate-premium-character-sheets.mjs" not in ci, (
+    "Continuous verification must not generate vector character artwork"
 )
 
 # Run the real icon installer against an isolated mock Capacitor manifest.
