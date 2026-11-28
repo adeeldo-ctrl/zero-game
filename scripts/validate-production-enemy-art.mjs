@@ -131,13 +131,14 @@ for (const entry of manifest.bosses || []) {
 
 const actualEnemyIds = [...enemyIds].sort();
 const actualBossIds = [...bossIds].sort();
+if (expectedEnemyIds.length !== 32) fail(`active campaign must contain exactly 32 approved regular enemy identities, got ${expectedEnemyIds.length}`);
 if (JSON.stringify(actualEnemyIds) !== JSON.stringify(expectedEnemyIds)) {
-  fail("enemy roster must match all 45 campaign archetypes exactly");
+  fail("production art must match the 32 active campaign enemy identities exactly");
 }
 if (JSON.stringify(actualBossIds) !== JSON.stringify(expectedBossIds)) {
   fail("boss roster must match all five campaign bosses exactly");
 }
-if ((manifest.enemies || []).length !== 45) fail("manifest must contain exactly 45 enemy sheets");
+if ((manifest.enemies || []).length !== 32) fail("manifest must contain exactly 32 regular enemy sheets");
 if ((manifest.bosses || []).length !== 5) fail("manifest must contain exactly five boss sheets");
 
 if (errors.length) {
@@ -146,4 +147,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log("Production enemy art pack is valid: 45 unique enemies, five unique bosses, transparent PNG sheets, and all required animation states.");
+console.log("Production enemy art pack is valid: 32 unique enemies, five unique bosses, transparent PNG sheets, and all required animation states.");
