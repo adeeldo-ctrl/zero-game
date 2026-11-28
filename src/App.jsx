@@ -3,10 +3,6 @@ import { useCallback, useEffect, useRef } from "react";
 import Phaser from "phaser";
 import { rigbyPhaser } from "./vendor/rigby2d-phaser-0.6.1.mjs";
 import rigRoster from "./assets/animations/rig-roster.json";
-import heroRyoSheet from "../new heros orignal/hero (1).jpg";
-import heroKairoSheet from "../new heros orignal/hero (3).jpg";
-import heroMeiSheet from "../new heros orignal/hero (2).jpg";
-import heroVoltSheet from "../new heros orignal/hero (4).jpg";
 import heroRyoAnimationSheet from "./assets/heroes/hero_ryo.png";
 import heroKairoAnimationSheet from "./assets/heroes/hero_kairo.png";
 import heroMeiAnimationSheet from "./assets/heroes/hero_mei.png";
@@ -32,12 +28,7 @@ import { createGameAudio } from "./gameAudio";
 
 
 const APPROVED_ENEMY_ART = Object.fromEntries(rigRoster.enemies.map(({ id }) => [id, true]));
-const HERO_POSE_SHEETS = [
-  { id: "ryo", source: heroRyoSheet, columns: 5, rows: 1 },
-  { id: "kairo", source: heroKairoSheet, columns: 5, rows: 1 },
-  { id: "mei", source: heroMeiSheet, columns: 5, rows: 1 },
-  { id: "volt", source: heroVoltSheet, columns: 5, rows: 1 },
-];
+const HERO_POSE_SHEETS = [];
 const HERO_ANIMATION_SHEETS = [
   { id: "ryo", source: heroRyoAnimationSheet, data: heroRyoAnimationData },
   { id: "kairo", source: heroKairoAnimationSheet, data: heroKairoAnimationData },
@@ -276,15 +267,16 @@ class ZeroGameScene extends Phaser.Scene {
     const sprite = visual?.getData("heroSprite");
     const heroId = visual?.getData("heroSpriteId") || "ryo";
     if (!sprite?.active) return;
-    if (state === "attack") {
-      const attackPose = this.heroPoseTextures?.[heroId]?.attack;
-      if (attackPose) {
-        sprite.anims?.stop();
-        if (sprite.texture.key !== attackPose) sprite.setTexture(attackPose);
-      }
-      visual.setData("heroPoseState", "attack");
-      return;
-    }
+    // Attack poses must come from the selected hero's current animation
+    // sheet. Never swap to the legacy still-image sheet, which showed the old
+    // default hero during attacks and made hero identity appear to change.
+    const animationKey = `hero-${heroId}-${state}`;
+    const idleKey = `hero-${heroId}-idle`;
+    const resolvedKey = this.anims.exists(animationKey) ? animationKey : idleKey;
+    const sheetKey = `hero-animation-${heroId}`;
+    if (sprite.texture.key !== sheetKey) sprite.setTexture(sheetKey, 0);
+    if (sprite.anims.currentAnim?.key !== resolvedKey || !sprite.anims.isPlaying) sprite.play(resolvedKey, true);
+    visual.setData("heroPoseState", state);
     const animationKey = `hero-${heroId}-${state}`;
     const idleKey = `hero-${heroId}-idle`;
     const resolvedKey = this.anims.exists(animationKey) ? animationKey : idleKey;
@@ -1657,7 +1649,7 @@ class ZeroGameScene extends Phaser.Scene {
     // legacy vector rig remains hidden so existing pose references stay safe.
     const heroArt = this.add.sprite(0, 0, `hero-animation-${heroId}`, 0)
       .setOrigin(0.5, 0.5)
-      .setScale(0.64); // Preserve doubled size with 210px authored frames.
+      .setScale(0.54); // Balanced in-game size; avoid oversized hero presentation.
     c.add(heroArt);
     c.list.forEach((child) => {
       if (child !== shadow && child !== heroArt) child.setVisible(false);
