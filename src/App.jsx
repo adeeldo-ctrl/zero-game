@@ -1937,7 +1937,6 @@ class ZeroGameScene extends Phaser.Scene {
     const archetypeId = APPROVED_ENEMY_ART[requestedArchetypeId] ? requestedArchetypeId
       : APPROVED_ENEMY_ART[requestedBaseArtId] ? requestedBaseArtId : "spirit-pouncer";
     if (requestedArchetypeId !== archetypeId) enemy.setData("enemyArchetypeId", archetypeId);
-    const hasPremiumArtwork = false;
     const idleFrame = 0;
     const approvedArt = APPROVED_ENEMY_ART[archetypeId];
     if (!approvedArt) throw new Error("Missing approved original PNG artwork for enemy " + archetypeId);
