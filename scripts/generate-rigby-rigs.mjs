@@ -362,7 +362,6 @@ function createSkeleton(character, width, height, isBoss) {
     core: "root",
     shell: "root",
     crown: "core",
-    head: "body",
     front_leg_l: "body",
     front_leg_r: "body",
     back_leg_l: "body",
@@ -392,7 +391,9 @@ function createSkeleton(character, width, height, isBoss) {
   };
   const boneByName = new Map(bones.map((entry) => [entry.name, entry]));
   const skeletonBones = bones.map((b, i) => {
-    const requestedParent = parentByBone[b.name];
+    const requestedParent = b.name === "head"
+      ? (boneByName.has("torso") ? "torso" : boneByName.has("body") ? "body" : "core")
+      : parentByBone[b.name];
     const parent = requestedParent && boneByName.has(requestedParent) ? requestedParent : (i ? "root" : null);
     const parentBone = parent ? boneByName.get(parent) : null;
     return {
