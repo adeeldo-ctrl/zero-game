@@ -5763,9 +5763,22 @@ class ZeroGameScene extends Phaser.Scene {
         const parts = enemyVisual.getData("parts");
         const et = (enemy.getData("animTime") || 0) + delta;
         enemy.setData("animTime", et);
-        const swing = Math.sin(et * (aiType === "runner" ? 0.026 : 0.018));
-        parts.legL.rotation = swing * (aiType === "runner" ? 0.9 : 0.65);
-        parts.legR.rotation = -swing * (aiType === "runner" ? 0.9 : 0.65);
+        const motionArchetype = PREMIUM_ENEMY_ARCHETYPES.find((entry) => entry.id === enemy.getData("enemyArchetypeId"));
+        const motionRole = motionArchetype?.role || aiType;
+        const limbProfile = {
+          runner: { rate: 0.032, leg: 1.02, arm: 0.62 },
+          charger: { rate: 0.025, leg: 0.88, arm: 0.5 },
+          leaper: { rate: 0.038, leg: 0.78, arm: 0.72 },
+          flying: { rate: 0.029, leg: 0.3, arm: 0.9 },
+          ranged: { rate: 0.017, leg: 0.24, arm: 0.22 },
+          ambusher: { rate: 0.023, leg: 0.72, arm: 0.44 },
+          heavy: { rate: 0.014, leg: 0.34, arm: 0.2 },
+          shield: { rate: 0.013, leg: 0.22, arm: 0.16 },
+          summoner: { rate: 0.019, leg: 0.38, arm: 0.66 },
+        }[motionRole] || { rate: 0.024, leg: 0.65, arm: 0.5 };
+        const swing = Math.sin(et * limbProfile.rate);
+        parts.legL.rotation = swing * limbProfile.leg;
+        parts.legR.rotation = -swing * limbProfile.leg;
         const authoredSprite = enemyVisual.getData("authoredSprite");
         const approvedArtSprite = enemyVisual.getData("approvedArtSprite");
         if (approvedArtSprite?.active) {
@@ -5840,9 +5853,9 @@ class ZeroGameScene extends Phaser.Scene {
             }
           }
         }
-        const stride = aiType === "runner" || aiType === "charger" ? 1.25 : 1;
-        parts.armL.rotation = -swing * 0.5 * stride;
-        parts.armR.rotation = swing * 0.5 * stride;
+        const stride = motionRole === "runner" || motionRole === "charger" || motionRole === "leaper" ? 1.25 : 1;
+        parts.armL.rotation = -swing * limbProfile.arm * stride;
+        parts.armR.rotation = swing * limbProfile.arm * stride;
         if (parts.body?.active) {
           const bodyPulse = Math.abs(swing) * (aiType === "guard" ? 0.025 : 0.045);
           parts.body.setScale(1 - bodyPulse * 0.45, 1 + bodyPulse);
