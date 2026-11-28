@@ -3333,7 +3333,9 @@ class ZeroGameScene extends Phaser.Scene {
     const bossSprite = this.add.image(0, -22, `boss-image-${bossSheetId}`)
       .setDisplaySize(150, 150);
     bossSprite.setData("entranceUntil", this.time.now + 900);
+    bossSprite.setAlpha(0);
     c.add(bossSprite);
+    this.tweens.add({ targets: bossSprite, alpha: 1, duration: 420, ease: "Cubic.easeOut" });
     // Boss-state motion is applied directly to this original PNG image.
     this.tweens.add({
       targets: bossSprite,
@@ -3522,7 +3524,6 @@ class ZeroGameScene extends Phaser.Scene {
     this.bossBar.scaleX = this.bossHealth / this.bossMaxHealth;
     const v = this.bossVisual;
     if (v?.active) {
-      const bossId = v.getData("bossSheetId");
       const bossSprite = v.getData("authoredSprite");
       if (bossSprite?.active) bossSprite.setData("hitUntil", this.time.now + 460);
       this.tweens.add({ targets: v, angle: this.facing * 9, scaleX: 1.28,
@@ -3686,11 +3687,14 @@ class ZeroGameScene extends Phaser.Scene {
         const attackTilt = attackState === "slam" ? signatureTilt + 8
           : attackState === "dash" ? signatureTilt - 10
             : attackState === "volley" ? signatureTilt + 4 : signatureTilt;
-        authoredBossSprite.setAngle(attackPose ? attackTilt + Math.sin(this.time.now * 0.025) * 2
-          : Math.sin(this.time.now * (bossId === "void-sovereign" ? 0.009 : 0.004)) * (bossId === "gale-talon" ? 3 : 1.8));
-        authoredBossSprite.setScale(attackState === "slam" ? (bossId === "iron-comet" ? 1.16 : bossId === "gatekeeper" ? 1.12 : 1.08)
-          : attackState === "dash" ? (bossId === "gale-talon" ? 1.2 : bossId === "void-sovereign" ? 1.14 : 1.045)
-            : attackState === "volley" ? (bossId === "suncrest" ? 1.17 : bossId === "void-sovereign" ? 1.12 : 1.045) : 1);
+        const reactionTilt = bossVisualState === "hit" ? -9 : bossVisualState === "phase-change" ? 8 : bossVisualState === "entrance" ? -5 : 0;
+        authoredBossSprite.setAngle(attackPose ? attackTilt + Math.sin(this.time.now * 0.025) * 2 + reactionTilt
+          : Math.sin(this.time.now * (bossId === "void-sovereign" ? 0.009 : 0.004)) * (bossId === "gale-talon" ? 3 : 1.8) + reactionTilt);
+        authoredBossSprite.setScale(bossVisualState === "hit" ? 0.94
+          : bossVisualState === "phase-change" ? 1.12
+            : attackState === "slam" ? (bossId === "iron-comet" ? 1.16 : bossId === "gatekeeper" ? 1.12 : 1.08)
+              : attackState === "dash" ? (bossId === "gale-talon" ? 1.2 : bossId === "void-sovereign" ? 1.14 : 1.045)
+                : attackState === "volley" ? (bossId === "suncrest" ? 1.17 : bossId === "void-sovereign" ? 1.12 : 1.045) : 1);
         if (bossId === "gale-talon") authoredBossSprite.y = attackState === "dash" ? -35 : -25 + Math.sin(this.time.now * 0.012) * 3;
         else if (bossId === "iron-comet") authoredBossSprite.y = attackState === "slam" ? -12 : -25;
         else if (bossId === "void-sovereign") authoredBossSprite.y = -27 + Math.sin(this.time.now * 0.009) * 5;
