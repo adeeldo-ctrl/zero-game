@@ -3,7 +3,7 @@ export const GROUND_ENEMY_TYPES = Object.freeze([
 ]);
 
 // Keep ordinary enemies clearly smaller than the dedicated boss artwork.
-export const REGULAR_ENEMY_VISUAL_SCALE = 0.50;
+export const REGULAR_ENEMY_VISUAL_SCALE = 0.68;
 
 export function getEnemyMovementSpeed(aiType, requestedSpeed) {
   return GROUND_ENEMY_TYPES.includes(aiType) ? requestedSpeed : 55;
