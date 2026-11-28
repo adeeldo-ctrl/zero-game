@@ -145,3 +145,14 @@ The user's latest approved active scope is exactly 32 regular enemy identities a
 - Rig roster validation also checks independent forearm/shin timelines and the required attack clip structure.
 - This is automated verification only; no physical Android handset test is claimed.
 - The only remaining delivery action is the one signed Android Release APK build from the verified source. No debug APK is to be delivered.
+
+## Final integrated verification — 2026-11-28 (current source)
+
+- **Verified implementation commit:** `7b2273cf88f047873ea48d72781bf5282fb26d99`.
+- **Consolidated CI:** run `46153199756` — success.
+- **Automated tests:** 64 passed, 0 failed; lint passed; Android configuration validation passed; original 32-enemy/five-boss PNG validation passed; production web build passed.
+- **Chromium gameplay smoke:** passed for token start/Continue, hero idle/walk/run/jump, live weighted enemy rigs, each boss's live signature animation on its milestone stage, all 50 stage restarts, and mobile-input regression checks.
+- **Performance work:** load only the active ten-stage enemy rig pool plus the shared time-hunter rig; keep the five boss rigs; load only the current backdrop; remove inactive region rig cache entries and atlas textures on region changes; stop invisible competing boss animation loops; do not decode the unused enemy/boss pose sheets.
+- **Token/lives:** locally persisted token balance; one token starts/restores three chances with three hearts per chance; proper Continue screen spends one token; stage clear and each 10,000 score threshold award tokens.
+- **Physical Android testing:** not performed and not claimed.
+- **Final APK:** not yet built. The only remaining action is one signed Android Release APK from the verified source plus this release-only documentation/trigger update. No debug or intermediate APKs.
