@@ -3292,7 +3292,7 @@ class ZeroGameScene extends Phaser.Scene {
     const key = `enemy-${archetypeId}-${state}`;
     if (!visual?.active) return null;
     visual.setVisible(true).setAlpha(1);
-enemy pose branch    if (state === "attack" && approvedArtSprite?.active) {
+if (state === "attack" && approvedArtSprite?.active) {
       // Give single-frame cutouts a distinct anticipation/strike pose without
       // changing enemy physics, attack timing, or collision behaviour.
       visual.setData("approvedAttackStartedAt", this.time.now);
