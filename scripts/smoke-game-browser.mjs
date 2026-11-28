@@ -540,14 +540,13 @@ try {
       throw new Error("Repeated damage during chance-loss lock consumed another chance");
     }
   });
-  await delay(1050);
-  await page.evaluate(() => {
+  // Phaser's delayedCall advances on the scene clock; wait for its actual
+  // completion instead of assuming a fixed wall-clock delay in headless CI.
+  await page.waitForFunction(() => {
     const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
-    if (scene.chances !== 2 || scene.health !== 3 || scene.chanceLossInProgress ||
-        !scene.hero.body.enable || scene.stageNumber !== 1 || scene.gameOver) {
-      throw new Error("Campaign did not resume on the same stage with restored hearts");
-    }
-  });
+    return scene?.chances === 2 && scene.health === 3 && !scene.chanceLossInProgress &&
+      scene.hero?.body?.enable && scene.stageNumber === 1 && !scene.gameOver;
+  }, undefined, { timeout: 5000 });
 
   // Use the remaining two chances in the live scene and verify the true Game Over boundary.
   for (const expectedChances of [1, 0]) {
