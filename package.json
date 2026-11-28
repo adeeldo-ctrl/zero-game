@@ -11,11 +11,12 @@
     "preview": "vite preview",
     "android:add": "cap add android",
     "android:sync": "npm run build && cap sync android",
-    "art:validate": "node scripts/generate-character-sheets.mjs && node scripts/validate-production-enemy-art.mjs",
+    "art:validate": "npm run art:generate && node scripts/validate-production-enemy-art.mjs",
     "art:prepare-reference": "node scripts/prepare-reference-enemy-art.mjs",
-    "prebuild": "node scripts/generate-character-sheets.mjs",
-    "predev": "node scripts/generate-character-sheets.mjs",
-    "art:generate": "node scripts/generate-character-sheets.mjs"
+    "prebuild": "node scripts/generate-premium-character-sheets.mjs",
+    "predev": "node scripts/generate-premium-character-sheets.mjs",
+    "art:generate": "node scripts/generate-premium-character-sheets.mjs",
+    "pretest": "node scripts/generate-premium-character-sheets.mjs"
   },
   "dependencies": {
     "phaser": "^4.2.1",
