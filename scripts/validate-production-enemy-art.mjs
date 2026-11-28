@@ -64,7 +64,7 @@ for (const entry of characters) {
   const svg = readFileSync(filePath, "utf8");
   if (!svg.startsWith('<svg xmlns="http://www.w3.org/2000/svg"')) fail(`${entry.id}: invalid SVG root`);
   if (!svg.includes('width="1024" height="640" viewBox="0 0 1024 640"')) fail(`${entry.id}: wrong SVG dimensions`);
-    const frameCount = (svg.match(/<g transform="translate\(\d+ \d+\)">/g) || []).length;
+      const frameCount = (svg.match(/<g transform="translate\(\d+ \d+\)">/g) || []).length;
   if (frameCount !== 40) fail(`${entry.id}: expected 40 separate frames, found ${frameCount}`);
   const contentHash = createHash("sha256").update(svg).digest("hex");
   if (seenContent.has(contentHash)) fail(`${entry.id}: sprite sheet duplicates another character sheet`);
