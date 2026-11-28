@@ -323,11 +323,13 @@ class ZeroGameScene extends Phaser.Scene {
     const sprite = visual?.getData("heroSprite");
     const heroId = visual?.getData("heroSpriteId") || "ryo";
     if (!sprite?.active) return;
-    const poseName = state === "walk" || state === "run" ? "walk"
-      : state === "jump" || state === "fall" || state === "land" ? "jump"
-        : state === "attack" ? "attack"
-          : state === "victory" ? "sit" : "idle";
-    const poseKey = this.heroPoseTextures?.[heroId]?.[poseName];
+    const animationState = state === "run" ? "walk"
+      : state === "fall" ? "jump"
+        : state === "victory" ? "victory" : state;
+    const animationKey = `hero-${heroId}-${animationState}`;
+    const idleKey = `hero-${heroId}-idle`;
+    const resolvedKey = this.anims.exists(animationKey) ? animationKey : idleKey;
+    const sheetKey = `hero-animation-${heroId}`;
     sprite.setVisible(true).setAlpha(1);
     (visual.getData("heroRigParts") || []).forEach((part) => {
       if (part?.active) part.setVisible(false);
@@ -335,18 +337,11 @@ class ZeroGameScene extends Phaser.Scene {
     (visual.getData("heroLookItems") || []).forEach((part) => {
       if (part?.active) part.setVisible(false);
     });
-    if (poseKey) {
-      sprite.anims?.stop();
-      if (sprite.texture.key !== poseKey) sprite.setTexture(poseKey);
-    } else {
-      const animationKey = `hero-${heroId}-${state}`;
-      const idleKey = `hero-${heroId}-idle`;
-      const resolvedKey = this.anims.exists(animationKey) ? animationKey : idleKey;
-      const sheetKey = `hero-animation-${heroId}`;
-      if (sprite.texture.key !== sheetKey) sprite.setTexture(sheetKey, 0);
-      if (sprite.anims.currentAnim?.key !== resolvedKey || !sprite.anims.isPlaying) sprite.play(resolvedKey, true);
+    if (sprite.texture.key !== sheetKey) sprite.setTexture(sheetKey, 0);
+    if (sprite.anims.currentAnim?.key !== resolvedKey || !sprite.anims.isPlaying) {
+      sprite.play(resolvedKey, true);
     }
-    visual.setData("heroPoseState", state);
+    visual.setData("heroPoseState", animationState);
   }
 
   constructor() {
@@ -2102,19 +2097,18 @@ class ZeroGameScene extends Phaser.Scene {
     const rigDefinition = rigRoster.enemies.find((entry) => entry.id === archetypeId);
     if (!rigDefinition) throw new Error("Missing generated character rig for " + archetypeId);
     const enemyPoseSet = this.enemyPoseTextures?.[archetypeId];
-    const enemyRig = enemyPoseSet?.idle
-      ? this.add.image(0, -12, enemyPoseSet.idle)
-      : this.add.rigby(0, -12, `enemy-rig-${archetypeId}`, "idle");
-    if (!enemyRig?.active || (!enemyPoseSet?.idle && (!enemyRig.skeleton || typeof enemyRig.play !== "function"))) {
+    // Generated weighted-mesh rigs provide actual locomotion; pose panels are reference art only.
+    const enemyRig = this.add.rigby(0, -12, `enemy-rig-${archetypeId}`, "idle");
+    if (!enemyRig?.active || !enemyRig.skeleton || typeof enemyRig.play !== "function") {
       throw new Error("Enemy artwork or animation did not initialize for " + archetypeId);
     }
     // The parent container applies REGULAR_ENEMY_VISUAL_SCALE once. The
     // cropped 160px source poses are enlarged here to keep enemy silhouettes readable.
-    const enemyBaseScale = (enemyPoseSet?.idle ? (isHeavy ? 1.5 : 1.4) : (isHeavy ? 1.08 : 1.0)) * 0.5;
+    const enemyBaseScale = (isHeavy ? 1.08 : 1.0) * 0.5;
     enemyRig.setScale(enemyBaseScale);
     enemyRig.setData("baseVisualScale", enemyBaseScale);
-    enemyRig.setData("rigbySkeleton", !enemyPoseSet?.idle);
-    enemyRig.setData("poseSheetSprite", !!enemyPoseSet?.idle);
+    enemyRig.setData("rigbySkeleton", true);
+    enemyRig.setData("poseSheetSprite", false);
     enemyRig.setData("rigbyCurrentClip", "idle");
     c.add(enemyRig);
     c.setData("approvedArtSprite", enemyRig);
@@ -2746,7 +2740,7 @@ class ZeroGameScene extends Phaser.Scene {
     this.jumpCount = 0; this.lastDamage = this.time.now; this.nextFootstepAt = this.time.now + 200;
     this.stageTokenAwarded = false;
     this.hero.setPosition(480, 450).setVelocity(0, 0).setVisible(false);
-    this.heroVisual.setPosition(480, 450).setVisible(true).setAlpha(1).setScale(1);
+    this.heroVisual.setPosition(480, 450).setVisible(true).setAlpha(1).setScale(0.5);
     this.heroTitleLabel.setText(`${this.selectedHero.name.toUpperCase()}  |  STAGE ${String(this.stageNumber).padStart(2,"0")}`);
     const heroPalette = this.heroVisual.getData("heroPalette");
     heroPalette.kurta.setFillStyle(this.selectedHero.color); heroPalette.waistcoat.setFillStyle(this.selectedHero.accent); heroPalette.capLine.setFillStyle(this.selectedHero.accent);
@@ -3298,15 +3292,7 @@ class ZeroGameScene extends Phaser.Scene {
     const key = `enemy-${archetypeId}-${state}`;
     if (!visual?.active) return null;
     visual.setVisible(true).setAlpha(1);
-    if (sprite?.active && sprite.getData("poseSheetSprite")) {
-      const pose = state === "move" ? "walk" : state === "jump" || state === "fall" ? "jump"
-        : state === "attack" ? "attack" : state === "defeat" ? "defeat" : "idle";
-      const poseKey = this.enemyPoseTextures?.[archetypeId]?.[pose];
-      if (poseKey) sprite.setTexture(poseKey);
-      visual.setData("poseStateUntil", this.time.now + (state === "attack" ? 360 : state === "hit" ? 260 : 0));
-      return visual;
-    }
-    if (state === "attack" && approvedArtSprite?.active) {
+enemy pose branch    if (state === "attack" && approvedArtSprite?.active) {
       // Give single-frame cutouts a distinct anticipation/strike pose without
       // changing enemy physics, attack timing, or collision behaviour.
       visual.setData("approvedAttackStartedAt", this.time.now);
@@ -3598,17 +3584,16 @@ class ZeroGameScene extends Phaser.Scene {
     const bossDefinition = rigRoster.bosses.find((entry) => entry.id === bossSheetId);
     if (!bossDefinition) throw new Error("Missing generated boss rig for " + bossSheetId);
     const bossPoseSet = this.bossPoseTextures?.[bossSheetId];
-    const bossSprite = bossPoseSet?.idle
-      ? this.add.image(0, -22, bossPoseSet.idle)
-      : this.add.rigby(0, -22, `boss-rig-${bossSheetId}`, "entrance");
-    if (!bossSprite?.active || (!bossPoseSet?.idle && (!bossSprite.skeleton || typeof bossSprite.play !== "function"))) {
+    // Generated weighted-mesh boss rigs provide animated locomotion and combat clips.
+    const bossSprite = this.add.rigby(0, -22, `boss-rig-${bossSheetId}`, "entrance");
+    if (!bossSprite?.active || !bossSprite.skeleton || typeof bossSprite.play !== "function") {
       throw new Error("Boss artwork or animation did not initialize for " + bossSheetId);
     }
-    const bossBaseScale = (bossPoseSet?.idle ? 1.35 : 1.17) * 0.5;
+    const bossBaseScale = 1.17 * 0.5;
     bossSprite.setScale(bossBaseScale);
     bossSprite.setData("baseVisualScale", bossBaseScale);
-    bossSprite.setData("rigbySkeleton", !bossPoseSet?.idle);
-    bossSprite.setData("poseSheetSprite", !!bossPoseSet?.idle);
+    bossSprite.setData("rigbySkeleton", true);
+    bossSprite.setData("poseSheetSprite", false);
     bossSprite.setData("rigbyCurrentClip", "entrance");
     c.add(bossSprite);
     bossSprite.setData("entranceUntil", this.time.now + 900);
@@ -3968,13 +3953,7 @@ class ZeroGameScene extends Phaser.Scene {
         authoredBossSprite.setData("lastRigAttackState", attackState);
         authoredBossSprite.setData("lastAttackState", attackState);
         authoredBossSprite.setData("lastVisualState", bossVisualState);
-        if (authoredBossSprite.getData("poseSheetSprite")) {
-          const bossMoving = Math.abs(enemy.body?.velocity?.x || 0) > 18;
-          const state = ["tell", "dash", "volley", "slam"].includes(attackState) ? "attack"
-            : bossMoving ? "walk" : "idle";
-          const poseKey = this.bossPoseTextures?.[bossId]?.[state];
-          if (poseKey && authoredBossSprite.texture.key !== poseKey) authoredBossSprite.setTexture(poseKey);
-        } else if (authoredBossSprite.getData("rigbySkeleton")) {
+        if (authoredBossSprite.getData("rigbySkeleton")) {
           const rigClip = bossVisualState === "move" ? "locomotion"
             : ["attack-primary", "attack-secondary"].includes(bossVisualState)
               ? "attack"
@@ -4755,7 +4734,7 @@ class ZeroGameScene extends Phaser.Scene {
             this.gameOver || !this.sys.isActive() || !this.hero?.active) return;
         this.hero.body.enable = true;
         this.hero.setPosition(480, 450).setVelocity(0, 0);
-        this.heroVisual?.setPosition(480, 450).setVisible(true).setAlpha(1).setScale(1);
+        this.heroVisual?.setPosition(480, 450).setVisible(true).setAlpha(1).setScale(0.5);
         this.lastDamage = this.time.now;
         this.chanceLossInProgress = false;
         this.chanceRespawnFrames = 0;
@@ -4766,7 +4745,7 @@ class ZeroGameScene extends Phaser.Scene {
       this.time.delayedCall(650, () => {
         if (!this.gameOver && hero.active) {
           hero.setPosition(480, 450); hero.setVelocity(0, 0);
-          if (this.heroVisual?.active) { this.heroVisual.setPosition(480, 450).setVisible(true).setAlpha(1); this.tweens.add({ targets: this.heroVisual, scaleY: 1.12, duration: 180, yoyo: true }); }
+          if (this.heroVisual?.active) { this.heroVisual.setPosition(480, 450).setVisible(true).setAlpha(1); this.tweens.add({ targets: this.heroVisual, scaleY: 0.56, duration: 180, yoyo: true }); }
         }
       });
     }
@@ -5345,7 +5324,7 @@ class ZeroGameScene extends Phaser.Scene {
       if (this.chanceRespawnFrames <= 0 && !this.gameOver && this.hero?.active) {
         this.hero.body.enable = true;
         this.hero.setPosition(480, 450).setVelocity(0, 0);
-        this.heroVisual?.setPosition(480, 450).setVisible(true).setAlpha(1).setScale(1);
+        this.heroVisual?.setPosition(480, 450).setVisible(true).setAlpha(1).setScale(0.5);
         this.lastDamage = this.time.now;
         this.chanceLossInProgress = false;
         this.chanceRespawnFrames = 0;
