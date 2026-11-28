@@ -15,7 +15,12 @@
     "fall",
     "land",
     "hit",
-    "defeat"
+    "defeat",
+    "idle-phone",
+    "idle-scratch",
+    "idle-comb",
+    "idle-look-around",
+    "idle-groom"
   ],
   "bossRequiredClips": [
     "entrance",
