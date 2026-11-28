@@ -5823,17 +5823,17 @@ class ZeroGameScene extends Phaser.Scene {
           } else {
             authoredSprite.setData("reactionState", null);
             const wasCharging = Boolean(authoredSprite.getData("attackPose"));
-            if (charging && !wasCharging) authoredSprite.play(attackKey, true);
-            if (!charging && wasCharging && moving && authoredSprite.anims.currentAnim?.key === attackKey) {
+            if (charging && !wasCharging && this.anims.exists(attackKey)) authoredSprite.play(attackKey, true);
+            if (!charging && wasCharging && moving && authoredSprite.anims.currentAnim?.key === attackKey && this.anims.exists(animationKey)) {
               authoredSprite.play(animationKey, true);
             }
             authoredSprite.setData("attackPose", charging);
-            if (moving && !charging && authoredSprite.anims.currentAnim?.key !== attackKey) {
+            if (moving && !charging && this.anims.exists(animationKey) && authoredSprite.anims.currentAnim?.key !== attackKey) {
               if (authoredSprite.anims.currentAnim?.key !== animationKey || !authoredSprite.anims.isPlaying) {
                 authoredSprite.play(animationKey, true);
               }
             } else if (!moving && authoredSprite.anims.currentAnim?.key !== attackKey) {
-              if (idleKey && authoredSprite.anims.currentAnim?.key !== idleKey) authoredSprite.play(idleKey, true);
+              if (idleKey && this.anims.exists(idleKey) && authoredSprite.anims.currentAnim?.key !== idleKey) authoredSprite.play(idleKey, true);
               else if (!idleKey && authoredSprite.anims.isPlaying) {
                 authoredSprite.anims.stop();
                 authoredSprite.setFrame(authoredSprite.getData("idleFrame") || 0);
