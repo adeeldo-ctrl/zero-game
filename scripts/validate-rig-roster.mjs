@@ -11,7 +11,7 @@ const failures = [];
 
 function exists(relativePath, label) {
   const absolute = path.join(root, relativePath);
-  if (!fs.existsSync(absolute)) failures.push(`Missing ${label}: ${relativePath}`);
+  if (!fs.existsSync(absolute)) failures.push("Missing " + label + ": " + relativePath);
   return absolute;
 }
 
@@ -25,15 +25,29 @@ function validateCharacter(character, isBoss) {
   try {
     skeleton = JSON.parse(fs.readFileSync(rigPath, "utf8"));
   } catch (error) {
-    failures.push(`Invalid skeleton JSON for ${character.id}: ${error.message}`);
+    failures.push("Invalid skeleton JSON for " + character.id + ": " + error.message);
     return;
   }
 
   if (!Array.isArray(skeleton.bones) || skeleton.bones.length < 2) {
-    failures.push(`${character.id}: skeleton needs a root and at least one articulated bone`);
+    failures.push(character.id + ": skeleton needs a root and at least one articulated bone");
   }
   if (!Array.isArray(skeleton.slots) || skeleton.slots.length === 0) {
-    failures.push(`${character.id}: skeleton has no artwork slots`);
+    failures.push(character.id + ": skeleton has no artwork slots");
+  }
+
+  const attachments = (skeleton.skins || []).flatMap((skin) =>
+    Object.values(skin.attachments || {}).flatMap((slot) => Object.values(slot || {}))
+  );
+  const mesh = attachments.find((attachment) => attachment.type === "mesh");
+  if (!mesh || !Array.isArray(mesh.vertices) || !Array.isArray(mesh.uvs) || !Array.isArray(mesh.triangles)) {
+    failures.push(character.id + ": original artwork is not exported as a weighted mesh");
+  } else if (mesh.vertices.length <= mesh.uvs.length) {
+    failures.push(character.id + ": mesh vertices are not bone-weighted");
+  }
+
+  if (skeleton.skeleton?.spine !== "4.2.0") {
+    failures.push(character.id + ": expected Rigby2D skeleton JSON 4.2.0");
   }
 
   const animations = skeleton.animations && typeof skeleton.animations === "object"
@@ -41,20 +55,20 @@ function validateCharacter(character, isBoss) {
     : [];
   const required = isBoss ? requiredBossClips : requiredEnemyClips;
   for (const clip of required) {
-    if (!animations.includes(clip)) failures.push(`${character.id}: missing animation clip '${clip}'`);
+    if (!animations.includes(clip)) failures.push(character.id + ": missing animation clip " + clip);
   }
 
   const atlasText = fs.readFileSync(atlasPath, "utf8");
   const firstPage = atlasText.split(/\r?\n/).map((line) => line.trim()).find(Boolean);
-  if (!firstPage) failures.push(`${character.id}: atlas has no texture page entry`);
+  if (!firstPage) failures.push(character.id + ": atlas has no texture page entry");
   else exists(path.posix.join(path.posix.dirname(character.atlas), firstPage), "atlas texture page");
 }
 
-if (roster.status !== "rig-assets-complete") {
-  failures.push(`Rig roster status is '${roster.status}', not 'rig-assets-complete'`);
+if (roster.status !== "rig-assets-generated-pending-visual-gameplay-verification") {
+  failures.push("Rig roster status is not generated-pending-visual-gameplay-verification");
 }
-if (roster.enemies.length !== 32) failures.push(`Expected 32 enemies, found ${roster.enemies.length}`);
-if (roster.bosses.length !== 5) failures.push(`Expected 5 bosses, found ${roster.bosses.length}`);
+if (roster.enemies.length !== 32) failures.push("Expected 32 enemies, found " + roster.enemies.length);
+if (roster.bosses.length !== 5) failures.push("Expected 5 bosses, found " + roster.bosses.length);
 
 const all = [...roster.enemies, ...roster.bosses];
 const ids = all.map((entry) => entry.id);
@@ -65,8 +79,8 @@ for (const boss of roster.bosses) validateCharacter(boss, true);
 
 if (failures.length) {
   console.error("Enemy/boss animation release gate is not satisfied:");
-  for (const failure of failures) console.error(`- ${failure}`);
+  for (const failure of failures) console.error("- " + failure);
   process.exitCode = 1;
 } else {
-  console.log("Animation release gate passed: 32 enemy rigs + 5 boss rigs, required clips and atlas pages present.");
+  console.log("Rig structure gate passed: 32 weighted enemy meshes + 5 weighted boss meshes and required clips.");
 }
