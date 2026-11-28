@@ -3675,8 +3675,10 @@ class ZeroGameScene extends Phaser.Scene {
       enemy.setData("aiAnim", 0);
       enemy.setVisible(false);
       const visual = this.createEnemyVisual(enemy, colors[slot], horns[slot]);
-      visual.setScale(1.42);
-      enemy.setData("visualScale", 1.42);
+      const attendantScale = REGULAR_ENEMY_VISUAL_SCALE * 1.12;
+      visual.setScale(attendantScale);
+      enemy.setScale(attendantScale);
+      enemy.setData("visualScale", attendantScale);
       spawned++;
     }
     return spawned;
@@ -4542,7 +4544,7 @@ class ZeroGameScene extends Phaser.Scene {
     this.timeHunterSpawned = true;
     const hunter = this.enemies.create(this.hero.x < 480 ? 900 : 60, 120, "enemy2");
     hunter.setDepth(12).setCollideWorldBounds(true);
-    hunter.setScale(1.8);
+    hunter.setScale(REGULAR_ENEMY_VISUAL_SCALE);
     hunter.setData("isTimeHunter", true);
     hunter.setData("enemyArchetypeId", "void-licorice-sniper");
     hunter.setData("enemyArtBaseId", "licorice-sniper");
@@ -4550,7 +4552,9 @@ class ZeroGameScene extends Phaser.Scene {
     hunter.setData("enemyClass", "special");
     hunter.setData("enemyTier", "time-hunter");
     hunter.setData("bornAt", this.time.now);
-    hunter.setData("visual", this.createEnemyVisual(hunter, 0x29243f, 0xc4a5ff));
+    const hunterVisual = this.createEnemyVisual(hunter, 0x29243f, 0xc4a5ff);
+    hunterVisual.setScale(REGULAR_ENEMY_VISUAL_SCALE);
+    hunter.setData("visual", hunterVisual);
     const warning = this.add.text(480, 145, "TIME IS UP! THE SHADOW HUNTER IS HERE!", {
       fontSize: "19px", color: "#ff8a9c", fontStyle: "bold", stroke: "#24152e", strokeThickness: 5
     }).setOrigin(0.5).setDepth(25);
@@ -4706,6 +4710,21 @@ class ZeroGameScene extends Phaser.Scene {
   }
 
   showContinueScreen() {
+    // Stop the active arena simulation before displaying Game Over. This
+    // prevents leftover enemy physics, spawn timers and animation tweens from
+    // continuing to consume resources behind the restart screen.
+    this.physics.world.pause();
+    this.time.removeAllEvents();
+    this.tweens.killAll();
+    [this.hero, this.enemies, this.projectiles, this.bossShots].forEach((groupOrObject) => {
+      const objects = groupOrObject?.getChildren ? groupOrObject.getChildren() : [groupOrObject];
+      objects.filter(Boolean).forEach((object) => {
+        if (object.body) {
+          object.setVelocity?.(0, 0);
+          object.body.enable = false;
+        }
+      });
+    });
     this.setMobileControlsVisible(false);
     this.audio.playDefeatTheme?.();
     const shade = this.add.rectangle(480, 270, 960, 540, 0x071426, 0.9).setDepth(50);
