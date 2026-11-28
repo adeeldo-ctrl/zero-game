@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "npm run animation:generate && npm run animation:validate && node scripts/fetch-rigby-runtime.mjs && vite build",
     "test": "node --test",
     "lint": "eslint .",
     "preview": "vite preview",
@@ -14,7 +14,8 @@
     "art:validate": "node scripts/validate-original-png-art.mjs",
     "art:prepare-reference": "node scripts/prepare-reference-enemy-art.mjs",
     "art:generate": "node scripts/validate-original-png-art.mjs",
-    "animation:validate": "node scripts/validate-rig-roster.mjs"
+    "animation:validate": "node scripts/validate-rig-roster.mjs",
+    "animation:generate": "node scripts/generate-rigby-rigs.mjs"
   },
   "dependencies": {
     "phaser": "^4.2.1",
