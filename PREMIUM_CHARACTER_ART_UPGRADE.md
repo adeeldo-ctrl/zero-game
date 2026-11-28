@@ -76,6 +76,6 @@ The production generator is now authored in `scripts/generate-premium-character-
 - All sheets use aligned 128×128 cells, with the enemy and boss frame rows declared in the generated manifest.
 - Phaser loads the generated sheets through the existing asset glob. Enemy and boss runtime animation keys now map to their dedicated sheet rows; boss state selection includes entrance, both attack patterns, special, hit, phase-change and defeat.
 - The art is original procedural vector artwork generated from code in this repository. No paid asset packs or unverified third-party sprite files are required. The free-source register remains a record of optional candidates, not a claim that those external packs were integrated.
-- The production validator checks all 37 identities, per-state frame counts, dimensions, unique files and distinct design metadata. Final acceptance remains pending until the consolidated CI run passes.
+- The production validator checks all 37 identities, per-state frame counts, dimensions, unique files and distinct design metadata. Consolidated CI run `46109609747` passed the generator validator and Chromium runtime audit of all 37 sheet/animation mappings.
 
-The SVG generator is reproducible, but that alone is not proof of a passing build. Do not call the sheets verified or release the APK until CI validates the generated files and the browser smoke test passes.
+The art-sheet implementation is accepted. The fresh signed Android Release APK is the remaining delivery step; do not claim APK completion until the release workflow produces and verifies the artifact.
