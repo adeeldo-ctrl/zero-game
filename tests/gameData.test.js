@@ -194,25 +194,28 @@ test("campaign enemy powers rotate through all ten elemental identities", () => 
 });
 
 
-test("premium campaign defines five unique regional rosters of nine enemies", () => {
+test("premium campaign uses only the 32 approved regular enemies across five regions", () => {
   assert.equal(PREMIUM_ENEMY_REGIONS.length, 5);
   for (const region of PREMIUM_ENEMY_REGIONS) {
-    assert.equal(region.enemies.length, 9, `${region.id} must have nine enemy types`);
-    assert.equal(new Set(region.enemies.map((enemy) => enemy.role)).size, 9,
-      `${region.id} must use nine distinct enemy behavior roles`);
+    assert.ok(region.enemies.length >= 4 && region.enemies.length <= 9, `${region.id} stays within the approved regional roster size`);
+    assert.ok(new Set(region.enemies.map((enemy) => enemy.role)).size >= 3, `${region.id} retains varied enemy behavior roles`);
   }
-  const ids = PREMIUM_ENEMY_REGIONS.flatMap((region) => region.enemies.map((enemy) => enemy.id));
-  assert.equal(ids.length, 45);
-  assert.equal(new Set(ids).size, 45);
+  const activeEnemies = PREMIUM_ENEMY_REGIONS.flatMap((region) => region.enemies);
+  const ids = activeEnemies.map((enemy) => enemy.id);
+  assert.equal(ids.length, 32, "only 32 approved regular enemy identities are active");
+  assert.equal(new Set(ids).size, 32, "all active regular enemy identities are unique");
+  assert.equal(activeEnemies.filter((enemy) => !enemy.variantOf).length, 16, "the active roster contains sixteen approved original identities");
+  assert.equal(activeEnemies.filter((enemy) => enemy.variantOf).length, 16, "the active roster contains sixteen distinct approved variants");
+  assert.equal(new Set(activeEnemies.map((enemy) => enemy.role)).size, 9, "the 32 approved enemies cover all nine behavior roles");
   for (let stage = 1; stage <= 50; stage++) {
+    const region = PREMIUM_ENEMY_REGIONS[Math.floor((stage - 1) / 10)];
     const roster = getPremiumStageEnemyRoster(stage);
-    assert.ok(roster.length >= 2 && roster.length <= 9);
+    assert.ok(roster.length >= 2 && roster.length <= region.enemies.length);
     assert.equal(new Set(roster.map((enemy) => enemy.id)).size, roster.length);
-    assert.equal(getStage(stage).enemyRegionId, PREMIUM_ENEMY_REGIONS[Math.floor((stage - 1) / 10)].id);
-    if (stage % 10 === 9) assert.equal(roster.length, 9, `stage ${stage} introduces all nine regional enemies before its boss`);
+    assert.equal(getStage(stage).enemyRegionId, region.id);
+    if (stage % 10 === 9) assert.equal(roster.length, region.enemies.length, `stage ${stage} introduces the complete approved regional roster before its boss`);
   }
 });
-
 test("all five bosses and all 50 stage music cues have unique identities", () => {
   assert.equal(PREMIUM_BOSSES.length, 5);
   assert.equal(new Set(PREMIUM_BOSSES.map((boss) => boss.id)).size, 5);
@@ -224,17 +227,16 @@ test("all five bosses and all 50 stage music cues have unique identities", () =>
   assert.equal(new Set(sequences).size, 50, "each stage has a distinct authored note sequence");
 });
 
-test("all 45 enemy archetypes have dedicated four-frame atlas ranges", () => {
-  assert.equal(PREMIUM_ENEMY_ARCHETYPES.length, 45);
-  const frameIndexes = PREMIUM_ENEMY_ARCHETYPES.map((enemy) => getPremiumEnemyFrameIndex(enemy.id));
+test("all 32 approved regular enemies expose five animation states and unique roster indexes", () => {
+  assert.equal(PREMIUM_ENEMY_ARCHETYPES.length, 32);
+  const rosterIndexes = PREMIUM_ENEMY_ARCHETYPES.map((enemy) => getPremiumEnemyFrameIndex(enemy.id));
   for (const enemy of PREMIUM_ENEMY_ARCHETYPES) {
     assert.deepEqual(enemy.animations, ["idle", "move", "attack", "hit", "defeat"]);
     assert.ok(enemy.spriteKey.startsWith("enemy-"));
   }
-  assert.deepEqual(frameIndexes, Array.from({ length: 45 }, (_, index) => index));
-  assert.equal(new Set(frameIndexes).size, 45);
+  assert.deepEqual(rosterIndexes, Array.from({ length: 32 }, (_, index) => index));
+  assert.equal(new Set(rosterIndexes).size, 32);
 });
-
 test("campaign platforms use all premium materials and only supported special types", () => {
   const materials = new Set();
   const shapes = new Set();
