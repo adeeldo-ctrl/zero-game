@@ -1213,4 +1213,21 @@ This follow-up is now part of the active delivery scope and supersedes any older
 - **Consolidated verification:** one final CI run must cover token start/continue and persistence, the hero's actual idle/walk/run/jump clips, live enemy rig rendering, each boss's live signature motion on its own milestone stage, the full 50-stage progression, and the existing mobile-input regression checks. Do not run repeated audit/test cycles or create an APK before this consolidated verification passes.
 - **Delivery:** after the single consolidated verification passes, create one final signed Android Release APK only. No debug, preview, or intermediate APKs.
 
-**Status:** implementation is in progress; automated verification and the final-only APK build are pending.
+**Status:** implementation and consolidated automated verification are complete. The one final signed Android Release APK is the only remaining delivery action.
+
+### Completed follow-up verification — 2026-11-28
+
+- **Verified source commit:** `7b2273cf88f047873ea48d72781bf5282fb26d99`.
+- **Consolidated CI run:** `46153199756` — success.
+- **Automated tests:** 64 passed, 0 failed.
+- **Lint:** passed.
+- **Android configuration validation:** passed (this check did not build an APK).
+- **Original artwork validation:** all 32 unique regular-enemy PNG mappings and five separate boss PNGs passed.
+- **Production web build:** passed.
+- **Chromium gameplay smoke:** passed. It exercised token spending and Continue, the actual hero idle/walk/run/jump animations, live weighted enemy rigs, each boss's live signature animation on its milestone stage, the 50-stage campaign/restart path, and the existing mobile-input regression checks.
+- **Token system:** new saves receive three tokens; spending a token starts three chances with three hearts each; the Continue screen spends one token and restores the 3×3 pool; stage clears and each 10,000-point threshold award tokens; balance is stored locally.
+- **Hero locomotion:** authored hero sheets are selected from live physics state for idle, walking, faster running, jumping, falling, landing and turning.
+- **Enemy/boss locomotion:** original PNG artwork is rendered through each character's own weighted Rigby2D skeleton. Enemy clips follow velocity/grounded/airborne state and the boss rigs follow their own movement/signature state. The roster validator checks the 32 enemy and five boss rigs and their articulated animation timelines.
+- **Android hang reduction:** removed unused enemy/boss still-pose sheet loading; load only the current region's enemy rigs plus the shared time-hunter rig; retain the five small boss rigs; load only the active world backdrop; release inactive region rig cache entries and atlas textures at stage-region changes; removed invisible/competing boss animation loops.
+- **Device testing:** no physical Android handset test is claimed.
+- **Delivery hold:** no APK has been built from this verified source yet. The single signed Android Release APK is now authorized; do not create a debug or intermediate APK.
