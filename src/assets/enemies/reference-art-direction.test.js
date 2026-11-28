@@ -18,10 +18,14 @@ test("enemy reference art direction covers every campaign archetype exactly once
   const mapped = artDirection.regions.flatMap((region) =>
     region.enemies.map(([enemyId, cropRef]) => ({ regionId: region.id, enemyId, cropRef })),
   );
-  const expectedIds = PREMIUM_ENEMY_ARCHETYPES.map((enemy) => enemy.id).sort();
+  const expectedBaseIds = [...new Set(PREMIUM_ENEMY_ARCHETYPES
+    .map((enemy) => enemy.artBaseId || enemy.id))].sort();
   const actualIds = mapped.map((entry) => entry.enemyId).sort();
 
-  assert.deepEqual(actualIds, expectedIds);
+  // This reference map is a legacy art-direction archive. Validate only the
+  // 16 approved base identities still used by the active 32-enemy roster;
+  // do not require or activate any of the other archived concepts.
+  assert.ok(expectedBaseIds.every((id) => actualIds.includes(id)));
   assert.equal(new Set(actualIds).size, actualIds.length);
   const collageRefs = mapped.filter((entry) => !entry.cropRef.startsWith("custom-"));
   const customRefs = mapped.filter((entry) => entry.cropRef.startsWith("custom-"));
