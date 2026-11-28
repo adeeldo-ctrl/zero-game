@@ -49,7 +49,10 @@ try {
     ...PREMIUM_ENEMY_ARCHETYPES.map(({ id }) => id),
     ...PREMIUM_BOSSES.map(({ id }) => id),
   ];
-  const activeEnemyIds = getPremiumEnemyRegion(1).enemies.map(({ id }) => id);
+  const activeEnemyIds = [...new Set([
+    ...getPremiumEnemyRegion(1).enemies.map(({ id }) => id),
+    "void-licorice-sniper",
+  ])];
   if (characterIds.length !== 37 || new Set(characterIds).size !== 37) {
     throw new Error("Expected 32 enemy rigs and five boss rigs in the full roster");
   }
