@@ -3121,10 +3121,9 @@ class ZeroGameScene extends Phaser.Scene {
       visual.setData("approvedAttackUntil", this.time.now + 280);
     }
     if (sprite?.active && sprite.getData("rigbySkeleton")) {
-      if (state === "attack") return visual;
       const clip = state === "move" ? "locomotion" : state;
-      const oneShot = ["hit", "defeat", "jump", "fall", "land"].includes(clip);
-      const durations = { hit: 220, defeat: 500, jump: 420, fall: 420, land: 300 };
+      const oneShot = ["attack", "hit", "defeat", "jump", "fall", "land"].includes(clip);
+      const durations = { attack: 360, hit: 220, defeat: 500, jump: 420, fall: 420, land: 300 };
       if (sprite.getData("rigbyCurrentClip") !== clip || oneShot) {
         sprite.setData("rigbyCurrentClip", clip);
         sprite.play(clip, !oneShot, 0.12);
@@ -3778,7 +3777,7 @@ class ZeroGameScene extends Phaser.Scene {
               : bossVisualState;
           if (authoredBossSprite.getData("rigbyCurrentClip") !== rigClip) {
             authoredBossSprite.setData("rigbyCurrentClip", rigClip);
-            const oneShot = ["entrance", "hit", "phase-change"].includes(rigClip);
+            const oneShot = ["attack", "entrance", "hit", "phase-change"].includes(rigClip);
             authoredBossSprite.play(rigClip, !oneShot, 0.14);
           }
         }
