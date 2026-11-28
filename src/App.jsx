@@ -7,6 +7,14 @@ import heroRyoSheet from "../new heros orignal/hero (1).jpg";
 import heroKairoSheet from "../new heros orignal/hero (3).jpg";
 import heroMeiSheet from "../new heros orignal/hero (2).jpg";
 import heroVoltSheet from "../new heros orignal/hero (4).jpg";
+import heroRyoAnimationSheet from "./assets/heroes/hero_ryo.png";
+import heroKairoAnimationSheet from "./assets/heroes/hero_kairo.png";
+import heroMeiAnimationSheet from "./assets/heroes/hero_mei.png";
+import heroVoltAnimationSheet from "./assets/heroes/hero_volt.png";
+import heroRyoAnimationData from "./assets/heroes/hero_ryo_anim.json";
+import heroKairoAnimationData from "./assets/heroes/hero_kairo_anim.json";
+import heroMeiAnimationData from "./assets/heroes/hero_mei_anim.json";
+import heroVoltAnimationData from "./assets/heroes/hero_volt_anim.json";
 import enemy03RedHorn from "./assets/enemies/prepared-reference/03_red-horn-demon.png";
 import enemy05WinterChick from "./assets/enemies/prepared-reference/05_winter-chick.png";
 import enemy07PinkOctopus from "./assets/enemies/prepared-reference/07_pink-octopus.png";
@@ -143,6 +151,12 @@ const HERO_POSE_SHEETS = [
   { id: "mei", source: heroMeiSheet, columns: 5, rows: 1 },
   { id: "volt", source: heroVoltSheet, columns: 5, rows: 1 },
 ];
+const HERO_ANIMATION_SHEETS = [
+  { id: "ryo", source: heroRyoAnimationSheet, data: heroRyoAnimationData },
+  { id: "kairo", source: heroKairoAnimationSheet, data: heroKairoAnimationData },
+  { id: "mei", source: heroMeiAnimationSheet, data: heroMeiAnimationData },
+  { id: "volt", source: heroVoltAnimationSheet, data: heroVoltAnimationData },
+];
 
 const ENEMY_POSE_SHEETS = [
   enemyPoseSheet01,
@@ -201,6 +215,12 @@ const { RigbyPlugin } = rigbyPhaser(Phaser);
 class ZeroGameScene extends Phaser.Scene {
   preload() {
     HERO_POSE_SHEETS.forEach(({ id, source }) => this.load.image(`hero-pose-source-${id}`, source));
+    HERO_ANIMATION_SHEETS.forEach(({ id, source, data }) => {
+      this.load.spritesheet(`hero-animation-${id}`, source, {
+        frameWidth: data.frameWidth,
+        frameHeight: data.frameHeight,
+      });
+    });
     const worldBackdrops = [
       worldBackdropEmerald, worldBackdropCandy, worldBackdropFrozen,
       worldBackdropDesert, worldBackdropMoonlit, worldBackdropCrystal,
@@ -349,10 +369,8 @@ class ZeroGameScene extends Phaser.Scene {
     for (const hero of HERO_POSE_SHEETS) {
       const sourceKey = `hero-pose-source-${hero.id}`;
       const states = {};
-      for (const [state, frame] of [["idle", 0], ["walk", 1], ["jump", 2], ["attack", 3], ["sit", 4]]) {
-        const key = `hero-pose-${hero.id}-${state}`;
-        if (makePoseTexture(sourceKey, key, frame, hero.columns, hero.rows)) states[state] = key;
-      }
+      const key = `hero-pose-${hero.id}-attack`;
+      if (makePoseTexture(sourceKey, key, 3, hero.columns, hero.rows)) states.attack = key;
       this.heroPoseTextures[hero.id] = states;
     }
     this.bossPoseTextures = {};
@@ -368,9 +386,40 @@ class ZeroGameScene extends Phaser.Scene {
   }
 
   createHeroAnimations() {
-    // The supplied hero sheets contain authored single-pose panels. Their
-    // idle, walk, jump, attack and sitting panels are switched directly.
-    return this.heroPoseTextures;
+    for (const { id, data } of HERO_ANIMATION_SHEETS) {
+      const sheetKey = `hero-animation-${id}`;
+      for (const [state, range] of Object.entries(data.animations)) {
+        const key = `hero-${id}-${state}`;
+        if (!this.anims.exists(key)) {
+          this.anims.create({
+            key,
+            frames: this.anims.generateFrameNumbers(sheetKey, { start: range.start, end: range.end }),
+            frameRate: state === "walk" ? 12 : state === "idle" ? 6 : 10,
+            repeat: state === "idle" || state === "walk" ? -1 : 0,
+          });
+        }
+      }
+      const walkRange = data.animations.walk;
+      const runKey = `hero-${id}-run`;
+      if (!this.anims.exists(runKey)) {
+        this.anims.create({
+          key: runKey,
+          frames: this.anims.generateFrameNumbers(sheetKey, { start: walkRange.start, end: walkRange.end }),
+          frameRate: 18,
+          repeat: -1,
+        });
+      }
+      const fallKey = `hero-${id}-fall`;
+      if (!this.anims.exists(fallKey)) {
+        this.anims.create({
+          key: fallKey,
+          frames: this.anims.generateFrameNumbers(sheetKey, { start: 14, end: 14 }),
+          frameRate: 1,
+          repeat: 0,
+        });
+      }
+    }
+    return true;
   }
 
   addAmbientTween(config) {
@@ -384,10 +433,22 @@ class ZeroGameScene extends Phaser.Scene {
     const sprite = visual?.getData("heroSprite");
     const heroId = visual?.getData("heroSpriteId") || "ryo";
     if (!sprite?.active) return;
-    const poseState = ({ land: "jump", turn: "idle", victory: "attack" })[state] || state;
-    const key = this.heroPoseTextures?.[heroId]?.[poseState] || this.heroPoseTextures?.[heroId]?.idle;
-    if (key && sprite.texture.key !== key) sprite.setTexture(key);
-    visual.setData("heroPoseState", poseState);
+    if (state === "attack") {
+      const attackPose = this.heroPoseTextures?.[heroId]?.attack;
+      if (attackPose) {
+        sprite.anims?.stop();
+        if (sprite.texture.key !== attackPose) sprite.setTexture(attackPose);
+      }
+      visual.setData("heroPoseState", "attack");
+      return;
+    }
+    const animationKey = `hero-${heroId}-${state}`;
+    const idleKey = `hero-${heroId}-idle`;
+    const resolvedKey = this.anims.exists(animationKey) ? animationKey : idleKey;
+    const sheetKey = `hero-animation-${heroId}`;
+    if (sprite.texture.key !== sheetKey) sprite.setTexture(sheetKey, 0);
+    if (sprite.anims.currentAnim?.key !== resolvedKey || !sprite.anims.isPlaying) sprite.play(resolvedKey, true);
+    visual.setData("heroPoseState", state);
   }
 
   constructor() {
@@ -1748,9 +1809,9 @@ class ZeroGameScene extends Phaser.Scene {
 
     // Render the authored pixel-art sprite sheet as the visible hero. The
     // legacy vector rig remains hidden so existing pose references stay safe.
-    const heroArt = this.add.sprite(0, 0, `hero-pose-${heroId}-idle`)
+    const heroArt = this.add.sprite(0, 0, `hero-animation-${heroId}`, 0)
       .setOrigin(0.5, 0.5)
-      .setScale(0.84); // Double the visible hero size.
+      .setScale(0.64); // Preserve doubled size with 210px authored frames.
     c.add(heroArt);
     c.list.forEach((child) => {
       if (child !== shadow && child !== heroArt) child.setVisible(false);
@@ -1771,26 +1832,21 @@ class ZeroGameScene extends Phaser.Scene {
     return c;
   }
 
-  applyHeroLook(visual, hero, forceRigPreview = false) {
+  applyHeroLook(visual, hero) {
     if (!visual?.active || !hero) return;
     const sprite = visual.getData("heroSprite");
-    if (sprite && !forceRigPreview) {
-      const textureKey = `hero-pose-${hero.id}-idle`;
-      if (sprite.texture.key !== textureKey) sprite.setTexture(textureKey, 0);
+    if (sprite) {
       visual.setData("heroSpriteId", hero.id);
       visual.setData("heroLookId", hero.id);
+      sprite.setVisible(true);
+      (visual.getData("heroRigParts") || []).forEach((part) => {
+        if (part?.active) part.setVisible(false);
+      });
+      (visual.getData("heroLookItems") || []).forEach((part) => {
+        if (part?.active) part.setVisible(false);
+      });
       this.setHeroSpriteAnimation(visual, "idle");
       return;
-    }
-    if (sprite && forceRigPreview) {
-      const textureKey = `hero-pose-${hero.id}-idle`;
-      if (sprite.texture.key !== textureKey) sprite.setTexture(textureKey, 0);
-      visual.setData("heroSpriteId", hero.id);
-      visual.setData("heroLookId", hero.id);
-      sprite.setVisible(false);
-      (visual.getData("heroRigParts") || []).forEach((part) => {
-        if (part?.active) part.setVisible(true);
-      });
     }
     const palette = visual.getData("heroPalette");
     if (palette) {
@@ -5774,8 +5830,9 @@ class ZeroGameScene extends Phaser.Scene {
     const spriteState = time < (this.heroLandAnimUntil || 0) ? "land"
       : time < (this.heroTurnAnimUntil || 0) && !airborne ? "turn"
         : this.specialPoseType ? "victory"
-          : airborne ? "jump"
-            : moving ? "walk" : "idle";
+          : time < (this.normalAttackUntil || 0) ? "attack"
+            : airborne ? (h.body.velocity.y < -20 ? "jump" : "fall")
+              : moving ? (Math.abs(h.body.velocity.x) > 175 ? "run" : "walk") : "idle";
     this.setHeroSpriteAnimation(visual, spriteState);
 
     this.heroWasAirborne = airborne;
