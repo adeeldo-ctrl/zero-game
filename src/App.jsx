@@ -88,6 +88,12 @@ import { getEnemyMovementSpeed, getSnowballPowerTier, REGULAR_ENEMY_VISUAL_SCALE
 import { MOBILE_ACTION_BUTTONS, enqueueMobileAction, consumeMobileAction } from "./mobileActionQueue";
 import "./App.css";
 
+const GENERATED_CHARACTER_SHEETS = import.meta.glob("./assets/generated-character-sheets/*.svg", {
+  eager: true,
+  query: "?url",
+  import: "default",
+});
+
 class ZeroGameScene extends Phaser.Scene {
   preload() {
     const heroSheets = {
@@ -117,6 +123,13 @@ class ZeroGameScene extends Phaser.Scene {
     }));
     this.load.spritesheet("premium-enemy-atlas", premiumEnemyAtlas, {
       frameWidth: 128, frameHeight: 128,
+    });
+    Object.entries(GENERATED_CHARACTER_SHEETS).forEach(([path, source]) => {
+      const characterId = path.split("/").pop().replace(/\\.svg$/, "");
+      this.load.spritesheet(`character-sheet-${characterId}`, source, {
+        frameWidth: 128,
+        frameHeight: 128,
+      });
     });
     Object.entries(APPROVED_ENEMY_ART).forEach(([archetypeId, source]) => {
       this.load.image(`approved-enemy-${archetypeId}`, source);
@@ -181,75 +194,35 @@ class ZeroGameScene extends Phaser.Scene {
         });
       }
     });
-    const enemyAnimationProfiles = {
-      runner: { move: [0, 1, 2, 3], strike: [1, 2, 3], rate: 12 },
-      shield: { move: [0, 2, 1, 3], strike: [2, 1, 3], rate: 6 },
-      leaper: { move: [0, 2, 3, 1], strike: [2, 3, 1], rate: 10 },
-      ranged: { move: [0, 1, 0, 2], strike: [1, 3, 2], rate: 7 },
-      ambusher: { move: [0, 3, 2, 1], strike: [3, 2, 1], rate: 9 },
-      flying: { move: [0, 2, 0, 3], strike: [2, 3, 1], rate: 11 },
-      heavy: { move: [0, 1, 0, 1], strike: [1, 2, 3], rate: 5 },
-      charger: { move: [0, 3, 1, 2], strike: [3, 1, 2], rate: 8 },
-      summoner: { move: [0, 1, 3, 2], strike: [1, 3, 2], rate: 6 },
-      bomber: { move: [0, 2, 1, 3], strike: [2, 1, 3], rate: 7 },
-      illusionist: { move: [0, 3, 1, 2], strike: [3, 1, 2], rate: 10 },
+    const animationStates = {
+      idle: { start: 0, end: 7, frameRate: 7, repeat: -1 },
+      move: { start: 8, end: 15, frameRate: 11, repeat: -1 },
+      attack: { start: 16, end: 23, frameRate: 13, repeat: 0 },
+      hit: { start: 24, end: 31, frameRate: 16, repeat: 0 },
+      defeat: { start: 32, end: 39, frameRate: 10, repeat: 0 },
     };
-    PREMIUM_ENEMY_ARCHETYPES.filter((archetype) => !archetype.variantOf).forEach((archetype) => {
-      const frameStart = getPremiumEnemyFrameIndex(archetype.id) * 4;
-      const profile = enemyAnimationProfiles[archetype.role] || enemyAnimationProfiles.runner;
-      const idleKey = `enemy-${archetype.id}-idle`;
-      const moveKey = `enemy-${archetype.id}-move`;
-      const attackKey = `enemy-${archetype.id}-attack`;
-      const hitKey = `enemy-${archetype.id}-hit`;
-      const defeatKey = `enemy-${archetype.id}-defeat`;
-      if (!this.anims.exists(idleKey)) {
+    const registerCharacterAnimations = (id, prefix) => {
+      const textureKey = `character-sheet-${id}`;
+      if (!this.textures.exists(textureKey)) return;
+      Object.entries(animationStates).forEach(([state, range]) => {
+        const key = `${prefix}-${id}-${state}`;
+        if (this.anims.exists(key)) return;
         this.anims.create({
-          key: idleKey,
-          frames: [{ key: "premium-enemy-atlas", frame: frameStart }],
-          frameRate: 1,
-          repeat: -1,
-        });
-      }
-      if (!this.anims.exists(moveKey)) {
-        this.anims.create({
-          key: moveKey,
-          frames: this.anims.generateFrameNumbers("premium-enemy-atlas", {
-            frames: profile.move.map((frame) => frameStart + frame),
+          key,
+          frames: this.anims.generateFrameNumbers(textureKey, {
+            start: range.start,
+            end: range.end,
           }),
-          frameRate: profile.rate + (archetype.tier === "elite" ? 2 : 0),
-          repeat: -1,
+          frameRate: range.frameRate,
+          repeat: range.repeat,
         });
-      }
-      if (!this.anims.exists(attackKey)) {
-        this.anims.create({
-          key: attackKey,
-          frames: this.anims.generateFrameNumbers("premium-enemy-atlas", {
-            frames: profile.strike.map((frame) => frameStart + frame),
-          }),
-          frameRate: profile.rate + (archetype.tier === "elite" ? 6 : 4),
-          repeat: 0,
-        });
-      }
-      if (!this.anims.exists(hitKey)) {
-        this.anims.create({
-          key: hitKey,
-          frames: this.anims.generateFrameNumbers("premium-enemy-atlas", {
-            frames: [frameStart + 3, frameStart + 1, frameStart + 3],
-          }),
-          frameRate: 16,
-          repeat: 0,
-        });
-      }
-      if (!this.anims.exists(defeatKey)) {
-        this.anims.create({
-          key: defeatKey,
-          frames: this.anims.generateFrameNumbers("premium-enemy-atlas", {
-            frames: [frameStart + 3, frameStart + 2, frameStart + 1, frameStart],
-          }),
-          frameRate: archetype.tier === "elite" ? 11 : 9,
-          repeat: 0,
-        });
-      }
+      });
+    };
+    PREMIUM_ENEMY_ARCHETYPES.forEach((archetype) => {
+      registerCharacterAnimations(archetype.id, "enemy");
+    });
+    ["gatekeeper", "iron-comet", "gale-talon", "suncrest", "void-sovereign"].forEach((bossId) => {
+      registerCharacterAnimations(bossId, "boss");
     });
 
   }
@@ -2010,14 +1983,16 @@ class ZeroGameScene extends Phaser.Scene {
     c.list.forEach((part) => part.setVisible(part === shadow));
     const archetypeId = enemy.getData("enemyArchetypeId");
     const archetypeFrame = getPremiumEnemyFrameIndex(archetypeId);
-    const hasPremiumArtwork = archetypeFrame >= 0 && !enemy.getData("enemyVariantStyle");
-    const idleFrame = hasPremiumArtwork ? archetypeFrame * 4 : 0;
+    const hasCharacterSheet = this.textures.exists(`character-sheet-${archetypeId}`);
+    const hasPremiumArtwork = hasCharacterSheet || (archetypeFrame >= 0 && !enemy.getData("enemyVariantStyle"));
+    const idleFrame = hasPremiumArtwork && !hasCharacterSheet ? archetypeFrame * 4 : 0;
     const approvedArt = APPROVED_ENEMY_ART[archetypeId] || APPROVED_ENEMY_ART[enemy.getData("enemyArtBaseId")];
-    const enemySprite = this.add.sprite(0, -12,
-      hasPremiumArtwork ? "premium-enemy-atlas" : `enemy-sheet-${enemyClass}`, idleFrame)
+    const textureKey = hasCharacterSheet ? `character-sheet-${archetypeId}`
+      : hasPremiumArtwork ? "premium-enemy-atlas" : `enemy-sheet-${enemyClass}`;
+    const enemySprite = this.add.sprite(0, -12, textureKey, idleFrame)
       .setDisplaySize(isHeavy ? 94 : 86, isHeavy ? 106 : 100);
     c.add(enemySprite);
-    if (approvedArt) {
+    if (approvedArt && !hasCharacterSheet) {
       enemySprite.setVisible(false);
       // Give every approved cutout a small, archetype-specific signature:
       // elemental halo + orbiting sparks, with wings/fins on airborne creatures.
@@ -3518,8 +3493,12 @@ class ZeroGameScene extends Phaser.Scene {
       : isAgile ? "gale-talon" : isMaster ? "suncrest" : "void-sovereign");
     c.list.forEach((part) => part.setVisible(part === shadow));
     // Approved boss cutouts are single-frame base artwork; action motion stays in Phaser tweens.
-    const bossSprite = this.add.image(0, -22, `boss-image-${bossSheetId}`)
+    const bossTextureKey = this.textures.exists(`character-sheet-${bossSheetId}`)
+      ? `character-sheet-${bossSheetId}` : `boss-image-${bossSheetId}`;
+    const bossSprite = this.add.sprite(0, -22, bossTextureKey, 0)
       .setDisplaySize(150, 150);
+    const bossIdleAnimation = `boss-${bossSheetId}-idle`;
+    if (this.anims.exists(bossIdleAnimation)) bossSprite.play(bossIdleAnimation);
     c.add(bossSprite);
     // Living idle motion for the approved single-frame boss artwork.
     this.tweens.add({
@@ -5828,7 +5807,7 @@ class ZeroGameScene extends Phaser.Scene {
         if (authoredSprite?.active) {
           const enemyKind = enemy.getData("enemyClass") || "special";
           const archetypeId = enemy.getData("enemyArchetypeId");
-          const hasPremiumArtwork = getPremiumEnemyFrameIndex(archetypeId) >= 0;
+          const hasPremiumArtwork = this.textures.exists(`character-sheet-${archetypeId}`) || getPremiumEnemyFrameIndex(archetypeId) >= 0;
           const idleKey = hasPremiumArtwork ? `enemy-${archetypeId}-idle` : null;
           const animationKey = hasPremiumArtwork ? `enemy-${archetypeId}-move` : `enemy-${enemyKind}-move`;
           const attackKey = hasPremiumArtwork ? `enemy-${archetypeId}-attack` : `enemy-${enemyKind}-strike`;
