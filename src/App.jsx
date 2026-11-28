@@ -194,7 +194,7 @@ class ZeroGameScene extends Phaser.Scene {
       bomber: { move: [0, 2, 1, 3], strike: [2, 1, 3], rate: 7 },
       illusionist: { move: [0, 3, 1, 2], strike: [3, 1, 2], rate: 10 },
     };
-    PREMIUM_ENEMY_ARCHETYPES.forEach((archetype) => {
+    PREMIUM_ENEMY_ARCHETYPES.filter((archetype) => !archetype.variantOf).forEach((archetype) => {
       const frameStart = getPremiumEnemyFrameIndex(archetype.id) * 4;
       const profile = enemyAnimationProfiles[archetype.role] || enemyAnimationProfiles.runner;
       const idleKey = `enemy-${archetype.id}-idle`;
@@ -2010,7 +2010,7 @@ class ZeroGameScene extends Phaser.Scene {
     c.list.forEach((part) => part.setVisible(part === shadow));
     const archetypeId = enemy.getData("enemyArchetypeId");
     const archetypeFrame = getPremiumEnemyFrameIndex(archetypeId);
-    const hasPremiumArtwork = archetypeFrame >= 0;
+    const hasPremiumArtwork = archetypeFrame >= 0 && !enemy.getData("enemyVariantStyle");
     const idleFrame = hasPremiumArtwork ? archetypeFrame * 4 : 0;
     const approvedArt = APPROVED_ENEMY_ART[archetypeId] || APPROVED_ENEMY_ART[enemy.getData("enemyArtBaseId")];
     const enemySprite = this.add.sprite(0, -12,
