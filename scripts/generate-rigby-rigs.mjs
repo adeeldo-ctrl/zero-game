@@ -252,6 +252,7 @@ function chooseAnimation(character, bones, characterHeight, isBoss) {
     addRotate(has("torso") ? "torso" : has("body") ? "body" : "core", [[0,0],[0.42,-7]]);
     for (const [l,r] of limbPairs) pair(l,r, 16, 0.21);
     for (const [l,r] of secondaryLimbPairs) pair(l,r, 12, 0.21);
+    for (const [l,r] of auxiliaryLimbPairs) pair(l,r, 10, 0.21);
   }));
   clips.push(clip("land", 0.3, () => {
     addScale(has("pelvis") ? "pelvis" : has("body") ? "body" : "core", [[0,1,1],[0.1,1.12,0.82],[0.3,1,1]]);
