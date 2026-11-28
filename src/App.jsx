@@ -125,7 +125,7 @@ class ZeroGameScene extends Phaser.Scene {
       frameWidth: 128, frameHeight: 128,
     });
     Object.entries(GENERATED_CHARACTER_SHEETS).forEach(([path, source]) => {
-      const characterId = path.split("/").pop().replace(/\\.svg$/, "");
+            const characterId = path.split("/").pop().replace(/\.svg$/, "");
       this.load.spritesheet(`character-sheet-${characterId}`, source, {
         frameWidth: 128,
         frameHeight: 128,
