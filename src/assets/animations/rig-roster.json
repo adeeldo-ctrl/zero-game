@@ -37,7 +37,7 @@
       "source": "src/assets/enemies/prepared-reference/03_red-horn-demon.png",
       "motionProfile": "bipedal-light",
       "rigType": "layered-limb-rig",
-      "rigFile": "src/assets/animations/enemies/spirit-pouncer.skel",
+      "rigFile": "src/assets/animations/enemies/spirit-pouncer.json",
       "atlas": "src/assets/animations/enemies/spirit-pouncer.atlas"
     },
     {
@@ -45,7 +45,7 @@
       "source": "src/assets/enemies/prepared-reference/05_winter-chick.png",
       "motionProfile": "small-hopper",
       "rigType": "weighted-mesh-plus-leg-rig",
-      "rigFile": "src/assets/animations/enemies/icicle-hopper.skel",
+      "rigFile": "src/assets/animations/enemies/icicle-hopper.json",
       "atlas": "src/assets/animations/enemies/icicle-hopper.atlas"
     },
     {
@@ -53,7 +53,7 @@
       "source": "src/assets/enemies/prepared-reference/07_pink-octopus.png",
       "motionProfile": "tentacle-creature",
       "rigType": "weighted-mesh-tentacle-rig",
-      "rigFile": "src/assets/animations/enemies/jelly-vault.skel",
+      "rigFile": "src/assets/animations/enemies/jelly-vault.json",
       "atlas": "src/assets/animations/enemies/jelly-vault.atlas"
     },
     {
@@ -61,7 +61,7 @@
       "source": "src/assets/enemies/prepared-reference/10_goggle-brown-creature.png",
       "motionProfile": "bipedal-medium",
       "rigType": "layered-limb-rig",
-      "rigFile": "src/assets/animations/enemies/bark-bruiser.skel",
+      "rigFile": "src/assets/animations/enemies/bark-bruiser.json",
       "atlas": "src/assets/animations/enemies/bark-bruiser.atlas"
     },
     {
@@ -69,7 +69,7 @@
       "source": "src/assets/enemies/prepared-reference/14_mushroom-crab.png",
       "motionProfile": "crab-sideways",
       "rigType": "multi-leg-rig",
-      "rigFile": "src/assets/animations/enemies/spore-caster.skel",
+      "rigFile": "src/assets/animations/enemies/spore-caster.json",
       "atlas": "src/assets/animations/enemies/spore-caster.atlas"
     },
     {
@@ -77,7 +77,7 @@
       "source": "src/assets/enemies/prepared-reference/15_brown-goggle-creature.png",
       "motionProfile": "bipedal-heavy",
       "rigType": "layered-limb-rig",
-      "rigFile": "src/assets/animations/enemies/caramel-mauler.skel",
+      "rigFile": "src/assets/animations/enemies/caramel-mauler.json",
       "atlas": "src/assets/animations/enemies/caramel-mauler.atlas"
     },
     {
@@ -85,7 +85,7 @@
       "source": "src/assets/enemies/prepared-reference/20_spiky-hedgehog.png",
       "motionProfile": "quadruped-curl",
       "rigType": "quadruped-rig",
-      "rigFile": "src/assets/animations/enemies/moss-scout.skel",
+      "rigFile": "src/assets/animations/enemies/moss-scout.json",
       "atlas": "src/assets/animations/enemies/moss-scout.atlas"
     },
     {
@@ -93,7 +93,7 @@
       "source": "src/assets/enemies/prepared-reference/23_green-frog.png",
       "motionProfile": "frog-leaper",
       "rigType": "hind-leg-rig",
-      "rigFile": "src/assets/animations/enemies/vine-vault.skel",
+      "rigFile": "src/assets/animations/enemies/vine-vault.json",
       "atlas": "src/assets/animations/enemies/vine-vault.atlas"
     },
     {
@@ -101,7 +101,7 @@
       "source": "src/assets/enemies/prepared-reference/25_squirrel.png",
       "motionProfile": "quadruped-leaper",
       "rigType": "quadruped-rig",
-      "rigFile": "src/assets/animations/enemies/acorn-leaper.skel",
+      "rigFile": "src/assets/animations/enemies/acorn-leaper.json",
       "atlas": "src/assets/animations/enemies/acorn-leaper.atlas"
     },
     {
@@ -109,7 +109,7 @@
       "source": "src/assets/enemies/prepared-reference/27_bee.png",
       "motionProfile": "winged-hover",
       "rigType": "wing-and-body-rig",
-      "rigFile": "src/assets/animations/enemies/candy-copter.skel",
+      "rigFile": "src/assets/animations/enemies/candy-copter.json",
       "atlas": "src/assets/animations/enemies/candy-copter.atlas"
     },
     {
@@ -117,7 +117,7 @@
       "source": "src/assets/enemies/prepared-reference/33_mummy.png",
       "motionProfile": "bipedal-wrapped",
       "rigType": "layered-limb-rig",
-      "rigFile": "src/assets/animations/enemies/eclipse-summoner.skel",
+      "rigFile": "src/assets/animations/enemies/eclipse-summoner.json",
       "atlas": "src/assets/animations/enemies/eclipse-summoner.atlas"
     },
     {
@@ -125,7 +125,7 @@
       "source": "src/assets/enemies/prepared-reference/35_blue-ogre-b.png",
       "motionProfile": "bipedal-heavy",
       "rigType": "layered-limb-rig",
-      "rigFile": "src/assets/animations/enemies/temple-breaker.skel",
+      "rigFile": "src/assets/animations/enemies/temple-breaker.json",
       "atlas": "src/assets/animations/enemies/temple-breaker.atlas"
     },
     {
@@ -133,7 +133,7 @@
       "source": "src/assets/enemies/prepared-reference/37_green-turtle-a.png",
       "motionProfile": "turtle-shell",
       "rigType": "quadruped-shell-rig",
-      "rigFile": "src/assets/animations/enemies/jade-shellback.skel",
+      "rigFile": "src/assets/animations/enemies/jade-shellback.json",
       "atlas": "src/assets/animations/enemies/jade-shellback.atlas"
     },
     {
@@ -141,7 +141,7 @@
       "source": "src/assets/enemies/prepared-reference/38_green-turtle-b.png",
       "motionProfile": "turtle-shell",
       "rigType": "quadruped-shell-rig",
-      "rigFile": "src/assets/animations/enemies/root-burrower.skel",
+      "rigFile": "src/assets/animations/enemies/root-burrower.json",
       "atlas": "src/assets/animations/enemies/root-burrower.atlas"
     },
     {
@@ -149,7 +149,7 @@
       "source": "src/assets/enemies/prepared-reference/39_green-lizard.png",
       "motionProfile": "quadruped-lizard",
       "rigType": "quadruped-rig",
-      "rigFile": "src/assets/animations/enemies/mire-burrower.skel",
+      "rigFile": "src/assets/animations/enemies/mire-burrower.json",
       "atlas": "src/assets/animations/enemies/mire-burrower.atlas"
     },
     {
@@ -157,7 +157,7 @@
       "source": "src/assets/enemies/prepared-reference/42_rat-guard.png",
       "motionProfile": "bipedal-rat",
       "rigType": "layered-limb-rig",
-      "rigFile": "src/assets/animations/enemies/licorice-sniper.skel",
+      "rigFile": "src/assets/animations/enemies/licorice-sniper.json",
       "atlas": "src/assets/animations/enemies/licorice-sniper.atlas"
     },
     {
@@ -165,7 +165,7 @@
       "source": "src/assets/enemies/prepared-reference/01_snowman.png",
       "motionProfile": "soft-humanoid",
       "rigType": "weighted-mesh-rig",
-      "rigFile": "src/assets/animations/enemies/shadow-moss-scout.skel",
+      "rigFile": "src/assets/animations/enemies/shadow-moss-scout.json",
       "atlas": "src/assets/animations/enemies/shadow-moss-scout.atlas"
     },
     {
@@ -173,7 +173,7 @@
       "source": "src/assets/enemies/prepared-reference/13_chained-ghost.png",
       "motionProfile": "floating-chain",
       "rigType": "weighted-mesh-chain-rig",
-      "rigFile": "src/assets/animations/enemies/iron-bark-bruiser.skel",
+      "rigFile": "src/assets/animations/enemies/iron-bark-bruiser.json",
       "atlas": "src/assets/animations/enemies/iron-bark-bruiser.atlas"
     },
     {
@@ -181,7 +181,7 @@
       "source": "src/assets/enemies/prepared-reference/41_pumpkin-variant.png",
       "motionProfile": "round-rolling",
       "rigType": "weighted-mesh-rig",
-      "rigFile": "src/assets/animations/enemies/golden-acorn-leaper.skel",
+      "rigFile": "src/assets/animations/enemies/golden-acorn-leaper.json",
       "atlas": "src/assets/animations/enemies/golden-acorn-leaper.atlas"
     },
     {
@@ -189,7 +189,7 @@
       "source": "src/assets/enemies/prepared-reference/45_owl-b.png",
       "motionProfile": "winged-hover",
       "rigType": "wing-and-body-rig",
-      "rigFile": "src/assets/animations/enemies/prism-jelly-vault.skel",
+      "rigFile": "src/assets/animations/enemies/prism-jelly-vault.json",
       "atlas": "src/assets/animations/enemies/prism-jelly-vault.atlas"
     },
     {
@@ -197,7 +197,7 @@
       "source": "src/assets/enemies/prepared-reference/48_skull-cloud.png",
       "motionProfile": "floating-cloud",
       "rigType": "weighted-mesh-cloud-rig",
-      "rigFile": "src/assets/animations/enemies/molten-caramel-mauler.skel",
+      "rigFile": "src/assets/animations/enemies/molten-caramel-mauler.json",
       "atlas": "src/assets/animations/enemies/molten-caramel-mauler.atlas"
     },
     {
@@ -205,7 +205,7 @@
       "source": "src/assets/enemies/prepared-reference/04_purple-bat.png",
       "motionProfile": "winged-flight",
       "rigType": "wing-and-body-rig",
-      "rigFile": "src/assets/animations/enemies/storm-candy-copter.skel",
+      "rigFile": "src/assets/animations/enemies/storm-candy-copter.json",
       "atlas": "src/assets/animations/enemies/storm-candy-copter.atlas"
     },
     {
@@ -213,7 +213,7 @@
       "source": "src/assets/enemies/prepared-reference/06_yeti.png",
       "motionProfile": "bipedal-heavy",
       "rigType": "layered-limb-rig",
-      "rigFile": "src/assets/animations/enemies/frostfire-icicle-hopper.skel",
+      "rigFile": "src/assets/animations/enemies/frostfire-icicle-hopper.json",
       "atlas": "src/assets/animations/enemies/frostfire-icicle-hopper.atlas"
     },
     {
@@ -221,7 +221,7 @@
       "source": "src/assets/enemies/prepared-reference/11_ice-golem.png",
       "motionProfile": "bipedal-heavy",
       "rigType": "layered-limb-rig",
-      "rigFile": "src/assets/animations/enemies/crystal-spore-caster.skel",
+      "rigFile": "src/assets/animations/enemies/crystal-spore-caster.json",
       "atlas": "src/assets/animations/enemies/crystal-spore-caster.atlas"
     },
     {
@@ -229,7 +229,7 @@
       "source": "src/assets/enemies/prepared-reference/12_armored-penguin.png",
       "motionProfile": "waddling-biped",
       "rigType": "layered-limb-rig",
-      "rigFile": "src/assets/animations/enemies/thorn-root-burrower.skel",
+      "rigFile": "src/assets/animations/enemies/thorn-root-burrower.json",
       "atlas": "src/assets/animations/enemies/thorn-root-burrower.atlas"
     },
     {
@@ -237,7 +237,7 @@
       "source": "src/assets/enemies/prepared-reference/19_ice-robot.png",
       "motionProfile": "mechanical-biped",
       "rigType": "mechanical-limb-rig",
-      "rigFile": "src/assets/animations/enemies/ember-spirit-pouncer.skel",
+      "rigFile": "src/assets/animations/enemies/ember-spirit-pouncer.json",
       "atlas": "src/assets/animations/enemies/ember-spirit-pouncer.atlas"
     },
     {
@@ -245,7 +245,7 @@
       "source": "src/assets/enemies/prepared-reference/21_skeleton.png",
       "motionProfile": "skeletal-biped",
       "rigType": "layered-limb-rig",
-      "rigFile": "src/assets/animations/enemies/toxic-vine-vault.skel",
+      "rigFile": "src/assets/animations/enemies/toxic-vine-vault.json",
       "atlas": "src/assets/animations/enemies/toxic-vine-vault.atlas"
     },
     {
@@ -253,7 +253,7 @@
       "source": "src/assets/enemies/prepared-reference/22_wolf-guard.png",
       "motionProfile": "quadruped-guard",
       "rigType": "quadruped-rig",
-      "rigFile": "src/assets/animations/enemies/solar-jade-shellback.skel",
+      "rigFile": "src/assets/animations/enemies/solar-jade-shellback.json",
       "atlas": "src/assets/animations/enemies/solar-jade-shellback.atlas"
     },
     {
@@ -261,7 +261,7 @@
       "source": "src/assets/enemies/prepared-reference/24_spider.png",
       "motionProfile": "multi-leg-crawler",
       "rigType": "multi-leg-rig",
-      "rigFile": "src/assets/animations/enemies/plasma-mire-burrower.skel",
+      "rigFile": "src/assets/animations/enemies/plasma-mire-burrower.json",
       "atlas": "src/assets/animations/enemies/plasma-mire-burrower.atlas"
     },
     {
@@ -269,7 +269,7 @@
       "source": "src/assets/enemies/prepared-reference/28_ice-fish.png",
       "motionProfile": "swimming-fish",
       "rigType": "weighted-mesh-fin-rig",
-      "rigFile": "src/assets/animations/enemies/void-licorice-sniper.skel",
+      "rigFile": "src/assets/animations/enemies/void-licorice-sniper.json",
       "atlas": "src/assets/animations/enemies/void-licorice-sniper.atlas"
     },
     {
@@ -277,7 +277,7 @@
       "source": "src/assets/enemies/prepared-reference/29_jellyfish.png",
       "motionProfile": "floating-tentacle",
       "rigType": "weighted-mesh-tentacle-rig",
-      "rigFile": "src/assets/animations/enemies/astral-eclipse-summoner.skel",
+      "rigFile": "src/assets/animations/enemies/astral-eclipse-summoner.json",
       "atlas": "src/assets/animations/enemies/astral-eclipse-summoner.atlas"
     },
     {
@@ -285,7 +285,7 @@
       "source": "src/assets/enemies/prepared-reference/36_ice-cube-monster.png",
       "motionProfile": "soft-cube",
       "rigType": "weighted-mesh-rig",
-      "rigFile": "src/assets/animations/enemies/frost-temple-breaker.skel",
+      "rigFile": "src/assets/animations/enemies/frost-temple-breaker.json",
       "atlas": "src/assets/animations/enemies/frost-temple-breaker.atlas"
     }
   ],
@@ -296,7 +296,7 @@
       "motionProfile": "heavy-biped",
       "rigType": "layered-limb-rig",
       "specialMove": "ground-slam",
-      "rigFile": "src/assets/animations/bosses/gatekeeper.skel",
+      "rigFile": "src/assets/animations/bosses/gatekeeper.json",
       "atlas": "src/assets/animations/bosses/gatekeeper.atlas"
     },
     {
@@ -305,7 +305,7 @@
       "motionProfile": "heavy-ogre",
       "rigType": "layered-limb-rig",
       "specialMove": "boxing-combination",
-      "rigFile": "src/assets/animations/bosses/iron-comet.skel",
+      "rigFile": "src/assets/animations/bosses/iron-comet.json",
       "atlas": "src/assets/animations/bosses/iron-comet.atlas"
     },
     {
@@ -314,7 +314,7 @@
       "motionProfile": "armored-reptile",
       "rigType": "quadruped-rig",
       "specialMove": "winged-pounce",
-      "rigFile": "src/assets/animations/bosses/gale-talon.skel",
+      "rigFile": "src/assets/animations/bosses/gale-talon.json",
       "atlas": "src/assets/animations/bosses/gale-talon.atlas"
     },
     {
@@ -323,7 +323,7 @@
       "motionProfile": "round-master",
       "rigType": "weighted-mesh-rig",
       "specialMove": "solar-spin",
-      "rigFile": "src/assets/animations/bosses/suncrest.skel",
+      "rigFile": "src/assets/animations/bosses/suncrest.json",
       "atlas": "src/assets/animations/bosses/suncrest.atlas"
     },
     {
@@ -332,7 +332,7 @@
       "motionProfile": "armored-knight",
       "rigType": "layered-limb-rig",
       "specialMove": "shadow-sweep",
-      "rigFile": "src/assets/animations/bosses/void-sovereign.skel",
+      "rigFile": "src/assets/animations/bosses/void-sovereign.json",
       "atlas": "src/assets/animations/bosses/void-sovereign.atlas"
     }
   ],
