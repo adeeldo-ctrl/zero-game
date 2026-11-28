@@ -3224,6 +3224,10 @@ class ZeroGameScene extends Phaser.Scene {
       visual.setData("approvedAttackUntil", this.time.now + 280);
     }
     if (!sprite?.active || !this.anims.exists(key)) return approvedArtSprite?.active ? visual : null;
+    if (state === "hit") {
+      sprite.setData("reactionState", "hit");
+      sprite.setData("reactionUntil", this.time.now + 420);
+    }
     sprite.play(key, true);
     return visual;
   }
@@ -3691,7 +3695,10 @@ class ZeroGameScene extends Phaser.Scene {
       const bossId = v.getData("bossSheetId");
       const bossSprite = v.getData("authoredSprite");
       const bossHitAnimation = `boss-${bossId}-hit`;
-      if (bossSprite?.active && this.anims.exists(bossHitAnimation)) bossSprite.play(bossHitAnimation, true);
+      if (bossSprite?.active && this.anims.exists(bossHitAnimation)) {
+        bossSprite.setData("hitUntil", this.time.now + 460);
+        bossSprite.play(bossHitAnimation, true);
+      }
       this.tweens.add({ targets: v, angle: this.facing * 9, scaleX: 1.28,
         duration: 65, yoyo: true, repeat: 1,
         onComplete: () => { if (v.active) { v.setAngle(0); v.setScale(1.15); } } });
@@ -3836,8 +3843,9 @@ class ZeroGameScene extends Phaser.Scene {
       if (authoredBossSprite?.active) {
         const attackPose = ["tell", "dash", "volley", "slam"].includes(attackState);
         const bossId = visual.getData("bossSheetId");
-        const bossAnimationState = attackPose ? "attack"
-          : Math.abs(enemy.body?.velocity?.x || 0) > 18 ? "move" : "idle";
+        const bossAnimationState = this.time.now < (authoredBossSprite.getData("hitUntil") || 0)
+          ? "hit" : attackPose ? "attack"
+            : Math.abs(enemy.body?.velocity?.x || 0) > 18 ? "move" : "idle";
         const bossAnimationKey = `boss-${bossId}-${bossAnimationState}`;
         if (this.anims.exists(bossAnimationKey) && authoredBossSprite.anims.currentAnim?.key !== bossAnimationKey) {
           authoredBossSprite.play(bossAnimationKey, true);
@@ -5829,21 +5837,29 @@ class ZeroGameScene extends Phaser.Scene {
           const attackKey = hasPremiumArtwork ? `enemy-${archetypeId}-attack` : `enemy-${enemyKind}-strike`;
           const moving = Math.abs(enemy.body.velocity.x) > 18;
           const charging = Math.abs(enemy.body.velocity.x) > 180;
-          const wasCharging = Boolean(authoredSprite.getData("attackPose"));
-          if (charging && !wasCharging) authoredSprite.play(attackKey, true);
-          if (!charging && wasCharging && moving && authoredSprite.anims.currentAnim?.key === attackKey) {
-            authoredSprite.play(animationKey, true);
-          }
-          authoredSprite.setData("attackPose", charging);
-          if (moving && !charging && authoredSprite.anims.currentAnim?.key !== attackKey) {
-            if (authoredSprite.anims.currentAnim?.key !== animationKey || !authoredSprite.anims.isPlaying) {
+          const reactionState = authoredSprite.getData("reactionState");
+          const reactionUntil = authoredSprite.getData("reactionUntil") || 0;
+          const reactionKey = reactionState ? `enemy-${archetypeId}-${reactionState}` : null;
+          if (reactionKey && this.time.now < reactionUntil && this.anims.exists(reactionKey)) {
+            if (authoredSprite.anims.currentAnim?.key !== reactionKey) authoredSprite.play(reactionKey, true);
+          } else {
+            authoredSprite.setData("reactionState", null);
+            const wasCharging = Boolean(authoredSprite.getData("attackPose"));
+            if (charging && !wasCharging) authoredSprite.play(attackKey, true);
+            if (!charging && wasCharging && moving && authoredSprite.anims.currentAnim?.key === attackKey) {
               authoredSprite.play(animationKey, true);
             }
-          } else if (!moving && authoredSprite.anims.currentAnim?.key !== attackKey) {
-            if (idleKey && authoredSprite.anims.currentAnim?.key !== idleKey) authoredSprite.play(idleKey, true);
-            else if (!idleKey && authoredSprite.anims.isPlaying) {
-              authoredSprite.anims.stop();
-              authoredSprite.setFrame(authoredSprite.getData("idleFrame") || 0);
+            authoredSprite.setData("attackPose", charging);
+            if (moving && !charging && authoredSprite.anims.currentAnim?.key !== attackKey) {
+              if (authoredSprite.anims.currentAnim?.key !== animationKey || !authoredSprite.anims.isPlaying) {
+                authoredSprite.play(animationKey, true);
+              }
+            } else if (!moving && authoredSprite.anims.currentAnim?.key !== attackKey) {
+              if (idleKey && authoredSprite.anims.currentAnim?.key !== idleKey) authoredSprite.play(idleKey, true);
+              else if (!idleKey && authoredSprite.anims.isPlaying) {
+                authoredSprite.anims.stop();
+                authoredSprite.setFrame(authoredSprite.getData("idleFrame") || 0);
+              }
             }
           }
         }
