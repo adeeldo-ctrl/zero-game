@@ -1957,7 +1957,6 @@ class ZeroGameScene extends Phaser.Scene {
       c.add(enemySprite);
     } catch (error) {
       fallbackSprite.setVisible(true);
-      enemySprite = fallbackSprite;
       if (import.meta.env.DEV) console.warn("Rigby2D enemy rig unavailable; using original PNG fallback", archetypeId, error);
     }
     if (approvedArt) c.setData("approvedArtSprite", enemySprite);
@@ -3363,7 +3362,6 @@ class ZeroGameScene extends Phaser.Scene {
       c.add(bossSprite);
     } catch (error) {
       fallbackBossSprite.setVisible(true);
-      bossSprite = fallbackBossSprite;
       if (import.meta.env.DEV) console.warn("Rigby2D boss rig unavailable; using original PNG fallback", bossSheetId, error);
     }
     bossSprite.setData("entranceUntil", this.time.now + 900);
