@@ -3688,6 +3688,10 @@ class ZeroGameScene extends Phaser.Scene {
     this.bossBar.scaleX = this.bossHealth / this.bossMaxHealth;
     const v = this.bossVisual;
     if (v?.active) {
+      const bossId = v.getData("bossSheetId");
+      const bossSprite = v.getData("authoredSprite");
+      const bossHitAnimation = `boss-${bossId}-hit`;
+      if (bossSprite?.active && this.anims.exists(bossHitAnimation)) bossSprite.play(bossHitAnimation, true);
       this.tweens.add({ targets: v, angle: this.facing * 9, scaleX: 1.28,
         duration: 65, yoyo: true, repeat: 1,
         onComplete: () => { if (v.active) { v.setAngle(0); v.setScale(1.15); } } });
@@ -3787,8 +3791,14 @@ class ZeroGameScene extends Phaser.Scene {
         attendant.destroy();
       });
       boss.setVelocity(0, 0);
+      const defeatedBossSprite = this.bossVisual?.getData("authoredSprite");
+      const defeatedBossId = this.bossVisual?.getData("bossSheetId");
+      const defeatAnimation = `boss-${defeatedBossId}-defeat`;
+      if (defeatedBossSprite?.active && this.anims.exists(defeatAnimation)) {
+        defeatedBossSprite.play(defeatAnimation, true);
+      }
       this.tweens.add({ targets: this.bossVisual, angle: 360, scale: 0.1,
-        alpha: 0, duration: 850, ease: "Back.easeIn",
+        alpha: 0, duration: 950, ease: "Back.easeIn",
         onComplete: () => { if (this.bossVisual?.active) this.bossVisual.destroy(); } });
       this.cameras.main.shake(700, 0.018);
       this.time.delayedCall(1000, () => {
@@ -3826,6 +3836,12 @@ class ZeroGameScene extends Phaser.Scene {
       if (authoredBossSprite?.active) {
         const attackPose = ["tell", "dash", "volley", "slam"].includes(attackState);
         const bossId = visual.getData("bossSheetId");
+        const bossAnimationState = attackPose ? "attack"
+          : Math.abs(enemy.body?.velocity?.x || 0) > 18 ? "move" : "idle";
+        const bossAnimationKey = `boss-${bossId}-${bossAnimationState}`;
+        if (this.anims.exists(bossAnimationKey) && authoredBossSprite.anims.currentAnim?.key !== bossAnimationKey) {
+          authoredBossSprite.play(bossAnimationKey, true);
+        }
         authoredBossSprite.setData("lastAttackState", attackState);
         const signatureTilt = bossId === "gale-talon" ? 9
           : bossId === "iron-comet" ? -4
