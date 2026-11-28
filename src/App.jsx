@@ -3513,7 +3513,7 @@ class ZeroGameScene extends Phaser.Scene {
     this.tweens.add({ targets: orbitB, x: 86, y: -48, duration: bossElement === "shadow" ? 620 : 900, yoyo: true, repeat: -1, ease: "Sine.easeInOut" });
     c.setData("parts", { shadow, legL, legR, footL, footR, armL, armR,
       fistL, fistR, body, belly, pupilL, pupilR, aura, chestEmblem, chestInset,
-      cape, armorRidges, crownGem, cheekMarks,
+      cape, armorRidges, crownGem, cheekMarks, styleDetails,
       shoulderL, shoulderR, belt, beltGem, headband, orbitA, orbitB });
     const bossSheetId = bossId || (isGatekeeper ? "gatekeeper" : isBoxer ? "iron-comet"
       : isAgile ? "gale-talon" : isMaster ? "suncrest" : "void-sovereign");
@@ -3858,9 +3858,13 @@ class ZeroGameScene extends Phaser.Scene {
             : attackState === "volley" ? signatureTilt + 4 : signatureTilt;
         authoredBossSprite.setAngle(attackPose ? attackTilt + Math.sin(this.time.now * 0.025) * 2
           : Math.sin(this.time.now * (bossId === "void-sovereign" ? 0.009 : 0.004)) * (bossId === "gale-talon" ? 3 : 1.8));
-        authoredBossSprite.setScale(attackState === "slam" ? (bossId === "iron-comet" ? 1.12 : 1.08)
-          : attackState === "dash" ? (bossId === "gale-talon" ? 1.16 : 1.045)
-            : attackState === "volley" ? (bossId === "suncrest" ? 1.14 : 1.045) : 1);
+        authoredBossSprite.setScale(attackState === "slam" ? (bossId === "iron-comet" ? 1.16 : bossId === "gatekeeper" ? 1.12 : 1.08)
+          : attackState === "dash" ? (bossId === "gale-talon" ? 1.2 : bossId === "void-sovereign" ? 1.14 : 1.045)
+            : attackState === "volley" ? (bossId === "suncrest" ? 1.17 : bossId === "void-sovereign" ? 1.12 : 1.045) : 1);
+        if (bossId === "gale-talon") authoredBossSprite.y = attackState === "dash" ? -35 : -25 + Math.sin(this.time.now * 0.012) * 3;
+        else if (bossId === "iron-comet") authoredBossSprite.y = attackState === "slam" ? -12 : -25;
+        else if (bossId === "void-sovereign") authoredBossSprite.y = -27 + Math.sin(this.time.now * 0.009) * 5;
+        else if (bossId === "suncrest") authoredBossSprite.y = attackState === "volley" ? -34 : -25;
       }
       const p = visual.getData("parts");
       const t = (enemy.getData("bossAnim") || 0) + delta;
