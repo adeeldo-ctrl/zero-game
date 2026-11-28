@@ -989,6 +989,8 @@ try {
         scene.boss.body.blocked.down = true;
         scene.boss.setData("bossAttackState", "rest");
         scene.boss.setData("bossAttackAt", scene.time.now + 5000);
+        // Prevent the temporary signature pose from consuming a campaign heart.
+        scene.lastDamage = scene.time.now + 5000;
         scene.hero.setPosition(scene.boss.x, scene.boss.y);
         scene.updateBoss(scene.boss, 16);
       });
