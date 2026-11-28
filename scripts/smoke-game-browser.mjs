@@ -332,7 +332,7 @@ try {
   }, powerAfterOnePress, { timeout: 1500 });
 
   // Verify every equipped special move damages a live enemy through the real Phaser scene.
-  await page.evaluate(() => {
+  await page.evaluate((archetypeId) => {
     const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
     if (!scene?.sys.isActive()) throw new Error("Game scene unavailable for special-move runtime test");
     scene.enemies.getChildren().forEach((enemy) => {
@@ -350,7 +350,7 @@ try {
       enemy.setData("frozen", false);
       enemy.setData("isTimeHunter", false);
       enemy.setData("aiType", "chaser");
-      enemy.setData("enemyArchetypeId", "spirit-pouncer");
+      enemy.setData("enemyArchetypeId", archetypeId);
       scene.createEnemyVisual(enemy, 0x8b4a3e, 0xffd36b);
       return enemy;
     };
@@ -372,7 +372,7 @@ try {
         waveDamage.hornR?.active || waveDamage.armR?.active) {
       throw new Error("EXTRA 1 wave did not apply the expected multi-hit damage through the hit pipeline");
     }
-  });
+  }, activeEnemyIds[0]);
   await page.evaluate(() => {
     const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
     const targets = window.__ZERO_GAME_SPECIAL_TARGETS__;
