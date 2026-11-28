@@ -1103,11 +1103,22 @@ try {
     if (enemies.some((enemy) => {
       const visual = enemy.getData("visual");
       const sprite = visual?.getData("authoredSprite");
+      const archetypeId = enemy.getData("enemyArchetypeId");
+      const poseTextures = scene.enemyPoseTextures?.[archetypeId];
+      const isPoseSheet = sprite?.getData("poseSheetSprite") === true;
+      const expectedTexture = isPoseSheet
+        ? poseTextures?.idle
+        : `approved-enemy-${archetypeId}`;
+      const hasAllPoseStates = !isPoseSheet ||
+        ["idle", "walk", "jump", "attack"].every((state) =>
+          poseTextures?.[state] && scene.textures.exists(poseTextures[state])
+        );
       return !visual?.visible || !sprite?.active ||
-        sprite.texture?.key !== `approved-enemy-${enemy.getData("enemyArchetypeId")}` ||
+        !expectedTexture || sprite.texture?.key !== expectedTexture ||
+        !hasAllPoseStates ||
         visual.getData("approvedArtSprite") !== sprite || !sprite.visible;
     })) {
-      throw new Error("A live stage enemy is missing its visible unique original PNG artwork");
+      throw new Error("A live stage enemy is missing its visible original PNG artwork or complete pose-sheet animation states");
     }
     enemies.forEach((enemy, index) => enemy.setData("smokeCheckId", index));
     return {
