@@ -122,13 +122,15 @@ export function getPremiumStageEnemyRoster(stageNumber) {
   const stage = Math.max(1, Math.min(50, Math.floor(Number(stageNumber) || 1)));
   const region = getPremiumEnemyRegion(stage);
   const localStage = ((stage - 1) % 10) + 1;
-  // Each stage introduces/combines only approved base enemies and their 16 distinct variants.
+  // Each ten-stage block owns an exclusive enemy pool. Enemies unlock in
+  // that block's fixed order, so a later region never leaks into an earlier one
+  // and the complete regional cast is available before its boss stage.
   const rosterSize = region.enemies.length;
-  const availableCount = Math.min(rosterSize, 2 + Math.floor((Math.min(localStage, 9) - 1) * (rosterSize - 2) / 8));
-  const rotation = (localStage - 1) % rosterSize;
-  return Array.from({ length: availableCount }, (_, index) =>
-    region.enemies[(rotation + index) % region.enemies.length]
+  const availableCount = Math.min(
+    rosterSize,
+    2 + Math.floor((Math.min(localStage, 9) - 1) * (rosterSize - 2) / 8)
   );
+  return region.enemies.slice(0, availableCount);
 }
 
 export function getPremiumBoss(stageNumber) {
