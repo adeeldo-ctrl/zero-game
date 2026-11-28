@@ -25,6 +25,11 @@ import enemy37Turtle from "./assets/enemies/prepared-reference/37_green-turtle-a
 import enemy38Turtle from "./assets/enemies/prepared-reference/38_green-turtle-b.png";
 import enemy39Lizard from "./assets/enemies/prepared-reference/39_green-lizard.png";
 import enemy42RatGuard from "./assets/enemies/prepared-reference/42_rat-guard.png";
+import enemy02GreenIce from "./assets/enemies/prepared-reference/02_green-ice-monster.png";
+import enemy09Pumpkin from "./assets/enemies/prepared-reference/09_pumpkin.png";
+import enemy34BlueOgreA from "./assets/enemies/prepared-reference/34_blue-ogre-a.png";
+import enemy40ArmoredLizard from "./assets/enemies/prepared-reference/40_armored-lizard.png";
+import enemy47IceKnight from "./assets/enemies/prepared-reference/47_ice-knight.png";
 import bossGatekeeperSheet from "./assets/bosses/prepared-reference/gatekeeper.png";
 import bossIronCometSheet from "./assets/bosses/prepared-reference/iron-comet.png";
 import bossGaleTalonSheet from "./assets/bosses/prepared-reference/gale-talon.png";
@@ -78,6 +83,11 @@ const APPROVED_ENEMY_ART = {
   "void-licorice-sniper": enemy42RatGuard,
   "astral-eclipse-summoner": enemy33Mummy,
   "frost-temple-breaker": enemy35BlueOgre,
+  "shadow-moss-scout": enemy02GreenIce,
+  "iron-bark-bruiser": enemy09Pumpkin,
+  "golden-acorn-leaper": enemy34BlueOgreA,
+  "prism-jelly-vault": enemy40ArmoredLizard,
+  "molten-caramel-mauler": enemy47IceKnight,
 };
 import { createCampaignLives, loseCampaignHeart, getStageTransitionDirection } from "./campaignRules";
 import { shouldHeroCollideWithPlatform, shouldDropThroughPlatform, getPlatformTextureScale } from "./platformRules";
@@ -88,11 +98,8 @@ import { getEnemyMovementSpeed, getSnowballPowerTier, REGULAR_ENEMY_VISUAL_SCALE
 import { MOBILE_ACTION_BUTTONS, enqueueMobileAction, consumeMobileAction } from "./mobileActionQueue";
 import "./App.css";
 
-const GENERATED_CHARACTER_SHEETS = import.meta.glob("./assets/generated-character-sheets/*.svg", {
-  eager: true,
-  query: "?url",
-  import: "default",
-});
+const GENERATED_CHARACTER_SHEETS = {};
+
 
 class ZeroGameScene extends Phaser.Scene {
   preload() {
@@ -124,13 +131,7 @@ class ZeroGameScene extends Phaser.Scene {
     this.load.spritesheet("premium-enemy-atlas", premiumEnemyAtlas, {
       frameWidth: 128, frameHeight: 128,
     });
-    Object.entries(GENERATED_CHARACTER_SHEETS).forEach(([path, source]) => {
-            const characterId = path.split("/").pop().replace(/\.svg$/, "");
-      this.load.spritesheet(`character-sheet-${characterId}`, source, {
-        frameWidth: 128,
-        frameHeight: 128,
-      });
-    });
+
     Object.entries(APPROVED_ENEMY_ART).forEach(([archetypeId, source]) => {
       this.load.image(`approved-enemy-${archetypeId}`, source);
     });
@@ -2113,7 +2114,7 @@ class ZeroGameScene extends Phaser.Scene {
       const approvedArtKey = APPROVED_ENEMY_ART[archetypeId] ? archetypeId : enemy.getData("enemyArtBaseId");
       const approvedArtSprite = this.add.image(0, -12, `approved-enemy-${approvedArtKey}`)
         .setDisplaySize(isHeavy ? 98 : 92, isHeavy ? 108 : 102);
-      if (variantTint) approvedArtSprite.setTint(variantTint);
+      // Preserve the uploaded PNG colours; enemy variants are differentiated by gameplay role and motion.
       c.add(approvedArtSprite);
       c.setData("approvedArtSprite", approvedArtSprite);
       c.setData("approvedAdornment", adornment);
@@ -3506,7 +3507,7 @@ class ZeroGameScene extends Phaser.Scene {
     const bossSheetId = bossId || (isGatekeeper ? "gatekeeper" : isBoxer ? "iron-comet"
       : isAgile ? "gale-talon" : isMaster ? "suncrest" : "void-sovereign");
     c.list.forEach((part) => part.setVisible(part === shadow));
-    const bossSprite = this.add.sprite(0, -22, `character-sheet-${bossSheetId}`, 0)
+    const bossSprite = this.add.image(0, -22, `boss-image-${bossSheetId}`)
       .setDisplaySize(150, 150);
     const bossEntranceAnimation = `boss-${bossSheetId}-entrance`;
     const bossIdleAnimation = `boss-${bossSheetId}-idle`;
