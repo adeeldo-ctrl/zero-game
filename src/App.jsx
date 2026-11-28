@@ -1,6 +1,8 @@
 
 import { useCallback, useEffect, useRef } from "react";
 import Phaser from "phaser";
+import { rigbyPhaser } from "./vendor/rigby2d-phaser-0.6.1.mjs";
+import rigRoster from "./assets/animations/rig-roster.json";
 import heroRyoSheet from "./assets/heroes/hero_ryo.png";
 import heroKairoSheet from "./assets/heroes/hero_kairo.png";
 import heroMeiSheet from "./assets/heroes/hero_mei.png";
@@ -107,6 +109,7 @@ import { getEnemyMovementSpeed, getSnowballPowerTier, REGULAR_ENEMY_VISUAL_SCALE
 import { MOBILE_ACTION_BUTTONS, enqueueMobileAction, consumeMobileAction } from "./mobileActionQueue";
 import "./App.css";
 
+const { RigbyPlugin } = rigbyPhaser(Phaser);
 
 class ZeroGameScene extends Phaser.Scene {
   preload() {
@@ -130,6 +133,12 @@ class ZeroGameScene extends Phaser.Scene {
 
     Object.entries(APPROVED_ENEMY_ART).forEach(([archetypeId, source]) => {
       this.load.image(`approved-enemy-${archetypeId}`, source);
+    });
+    rigRoster.enemies.forEach(({ id }) => {
+      this.load.rigby(`enemy-rig-${id}`, `/rigs/enemies/${id}/skeleton.json`, `/rigs/enemies/${id}/skeleton.atlas`);
+    });
+    rigRoster.bosses.forEach(({ id }) => {
+      this.load.rigby(`boss-rig-${id}`, `/rigs/bosses/${id}/skeleton.json`, `/rigs/bosses/${id}/skeleton.atlas`);
     });
     const bossImages = [
       ["boss-image-gatekeeper", bossGatekeeperSheet],
@@ -1933,27 +1942,26 @@ class ZeroGameScene extends Phaser.Scene {
     const approvedArt = APPROVED_ENEMY_ART[archetypeId];
     if (!approvedArt) throw new Error("Missing approved original PNG artwork for enemy " + archetypeId);
     const textureKey = `approved-enemy-${archetypeId}`;
-    const enemySprite = this.add.sprite(0, -12, textureKey, idleFrame)
+    const fallbackSprite = this.add.sprite(0, -12, textureKey, idleFrame)
       .setDisplaySize(isHeavy ? 98 : 92, isHeavy ? 108 : 102);
     const artworkCrop = APPROVED_ENEMY_CROPS[archetypeId];
-    if (artworkCrop) enemySprite.setCrop(...artworkCrop);
-    c.add(enemySprite);
-    if (approvedArt) {
-      enemySprite.setVisible(true);
-      // Original PNG remains the only visible enemy character artwork.
-      c.setData("approvedArtSprite", enemySprite);
+    if (artworkCrop) fallbackSprite.setCrop(...artworkCrop);
+    fallbackSprite.setVisible(false);
+    c.add(fallbackSprite);
+
+    let enemySprite = fallbackSprite;
+    try {
+      enemySprite = this.add.rigby(0, -12, `enemy-rig-${archetypeId}`, "idle")
+        .setDisplaySize(isHeavy ? 98 : 92, isHeavy ? 108 : 102);
+      enemySprite.setData("rigbySkeleton", true);
+      enemySprite.setData("rigbyCurrentClip", "idle");
+      c.add(enemySprite);
+    } catch (error) {
+      fallbackSprite.setVisible(true);
+      enemySprite = fallbackSprite;
+      if (import.meta.env.DEV) console.warn("Rigby2D enemy rig unavailable; using original PNG fallback", archetypeId, error);
     }
-    const enemyIdleKey = hasPremiumArtwork ? `enemy-${archetypeId}-idle` : null;
-    const enemyMoveKey = hasPremiumArtwork ? `enemy-${archetypeId}-move` : `enemy-${enemyClass}-move`;
-    const enemyAttackKey = hasPremiumArtwork ? `enemy-${archetypeId}-attack` : `enemy-${enemyClass}-strike`;
-    enemySprite.setData("idleFrame", idleFrame);
-    if (this.anims.exists(enemyIdleKey || enemyMoveKey)) enemySprite.play(enemyIdleKey || enemyMoveKey);
-    enemySprite.on(Phaser.Animations.Events.ANIMATION_COMPLETE, (animation) => {
-      if (animation.key !== enemyAttackKey || !enemySprite.active) return;
-      if (Math.abs(enemy.body?.velocity?.x || 0) > 18) enemySprite.play(enemyMoveKey);
-      else if (enemyIdleKey) enemySprite.play(enemyIdleKey);
-      else { enemySprite.anims.stop(); enemySprite.setFrame(idleFrame); }
-    });
+    if (approvedArt) c.setData("approvedArtSprite", enemySprite);
     c.setData("authoredSprite", enemySprite);
     enemy.setData("visual", c);
     c.setData("enemyClass", enemyClass);
@@ -3058,6 +3066,17 @@ class ZeroGameScene extends Phaser.Scene {
       visual.setData("approvedAttackStartedAt", this.time.now);
       visual.setData("approvedAttackUntil", this.time.now + 280);
     }
+    if (sprite?.active && sprite.getData("rigbySkeleton")) {
+      const clip = state === "move" ? "locomotion" : state;
+      const oneShot = ["attack", "hit", "defeat", "jump", "fall", "land"].includes(clip);
+      const durations = { attack: 480, hit: 220, defeat: 500, jump: 420, fall: 420, land: 300 };
+      if (sprite.getData("rigbyCurrentClip") !== clip || oneShot) {
+        sprite.setData("rigbyCurrentClip", clip);
+        sprite.play(clip, !oneShot, 0.12);
+      }
+      if (oneShot) enemy.setData("rigAnimationLockUntil", this.time.now + (durations[clip] || 360));
+      return visual;
+    }
     if (!sprite?.active || !this.anims.exists(key)) return approvedArtSprite?.active ? visual : null;
     if (state === "hit") {
       sprite.setData("reactionState", "hit");
@@ -3331,11 +3350,24 @@ class ZeroGameScene extends Phaser.Scene {
     const bossSheetId = bossId || (isGatekeeper ? "gatekeeper" : isBoxer ? "iron-comet"
       : isAgile ? "gale-talon" : isMaster ? "suncrest" : "void-sovereign");
     c.list.forEach((part) => part.setVisible(part === shadow));
-    const bossSprite = this.add.image(0, -22, `boss-image-${bossSheetId}`)
-      .setDisplaySize(150, 150);
+    const fallbackBossSprite = this.add.image(0, -22, `boss-image-${bossSheetId}`)
+      .setDisplaySize(150, 150)
+      .setVisible(false);
+    c.add(fallbackBossSprite);
+    let bossSprite = fallbackBossSprite;
+    try {
+      bossSprite = this.add.rigby(0, -22, `boss-rig-${bossSheetId}`, "idle")
+        .setDisplaySize(150, 150);
+      bossSprite.setData("rigbySkeleton", true);
+      bossSprite.setData("rigbyCurrentClip", "idle");
+      c.add(bossSprite);
+    } catch (error) {
+      fallbackBossSprite.setVisible(true);
+      bossSprite = fallbackBossSprite;
+      if (import.meta.env.DEV) console.warn("Rigby2D boss rig unavailable; using original PNG fallback", bossSheetId, error);
+    }
     bossSprite.setData("entranceUntil", this.time.now + 900);
     bossSprite.setAlpha(0);
-    c.add(bossSprite);
     this.tweens.add({ targets: bossSprite, alpha: 1, duration: 420, ease: "Cubic.easeOut" });
     // Boss-state motion is applied directly to this original PNG image.
     this.tweens.add({
@@ -6083,7 +6115,7 @@ export default function App() {
     if (gameRef.current) return;
 
     const game = new Phaser.Game({
-      type: Phaser.CANVAS,
+      type: Phaser.WEBGL,
       parent: "game-container",
       width: 960,
       height: 540,
@@ -6111,6 +6143,7 @@ export default function App() {
         width: 960,
         height: 540
       },
+      plugins: { scene: [{ key: "RigbyPlugin", plugin: RigbyPlugin, mapping: "rigby" }] },
       scene: [ZeroGameScene]
     });
 
