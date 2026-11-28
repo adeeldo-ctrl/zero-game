@@ -194,37 +194,47 @@ class ZeroGameScene extends Phaser.Scene {
         });
       }
     });
-    const animationStates = {
-      idle: { start: 0, end: 7, frameRate: 7, repeat: -1 },
-      move: { start: 8, end: 15, frameRate: 11, repeat: -1 },
-      attack: { start: 16, end: 23, frameRate: 13, repeat: 0 },
-      hit: { start: 24, end: 31, frameRate: 16, repeat: 0 },
-      defeat: { start: 32, end: 39, frameRate: 10, repeat: 0 },
-    };
-    const registerCharacterAnimations = (id, prefix) => {
+
+    const enemyStates = [
+      { name: "idle", row: 0, frameRate: 7, repeat: -1 },
+      { name: "move", row: 1, frameRate: 11, repeat: -1 },
+      { name: "attack", row: 2, frameRate: 13, repeat: 0 },
+      { name: "hit", row: 3, frameRate: 16, repeat: 0 },
+      { name: "defeat", row: 4, frameRate: 10, repeat: 0 },
+    ];
+    const registerRows = (id, prefix, states) => {
       const textureKey = `character-sheet-${id}`;
       if (!this.textures.exists(textureKey)) return;
-      Object.entries(animationStates).forEach(([state, range]) => {
-        const key = `${prefix}-${id}-${state}`;
+      states.forEach(({ name, row, frameRate, repeat }) => {
+        const key = `${prefix}-${id}-${name}`;
         if (this.anims.exists(key)) return;
         this.anims.create({
           key,
           frames: this.anims.generateFrameNumbers(textureKey, {
-            start: range.start,
-            end: range.end,
+            start: row * 8,
+            end: row * 8 + 7,
           }),
-          frameRate: range.frameRate,
-          repeat: range.repeat,
+          frameRate,
+          repeat,
         });
       });
     };
-    PREMIUM_ENEMY_ARCHETYPES.forEach((archetype) => {
-      registerCharacterAnimations(archetype.id, "enemy");
-    });
-    ["gatekeeper", "iron-comet", "gale-talon", "suncrest", "void-sovereign"].forEach((bossId) => {
-      registerCharacterAnimations(bossId, "boss");
-    });
 
+    PREMIUM_ENEMY_ARCHETYPES.forEach(({ id }) => registerRows(id, "enemy", enemyStates));
+
+    const bossStates = [
+      { name: "entrance", row: 0, frameRate: 9, repeat: 0 },
+      { name: "idle", row: 1, frameRate: 7, repeat: -1 },
+      { name: "move", row: 2, frameRate: 10, repeat: -1 },
+      { name: "attack-primary", row: 3, frameRate: 13, repeat: 0 },
+      { name: "attack-secondary", row: 4, frameRate: 12, repeat: 0 },
+      { name: "special", row: 5, frameRate: 14, repeat: 0 },
+      { name: "hit", row: 6, frameRate: 16, repeat: 0 },
+      { name: "phase-change", row: 7, frameRate: 10, repeat: 0 },
+      { name: "defeat", row: 8, frameRate: 9, repeat: 0 },
+    ];
+    ["gatekeeper", "iron-comet", "gale-talon", "suncrest", "void-sovereign"]
+      .forEach((id) => registerRows(id, "boss", bossStates));
   }
 
   addAmbientTween(config) {
@@ -1984,7 +1994,7 @@ class ZeroGameScene extends Phaser.Scene {
     const archetypeId = enemy.getData("enemyArchetypeId");
     const archetypeFrame = getPremiumEnemyFrameIndex(archetypeId);
     const hasCharacterSheet = this.textures.exists(`character-sheet-${archetypeId}`);
-    const hasPremiumArtwork = hasCharacterSheet || (archetypeFrame >= 0 && !enemy.getData("enemyVariantStyle"));
+    const hasPremiumArtwork = hasCharacterSheet || archetypeFrame >= 0;
     const idleFrame = hasPremiumArtwork && !hasCharacterSheet ? archetypeFrame * 4 : 0;
     const approvedArt = APPROVED_ENEMY_ART[archetypeId] || APPROVED_ENEMY_ART[enemy.getData("enemyArtBaseId")];
     const textureKey = hasCharacterSheet ? `character-sheet-${archetypeId}`
@@ -3496,13 +3506,21 @@ class ZeroGameScene extends Phaser.Scene {
     const bossSheetId = bossId || (isGatekeeper ? "gatekeeper" : isBoxer ? "iron-comet"
       : isAgile ? "gale-talon" : isMaster ? "suncrest" : "void-sovereign");
     c.list.forEach((part) => part.setVisible(part === shadow));
-    // Approved boss cutouts are single-frame base artwork; action motion stays in Phaser tweens.
-    const bossTextureKey = this.textures.exists(`character-sheet-${bossSheetId}`)
-      ? `character-sheet-${bossSheetId}` : `boss-image-${bossSheetId}`;
-    const bossSprite = this.add.sprite(0, -22, bossTextureKey, 0)
+    const bossSprite = this.add.sprite(0, -22, `character-sheet-${bossSheetId}`, 0)
       .setDisplaySize(150, 150);
+    const bossEntranceAnimation = `boss-${bossSheetId}-entrance`;
     const bossIdleAnimation = `boss-${bossSheetId}-idle`;
-    if (this.anims.exists(bossIdleAnimation)) bossSprite.play(bossIdleAnimation);
+    bossSprite.setData("entranceUntil", this.time.now + 900);
+    if (this.anims.exists(bossEntranceAnimation)) {
+      bossSprite.play(bossEntranceAnimation);
+      bossSprite.once(Phaser.Animations.Events.ANIMATION_COMPLETE, (animation) => {
+        if (animation.key === bossEntranceAnimation && bossSprite.active && this.anims.exists(bossIdleAnimation)) {
+          bossSprite.play(bossIdleAnimation, true);
+        }
+      });
+    } else if (this.anims.exists(bossIdleAnimation)) {
+      bossSprite.play(bossIdleAnimation);
+    }
     c.add(bossSprite);
     // Living idle motion for the approved single-frame boss artwork.
     this.tweens.add({
@@ -3721,6 +3739,12 @@ class ZeroGameScene extends Phaser.Scene {
     const previousBossPhase = this.bossPhase;
     this.bossPhase = getBossPhase(this.bossHealth, this.bossMaxHealth);
     if (this.bossPhase > previousBossPhase && v?.active) {
+      const phaseSprite = v.getData("authoredSprite");
+      if (phaseSprite?.active) {
+        phaseSprite.setData("phaseUntil", this.time.now + 720);
+        const phaseAnimation = `boss-${v.getData("bossSheetId")}-phase-change`;
+        if (this.anims.exists(phaseAnimation)) phaseSprite.play(phaseAnimation, true);
+      }
       const parts = v.getData("parts");
       if (parts?.aura?.active) {
         parts.aura.setAlpha(0.48).setScale(1.42);
@@ -3844,8 +3868,15 @@ class ZeroGameScene extends Phaser.Scene {
         const attackPose = ["tell", "dash", "volley", "slam"].includes(attackState);
         const bossId = visual.getData("bossSheetId");
         const bossAnimationState = this.time.now < (authoredBossSprite.getData("hitUntil") || 0)
-          ? "hit" : attackPose ? "attack"
-            : Math.abs(enemy.body?.velocity?.x || 0) > 18 ? "move" : "idle";
+          ? "hit"
+          : this.time.now < (authoredBossSprite.getData("phaseUntil") || 0)
+            ? "phase-change"
+            : this.time.now < (authoredBossSprite.getData("entranceUntil") || 0)
+              ? "entrance"
+              : attackState === "tell" ? "attack-primary"
+                : attackState === "volley" ? "attack-secondary"
+                  : ["dash", "slam"].includes(attackState) ? "special"
+                    : Math.abs(enemy.body?.velocity?.x || 0) > 18 ? "move" : "idle";
         const bossAnimationKey = `boss-${bossId}-${bossAnimationState}`;
         if (this.anims.exists(bossAnimationKey) && authoredBossSprite.anims.currentAnim?.key !== bossAnimationKey) {
           authoredBossSprite.play(bossAnimationKey, true);
