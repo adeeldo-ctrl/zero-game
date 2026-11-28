@@ -237,6 +237,7 @@ try {
       enemy.setData("frozen", false);
       enemy.setData("isTimeHunter", false);
       enemy.setData("aiType", "chaser");
+      enemy.setData("enemyArchetypeId", "spirit-pouncer");
       scene.createEnemyVisual(enemy, 0x8b4a3e, 0xffd36b);
       return enemy;
     };
