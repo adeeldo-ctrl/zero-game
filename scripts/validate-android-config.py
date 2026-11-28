@@ -72,9 +72,14 @@ assert "workflow_run" not in content, (
     "The APK workflow must not depend on automatic workflow-run events"
 )
 assert "assembleRelease" in content and "apksigner" in content and "zero-game-release-apk" in content and "upload-artifact@v4" in content
-assert "npm test" in content and "npm run lint" in content and "npm run build" in content
-assert "scripts/validate-android-config.py" in content and "scripts/smoke-game-browser.mjs" in content, (
-    "Final Android workflow must run the complete consolidated verification before APK assembly"
+assert "npm ci" in content and "npm run build" in content, (
+    "Final Android workflow must build the web assets before Capacitor packaging"
+)
+assert "npm test" not in content and "npm run lint" not in content and "scripts/smoke-game-browser.mjs" not in content, (
+    "Do not repeat consolidated verification in the APK assembly workflow"
+)
+assert "npm test" in ci and "npm run lint" in ci and "npm run build" in ci and "scripts/smoke-game-browser.mjs" in ci, (
+    "The separate consolidated CI workflow must complete tests, lint, build and browser smoke checks before release"
 )
 assert "screenOrientation" in content, "Android launcher must be locked to landscape"
 assert "android.permission.INTERNET" not in content, "Single-player Android build must not request network access"
