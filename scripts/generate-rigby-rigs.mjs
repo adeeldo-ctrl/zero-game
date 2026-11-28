@@ -138,6 +138,11 @@ function chooseAnimation(character, bones, characterHeight, isBoss) {
     names.includes("tentacle_1") ? [["tentacle_1","tentacle_4"],["tentacle_2","tentacle_5"],["tentacle_3","tentacle_6"]] :
     names.includes("left") ? [["left","right"]] : [];
 
+  const secondaryLimbPairs = [
+    ["forearm_l", "forearm_r"],
+    ["shin_l", "shin_r"],
+  ].filter(([left, right]) => has(left) && has(right));
+
   const clips = [];
   clips.push(clip("idle", 1.2, () => {
     addRotate(has("head") ? "head" : has("crown") ? "crown" : "core", [[0,-1.5],[0.6,1.5],[1.2,-1.5]]);
@@ -225,6 +230,8 @@ function chooseAnimation(character, bones, characterHeight, isBoss) {
   }));
   clips.push(clip("locomotion", 0.56, () => {
     for (const [l,r] of limbPairs) pair(l,r, names.includes("wing_l") ? 18 : 24, 0.28);
+    // Animate lower-arm and lower-leg joints independently from their parent limbs.
+    for (const [l,r] of secondaryLimbPairs) pair(l,r, 13, 0.28);
     addTranslate(has("pelvis") ? "pelvis" : has("body") ? "body" : "core", [[0,0,0],[0.14,0,3],[0.28,0,0],[0.42,0,3],[0.56,0,0]]);
     if (has("head")) addRotate("head", [[0,-2],[0.28,2],[0.56,-2]]);
     if (has("tail")) addRotate("tail", [[0,-12],[0.28,12],[0.56,-12]]);
@@ -232,11 +239,13 @@ function chooseAnimation(character, bones, characterHeight, isBoss) {
   clips.push(clip("jump", 0.42, () => {
     addTranslate(has("pelvis") ? "pelvis" : has("body") ? "body" : "core", [[0,0,0],[0.18,0,8],[0.42,0,5]]);
     for (const [l,r] of limbPairs) pair(l,r, 28, 0.21);
+    for (const [l,r] of secondaryLimbPairs) pair(l,r, 24, 0.21);
     if (has("head")) addRotate("head", [[0,0],[0.2,-5],[0.42,0]]);
   }));
   clips.push(clip("fall", 0.42, () => {
     addRotate(has("torso") ? "torso" : has("body") ? "body" : "core", [[0,0],[0.42,-7]]);
     for (const [l,r] of limbPairs) pair(l,r, 16, 0.21);
+    for (const [l,r] of secondaryLimbPairs) pair(l,r, 12, 0.21);
   }));
   clips.push(clip("land", 0.3, () => {
     addScale(has("pelvis") ? "pelvis" : has("body") ? "body" : "core", [[0,1,1],[0.1,1.12,0.82],[0.3,1,1]]);
