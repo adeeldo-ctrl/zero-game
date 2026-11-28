@@ -121,3 +121,34 @@ Implementation sequence:
 6. Only after all 37 characters are complete, run the single consolidated verification and build the one final Android APK.
 
 No dependency migration, placeholder rigs, vector redraws, or whole-image-only motion may be presented as completed skeletal animation.
+## Verified free rigging runtime (2026-11-28)
+
+The free tool selected for the current Phaser 4.2.1 project is Rigby2D 0.6.1 (MIT OR Apache-2.0). Its repository documents a Phaser 4 WebGL runtime, with a Phaser plugin, .skel / .json exports, atlases, sprite-sheet export, and a command-line/MCP workflow. The game must remain on Phaser 4.2.1; do not downgrade or migrate the engine merely to use another runtime.
+
+Documented integration API:
+
+```js
+import { rigbyPhaser } from "./vendor/rigby2d-phaser.mjs";
+const { RigbyPlugin } = rigbyPhaser(Phaser);
+// Scene preload: this.load.rigby(key, skeletonUrl, atlasUrl)
+// Scene create: const rig = this.add.rigby(x, y, key, "idle")
+```
+
+The runtime is WebGL-only, which matches the intended Phaser 4 runtime path. Before the final APK, the Android WebView must be verified to use WebGL successfully; no silent static-image fallback may be described as a successful rig integration.
+
+### Important source-art limitation
+
+Rigby2D AutoRig does not cut a flattened PNG into limbs. Its AutoRig requires layered artwork: a layered PSD, SVG, or separate same-canvas PNG layers, one image per movable part. A single PNG can be converted to a weighted mesh, but that is mesh deformation of the original image, not independent limb articulation. Therefore:
+
+- Humanoid, quadruped, winged, crab and multi-leg designs need clean separated parts/layers where their visible anatomy requires it.
+- Soft, floating, cloud, slime, fish and tentacle designs may use weighted meshes when part cutting would damage the source art.
+- Do not create rough rectangular cuts or call them production-ready rigs.
+- Keep every original PNG unchanged and use working copies for segmentation/rigging.
+
+### Roster manifest
+
+src/assets/animations/rig-roster.json now records all 32 selected enemy identities, all five bosses, their original source PNGs, anatomy-specific rigging approaches, expected clips, and a completion gate. Its status remains rig-assets-not-yet-created until the actual Rigby2D projects and exports exist.
+
+### Release gate
+
+Do not trigger or deliver an APK until all 37 actual rigs have been exported, all required animation clips exist, the Phaser integration is connected to gameplay state, and the consolidated mobile verification has passed. No debug or intermediate APKs.
