@@ -2096,7 +2096,6 @@ class ZeroGameScene extends Phaser.Scene {
     if (!approvedArt) throw new Error("Missing approved original PNG artwork for enemy " + archetypeId);
     const rigDefinition = rigRoster.enemies.find((entry) => entry.id === archetypeId);
     if (!rigDefinition) throw new Error("Missing generated character rig for " + archetypeId);
-    const enemyPoseSet = this.enemyPoseTextures?.[archetypeId];
     // Generated weighted-mesh rigs provide actual locomotion; pose panels are reference art only.
     const enemyRig = this.add.rigby(0, -12, `enemy-rig-${archetypeId}`, "idle");
     if (!enemyRig?.active || !enemyRig.skeleton || typeof enemyRig.play !== "function") {
