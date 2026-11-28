@@ -135,3 +135,13 @@ The user's latest approved active scope is exactly 32 regular enemy identities a
 - Added a PNG artwork validator that checks the 32 one-to-one enemy mappings, PNG signatures/dimensions, and five boss PNGs.
 - Removed the automatic SVG sprite-sheet generation hooks and the old vector character generator/assets.
 - The final consolidated verification and the single signed Android Release APK build have not yet been run against this updated source. Do not provide an APK until that one final workflow succeeds. Avoid intermediate/debug APKs and unnecessary repeat tests.
+
+## Final integrated animation and delivery verification — 2026-11-28
+
+- Final source commit before release marker: `d3bd335adff9e85ddddfdac8bfe580ef8234447b`.
+- Consolidated GitHub Actions run: `46124423959` — success.
+- Automated tests, lint, Android configuration, 32-enemy/five-boss original PNG validation, web build, and Chromium gameplay smoke test all passed.
+- Runtime smoke checks confirmed enemy rig movement, ambient idle/hero-awareness transitions, all five boss signature animations, all 37 weighted rig assets, and the hero-selection layout.
+- Rig roster validation also checks independent forearm/shin timelines and the required attack clip structure.
+- This is automated verification only; no physical Android handset test is claimed.
+- The only remaining delivery action is the one signed Android Release APK build from the verified source. No debug APK is to be delivered.
