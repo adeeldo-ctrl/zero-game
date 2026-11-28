@@ -140,7 +140,7 @@ function renderFrame(profile, state, frame, cellSize, isBoss) {
   if (state === "entrance") { bob = 12 - frame * 2.4; squashX = 0.68 + frame * 0.065; squashY = 0.7 + frame * 0.06; }
   if (state === "phase-change") { bob = Math.sin(phase) * 4; squashX = 1.05 + frame * 0.025; squashY = 1.05 + frame * 0.025; }
   if (state === "defeat") lean = 12 + frame * 6;
-  const scale = cellSize / 128 * (isBoss ? 1.23 : 1);
+  const scale = cellSize / 128 * (isBoss ? 0.9 : 0.94);
   const origin = cellSize / 2;
   const shadowY = isBoss ? 48 : 45;
   const eye = profile.eyes || "#fff8e8";
