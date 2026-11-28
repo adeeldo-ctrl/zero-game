@@ -6,7 +6,7 @@ import { PREMIUM_ENEMY_ARCHETYPES, PREMIUM_BOSSES } from "../src/premiumCampaign
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../public/assets/premium-characters");
 const ENEMY_SIZE = 112;
 const BOSS_SIZE = 144;
-const COLUMNS = 6;
+const COLUMNS = 8;
 const ENEMY_STATES = ["idle", "move", "attack", "hit", "defeat"];
 const BOSS_STATES = ["entrance", "idle", "move", "attack-primary", "attack-secondary", "special", "hit", "phase-change", "defeat"];
 
@@ -133,7 +133,7 @@ function ornamentMarkup(ornament, c, frame, state) {
 }
 
 function renderFrame(profile, state, frame, cellSize, isBoss) {
-  const phase = frame / 5 * Math.PI * 2;
+  const phase = frame / 7 * Math.PI * 2;
   let bob = Math.sin(phase) * (state === "idle" ? 2.2 : state === "move" ? 4.5 : 1.2);
   let lean = state === "move" ? Math.sin(phase) * 7 : state === "attack" || state === "attack-primary" ? 12 + frame * 1.2 : state === "attack-secondary" ? -5 : state === "hit" ? -10 : state === "defeat" ? 14 : 0;
   let squashX = state === "defeat" ? 1 + frame * 0.055 : state === "hit" ? 0.92 : 1;
@@ -152,7 +152,7 @@ function renderFrame(profile, state, frame, cellSize, isBoss) {
   const eyes = '<g><ellipse cx="-12" cy="-2" rx="8" ry="10" fill="' + eye + '"/><ellipse cx="12" cy="-2" rx="8" ry="10" fill="' + eye + '"/><circle cx="-10" cy="0" r="3.7" fill="#24233b"/><circle cx="14" cy="0" r="3.7" fill="#24233b"/><circle cx="-11" cy="-4" r="2" fill="#ffffff"/><circle cx="13" cy="-4" r="2" fill="#ffffff"/></g>';
   const mouth = state === "attack" || state === "attack-primary" || state === "special" ? '<ellipse cx="0" cy="17" rx="8" ry="7" fill="' + profile.accent + '"/>' : '<path d="M-8 15 Q0 21 8 15" stroke="' + profile.accent + '" stroke-width="3" fill="none" stroke-linecap="round"/>';
   const effect = state === "attack" || state === "attack-primary" ? '<circle cx="40" cy="4" r="' + (6 + frame * 1.8) + '" fill="' + profile.trim + '" opacity=".85"/><path d="M29 -12 Q48 -20 56 -2 Q49 18 31 14" fill="none" stroke="' + profile.light + '" stroke-width="4" stroke-linecap="round"/>' : state === "attack-secondary" || state === "special" ? '<circle cx="0" cy="-5" r="' + (34 + frame * 2) + '" fill="none" stroke="' + profile.trim + '" stroke-width="3" opacity=".7"/><circle cx="-42" cy="-22" r="4" fill="' + profile.light + '"/><circle cx="42" cy="-22" r="4" fill="' + profile.light + '"/>' : state === "phase-change" ? '<circle cx="0" cy="0" r="' + (28 + frame * 7) + '" fill="none" stroke="' + profile.trim + '" stroke-width="5" opacity=".72"/>' : "";
-  const blink = frame === 4 && state === "idle" ? '<path d="M-19 -1 L-5 -1 M5 -1 L19 -1" stroke="' + profile.accent + '" stroke-width="4" stroke-linecap="round"/>' : "";
+  const blink = frame === 6 && state === "idle" ? '<path d="M-19 -1 L-5 -1 M5 -1 L19 -1" stroke="' + profile.accent + '" stroke-width="4" stroke-linecap="round"/>' : "";
   const frameOpacity = state === "defeat" ? Math.max(0.38, 1 - frame * 0.1) : 1;
   return '<g data-state="' + state + '" data-frame="' + frame + '" transform="translate(' + origin + ' ' + origin + ') scale(' + scale.toFixed(4) + ')"><ellipse cx="0" cy="' + shadowY + '" rx="' + (isBoss ? 45 : 34) + '" ry="7" fill="#182239" opacity=".28"/><g opacity="' + frameOpacity + '" transform="translate(' + (state === "move" ? Math.sin(phase) * 2 : 0) + ' ' + bob.toFixed(2) + ') rotate(' + lean + ') scale(' + squashX.toFixed(3) + ' ' + squashY.toFixed(3) + ')">' + limbs + body + ornament + eyes + mouth + blink + effect + '</g></g>';
 }
@@ -170,7 +170,7 @@ function makeSheet(profile, states, cellSize, isBoss) {
   return '<svg xmlns="http://www.w3.org/2000/svg" width="' + width + '" height="' + height + '" viewBox="0 0 ' + width + ' ' + height + '"><defs><linearGradient id="body" x1="0" y1="0" x2="0.85" y2="1"><stop offset="0" stop-color="' + profile.light + '"/><stop offset=".46" stop-color="' + profile.body + '"/><stop offset="1" stop-color="' + profile.accent + '"/></linearGradient><radialGradient id="aura"><stop offset="0" stop-color="' + profile.trim + '" stop-opacity=".28"/><stop offset="1" stop-color="' + profile.trim + '" stop-opacity="0"/></radialGradient></defs>' + cells.join("") + '</svg>';
 }
 
-function animationMap(states, rowBaseFps) {
+function animationMap(states) {
   const map = {};
   states.forEach((state, row) => {
     map[state] = { row, start: row * COLUMNS, end: row * COLUMNS + COLUMNS - 1, frameRate: state === "idle" ? 7 : state === "move" ? 10 : state === "defeat" ? 8 : 12, repeat: ["idle", "move"].includes(state) ? -1 : 0 };
