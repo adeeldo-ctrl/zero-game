@@ -77,6 +77,21 @@ class ZeroGameScene extends Phaser.Scene {
       ...activeRegion.enemies.map(({ id }) => id),
       "void-licorice-sniper",
     ])];
+    // A scene restart used to leave every previous region's skeleton and
+    // atlas texture cached until Android WebView ran out of memory. Retain only
+    // this region's enemy rigs plus the always-used time hunter.
+    const rigCache = this.cache.custom.rigby2d;
+    if (rigCache) {
+      const activeRigKeys = new Set(this.activeEnemyIds.map((id) => `enemy-rig-${id}`));
+      for (const { id } of rigRoster.enemies) {
+        const key = `enemy-rig-${id}`;
+        if (activeRigKeys.has(key)) continue;
+        const cachedRig = rigCache.get(key);
+        if (!cachedRig) continue;
+        cachedRig.pages?.forEach((textureKey) => this.textures.remove(textureKey));
+        rigCache.remove(key);
+      }
+    }
     this.activeEnemyIds.forEach((id) => {
       if (!rigRoster.enemies.some((entry) => entry.id === id)) {
         throw new Error("Missing Rigby2D enemy rig roster entry: " + id);
