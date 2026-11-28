@@ -11,7 +11,7 @@
     "preview": "vite preview",
     "android:add": "cap add android",
     "android:sync": "npm run build && cap sync android",
-    "art:validate": "npm run art:generate && node scripts/validate-production-enemy-art.mjs",
+    "art:validate": "node scripts/validate-production-enemy-art.mjs",
     "art:prepare-reference": "node scripts/prepare-reference-enemy-art.mjs",
     "prebuild": "node scripts/generate-premium-character-sheets.mjs",
     "predev": "node scripts/generate-premium-character-sheets.mjs",
