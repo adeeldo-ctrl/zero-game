@@ -54,7 +54,7 @@ import worldBackdropVolcano from "./assets/backgrounds/world-volcano.svg";
 import worldBackdropCosmic from "./assets/backgrounds/world-cosmic.svg";
 import { Capacitor } from "@capacitor/core";
 import { ELEMENTS, HEROES, getElement, getStage, getHero } from "./gameData";
-import { getPremiumStageEnemyRoster, getPremiumEnemyRegion, PREMIUM_ENEMY_ARCHETYPES, getPremiumEnemyFrameIndex } from "./premiumCampaignData";
+import { getPremiumStageEnemyRoster, getPremiumEnemyRegion, PREMIUM_ENEMY_ARCHETYPES } from "./premiumCampaignData";
 import { createGameAudio } from "./gameAudio";
 
 const APPROVED_ENEMY_CROPS = {
@@ -1921,8 +1921,7 @@ class ZeroGameScene extends Phaser.Scene {
   belly
 });
 
-    // Use the dedicated authored sprite sheet as the visible combatant while
-    // retaining the established rig metadata for hit reactions and gameplay.
+    // Use the original uploaded PNG as the visible combatant; retain only hidden legacy rig metadata for gameplay.
     c.list.forEach((part) => part.setVisible(part === shadow));
     const archetypeId = enemy.getData("enemyArchetypeId");
     const archetypeFrame = getPremiumEnemyFrameIndex(archetypeId);
@@ -5662,7 +5661,7 @@ class ZeroGameScene extends Phaser.Scene {
         if (authoredSprite?.active) {
           const enemyKind = enemy.getData("enemyClass") || "special";
           const archetypeId = enemy.getData("enemyArchetypeId");
-          const hasPremiumArtwork = this.textures.exists(`character-sheet-${archetypeId}`) || getPremiumEnemyFrameIndex(archetypeId) >= 0;
+          const hasPremiumArtwork = false;
           const idleKey = hasPremiumArtwork ? `enemy-${archetypeId}-idle` : null;
           const animationKey = hasPremiumArtwork ? `enemy-${archetypeId}-move` : `enemy-${enemyKind}-move`;
           const attackKey = hasPremiumArtwork ? `enemy-${archetypeId}-attack` : `enemy-${enemyKind}-strike`;
