@@ -106,8 +106,11 @@ try {
 
   const movementRig = await page.evaluate(() => {
     const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
-    const rig = scene.add.rigby(80, 80, "enemy-rig-spirit-pouncer", "idle");
-    rig.setVisible(false);
+    const enemy = scene.enemies.getChildren().find((entry) => entry.active && !entry.getData("isBoss"));
+    const rig = enemy?.getData("visual")?.getData("authoredSprite");
+    if (!rig?.getData("rigbySkeleton") || !rig.skeleton?.bones?.length) {
+      throw new Error("No live weighted enemy rig is available for the locomotion check");
+    }
     const bone = rig.skeleton.bones.find((entry) => entry.name === "pelvis")?.name || rig.skeleton.bones[1].name;
     const before = rig.boneWorld(bone);
     rig.play("locomotion", true, 0);
@@ -118,7 +121,6 @@ try {
   const movementAfter = await page.evaluate(() => {
     const value = window.__ZERO_GAME_RIG_MOTION__;
     const after = value.rig.boneWorld(value.bone);
-    value.rig.destroy();
     delete window.__ZERO_GAME_RIG_MOTION__;
     return after;
   });
