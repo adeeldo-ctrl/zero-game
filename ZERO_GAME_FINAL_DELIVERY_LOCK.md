@@ -117,3 +117,11 @@ Wi-Fi co-op is removed from the final product at the user's request. It is not p
 The user's latest approved active scope is exactly 32 regular enemy identities (16 approved original designs plus 16 separately named variants) and five distinct bosses. Each ten-stage region must use only its own exclusive enemy pool. The older 45-enemy art-direction archive is reference-only and must not expand the active campaign. Do not develop or activate the other 29 legacy enemy concepts.
 
 The production art pack is still incomplete: the 32 unique regular-enemy sheets and five boss sheets with genuine required animation frames have not been delivered. The 48 prepared transparent reference cutouts are static review assets, not production animation sheets. Therefore `FINAL_RELEASE_APPROVED` is set to `false`; this keeps the Android Release workflow locked until the art pack and final integrated acceptance are complete.
+
+
+## Free-resource research and source governance — 2026-11-28
+
+- Added `assets/FREE_ASSET_SOURCE_REGISTER.json` with reviewed CC0 candidate sources, their actual stated animation coverage, and explicit integration cautions.
+- Added an automated test for the register's license policy and for distinguishing static asset packs from animation sheets.
+- Candidate resources are not considered integrated or completed artwork until visually inspected and mapped to the existing approved identities. The register does not authorize adding new campaign enemies or replacing approved boss concepts.
+- The final APK remains locked. A successful CI run is source verification, not completion of the remaining production-art requirement.
