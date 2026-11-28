@@ -3154,8 +3154,23 @@ class ZeroGameScene extends Phaser.Scene {
     if (hits === 1) {
       enemy.setData("frozen", true); enemy.setVelocity(0, 0);
       const hitVisual = this.playEnemyReactionAnimation(enemy, "hit");
+      const approvedHitSprite = visual?.getData("approvedArtSprite");
+      if (approvedHitSprite?.active) {
+        // Static approved cutouts still get a readable impact reaction while
+        // the original atlas animation remains available for non-cutout enemies.
+        this.tweens.add({
+          targets: approvedHitSprite,
+          scaleX: approvedHitSprite.scaleX * 0.82,
+          scaleY: approvedHitSprite.scaleY * 1.12,
+          angle: enemy.x < this.hero.x ? -8 : 8,
+          y: approvedHitSprite.y + 5,
+          duration: 105,
+          yoyo: true,
+          ease: "Sine.easeOut",
+        });
+      }
       if (hitVisual) {
-        this.time.delayedCall(145, () => {
+        this.time.delayedCall(230, () => {
           if (enemy.active && hitVisual.active && enemy.getData("frozen")) hitVisual.setVisible(false);
         });
       } else if (visual?.active) visual.setVisible(false);
