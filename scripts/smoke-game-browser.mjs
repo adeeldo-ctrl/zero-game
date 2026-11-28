@@ -52,43 +52,30 @@ try {
   await page.waitForFunction(() => {
     const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
     return scene?.sys.isActive() &&
-      scene.textures.exists("character-sheet-spirit-pouncer") &&
-      scene.anims.exists("enemy-spirit-pouncer-idle") &&
-      scene.textures.exists("character-sheet-void-sovereign") &&
-      scene.anims.exists("boss-void-sovereign-phase-change");
+      scene.textures.exists("approved-enemy-spirit-pouncer") &&
+      scene.textures.exists("approved-enemy-frost-temple-breaker") &&
+      scene.textures.exists("boss-image-void-sovereign");
   }, undefined, { timeout: 15000 });
-  const animationAudit = await page.evaluate((ids) => {
+  const pngArtAudit = await page.evaluate((ids) => {
     const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
     if (!scene?.sys.isActive()) return { error: "Phaser scene is not active" };
-    const enemyStates = ["idle", "move", "attack", "hit", "defeat"];
-    const bossStates = ["entrance", "idle", "move", "attack-primary", "attack-secondary", "special", "hit", "phase-change", "defeat"];
     const missing = [];
-    const invalidFrameCounts = [];
+    const invalidImages = [];
     for (const id of ids) {
       const isBoss = ids.indexOf(id) >= 32;
-      const prefix = isBoss ? "boss" : "enemy";
-      const states = isBoss ? bossStates : enemyStates;
-      const textureKey = `character-sheet-${id}`;
+      const textureKey = isBoss ? `boss-image-${id}` : `approved-enemy-${id}`;
       const texture = scene.textures.get(textureKey);
       if (!texture || !scene.textures.exists(textureKey)) {
-        missing.push(`texture:${id}`);
+        missing.push(`png-texture:${id}`);
         continue;
       }
-      const finalFrame = texture.get(isBoss ? 71 : 39);
-      if (!finalFrame || finalFrame.width !== 128 || finalFrame.height !== 128) {
-        invalidFrameCounts.push(`frames:${id}`);
-      }
-      for (const state of states) {
-        const key = `${prefix}-${id}-${state}`;
-        const animation = scene.anims.get(key);
-        if (!animation) missing.push(`animation:${key}`);
-        else if (animation.frames.length !== 8) invalidFrameCounts.push(`state:${key}`);
-      }
+      const source = texture.getSourceImage();
+      if (!source || source.width < 32 || source.height < 32) invalidImages.push(`image:${id}`);
     }
-    return { missing, invalidFrameCounts };
+    return { missing, invalidImages };
   }, characterIds);
-  if (animationAudit.error || animationAudit.missing.length || animationAudit.invalidFrameCounts.length) {
-    throw new Error("Character animation integration failed: " + JSON.stringify(animationAudit));
+  if (pngArtAudit.error || pngArtAudit.missing.length || pngArtAudit.invalidImages.length) {
+    throw new Error("Original PNG artwork integration failed: " + JSON.stringify(pngArtAudit));
   }
   const accessibility = await page.evaluate(() => ({
     gameRole: document.querySelector("#game-container")?.getAttribute("role"),
@@ -880,10 +867,10 @@ try {
       const visual = enemy.getData("visual");
       const sprite = visual?.getData("authoredSprite");
       return !visual?.visible || !sprite?.active ||
-        sprite.texture?.key !== `character-sheet-${enemy.getData("enemyArchetypeId")}` ||
-        !sprite.anims.currentAnim;
+        sprite.texture?.key !== `approved-enemy-${enemy.getData("enemyArchetypeId")}` ||
+        visual.getData("approvedArtSprite") !== sprite || !sprite.visible;
     })) {
-      throw new Error("A live stage enemy is missing its visible archetype-specific sprite animation");
+      throw new Error("A live stage enemy is missing its visible unique original PNG artwork");
     }
     enemies.forEach((enemy, index) => enemy.setData("smokeCheckId", index));
     return {
