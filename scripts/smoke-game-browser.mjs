@@ -196,6 +196,12 @@ try {
     return scene?.campaignActive && scene.heroSelectionLocked && scene.chances === 3 &&
       scene.health === 3 && scene.getTokenBalance() === 2;
   }, undefined, { timeout: 5000 });
+  await page.waitForFunction(() => {
+    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+    return scene?.enemies?.getChildren().some((enemy) =>
+      enemy.active && !enemy.getData("isBoss") && enemy.getData("visual")?.getData("authoredSprite")?.getData("rigbySkeleton")
+    );
+  }, undefined, { timeout: 7000 });
   const movementRig = await page.evaluate(() => {
     const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
     const enemy = scene.enemies.getChildren().find((entry) => entry.active && !entry.getData("isBoss"));
