@@ -2,6 +2,7 @@ import { spawn } from "node:child_process";
 import { once } from "node:events";
 import { setTimeout as delay } from "node:timers/promises";
 import { chromium } from "playwright";
+import { PREMIUM_ENEMY_ARCHETYPES, PREMIUM_BOSSES } from "../src/premiumCampaignData.js";
 
 const server = spawn(process.execPath, ["node_modules/vite/bin/vite.js", "--host", "127.0.0.1", "--port", "4173", "--strictPort"], {
   cwd: process.cwd(),
@@ -42,6 +43,41 @@ try {
   const dimensions = await canvas.evaluate((node) => ({ width: node.width, height: node.height }));
   if (dimensions.width !== 960 || dimensions.height !== 540) {
     throw new Error(`Unexpected game canvas dimensions: ${JSON.stringify(dimensions)}`);
+  }
+
+  const characterIds = [
+    ...PREMIUM_ENEMY_ARCHETYPES.map(({ id }) => id),
+    ...PREMIUM_BOSSES.map(({ id }) => id),
+  ];
+  const animationAudit = await page.evaluate((ids) => {
+    const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
+    if (!scene?.sys.isActive()) return { error: "Phaser scene is not active" };
+    const states = ["idle", "move", "attack", "hit", "defeat"];
+    const missing = [];
+    const invalidFrameCounts = [];
+    for (const id of ids) {
+      const textureKey = `character-sheet-${id}`;
+      const texture = scene.textures.get(textureKey);
+      if (!texture || !scene.textures.exists(textureKey)) {
+        missing.push(`texture:${id}`);
+        continue;
+      }
+      const finalFrame = texture.get(39);
+      if (!finalFrame || finalFrame.width !== 128 || finalFrame.height !== 128) {
+        invalidFrameCounts.push(`frames:${id}`);
+      }
+      const prefix = ids.length > 32 && ids.indexOf(id) >= 32 ? "boss" : "enemy";
+      for (const state of states) {
+        const key = `${prefix}-${id}-${state}`;
+        const animation = scene.anims.get(key);
+        if (!animation) missing.push(`animation:${key}`);
+        else if (animation.frames.length !== 8) invalidFrameCounts.push(`state:${key}`);
+      }
+    }
+    return { missing, invalidFrameCounts };
+  }, characterIds);
+  if (animationAudit.error || animationAudit.missing.length || animationAudit.invalidFrameCounts.length) {
+    throw new Error("Character animation integration failed: " + JSON.stringify(animationAudit));
   }
   const accessibility = await page.evaluate(() => ({
     gameRole: document.querySelector("#game-container")?.getAttribute("role"),
