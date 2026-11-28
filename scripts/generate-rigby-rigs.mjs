@@ -142,6 +142,10 @@ function chooseAnimation(character, bones, characterHeight, isBoss) {
     ["forearm_l", "forearm_r"],
     ["shin_l", "shin_r"],
   ].filter(([left, right]) => has(left) && has(right));
+  const auxiliaryLimbPairs = [
+    ["claw_l", "claw_r"],
+    ["fin_top", "fin_bottom"],
+  ].filter(([left, right]) => has(left) && has(right));
 
   const clips = [];
   clips.push(clip("idle", 1.2, () => {
@@ -232,6 +236,7 @@ function chooseAnimation(character, bones, characterHeight, isBoss) {
     for (const [l,r] of limbPairs) pair(l,r, names.includes("wing_l") ? 18 : 24, 0.28);
     // Animate lower-arm and lower-leg joints independently from their parent limbs.
     for (const [l,r] of secondaryLimbPairs) pair(l,r, 13, 0.28);
+    for (const [l,r] of auxiliaryLimbPairs) pair(l,r, 12, 0.28);
     addTranslate(has("pelvis") ? "pelvis" : has("body") ? "body" : "core", [[0,0,0],[0.14,0,3],[0.28,0,0],[0.42,0,3],[0.56,0,0]]);
     if (has("head")) addRotate("head", [[0,-2],[0.28,2],[0.56,-2]]);
     if (has("tail")) addRotate("tail", [[0,-12],[0.28,12],[0.56,-12]]);
@@ -240,6 +245,7 @@ function chooseAnimation(character, bones, characterHeight, isBoss) {
     addTranslate(has("pelvis") ? "pelvis" : has("body") ? "body" : "core", [[0,0,0],[0.18,0,8],[0.42,0,5]]);
     for (const [l,r] of limbPairs) pair(l,r, 28, 0.21);
     for (const [l,r] of secondaryLimbPairs) pair(l,r, 24, 0.21);
+    for (const [l,r] of auxiliaryLimbPairs) pair(l,r, 18, 0.21);
     if (has("head")) addRotate("head", [[0,0],[0.2,-5],[0.42,0]]);
   }));
   clips.push(clip("fall", 0.42, () => {
