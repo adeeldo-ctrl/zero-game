@@ -327,10 +327,7 @@ class ZeroGameScene extends Phaser.Scene {
       : state === "jump" || state === "fall" || state === "land" ? "jump"
         : state === "attack" ? "attack"
           : state === "victory" ? "sit" : "idle";
-    const walking = poseName === "walk";
-    const walkPhase = walking ? Math.floor(this.time.now / 115) % 2 : 0;
-    const activePoseName = walking && walkPhase === 0 ? "idle" : poseName;
-    const poseKey = this.heroPoseTextures?.[heroId]?.[activePoseName];
+    const poseKey = this.heroPoseTextures?.[heroId]?.[poseName];
     sprite.setVisible(true).setAlpha(1);
     (visual.getData("heroRigParts") || []).forEach((part) => {
       if (part?.active) part.setVisible(false);
@@ -3973,9 +3970,8 @@ class ZeroGameScene extends Phaser.Scene {
         authoredBossSprite.setData("lastVisualState", bossVisualState);
         if (authoredBossSprite.getData("poseSheetSprite")) {
           const bossMoving = Math.abs(enemy.body?.velocity?.x || 0) > 18;
-          const bossWalkPhase = bossMoving ? Math.floor(this.time.now / 115) % 2 : 0;
           const state = ["tell", "dash", "volley", "slam"].includes(attackState) ? "attack"
-            : bossMoving ? (bossWalkPhase === 0 ? "idle" : "walk") : "idle";
+            : bossMoving ? "walk" : "idle";
           const poseKey = this.bossPoseTextures?.[bossId]?.[state];
           if (poseKey && authoredBossSprite.texture.key !== poseKey) authoredBossSprite.setTexture(poseKey);
         } else if (authoredBossSprite.getData("rigbySkeleton")) {
@@ -5910,9 +5906,8 @@ class ZeroGameScene extends Phaser.Scene {
           time >= (enemyVisual.getData("poseStateUntil") || 0)) {
         const vx = enemy.body?.velocity?.x || 0;
         const moving = Math.abs(vx) > 18;
-        const walkPhase = moving ? Math.floor(time / 115) % 2 : 0;
         const state = !enemy.body?.blocked?.down ? "jump"
-          : moving ? (walkPhase === 0 ? "idle" : "walk") : "idle";
+          : moving ? "walk" : "idle";
         const key = this.enemyPoseTextures?.[enemy.getData("enemyArchetypeId")]?.[state];
         if (key && rigSprite.texture.key !== key) rigSprite.setTexture(key);
       } else if (rigSprite?.active && rigSprite.getData("rigbySkeleton") &&
