@@ -201,7 +201,7 @@ const BOSS_POSE_SHEETS = [
   { id: "suncrest", source: bossPoseSheet04, columns: 4, rows: 1 },
   { id: "void-sovereign", source: bossPoseSheet05, columns: 4, rows: 1 },
 ];;
-import { createCampaignLives, loseCampaignHeart, getStageTransitionDirection } from "./campaignRules";
+import { createCampaignLives, loseCampaignHeart, getStageTransitionDirection, STARTING_CAMPAIGN_TOKENS, normalizeCampaignTokens, spendCampaignToken, getTokensEarnedForScore } from "./campaignRules";
 import { shouldHeroCollideWithPlatform, shouldDropThroughPlatform, getPlatformTextureScale } from "./platformRules";
 import { getBossPhase, isValidJumpStomp } from "./combatRules";
 import { getBossAttendantWaveSize, BOSS_ATTENDANT_MAX_ACTIVE, getBossSignatureProfile } from "./bossEncounterRules";
@@ -469,6 +469,9 @@ class ZeroGameScene extends Phaser.Scene {
     this.stageNumber = 1;
     this.stageConfig = getStage(1);
     this.selectedHero = getHero(localStorage.getItem("zero_game_hero") || "ryo");
+    const savedTokenBalance = localStorage.getItem("zero_game_tokens");
+    this.tokens = normalizeCampaignTokens(savedTokenBalance, STARTING_CAMPAIGN_TOKENS);
+    if (savedTokenBalance === null) localStorage.setItem("zero_game_tokens", String(this.tokens));
     this.stageStartedAt = 0;
     this.stageTimeLeft = 120;
     this.timeHunterSpawned = false;
@@ -2515,6 +2518,7 @@ class ZeroGameScene extends Phaser.Scene {
       }
     ).setDepth(21);
     this.chancesLabel = this.add.text(790, 42, "CHANCES: 3", { fontSize: "12px", color: "#9cecff", fontStyle: "bold" }).setDepth(21);
+    this.tokensLabel = this.add.text(790, 62, `TOKENS: ${this.getTokenBalance()}`, { fontSize: "11px", color: "#ffe17a", fontStyle: "bold" }).setDepth(21);
     this.scoreLabel = this.add.text(390, 43, "SCORE: 0", {
       fontSize: "13px", color: "#ffe17a", fontStyle: "bold"
     }).setOrigin(0.5, 0).setDepth(21);
@@ -2720,7 +2724,8 @@ class ZeroGameScene extends Phaser.Scene {
     const title = this.add.text(480, 82, "ZERO GAME", { fontSize: "62px", color: "#ffe17a", fontStyle: "bold", stroke: "#522b34", strokeThickness: 9, letterSpacing: 5 }).setOrigin(0.5).setDepth(63).setScale(0.7);
     const subtitle = this.add.text(480, 137, "50 STAGES  •  FOUR HEROES  •  FIVE BOSS BATTLES", { fontSize: "14px", color: "#8feaff", fontStyle: "bold", letterSpacing: 2 }).setOrigin(0.5).setDepth(63);
     const tagline = this.add.text(480, 184, "ONE HERO. THREE CHANCES. NINE HEARTS. FIFTY STAGES.", { fontSize: "14px", color: "#e8f6ff", fontStyle: "bold", letterSpacing: 1 }).setOrigin(0.5).setDepth(63);
-    this.menuObjects.push(shade, panel, topLine, title, subtitle, tagline);
+    const tokenInfo = this.add.text(480, 211, `TOKENS: ${this.getTokenBalance()}  •  1 TOKEN = 3 CHANCES × 3 HEARTS`, { fontSize: "12px", color: "#ffe17a", fontStyle: "bold" }).setOrigin(0.5).setDepth(63);
+    this.menuObjects.push(shade, panel, topLine, title, subtitle, tagline, tokenInfo);
     const previewXs = [210, 390, 570, 750];
     HEROES.forEach((hero, i) => {
       const visual = this.createHeroVisual(previewXs[i], 312, hero.id);
@@ -2752,7 +2757,8 @@ class ZeroGameScene extends Phaser.Scene {
     const shade = this.add.rectangle(480, 270, 960, 540, 0x050b19, 0.96).setDepth(60);
     const heading = this.add.text(480, 48, "SELECT YOUR HERO", { fontSize: "34px", color: "#ffe17a", fontStyle: "bold", stroke: "#513b43", strokeThickness: 5, letterSpacing: 2 }).setOrigin(0.5).setDepth(61);
     const sub = this.add.text(480, 83, "YOUR HERO WILL STAY WITH YOU THROUGH ALL 50 STAGES", { fontSize: "12px", color: "#9feaff", fontStyle: "bold", letterSpacing: 1 }).setOrigin(0.5).setDepth(61);
-    this.menuObjects.push(shade, heading, sub);
+    const tokenInfo = this.add.text(480, 108, `TOKENS AVAILABLE: ${this.getTokenBalance()}  •  SELECTING A HERO USES 1 TOKEN`, { fontSize: "11px", color: "#ffe17a", fontStyle: "bold" }).setOrigin(0.5).setDepth(61);
+    this.menuObjects.push(shade, heading, sub, tokenInfo);
     HEROES.forEach((hero, index) => {
       const x = 132 + index * 232;
       const card = this.add.rectangle(x, 295, 216, 390, 0x142b49, 0.98).setStrokeStyle(3, hero.accent).setDepth(61).setInteractive({ useHandCursor: true });
@@ -2772,6 +2778,10 @@ class ZeroGameScene extends Phaser.Scene {
       this.tweens.add({ targets: glow, scale: 1.16, alpha: 0.2, duration: 900 + index * 100, yoyo: true, repeat: -1 });
       const select = () => {
         if (this.heroSelectionLocked) return;
+        if (!this.spendToken()) {
+          this.statusLabel?.setText("NO TOKENS LEFT • SCORE 10,000 OR CLEAR A STAGE TO EARN ONE").setColor("#ffb5a8");
+          return;
+        }
         this.heroSelectionLocked = true; this.audio.unlock(); this.audio.play("ui"); this.selectedHero = hero;
         this.applyHeroLook(this.heroVisual, hero, true);
         const selectedSprite = this.heroVisual?.getData("heroSprite");
@@ -2827,6 +2837,7 @@ class ZeroGameScene extends Phaser.Scene {
     this.stageAdvancePending = false;
     this.stageStartedAt = this.time.now; this.stageTimeLeft = this.stageConfig.timeLimit || 120;
     this.jumpCount = 0; this.lastDamage = this.time.now; this.nextFootstepAt = this.time.now + 200;
+    this.stageTokenAwarded = false;
     this.hero.setPosition(480, 450).setVelocity(0, 0).setVisible(false);
     this.heroVisual.setPosition(480, 450).setVisible(true).setAlpha(1).setScale(1);
     this.heroTitleLabel.setText(`${this.selectedHero.name.toUpperCase()}  |  STAGE ${String(this.stageNumber).padStart(2,"0")}`);
@@ -4411,8 +4422,35 @@ class ZeroGameScene extends Phaser.Scene {
     if (shot.active) shot.destroy();
   }
 
+  getTokenBalance() {
+    return normalizeCampaignTokens(localStorage.getItem("zero_game_tokens"), this.tokens ?? STARTING_CAMPAIGN_TOKENS);
+  }
+
+  setTokenBalance(balance) {
+    this.tokens = normalizeCampaignTokens(balance, 0);
+    localStorage.setItem("zero_game_tokens", String(this.tokens));
+    if (this.tokensLabel?.active) this.tokensLabel.setText(`TOKENS: ${this.tokens}`);
+    return this.tokens;
+  }
+
+  spendToken() {
+    const result = spendCampaignToken(this.getTokenBalance());
+    if (!result.spent) return false;
+    this.setTokenBalance(result.tokens);
+    return true;
+  }
+
+  addCampaignTokens(amount = 1) {
+    const count = normalizeCampaignTokens(amount, 0);
+    if (!count) return this.getTokenBalance();
+    return this.setTokenBalance(this.getTokenBalance() + count);
+  }
+
   addScore(points) {
+    const previousScore = this.score;
     this.score += points;
+    const tokensEarned = getTokensEarnedForScore(previousScore, this.score);
+    if (tokensEarned > 0) this.addCampaignTokens(tokensEarned);
     const extra = Math.floor(this.score / 10000);
     if (extra > this.extraLivesAwarded) {
       if (this.health < 3) {
@@ -4433,6 +4471,7 @@ class ZeroGameScene extends Phaser.Scene {
   updateLivesLabel() {
     if (this.healthLabel?.active) this.healthLabel.setText(`HEARTS: ${this.health}/3`);
     if (this.chancesLabel?.active) this.chancesLabel.setText(`CHANCES: ${this.chances}`);
+    if (this.tokensLabel?.active) this.tokensLabel.setText(`TOKENS: ${this.getTokenBalance()}`);
   }
 
   spawnTreasureChest() {
@@ -4647,6 +4686,10 @@ class ZeroGameScene extends Phaser.Scene {
     this.audio.play("stageClear");
     this.audio.playVictoryTheme?.();
     this.stageCleared = true;
+    if (!this.stageTokenAwarded) {
+      this.addCampaignTokens(1);
+      this.stageTokenAwarded = true;
+    }
     this.stageCollectionActive = false;
     this.hero.setVelocity(0, 0);
     this.physics.world.pause();
@@ -4816,12 +4859,42 @@ class ZeroGameScene extends Phaser.Scene {
     }
   }
 
+  continueCampaign() {
+    if (!this.spendToken()) return false;
+    this.gameOver = false;
+    this.campaignActive = true;
+    this.stageCleared = false;
+    this.stageCollectionActive = false;
+    this.stageAdvancePending = false;
+    this.chanceLossInProgress = false;
+    this.chanceRespawnToken = (this.chanceRespawnToken || 0) + 1;
+    this.chances = 3;
+    this.health = 3;
+    this.defeated = 0;
+    this.bossDefeated = false;
+    this.pendingStageTransitionDirection = null;
+    this.physics.world.resume();
+    this.scene.restart();
+    return true;
+  }
+
+  returnToMainMenu() {
+    this.gameOver = false;
+    this.campaignActive = false;
+    this.stageCleared = false;
+    this.stageNumber = 1;
+    this.score = 0;
+    this.extraLivesAwarded = 0;
+    this.chances = 3;
+    this.health = 3;
+    this.physics.world.resume();
+    this.scene.restart();
+  }
+
   showContinueScreen() {
     this.chanceRespawnToken = (this.chanceRespawnToken || 0) + 1;
     this.chanceLossInProgress = false;
-    // Stop the active arena simulation before displaying Game Over. This
-    // prevents leftover enemy physics, spawn timers and animation tweens from
-    // continuing to consume resources behind the restart screen.
+    // Stop all arena simulation while the player chooses whether to continue.
     this.physics.world.pause();
     this.time.removeAllEvents();
     this.tweens.killAll();
@@ -4836,13 +4909,28 @@ class ZeroGameScene extends Phaser.Scene {
     });
     this.setMobileControlsVisible(false);
     this.audio.playDefeatTheme?.();
-    const shade = this.add.rectangle(480, 270, 960, 540, 0x071426, 0.9).setDepth(50);
-    const title = this.add.text(480, 175, "GAME OVER", { fontSize: "52px", color: "#ff8b9c", fontStyle: "bold", stroke: "#351b35", strokeThickness: 7 }).setOrigin(0.5).setDepth(51);
-    const info = this.add.text(480, 250, "ALL THREE CHANCES HAVE BEEN USED", { fontSize: "19px", color: "#ffffff", fontStyle: "bold", align: "center" }).setOrigin(0.5).setDepth(51);
-    const stats = this.add.text(480, 292, `FINAL SCORE: ${this.score.toLocaleString()}   •   STAGE: ${this.stageNumber}`, { fontSize: "15px", color: "#ffe17a", fontStyle: "bold" }).setOrigin(0.5).setDepth(51);
-    const restart = this.add.text(480, 365, "START NEW CAMPAIGN", { fontSize: "19px", color: "#ffffff", backgroundColor: "#236b65", padding: { x: 22, y: 12 }, fontStyle: "bold" }).setOrigin(0.5).setDepth(52).setInteractive({ useHandCursor: true });
-    this.menuObjects.push(shade, title, info, stats, restart);
-    restart.on("pointerdown", () => this.startNewCampaign());
+    const tokens = this.getTokenBalance();
+    const shade = this.add.rectangle(480, 270, 960, 540, 0x071426, 0.94).setDepth(50);
+    const title = this.add.text(480, 155, "CONTINUE?", { fontSize: "52px", color: "#ffe17a", fontStyle: "bold", stroke: "#351b35", strokeThickness: 7 }).setOrigin(0.5).setDepth(51);
+    const info = this.add.text(480, 225, "USE 1 TOKEN TO RESTORE 3 CHANCES • 3 HEARTS EACH", { fontSize: "18px", color: "#ffffff", fontStyle: "bold", align: "center" }).setOrigin(0.5).setDepth(51);
+    const stats = this.add.text(480, 275, `SCORE: ${this.score.toLocaleString()}   •   STAGE: ${this.stageNumber}   •   TOKENS: ${tokens}`, { fontSize: "15px", color: "#9feaff", fontStyle: "bold" }).setOrigin(0.5).setDepth(51);
+    const continueButton = this.add.text(330, 370, tokens > 0 ? "CONTINUE — 1 TOKEN" : "NO TOKENS LEFT", {
+      fontSize: "18px", color: "#ffffff", backgroundColor: tokens > 0 ? "#087e83" : "#4a5263",
+      padding: { x: 20, y: 12 }, fontStyle: "bold"
+    }).setOrigin(0.5).setDepth(52);
+    const menuButton = this.add.text(650, 370, "MAIN MENU", {
+      fontSize: "18px", color: "#ffffff", backgroundColor: "#236b65",
+      padding: { x: 22, y: 12 }, fontStyle: "bold"
+    }).setOrigin(0.5).setDepth(52).setInteractive({ useHandCursor: true });
+    const note = this.add.text(480, 435, "EARN TOKENS BY CLEARING STAGES OR REACHING 10,000 SCORE", {
+      fontSize: "12px", color: "#ffe17a", fontStyle: "bold"
+    }).setOrigin(0.5).setDepth(51);
+    this.menuObjects.push(shade, title, info, stats, continueButton, menuButton, note);
+    if (tokens > 0) {
+      continueButton.setInteractive({ useHandCursor: true });
+      continueButton.on("pointerdown", () => this.continueCampaign());
+    }
+    menuButton.on("pointerdown", () => this.returnToMainMenu());
   }
 
   upgradeParticlePower() {
