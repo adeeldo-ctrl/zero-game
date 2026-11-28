@@ -626,6 +626,10 @@ try {
         gameRunning: game?.isRunning,
         gameLoopPaused: game?.loop?.paused,
         gameLoopFrame: game?.loop?.frame,
+        gameLoopRunning: game?.loop?.running,
+        rendererType: game?.renderer?.type,
+        rendererContextLost: game?.renderer?.gl?.isContextLost?.(),
+        canvasContextLost: document.querySelector("#game-container canvas")?.getContext("webgl")?.isContextLost?.(),
         sceneManagerBooted: game?.scene?.isBooted,
         sceneManagerProcessing: game?.scene?.isProcessing,
         sceneManagerQueue: game?.scene?._queue?.map(({ op, keyA, keyB }) => ({ op, keyA, keyB })),
@@ -653,7 +657,7 @@ try {
       };
     });
     throw new Error("New campaign restart did not reach the expected hero-selection state; runtime state: " +
-      JSON.stringify(state) + "; " + error.message);
+      JSON.stringify(state) + "; browser runtime errors: " + JSON.stringify(runtimeErrors) + "; " + error.message);
   }
   await page.mouse.click(120, 486);
   await delay(1200);
