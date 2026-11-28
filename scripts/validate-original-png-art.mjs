@@ -24,6 +24,17 @@ const enemyFiles = [
   "enemies/prepared-reference/40_armored-lizard.png",
   "enemies/prepared-reference/42_rat-guard.png",
   "enemies/prepared-reference/47_ice-knight.png",
+  "enemies/prepared-reference/04_purple-bat.png",
+  "enemies/prepared-reference/06_yeti.png",
+  "enemies/prepared-reference/11_ice-golem.png",
+  "enemies/prepared-reference/12_armored-penguin.png",
+  "enemies/prepared-reference/19_ice-robot.png",
+  "enemies/prepared-reference/21_skeleton.png",
+  "enemies/prepared-reference/22_wolf-guard.png",
+  "enemies/prepared-reference/24_spider.png",
+  "enemies/prepared-reference/28_ice-fish.png",
+  "enemies/prepared-reference/29_jellyfish.png",
+  "enemies/prepared-reference/36_ice-cube-monster.png",
 ];
 const bossFiles = [
   "bosses/prepared-reference/gatekeeper.png",
@@ -49,10 +60,10 @@ for (const relative of [...enemyFiles, ...bossFiles]) {
   const height = bytes.readUInt32BE(20);
   if (width < 32 || height < 32) errors.push("PNG dimensions are too small: " + relative);
 }
-if (enemyFiles.length !== 21 || bossFiles.length !== 5) errors.push("Expected 21 distinct approved enemy source PNGs and five boss PNGs.");
+if (enemyFiles.length !== 32 || bossFiles.length !== 5) errors.push("Expected 32 distinct approved enemy source PNGs and five boss PNGs.");
 if (errors.length) {
   console.error("Original PNG artwork validation failed:");
   errors.forEach((error) => console.error("- " + error));
   process.exit(1);
 }
-console.log("Original PNG artwork validated: 21 approved distinct enemy source images and five boss PNGs. No vector sprite-sheet generation is required.");
+console.log("Original PNG artwork validated: 32 approved distinct enemy source images and five boss PNGs. No vector sprite-sheet generation is required.");
