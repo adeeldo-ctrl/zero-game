@@ -16,8 +16,9 @@ test("the premium flying archetype keeps its authored speed while unknown roles 
   assert.equal(getEnemyMovementSpeed("unknown", 900), 55);
 });
 
-test("regular enemies use the requested twenty-percent visual scale increase", () => {
-  assert.equal(REGULAR_ENEMY_VISUAL_SCALE, 1.2);
+test("regular enemies stay at the reduced visual scale while bosses keep their separate scene scale", () => {
+  assert.equal(REGULAR_ENEMY_VISUAL_SCALE, 0.78);
+  assert.ok(REGULAR_ENEMY_VISUAL_SCALE < 1);
 });
 
 test("enemy facing always points toward its target with a stable overlap fallback", () => {
