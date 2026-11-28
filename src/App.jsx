@@ -472,6 +472,9 @@ class ZeroGameScene extends Phaser.Scene {
     this.openHeroSelectAfterRestart = this.registry.get("zeroGameOpenHeroSelectAfterRestart") === true;
     this.registry.remove("zeroGameOpenHeroSelectAfterRestart");
 
+    // Game Over pauses Arcade Physics; a scene restart reuses the world,
+    // so explicitly resume it before rebuilding the new campaign.
+    this.physics.world.resume();
     this.physics.world.setBounds(0, 0, W, H);
     this.cameras.main.setScroll(0, 0);
 
@@ -2748,6 +2751,8 @@ class ZeroGameScene extends Phaser.Scene {
     this.stageAdvancePending = false;
     this.stageNumber = 1; this.score = 0; this.extraLivesAwarded = 0; this.defeated = 0;
     this.chances = 3; this.health = 3; this.snowballTutorialShown = false;
+    // Game Over leaves the shared Arcade Physics world paused; resume before restart.
+    this.physics.world.resume();
     this.openHeroSelectAfterRestart = true;
     // Scene restart re-runs init(), so persist this one-shot navigation flag
     // in the Scene Registry rather than losing it during initialization.
