@@ -2017,7 +2017,6 @@ class ZeroGameScene extends Phaser.Scene {
       hasPremiumArtwork ? "premium-enemy-atlas" : `enemy-sheet-${enemyClass}`, idleFrame)
       .setDisplaySize(isHeavy ? 94 : 86, isHeavy ? 106 : 100);
     c.add(enemySprite);
-    let approvedArtSprite = null;
     if (approvedArt) {
       enemySprite.setVisible(false);
       // Give every approved cutout a small, archetype-specific signature:
@@ -2127,7 +2126,7 @@ class ZeroGameScene extends Phaser.Scene {
       this.tweens.add({ targets: halo, scaleX: 1.08, scaleY: 1.06,
         alpha: 0.06, duration: 760, yoyo: true, repeat: -1, ease: "Sine.easeInOut" });
       const approvedArtKey = APPROVED_ENEMY_ART[archetypeId] ? archetypeId : enemy.getData("enemyArtBaseId");
-      approvedArtSprite = this.add.image(0, -12, `approved-enemy-${approvedArtKey}`)
+      const approvedArtSprite = this.add.image(0, -12, `approved-enemy-${approvedArtKey}`)
         .setDisplaySize(isHeavy ? 98 : 92, isHeavy ? 108 : 102);
       if (variantTint) approvedArtSprite.setTint(variantTint);
       c.add(approvedArtSprite);
