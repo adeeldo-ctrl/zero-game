@@ -59,7 +59,7 @@ try {
     };
   });
   if (poseAudit.heroes !== 4 || !poseAudit.heroStatesComplete ||
-      poseAudit.enemies !== 30 || !poseAudit.enemyStatesComplete ||
+      poseAudit.enemies !== 32 || !poseAudit.enemyStatesComplete ||
       poseAudit.bosses !== 5 || !poseAudit.bossStatesComplete) {
     throw new Error("Supplied hero/enemy/boss pose artwork did not load completely: " + JSON.stringify(poseAudit));
   }
@@ -1003,7 +1003,7 @@ try {
         const scene = window.__ZERO_GAME_TEST__?.scene.getScene("ZeroGameScene");
         scene.boss.setVelocity(0, 0);
         scene.boss.body.blocked.down = true;
-        scene.boss.setData("bossAttackState", "rest");
+        scene.boss.setData("bossAttackState", "tell");
         scene.boss.setData("bossAttackAt", scene.time.now + 5000);
         // Prevent the temporary signature pose from consuming a campaign heart.
         scene.lastDamage = scene.time.now + 5000;

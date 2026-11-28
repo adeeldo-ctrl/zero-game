@@ -41,9 +41,15 @@ const HERO_POSE_SHEETS = [
   { id: "kairo", source: heroPoseFiles["../new heros orignal/hero (3).jpg"], columns: 5, rows: 1 },
   { id: "volt", source: heroPoseFiles["../new heros orignal/hero (4).jpg"], columns: 5, rows: 1 },
 ];
-const ENEMY_POSE_SHEETS = orderedPoseAssets(enemyPoseFiles).slice(0, 30)
-  .map(([, source], index) => ({ id: rigRoster.enemies[index]?.id, source, columns: 4, rows: 1 }))
-  .filter(({ id, source }) => id && source);
+const enemyPoseEntries = orderedPoseAssets(enemyPoseFiles);
+const ENEMY_POSE_SHEETS = rigRoster.enemies
+  .map((enemy, index) => ({
+    id: enemy.id,
+    source: enemyPoseEntries[index % enemyPoseEntries.length]?.[1],
+    columns: 4,
+    rows: 1,
+  }))
+  .filter(({ source }) => source);
 const BOSS_POSE_SHEETS = orderedPoseAssets(bossPoseFiles).slice(0, 5)
   .map(([, source], index) => ({ id: rigRoster.bosses[index]?.id, source, columns: 4, rows: 1 }))
   .filter(({ id, source }) => id && source);
