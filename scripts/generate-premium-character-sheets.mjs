@@ -3,9 +3,9 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { PREMIUM_ENEMY_ARCHETYPES, PREMIUM_BOSSES } from "../src/premiumCampaignData.js";
 
-const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../public/assets/premium-characters");
-const ENEMY_SIZE = 112;
-const BOSS_SIZE = 144;
+const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../src/assets/generated-character-sheets");
+const ENEMY_SIZE = 128;
+const BOSS_SIZE = 128;
 const COLUMNS = 8;
 const ENEMY_STATES = ["idle", "move", "attack", "hit", "defeat"];
 const BOSS_STATES = ["entrance", "idle", "move", "attack-primary", "attack-secondary", "special", "hit", "phase-change", "defeat"];
@@ -178,28 +178,32 @@ function animationMap(states) {
   return map;
 }
 
-mkdirSync(resolve(ROOT, "enemies"), { recursive: true });
-mkdirSync(resolve(ROOT, "bosses"), { recursive: true });
+mkdirSync(ROOT, { recursive: true });
 const manifest = {
-  format: "svg-grid-spritesheet",
-  generator: "scripts/generate-premium-character-sheets.mjs",
-  license: "Original procedural vector artwork generated for ZERO GAME; no third-party sprite files included.",
-  cellSize: { enemies: ENEMY_SIZE, bosses: BOSS_SIZE },
-  columns: COLUMNS,
-  enemies: [],
-  bosses: [],
+  source: "Original procedural SVG artwork generated in-repository; no third-party sprite files or paid assets included.",
+  sheet: { width: COLUMNS * ENEMY_SIZE, height: ENEMY_STATES.length * ENEMY_SIZE, frameWidth: ENEMY_SIZE, frameHeight: ENEMY_SIZE, columns: COLUMNS, rows: ENEMY_STATES.length, framesPerState: COLUMNS },
+  bossSheet: { width: COLUMNS * BOSS_SIZE, height: BOSS_STATES.length * BOSS_SIZE, frameWidth: BOSS_SIZE, frameHeight: BOSS_SIZE, columns: COLUMNS, rows: BOSS_STATES.length, framesPerState: COLUMNS },
+  states: ENEMY_STATES,
+  bossStates: BOSS_STATES,
+  regularEnemyCount: 32,
+  bossCount: 5,
+  characters: [],
 };
+
+function stateRanges(states) {
+  return Object.fromEntries(states.map((state, row) => [state, [row * COLUMNS, row * COLUMNS + COLUMNS - 1]]));
+}
 
 for (const archetype of PREMIUM_ENEMY_ARCHETYPES) {
   const profile = profiles[archetype.id];
   if (!profile) throw new Error("Missing unique art profile for enemy " + archetype.id);
   const file = archetype.id + ".svg";
-  writeFileSync(resolve(ROOT, "enemies", file), makeSheet(profile, ENEMY_STATES, ENEMY_SIZE, false), "utf8");
-  manifest.enemies.push({
-    id: archetype.id, name: archetype.name, file: "enemies/" + file,
-    frameWidth: ENEMY_SIZE, frameHeight: ENEMY_SIZE, columns: COLUMNS, rows: ENEMY_STATES.length,
-    states: animationMap(ENEMY_STATES),
-    design: { silhouette: profile.shape, ornament: profile.ornament, palette: [profile.body, profile.light, profile.trim, profile.accent] },
+  writeFileSync(resolve(ROOT, file), makeSheet(profile, ENEMY_STATES, ENEMY_SIZE, false), "utf8");
+  manifest.characters.push({
+    id: archetype.id, name: archetype.name, kind: "enemy", role: archetype.role, style: archetype.style || null,
+    silhouette: profile.shape, ornament: profile.ornament, palette: [profile.body, profile.light, profile.trim, profile.accent],
+    framesPerState: COLUMNS, stateRanges: stateRanges(ENEMY_STATES), visualSignature: archetype.id.split("").reduce((sum, char) => (sum * 31 + char.charCodeAt(0)) >>> 0, 7),
+    file,
   });
 }
 
@@ -207,14 +211,14 @@ for (const boss of PREMIUM_BOSSES) {
   const profile = bossProfiles[boss.id];
   if (!profile) throw new Error("Missing unique art profile for boss " + boss.id);
   const file = boss.id + ".svg";
-  writeFileSync(resolve(ROOT, "bosses", file), makeSheet(profile, BOSS_STATES, BOSS_SIZE, true), "utf8");
-  manifest.bosses.push({
-    id: boss.id, name: profile.name, file: "bosses/" + file,
-    frameWidth: BOSS_SIZE, frameHeight: BOSS_SIZE, columns: COLUMNS, rows: BOSS_STATES.length,
-    states: animationMap(BOSS_STATES),
-    design: { silhouette: profile.shape, ornament: profile.ornament, palette: [profile.body, profile.light, profile.trim, profile.accent] },
+  writeFileSync(resolve(ROOT, file), makeSheet(profile, BOSS_STATES, BOSS_SIZE, true), "utf8");
+  manifest.characters.push({
+    id: boss.id, name: profile.name, kind: "boss", role: boss.style, style: boss.style,
+    silhouette: profile.shape, ornament: profile.ornament, palette: [profile.body, profile.light, profile.trim, profile.accent],
+    framesPerState: COLUMNS, stateRanges: stateRanges(BOSS_STATES), visualSignature: boss.id.split("").reduce((sum, char) => (sum * 31 + char.charCodeAt(0)) >>> 0, 7),
+    file,
   });
 }
 
 writeFileSync(resolve(ROOT, "manifest.json"), JSON.stringify(manifest, null, 2) + "\n", "utf8");
-console.log("Generated " + manifest.enemies.length + " unique enemy sheets and " + manifest.bosses.length + " distinct boss sheets.");
+console.log("Generated " + manifest.regularEnemyCount + " unique enemy sheets and " + manifest.bossCount + " distinct boss sheets (" + (manifest.characters.length * COLUMNS) + " frames per animation state across the roster).");
