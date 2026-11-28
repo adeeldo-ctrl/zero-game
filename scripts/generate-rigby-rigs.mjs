@@ -328,13 +328,50 @@ function buildMesh(width, height, bones) {
 function createSkeleton(character, width, height, isBoss) {
   const bones = makeRigBones(character,width,height,isBoss);
   const mesh = buildMesh(width,height,bones);
-  const skeletonBones = bones.map((b,i)=>({
-    name:b.name,
-    ...(i ? { parent:"root" } : {}),
-    ...(b.length ? { length:b.length } : {}),
-    ...(b.x ? { x:b.x } : {}),
-    ...(b.y ? { y:b.y } : {}),
-  }));
+  const parentByBone = {
+    pelvis: "root",
+    torso: "pelvis",
+    head: "torso",
+    upperarm_l: "torso",
+    forearm_l: "upperarm_l",
+    upperarm_r: "torso",
+    forearm_r: "upperarm_r",
+    thigh_l: "pelvis",
+    shin_l: "thigh_l",
+    thigh_r: "pelvis",
+    shin_r: "thigh_r",
+    front_leg_l: "body",
+    front_leg_r: "body",
+    back_leg_l: "body",
+    back_leg_r: "body",
+    leg_l: "body",
+    leg_r: "body",
+    wing_l: "body",
+    wing_r: "body",
+    tail: "body",
+    claw_l: "shell",
+    claw_r: "shell",
+    fin_top: "body",
+    fin_bottom: "body",
+    crown: "core",
+    top: "core",
+    left: "core",
+    right: "core",
+    base: "core",
+  };
+  const boneByName = new Map(bones.map((entry) => [entry.name, entry]));
+  const skeletonBones = bones.map((b, i) => {
+    const requestedParent = parentByBone[b.name];
+    const parent = requestedParent && boneByName.has(requestedParent) ? requestedParent : (i ? "root" : null);
+    const parentBone = parent ? boneByName.get(parent) : null;
+    return {
+      name: b.name,
+      ...(parent ? { parent } : {}),
+      ...(b.length ? { length: b.length } : {}),
+      ...((b.x || parentBone?.x) ? { x: b.x - (parentBone?.x || 0) } : {}),
+      ...((b.y || parentBone?.y) ? { y: b.y - (parentBone?.y || 0) } : {}),
+    };
+  });
   const animations = {};
   for(const animation of chooseAnimation(character,bones,height,isBoss)){
     const {name,...definition}=animation;
