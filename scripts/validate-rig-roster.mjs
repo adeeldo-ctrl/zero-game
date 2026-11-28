@@ -44,6 +44,23 @@ function validateCharacter(character, isBoss) {
     failures.push(character.id + ": original artwork is not exported as a weighted mesh");
   } else if (mesh.vertices.length <= mesh.uvs.length) {
     failures.push(character.id + ": mesh vertices are not bone-weighted");
+  } else if (mesh.uvs.length / 2 < 289) {
+    failures.push(character.id + ": weighted artwork mesh is too coarse for articulated joint deformation");
+  }
+
+  const boneNames = new Set((skeleton.bones || []).map((bone) => bone.name));
+  const clipsByName = skeleton.animations || {};
+  const requireJointMotion = (joint, clips) => {
+    if (!boneNames.has(joint)) return;
+    for (const clipName of clips) {
+      const jointTimeline = clipsByName[clipName]?.bones?.[joint];
+      if (!jointTimeline?.rotate?.length) {
+        failures.push(character.id + ": " + joint + " has no independent rotation timeline in " + clipName);
+      }
+    }
+  };
+  for (const joint of ["forearm_l", "forearm_r", "shin_l", "shin_r"]) {
+    requireJointMotion(joint, ["locomotion", "jump", "fall"]);
   }
 
   if (skeleton.skeleton?.spine !== "4.2.0") {
