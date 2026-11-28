@@ -36,6 +36,20 @@ const enemyFiles = [
   "enemies/prepared-reference/29_jellyfish.png",
   "enemies/prepared-reference/36_ice-cube-monster.png",
 ];
+const approvalPath = resolve(root, "enemies/prepared-reference/approved-artwork.json");
+if (!existsSync(approvalPath)) {
+  errors.push("Missing approved original PNG mapping manifest.");
+} else {
+  const approval = JSON.parse(readFileSync(approvalPath, "utf8"));
+  const mapping = approval.runtimeEnemyMapping || {};
+  const mappedFiles = Object.values(mapping);
+  if (Object.keys(mapping).length !== 32) errors.push("Expected mappings for all 32 enemy identities.");
+  if (new Set(mappedFiles).size !== 32) errors.push("Each of the 32 enemy identities must use a different original PNG.");
+  for (const file of mappedFiles) {
+    if (!approval.approved?.includes(file)) errors.push("Enemy PNG is not in the approved list: " + file);
+    if (!enemyFiles.includes("enemies/prepared-reference/" + file)) errors.push("Enemy mapping references an unvalidated PNG: " + file);
+  }
+}
 const bossFiles = [
   "bosses/prepared-reference/gatekeeper.png",
   "bosses/prepared-reference/iron-comet.png",
