@@ -116,7 +116,7 @@ Wi-Fi co-op is removed from the final product at the user's request. It is not p
 
 The user's latest approved active scope is exactly 32 regular enemy identities (16 approved original designs plus 16 separately named variants) and five distinct bosses. Each ten-stage region must use only its own exclusive enemy pool. The older 45-enemy art-direction archive is reference-only and must not expand the active campaign. Do not develop or activate the other 29 legacy enemy concepts.
 
-The production art pack is still incomplete: the 32 unique regular-enemy sheets and five boss sheets with genuine required animation frames have not been delivered. The 48 prepared transparent reference cutouts are static review assets, not production animation sheets. Therefore `FINAL_RELEASE_APPROVED` is set to `false`; this keeps the Android Release workflow locked until the art pack and final integrated acceptance are complete.
+The production art pack is now generated and integrated: exactly 32 unique regular-enemy sheets (five states × eight frames each) and five distinct boss sheets (nine states × eight frames each). The 48 transparent cutouts remain reference-only and are not counted as production animation sheets. The generated sheets use original in-repository SVG artwork, individual silhouettes, ornaments and palettes, and Phaser runtime animation mappings.
 
 
 ## Free-resource research and source governance — 2026-11-28
@@ -136,3 +136,15 @@ The production art pack is still incomplete: the 32 unique regular-enemy sheets 
 - Phaser loads each sheet under its own character identity. The browser smoke test checks every enemy and boss texture, every animation key, and eight frames per state.
 - Consolidated CI run `46109609747` passed on commit `f4fd4b78c00fced37a807dc7289384c53d97dd58`: automated tests, lint, Android configuration, art-sheet validation, web build, and Chromium gameplay/mobile smoke test.
 - The fresh signed Android Release APK is now authorized as the final delivery step. No physical handset test is claimed unless performed separately.
+
+
+## Final character-art and integrated CI acceptance — 2026-11-28
+
+- Verified source commit: `f4fd4b78c00fced37a807dc7289384c53d97dd58`.
+- GitHub Actions run: `46109609747` — success.
+- Automated tests, lint, Android configuration validation, all-37-sheet validator, Vite web build, and Chromium campaign/mobile smoke test all passed.
+- Enemy sheets: 32 unique identities, each with idle, move, attack, hit and defeat rows, eight frames per state.
+- Boss sheets: five distinct identities, each with entrance, idle, move, primary/secondary attack, special, hit, phase-change and defeat rows, eight frames per state.
+- Runtime uses the individual generated sheets; the browser smoke test audits all 37 texture/animation mappings and the 50-stage campaign.
+- No Wi-Fi co-op. Keep the single-player campaign and approved five-region enemy roster.
+- Release approval is enabled for one fresh signed Android Release APK from the verified source.
