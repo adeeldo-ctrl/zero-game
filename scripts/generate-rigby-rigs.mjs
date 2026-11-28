@@ -177,11 +177,16 @@ function chooseAnimation(character, bones, characterHeight, isBoss) {
     if (has("tail")) addRotate("tail", [[0,-4],[0.59,6],[1.18,-4]]);
   }));
   clips.push(clip("idle-look-around", 1.36, () => {
+    const lookBone = has("head") ? "head" : has("crown") ? "crown"
+      : has("top") ? "top" : has("shell") ? "shell"
+        : has("core") ? "core" : has("body") ? "body" : "root";
+    addRotate(lookBone, [[0,0],[0.34,-13],[0.68,12],[1.02,-7],[1.36,0]]);
     addRotate("head", [[0,0],[0.34,-13],[0.68,12],[1.02,-7],[1.36,0]]);
     addRotate("crown", [[0,0],[0.34,-13],[0.68,12],[1.02,-7],[1.36,0]]);
     addRotate("top", [[0,0],[0.34,-11],[0.68,10],[1.02,-6],[1.36,0]]);
     addRotate("torso", [[0,0],[0.68,1.5],[1.36,0]]);
     addRotate("body", [[0,0],[0.68,1.5],[1.36,0]]);
+    addRotate("shell", [[0,0],[0.68,2],[1.36,0]]);
     addRotate("core", [[0,0],[0.68,2],[1.36,0]]);
     if (has("tail")) addRotate("tail", [[0,-5],[0.68,5],[1.36,-5]]);
     if (has("wing_l")) addRotate("wing_l", [[0,-4],[0.68,4],[1.36,-4]]);
@@ -203,6 +208,13 @@ function chooseAnimation(character, bones, characterHeight, isBoss) {
     addRotate("tentacle_4", [[0,4],[0.62,-7],[1.24,4]]);
     addRotate("tentacle_5", [[0,-5],[0.62,8],[1.24,-5]]);
     addRotate("tentacle_6", [[0,5],[0.62,-8],[1.24,5]]);
+    addRotate("shell", [[0,-2],[0.62,3],[1.24,-2]]);
+    addRotate("top", [[0,-3],[0.62,4],[1.24,-3]]);
+    addRotate("left", [[0,-4],[0.62,5],[1.24,-4]]);
+    addRotate("right", [[0,4],[0.62,-5],[1.24,4]]);
+    addRotate("base", [[0,0],[0.62,3],[1.24,0]]);
+    addRotate("core", [[0,0],[0.62,2],[1.24,0]]);
+    addRotate("root", [[0,0],[0.62,1.5],[1.24,0]]);
     addRotate("leg_1", [[0,-3],[0.62,5],[1.24,-3]]);
     addRotate("leg_4", [[0,3],[0.62,-5],[1.24,3]]);
     addRotate("front_leg_l", [[0,-3],[0.62,5],[1.24,-3]]);
